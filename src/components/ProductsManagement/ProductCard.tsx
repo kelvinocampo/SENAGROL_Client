@@ -5,7 +5,7 @@ export const ProductCard = ({ product }: any) => {
   return (
     <li
       key={product.id_producto}
-      className="overflow-hidden capitalize flex flex-col gap-2 w-[250px] bg-white rounded-xl shadow-md transition hover:shadow-lg"
+      className="overflow-hidden capitalize flex flex-col gap-2 w-[200px] bg-white rounded-xl shadow-md transition hover:shadow-lg"
     >
       <img
         src={product.imagen}
@@ -14,7 +14,7 @@ export const ProductCard = ({ product }: any) => {
       />
       <div className="flex flex-col gap-2 p-3">
         <div>
-          <p className="text-xl font-bold">{product.nombre}</p>
+          <p className="text-xl font-medium">{product.nombre}</p>
           <div className="flex justify-between text-sm">
             <p>cant: {product.cantidad}</p>
             <p>cant. min: {product.cantidad_minima_compra}</p>

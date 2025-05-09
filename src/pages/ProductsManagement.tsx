@@ -1,11 +1,11 @@
-import { ProductsView } from "@/components/ProductsManagement/ProductsView"
 import { ProductManagementProvider } from "@/contexts/ProductsManagement"
+import { Outlet } from "react-router-dom";
 
 export const ProductManagement = () => {
   return (
     <>
       <ProductManagementProvider>
-        <ProductsView></ProductsView>
+        <Outlet></Outlet>
       </ProductManagementProvider>
     </>
   )
