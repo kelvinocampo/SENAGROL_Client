@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 
-// Configuración de paths base
 const ROOT_PATH = path.resolve(__dirname, 'src');
 const CREATE_ALIAS = (targetPath: string) => path.resolve(ROOT_PATH, targetPath);
 
@@ -23,6 +22,15 @@ export default defineConfig({
       '@services': CREATE_ALIAS('services'),
       '@types': CREATE_ALIAS('types'),
       '@utils': CREATE_ALIAS('utils'),
+    }
+  },
+  server: {
+    proxy: {
+      '/usuario/login': {
+        target: 'http://localhost:10101',
+        changeOrigin: true,
+        secure: false,
+      }
     }
   }
 });
