@@ -1,10 +1,9 @@
-import { Component } from "@components/Component.tsx"
+import { ProductManagement } from "@pages/ProductsManagement"
 
 function App() {
   return (
     <>
-      <h1 className="text-2xl">SENAGROL</h1>
-      <Component></Component>
+      <ProductManagement></ProductManagement>
     </>
   )
 }
