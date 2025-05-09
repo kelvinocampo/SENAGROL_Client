@@ -1,10 +1,12 @@
-import { Component } from "@components/Component.tsx"
+ import InicioManual from '@pages/inicioFormulario' 
+
 
 function App() {
   return (
     <>
-      <h1 className="text-2xl">SENAGROL</h1>
-      <Component></Component>
+         <InicioManual />
+        
+         
     </>
   )
 }
