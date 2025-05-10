@@ -1,11 +1,11 @@
 import { useState } from "react";
-import Logo from "../../assets/senagrol.jpeg";
+import Logo from "@assets/senagrol.jpeg";
 import { login } from "@services/inicioServices";
-import Inputs from "./inputs";
-import Paragtaph from "./paragraph";
+import { Input } from "@components/Input";
+import { Paragraph } from "@components/Inicio/Paragraph";
 import { Eye, EyeOff } from "lucide-react";
 
-const LoginForm = () => {
+export const LoginForm = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,7 +20,6 @@ const LoginForm = () => {
     try {
       const data = await login(identifier, password);
 
-    
       localStorage.setItem("token", data.token);
 
       alert("Login exitoso. Token: " + data.token);
@@ -32,20 +31,20 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-start justify-start bg-white">
-      <div className="w-full max-w-md p-8 ml-15 mt-1">
+    <div className="w-full h-full flex flex-1 justify-center bg-white">
+      <div className="w-full p-8 flex flex-col gap-8">
         <img
           src={Logo}
           alt="Logo Senagrol"
           className="w-17 h-17 rounded-full border-l-2 border-r-4 border-white object-cover"
         />
 
-        <h2 className="text-2xl ml-40 font-bold mb-6 w-140 text-black">
+        <h2 className="text-2xl font-bold mb-6 text-black">
           Inicia sesión en tu cuenta
         </h2>
 
-        <form className="space-y-4 ml-40 w-[450px]" onSubmit={handleSubmit}>
-          <Inputs
+        <form className="p-4 max-w-[600px] flex flex-col gap-8" onSubmit={handleSubmit}>
+          <Input
             label="Usuario o correo electrónico"
             type="text"
             name="identifier"
@@ -54,9 +53,8 @@ const LoginForm = () => {
             onChange={(e) => setIdentifier(e.target.value)}
           />
 
-         
           <div className="relative">
-            <Inputs
+            <Input
               label="Contraseña"
               type={showPassword ? "text" : "password"}
               name="password"
@@ -84,11 +82,9 @@ const LoginForm = () => {
             {loading ? "Iniciando sesión" : "Iniciar sesión"}
           </button>
 
-          <Paragtaph />
+          <Paragraph />
         </form>
       </div>
     </div>
   );
 };
-
-export default LoginForm;

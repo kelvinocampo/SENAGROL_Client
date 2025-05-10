@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useState } from 'react';
 
-function LocationMarker({ setLocation }: any) {
+function LocationMarker({ setLocation }: { setLocation: (location: any) => void }) {
     useMapEvents({
         click(e) {
             const { lat, lng } = e.latlng;
@@ -13,26 +13,32 @@ function LocationMarker({ setLocation }: any) {
     return null;
 }
 
-export function LocationPicker() {
-    const [location, setLocation] = useState<any>(null);
+export function LocationPicker({ setLocation }: { setLocation: (location: any) => void }) {
+    const [currentLocation, setCurrentLocation] = useState<any>(null);
+
+    const handleLocationChange = (location: any) => {
+        setCurrentLocation(location);
+        setLocation(location);
+    };
 
     return (
-        <div>
+        <div className='flex flex-col gap-2'>
+            <label htmlFor="">Ubicacion:</label>
             <MapContainer
                 center={[4.6097, -74.0818]}
                 zoom={13}
                 style={{ height: '500px', width: '100%' }}
             >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <LocationMarker setLocation={setLocation} />
-                {location && <Marker position={[location.lat, location.lng]} />}
+                <LocationMarker setLocation={handleLocationChange} />
+                {currentLocation && <Marker position={[currentLocation.lat, currentLocation.lng]} />}
             </MapContainer>
 
-            {location && (
+            {currentLocation && (
                 <div>
-                    <h4>Ubicación seleccionada:</h4>
-                    <p>Lat: {location.lat}</p>
-                    <p>Lng: {location.lng}</p>
+                    <h4 className="font-medium">Ubicación seleccionada:</h4>
+                    <p>Lat: {currentLocation.lat.toFixed(6)}</p>
+                    <p>Lng: {currentLocation.lng.toFixed(6)}</p>
                 </div>
             )}
         </div>

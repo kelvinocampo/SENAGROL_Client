@@ -16,8 +16,8 @@ export const ProductCard = ({ product }: any) => {
         <div>
           <p className="text-xl font-medium">{product.nombre}</p>
           <div className="flex justify-between text-sm">
-            <p>cant: {product.cantidad}</p>
-            <p>cant. min: {product.cantidad_minima_compra}</p>
+            <p>cant: {product.cantidad}kg</p>
+            <p>cant. min: {product.cantidad_minima_compra}kg</p>
           </div>
           <p className="">${product.precio_unidad}</p>
         </div>
