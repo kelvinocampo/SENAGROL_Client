@@ -1,7 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import editIcon from "@assets/edit.svg";
 import deleteIcon from "@assets/delete.svg";
 
 export const ProductCard = ({ product }: any) => {
+  const navigate = useNavigate();
+
+  const handleEditClick = () => {
+    navigate(`/MisProductos/Editar/${product.id_producto}`);
+  };
+
   return (
     <li
       key={product.id_producto}
@@ -22,7 +29,12 @@ export const ProductCard = ({ product }: any) => {
           <p className="">${product.precio_unidad}</p>
         </div>
         <div className="flex gap-4">
-          <img className="w-6 cursor-pointer" src={editIcon} alt="Edit Icon" />
+          <img 
+            className="w-6 cursor-pointer" 
+            src={editIcon} 
+            alt="Edit Icon" 
+            onClick={handleEditClick}
+          />
           <img className="w-6 cursor-pointer" src={deleteIcon} alt="Delete Icon" />
         </div>
       </div>

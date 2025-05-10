@@ -7,7 +7,7 @@ export const ProductsView = () => {
     return (
         <section className="font-[Fredoka] sm:py-8 sm:px-16 py-4 px-8 flex flex-col gap-8 flex-1">
             <h2 className="sm:text-4xl text-2xl font-lightbold">Mis Productos</h2>
-            <ul className="flex justify-center sm:justify-start">
+            <ul className="flex gap-4 justify-center sm:justify-start">
                 {products.map((product: any) => (
                     <ProductCard product={product} />
                 ))}
