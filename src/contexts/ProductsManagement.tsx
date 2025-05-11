@@ -6,6 +6,7 @@ export const ProductManagementContext: any = createContext<any>(undefined);
 
 export const ProductManagementProvider = ({ children }: any) => {
     const [products, setProducts] = useState<any[]>([]);
+    localStorage.setItem("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDY5MzcwNTYsImRhdGEiOnsiaWQiOjIsInJvbGVzIjoidmVuZGVkb3IifSwiaWF0IjoxNzQ2OTMzNDU2fQ.SbDD0uY2sldYQZdas4tsOi4hg14H8kwUHpev4smfO4M")
 
     const fetchProducts = async () => {
         try {
@@ -17,8 +18,6 @@ export const ProductManagementProvider = ({ children }: any) => {
     };
 
     useEffect(() => {
-
-
         fetchProducts();
     }, []);
 

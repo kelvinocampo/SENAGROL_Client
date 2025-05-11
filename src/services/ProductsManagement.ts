@@ -92,36 +92,45 @@ export class ProductManagementService {
   static async updateProduct(
     id: number,
     productData: any,
-    imageFile?: File | null
+    imageFile?: File
   ) {
-    try {
-      const formData = new FormData();
+    const formData = new FormData();
 
-      // Agregar todos los datos del producto incluyendo la imagen actual
-      Object.keys(productData).forEach(key => {
-        formData.append(key, productData[key]);
-      });
+    // Agregar campos como strings
+    formData.append('nombre', productData.nombre);
+    formData.append('descripcion', productData.descripcion);
+    formData.append('cantidad', String(productData.cantidad));
+    formData.append('cantidad_minima_compra', String(productData.cantidad_minima_compra));
+    formData.append('precio_unidad', String(productData.precio_unidad));
+    formData.append('descuento', productData.descuento ? String(productData.descuento) : '');
+    formData.append('latitud', productData.latitud ? String(productData.latitud) : '');
+    formData.append('longitud', productData.longitud ? String(productData.longitud) : '');
+    formData.append('id_user', String(productData.id_user));
 
-      // Solo agregar la imagen si se proporciona un archivo nuevo
-      if (imageFile) {
-        formData.append('imagen', imageFile);
-      }
-
-      const response = await fetch(`${this.API_URL}/producto/edit/${id}`, {
-        method: 'PUT',
-        body: formData,
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error updating product');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error updating product:', error);
-      throw error;
+    // Manejo especial para la imagen
+    if (imageFile) {
+      formData.append('imagen', imageFile, imageFile.name); // Clave importante: 'imagen'
+    } else if (productData.imagen) {
+      // Si no hay archivo nuevo pero hay URL existente
+      formData.append('imagen_url', productData.imagen);
     }
+
+    console.log(formData, productData);
+
+
+    const response = await fetch(`${this.API_URL}/producto/edit/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error al actualizar');
+    }
+
+    return await response.json();
   }
 }

@@ -148,7 +148,7 @@ export const Form = () => {
         await ProductManagementService.updateProduct(
           Number(id_edit_product),
           productData,
-          imageFile || null
+          imageFile || undefined
         );
       } else {
         if (!imageFile) {
