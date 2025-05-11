@@ -33,6 +33,25 @@ export class ProductManagementService {
     }
   }
 
+  static async deleteProduct(id_delete_product: number) {
+    try {
+      const response = await fetch(`${this.API_URL}/producto/delete/${id_delete_product}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response) {
+        throw new Error(`Error response: ${response}`);
+      }
+    } catch (error) {
+      console.error('Error fetching seller products:', error);
+      throw error;
+    }
+  }
+
   static async createProduct(productData: any, imageFile: File | undefined) {
     try {
       const formData = new FormData();

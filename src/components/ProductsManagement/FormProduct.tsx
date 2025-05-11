@@ -33,10 +33,14 @@ export const Form = () => {
     return products.find((p: any) => p.id_producto == id_edit_product);
   }, [id_edit_product, products]);
 
+  const handleCancel = () => {
+    navigate('/MisProductos');
+  }
+
   // Redirigir a creación si en modo edición pero el producto no existe
   useEffect(() => {
     if (isEditMode && !productEdit && products.length > 0) {
-      navigate('/productos/crear', { replace: true });
+      navigate('/MisProductos/Crear', { replace: true });
     }
   }, [isEditMode, productEdit, products, navigate]);
 
@@ -302,10 +306,14 @@ export const Form = () => {
 
         <button
           type="submit"
-          className="w-full p-2 border rounded-xl border-gray-300 bg-[#48BD28] hover:bg-[#3da023] cursor-pointer text-white font-medium"
+          className="w-full p-2 border rounded-xl border-gray-300 bg-[#48BD28] hover:bg-[#3da023] cursor-pointer text-black font-medium"
         >
           {isEditMode ? 'Actualizar' : 'Crear'} Producto
         </button>
+        <button
+          onClick={handleCancel}
+          className="w-full p-2 border rounded-xl border-black bg-white cursor-pointer text-black font-medium"
+        >Cancelar</button>
       </form>
     </section>
   );

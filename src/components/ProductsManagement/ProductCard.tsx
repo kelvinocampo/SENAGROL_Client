@@ -9,6 +9,10 @@ export const ProductCard = ({ product }: any) => {
     navigate(`/MisProductos/Editar/${product.id_producto}`);
   };
 
+  const handleDeleteClick = () => {
+    navigate(`/MisProductos/Eliminar/${product.id_producto}`);
+  };
+
   return (
     <li
       key={product.id_producto}
@@ -29,13 +33,16 @@ export const ProductCard = ({ product }: any) => {
           <p className="">${product.precio_unidad}</p>
         </div>
         <div className="flex gap-4">
-          <img 
-            className="w-6 cursor-pointer" 
-            src={editIcon} 
-            alt="Edit Icon" 
+          <img
+            className="w-6 cursor-pointer"
+            src={editIcon}
+            alt="Edit Icon"
             onClick={handleEditClick}
           />
-          <img className="w-6 cursor-pointer" src={deleteIcon} alt="Delete Icon" />
+          <img className="w-6 cursor-pointer"
+            onClick={handleDeleteClick}
+            src={deleteIcon}
+            alt="Delete Icon" />
         </div>
       </div>
     </li>
