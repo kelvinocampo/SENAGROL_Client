@@ -140,19 +140,23 @@ export const Form = () => {
       const productData = {
         ...product,
         latitud: location?.lat,
-        longitud: location?.lng
+        longitud: location?.lng,
+        // No incluimos la propiedad imagen aquí, se manejará en el servicio
       };
 
-      if (isEditMode && id_edit_product && productEdit) {
+      if (isEditMode && id_edit_product) {
         await ProductManagementService.updateProduct(
           Number(id_edit_product),
           productData,
-          imageFile // Usamos el archivo seleccionado (o null si no cambió)
+          imageFile || null
         );
       } else {
+        if (!imageFile) {
+          throw new Error('La imagen es requerida para crear un producto');
+        }
         await ProductManagementService.createProduct(
           productData,
-          imageFile // Archivo seleccionado
+          imageFile
         );
       }
 

@@ -1,13 +1,12 @@
 
 
 export const login = async (identifier: string, password: string) => {
-  const response = await fetch("/usuario/login", {
+  const response = await fetch("http://localhost:10101/usuario/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({ identifier, password })
-   
   });
 
   const data = await response.json();

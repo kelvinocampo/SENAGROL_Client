@@ -55,7 +55,6 @@ function LocationMarker({
 export function LocationPicker({ 
   setLocation, 
   initialLocation = null,
-  required = false,
   className = ''
 }: LocationPickerProps) {
   const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
@@ -81,11 +80,6 @@ export function LocationPicker({
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      <label className="block text-sm font-medium">
-        Ubicación
-        {required && <span className="text-red-500">*</span>}
-      </label>
-      
       <MapContainer
         center={currentLocation || [4.6097, -74.0818]}
         zoom={currentLocation ? 15 : 13}

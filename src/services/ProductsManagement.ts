@@ -1,7 +1,7 @@
 
 
 export class ProductManagementService {
-  private static API_URL = "https://scaling-space-fishstick-g4qv4pj5j79w2wv9j-10101.app.github.dev";
+  private static API_URL = "http://localhost:10101";
 
   static async getBySeller() {
     try {
@@ -90,33 +90,27 @@ export class ProductManagementService {
   }
 
   static async updateProduct(
-    productId: number,
+    id: number,
     productData: any,
-    imageFile: File | undefined
+    imageFile?: File | null
   ) {
     try {
       const formData = new FormData();
 
-      // Agregar todos los datos del producto a formData
-      formData.append('Nombre', productData.nombre);
-      formData.append('Precio', productData.precio_unidad);
-      formData.append('Description', productData.descripcion || '');
-      formData.append('latitud', productData.latitud?.toString() || '');
-      formData.append('longitud', productData.longitud?.toString() || '');
-      formData.append('quantity', productData.cantidad.toString());
-      formData.append('MinimumQuantity', productData.cantidad_minima_compra.toString());
-      formData.append('Discount', productData.descuento?.toString() || '0');
+      // Agregar todos los datos del producto incluyendo la imagen actual
+      Object.keys(productData).forEach(key => {
+        formData.append(key, productData[key]);
+      });
 
+      // Solo agregar la imagen si se proporciona un archivo nuevo
       if (imageFile) {
         formData.append('imagen', imageFile);
       }
 
-      const response = await fetch(`${this.API_URL}/producto/edit/${productId}`, {
+      const response = await fetch(`${this.API_URL}/producto/edit/${id}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
+        body: formData,
+        credentials: 'include'
       });
 
       if (!response.ok) {
