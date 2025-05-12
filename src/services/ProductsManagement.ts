@@ -17,7 +17,6 @@ export class ProductManagementService {
         throw new Error(`Error response: ${response}`);
       }
       const result: any = await response.json()
-      console.log(result);
 
       const products: any[] = result.products;
 
@@ -114,8 +113,6 @@ export class ProductManagementService {
       // Si no hay archivo nuevo pero hay URL existente
       formData.append('imagen_url', productData.imagen);
     }
-
-    console.log(formData, productData);
 
 
     const response = await fetch(`${this.API_URL}/producto/edit/${id}`, {

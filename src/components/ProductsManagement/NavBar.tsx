@@ -53,13 +53,13 @@ export const Navbar = () => {
       >
         <button
           onClick={() => handleNavigation('/MisProductos')}
-          className="w-full p-2 rounded-xl bg-green-500 hover:bg-green-600 cursor-pointer text-white font-medium"
+          className="w-full p-2 rounded-xl bg-[#48BD28] hover:bg-green-600 cursor-pointer text-white font-medium"
         >
           Mis Productos
         </button>
         <button
           onClick={() => handleNavigation('/MisProductos/Crear')}
-          className="w-full p-2 rounded-xl bg-green-500 hover:bg-green-600 cursor-pointer text-white font-medium"
+          className="w-full p-2 rounded-xl bg-[#48BD28] hover:bg-green-600 cursor-pointer text-white font-medium"
         >
           Crear Producto
         </button>
