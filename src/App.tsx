@@ -1,12 +1,14 @@
-import { Component } from "@components/Component.tsx"
+/*  import InicioManual from '@pages/inicioFormulario'  */
+  import MyPurchasesPage from '@pages/ListarMisCompras' 
+
+/*  import Transporte from '@pages/ListaTransportadores' */
 
 function App() {
   return (
     <>
-      <h1 className="text-2xl">SENAGROL</h1>
-      <Component></Component>
+         <MyPurchasesPage />
+         
     </>
   )
 }
-
 export default App
