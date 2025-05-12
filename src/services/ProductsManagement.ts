@@ -32,6 +32,35 @@ export class ProductManagementService {
     }
   }
 
+  static async getSells() {
+    try {
+      const response = await fetch(`${this.API_URL}/vendedor/my_sells`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response) {
+        throw new Error(`Error response: ${response}`);
+      }
+      const result: any = await response.json()
+
+      const sells: any[] = result.my_sells;
+
+
+      if (!Array.isArray(sells)) {
+        throw new Error('La respuesta no es un array de ventas');
+      }
+
+      return sells;
+    } catch (error) {
+      console.error('Error fetching seller products:', error);
+      throw error;
+    }
+  }
+
   static async deleteProduct(id_delete_product: number) {
     try {
       const response = await fetch(`${this.API_URL}/producto/delete/${id_delete_product}`, {
