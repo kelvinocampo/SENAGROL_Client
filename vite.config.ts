@@ -23,14 +23,5 @@ export default defineConfig({
       '@types': CREATE_ALIAS('types'),
       '@utils': CREATE_ALIAS('utils'),
     }
-  },
-  server: {
-    proxy: {
-      '/usuario/login': {
-        target: 'http://localhost:10101',
-        changeOrigin: true,
-        secure: false,
-      }
-    }
   }
 });
