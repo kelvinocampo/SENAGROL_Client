@@ -1,37 +1,20 @@
+// components/admin/table/UserTable.tsx
 import { FaTrash, FaUserSlash } from 'react-icons/fa';
 import { TableHeader } from '@/components/admin/table/TableHeader';
-import { BooleanIcon } from '@/components/admin/table/BooleanIcon';
 import { ActionButton } from '@/components/admin/table/ActionButton';
 import { useContext } from 'react';
 import { UserManagementContext } from '@/contexts/AdminManagement';
 
-interface UserTableProps {
-  filter?: string;
-}
-
-export const UserTable = ({ filter = '' }: UserTableProps) => {
-  // Obtener datos del contexto
-  const { users, deleteUser, disableUser, activateUserRole } = useContext(UserManagementContext);
+export const UserTable = () => {
+  const context = useContext(UserManagementContext);
+  if (!context) return <div>Error: contexto no disponible.</div>;
+ 
   
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(filter.toLowerCase())
-  );
 
-  const handleDelete = async (id: number) => {
-    if (confirm('¿Estás seguro de eliminar este usuario?')) {
-      await deleteUser(id);
-    }
-  };
-
-  const handleDisable = async (id: number, role: string) => {
-    if (confirm('¿Estás seguro de desactivar este usuario?')) {
-      await disableUser(id, role);
-    }
-  };
-
-  const handleActivateRole = async (id: number, role: 'vendedor' | 'transportador') => {
-    await activateUserRole(id, role);
-  };
+  const { users, deleteUser, disableUser, activateUserRole } = context;
+  console.log(users);
+  if (users === null) return <div>Cargando usuarios...</div>;
+  if (users.length === 0) return <div>No hay usuarios para mostrar.</div>;
 
   return (
     <div className="overflow-x-auto bg-white p-4">
@@ -39,57 +22,77 @@ export const UserTable = ({ filter = '' }: UserTableProps) => {
         <thead className="border-2 border-[#F5F0E5]">
           <tr>
             <TableHeader>Nombre</TableHeader>
-            <TableHeader className='pl-10'>Rol</TableHeader>
-            <TableHeader className='text-[#A1824A]'>Formulario Transportado</TableHeader>
-            <TableHeader className='text-[#A1824A]'>Petición Vendedor</TableHeader>
-            <TableHeader className='text-[#A1824A]'>Activar Rol</TableHeader>
-            <TableHeader className='text-[#A1824A]'>Designar Admin</TableHeader>
-            <TableHeader className='text-[#A1824A]'>Eliminar</TableHeader>
-            <TableHeader className='text-[#A1824A]'>Desactivar</TableHeader>
+            <TableHeader className="text-[#A1824A]">Transportador</TableHeader>
+            <TableHeader className="text-[#A1824A]">Vendedor</TableHeader>
+            <TableHeader className="text-[#A1824A]">Comprador</TableHeader>
+            <TableHeader className="text-[#A1824A]">Administrador</TableHeader>
+            <TableHeader className="text-[#A1824A]">Eliminar</TableHeader>
+            <TableHeader className="text-[#A1824A]">Desactivar</TableHeader>
           </tr>
         </thead>
-        <tbody>
-          {filteredUsers.map(user => (
-            <tr key={user.id} className="text-center hover:bg-gray-50 border-2 border-[#F5F0E5]">
-              <td className="p-2 text-left">{user.name}</td>
-              <td className="p-2">
-                <ActionButton>{user.role}</ActionButton>
-              </td>
-              <td className="p-2">
-                <BooleanIcon value={user.hasTransportForm} />
-              </td>
-              <td className="p-2">
-                <BooleanIcon value={user.hasSellerRequest} />
-              </td>
-              <td className="p-2">
-                {user.hasSellerRequest && (
-                  <ActionButton onClick={() => handleActivateRole(user.id, 'vendedor')}>
-                    Activar
-                  </ActionButton>
-                )}
-              </td>
-              <td className="p-2">
-                <ActionButton>Designar</ActionButton>
-              </td>
-              <td className="p-2">
-                <ActionButton 
-                  title="Eliminar"
-                  onClick={() => handleDelete(user.id)}
-                >
-                  <FaTrash />
-                </ActionButton>
-              </td>
-              <td className="p-2">
-                <ActionButton 
-                  title="Desactivar"
-                  onClick={() => handleDisable(user.id, user.role.toLowerCase())}
-                >
-                  <FaUserSlash />
-                </ActionButton>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+<tbody>
+  {users.map(user => (
+    <tr key={user.id} className="text-center hover:bg-gray-50 border-2 border-[#F5F0E5]">
+      <td className="p-2 text-left">{user.name}</td>
+
+      {/* Transportador: Activar/Inactivar según status */}
+      <td className="p-2">
+        {user.transportador === 'Activo' ? (
+          <ActionButton
+            title="Desactivar transportador"
+            onClick={() => disableUser(user.id, 'transportador')}
+          >
+            Desactivar
+          </ActionButton>
+        ) : user.transportador === 'Inactivo' ? (
+          <ActionButton
+            title="Activar transportador"
+            onClick={() => activateUserRole(user.id, 'transportador')}
+          >
+            Activar
+          </ActionButton>
+        ) : (
+          <></>  // No disponible, celdas vacías
+        )}
+      </td>
+
+      {/* Vendedor: Activar/Inactivar según status */}
+      <td className="p-2">
+        {user.vendedor === 'Activo' ? (
+          <ActionButton
+            title="Desactivar vendedor"
+            onClick={() => disableUser(user.id, 'vendedor')}
+          >
+            Desactivar
+          </ActionButton>
+        ) : user.vendedor === 'Inactivo' ? (
+          <ActionButton
+            title="Activar vendedor"
+            onClick={() => activateUserRole(user.id, 'vendedor')}
+          >
+            Activar
+          </ActionButton>
+        ) : (
+          <></>
+        )}
+      </td>
+
+      {/* Comprador y Administrador siguen igual: solo muestran estado */}
+      <td className="p-2"><ActionButton>{user.comprador}</ActionButton></td>
+      <td className="p-2"><ActionButton>{user.administrador}</ActionButton></td>
+
+      {/* Eliminar */}
+      <td className="p-2">
+        <ActionButton title="Eliminar" onClick={() => deleteUser(user.id)}>
+          <FaTrash />
+        </ActionButton>
+      </td>
+
+      {/* (Opcional) Una columna extra si quieres desactivar el rol actual genérico */}
+     
+    </tr>
+  ))}
+</tbody>       
       </table>
     </div>
   );

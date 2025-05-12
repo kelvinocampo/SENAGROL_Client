@@ -1,18 +1,16 @@
 import { UserManagementService } from '@/services/Admin/UserManagementService';
 import { createContext, useEffect, useState } from 'react';
 
-interface User {
+export interface User {
   id: number;
   name: string;
-  email?: string;
-  role: string;
-  hasTransportForm: boolean;
-  hasSellerRequest: boolean;
-  is_active?: boolean;
+  administrador: string;
+  comprador: string;
+  vendedor: string;
+  transportador: string;
 }
-
 interface UserManagementContextProps {
-  users: User[];
+  users: User[];  // siempre un array al exponerlo
   fetchUsers: () => Promise<void>;
   deleteUser: (id: number) => Promise<void>;
   disableUser: (id: number, role: 'vendedor' | 'transportador') => Promise<void>;
@@ -21,8 +19,15 @@ interface UserManagementContextProps {
 
 export const UserManagementContext = createContext<UserManagementContextProps | undefined>(undefined);
 
-export const UserManagementProvider = ({ children }: any) => {
-  const [users, setUsers] = useState<User[]>([]);
+export const UserManagementProvider = ({ children }: { children: React.ReactNode }) => {
+  // Utilizamos null para distinguir “no cargado” de “cargado vacío”
+  const [users, setUsers] = useState<User[] | null>(null);
+
+  // Para pruebas, dejamos este setItem aquí (no quitar)
+  localStorage.setItem(
+    'token',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDcwODc5NjYsImRhdGEiOnsiaWQiOjEsInJvbGVzIjoiYWRtaW5pc3RyYWRvciJ9LCJpYXQiOjE3NDcwODQzNjZ9.TJzC9qx1pVAP4T5cRk3zydq9NuDz3QMXMaAf7CJ54lM'
+  );
 
   const fetchUsers = async () => {
     try {
@@ -30,6 +35,7 @@ export const UserManagementProvider = ({ children }: any) => {
       setUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);
+      setUsers([]);
     }
   };
 
@@ -42,34 +48,39 @@ export const UserManagementProvider = ({ children }: any) => {
     }
   };
 
-const disableUser = async (id: number, role: 'vendedor' | 'transportador') => {
-  try {
-    await UserManagementService.disableUser(id, role);
-    await fetchUsers();
-  } catch (error) {
-    console.error('Error disabling user:', error);
-  }
-};
+  const disableUser = async (id: number, role: 'vendedor' | 'transportador') => {
+    try {
+      await UserManagementService.disableUser(id, role);
+      await fetchUsers();
+    } catch (error) {
+      console.error('Error disabling user:', error);
+    }
+  };
 
-
-const activateUserRole = async (id: number, role: 'vendedor' | 'transportador') => {
-  try {
-    await UserManagementService.activateUserRole(id, role);
-    await fetchUsers();
-  } catch (error) {
-    console.error('Error activating user role:', error);
-  }
-};
-
+  const activateUserRole = async (id: number, role: 'vendedor' | 'transportador') => {
+    try {
+      await UserManagementService.activateUserRole(id, role);
+      await fetchUsers();
+    } catch (error) {
+      console.error('Error activating user role:', error);
+    }
+  };
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
   return (
-    <UserManagementContext.Provider value={{ users, fetchUsers, deleteUser, disableUser, activateUserRole }}>
+    <UserManagementContext.Provider
+      value={{
+        users: users || [],        // expone siempre array para componentes consumidores
+        fetchUsers,
+        deleteUser,
+        disableUser,
+        activateUserRole,
+      }}
+    >
       {children}
     </UserManagementContext.Provider>
   );
 };
-

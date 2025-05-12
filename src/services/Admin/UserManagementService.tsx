@@ -1,7 +1,8 @@
+// services/Admin/UserManagementService.ts
 export class UserManagementService {
   private static API_URL = 'http://localhost:10101/admin';
 
-  static async getUsers() {
+   static async getUsers() {
     const res = await fetch(`${this.API_URL}/usuarios`, {
       method: 'GET',
       headers: {
@@ -11,7 +12,17 @@ export class UserManagementService {
     });
     if (!res.ok) throw new Error('Error al obtener usuarios');
     const result = await res.json();
-    return result.usuarios; // Asegúrate de que el backend devuelva los usuarios en este campo
+
+    const raw: any[] = Array.isArray(result.user) ? result.user : [];
+
+    return raw.map(u => ({
+      id: u.id_usuario,
+      name: u.nombre,
+      administrador: u.rol_administrador,    // Ej: "No disponible"
+      comprador:     u.rol_comprador,         // Ej: "Inactivo"
+      vendedor:     u.rol_vendedor,          // Ej: "Activo"
+      transportador: u.rol_transportador     // Ej: "No disponible"
+    }));
   }
 
   static async deleteUser(id: number) {
@@ -46,7 +57,7 @@ export class UserManagementService {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`
       },
-      body: JSON.stringify({ id }) // Puedes adaptar según cómo espera tu controlador el body
+      body: JSON.stringify({ id })
     });
     if (!res.ok) throw new Error('Error al activar el rol');
   }
