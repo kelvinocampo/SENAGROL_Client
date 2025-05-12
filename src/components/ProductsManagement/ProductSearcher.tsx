@@ -6,8 +6,19 @@ export const ProductSearcher = () => {
     const { searchTerm, setSearchTerm }: any = useContext(ProductManagementContext);
 
     return (
-        <div className="w-full sm:w-auto flex items-center relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div className="w-full sm:w-auto flex items-center gap-2">
+            <Input
+                type="text"
+                name="filter"
+                placeholder="Buscar por nombre..."
+                value={searchTerm}
+                label=""
+                showLabel={false}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-64"
+                inputClassName="pl-4 mt-0"
+            />
+            <div className="flex items-center">
                 <svg
                     className="h-5 w-5 text-gray-400"
                     xmlns="http://www.w3.org/2000/svg"
@@ -22,16 +33,6 @@ export const ProductSearcher = () => {
                     />
                 </svg>
             </div>
-            <Input
-                type="text"
-                name="filter"
-                placeholder="Buscar por nombre..."
-                value={searchTerm}
-                label={{ show: false, text: "" }}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:w-64 pl-10" // Añadí pl-10 para el padding del ícono
-                inputClassName="pl-10" // Asegura que el texto no se solape con el ícono
-            />
         </div>
     )
 }

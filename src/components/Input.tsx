@@ -1,10 +1,9 @@
 import React from "react";
+import { twMerge } from 'tailwind-merge'
 
 type InputProps = {
-  label?: {
-    show?: boolean;
-    text: string;
-  };
+  label?: string;
+  showLabel?: boolean;
   type?: React.HTMLInputTypeAttribute;
   name: string;
   placeholder?: string;
@@ -21,7 +20,8 @@ type InputProps = {
 };
 
 export const Input = ({
-  label = { show: true, text: "" },
+  label = "",
+  showLabel = true,
   type = "text",
   name,
   placeholder = "",
@@ -38,23 +38,23 @@ export const Input = ({
 }: InputProps) => {
   // Clases base para el input
   const baseInputClasses = "w-full mt-1 p-2 border rounded-xl focus:outline-none focus:border-[#48BD28]";
-  
+
   // Clases condicionales
   const errorClasses = error ? "border-red-500" : "border-gray-300";
-  
+
   // Combinación de clases
-  const combinedInputClasses = `${baseInputClasses} ${errorClasses} ${inputClassName}`;
+  const combinedInputClasses = twMerge(baseInputClasses, errorClasses, inputClassName);
   const combinedContainerClasses = `w-full ${className}`;
 
   return (
     <div className={combinedContainerClasses}>
-      {label.show && (
+      {showLabel && (
         <label htmlFor={name} className="block text-sm font-medium">
-          {label.text}
+          {label}
           {required && <span className="text-red-500">*</span>}
         </label>
       )}
-      
+
       <input
         id={name}
         type={type}
@@ -71,7 +71,7 @@ export const Input = ({
         aria-invalid={!!error}
         aria-describedby={error ? `${name}-error` : undefined}
       />
-      
+
       {error && (
         <p id={`${name}-error`} className="text-red-500 text-sm mt-1">
           {error}

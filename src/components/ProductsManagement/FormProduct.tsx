@@ -188,7 +188,7 @@ export const Form = () => {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-8 max-w-[600px]">
         <Input
-          label={{ text: "Nombre del producto*" }}
+          label="Nombre del producto*"
           type="text"
           name="name"
           placeholder="Ingrese el nombre del producto"
@@ -213,7 +213,7 @@ export const Form = () => {
 
         <div className="flex w-full gap-8 justify-between sm:flex-nowrap flex-wrap">
           <Input
-            label={{ text: "Cantidad (kg)*" }}
+            label="Cantidad (kg)*"
             type="text"
             name="quantity"
             placeholder="Ingrese la cantidad del producto"
@@ -223,7 +223,7 @@ export const Form = () => {
           />
 
           <Input
-            label={{ text: "Cantidad mínima de compra (kg)*" }}
+            label="Cantidad mínima de compra (kg)*"
             type="text"
             name="minimun_quantity"
             placeholder="Ingrese la cantidad mínima de compra"
@@ -247,7 +247,7 @@ export const Form = () => {
 
         <div className="flex w-full gap-8 justify-between sm:flex-nowrap flex-wrap">
           <Input
-            label={{ text: "Precio por unidad*" }}
+            label="Precio por unidad*"
             type="text"
             name="price"
             placeholder="Ingrese el precio por unidad"
@@ -257,7 +257,7 @@ export const Form = () => {
           />
 
           <Input
-            label={{ text: "Descuento porcentual (Opcional)" }}
+            label="Descuento porcentual (Opcional)"
             type="number"
             name="discount"
             placeholder="Ingrese el descuento porcentual"
