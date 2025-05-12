@@ -58,7 +58,7 @@ export class ProductManagementService {
 
       // Append all product data to formData
       formData.append('Nombre', productData.nombre);
-      formData.append('Precio', productData.precio);
+      formData.append('Precio', productData.precio_unidad);
       formData.append('Description', productData.descripcion || ''); // Add description if needed
       formData.append('latitud', productData.latitud || ''); // From LocationPicker
       formData.append('longitud', productData.longitud || ''); // From LocationPicker

@@ -6,7 +6,8 @@ export const ProductManagementContext: any = createContext<any>(undefined);
 
 export const ProductManagementProvider = ({ children }: any) => {
     const [products, setProducts] = useState<any[]>([]);
-    localStorage.setItem("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDY5MzcwNTYsImRhdGEiOnsiaWQiOjIsInJvbGVzIjoidmVuZGVkb3IifSwiaWF0IjoxNzQ2OTMzNDU2fQ.SbDD0uY2sldYQZdas4tsOi4hg14H8kwUHpev4smfO4M")
+    const [searchTerm, setSearchTerm] = useState("");
+    localStorage.setItem("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDcwMDkzMTAsImRhdGEiOnsiaWQiOjIsInJvbGVzIjoidmVuZGVkb3IifSwiaWF0IjoxNzQ3MDA1NzEwfQ.GYbRFYn1dFGU51vGvqK_68IZQkBx0xFm46qvCflYnKM")
 
     const fetchProducts = async () => {
         try {
@@ -22,7 +23,7 @@ export const ProductManagementProvider = ({ children }: any) => {
     }, []);
 
     return (
-        <ProductManagementContext.Provider value={{ products, setProducts, fetchProducts }}>
+        <ProductManagementContext.Provider value={{ products, setProducts, fetchProducts, searchTerm, setSearchTerm }}>
             {children}
         </ProductManagementContext.Provider>
     );

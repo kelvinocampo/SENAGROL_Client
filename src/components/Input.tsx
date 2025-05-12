@@ -1,7 +1,10 @@
 import React from "react";
 
 type InputProps = {
-  label: string;
+  label?: {
+    show?: boolean;
+    text: string;
+  };
   type?: React.HTMLInputTypeAttribute;
   name: string;
   placeholder?: string;
@@ -14,10 +17,11 @@ type InputProps = {
   max?: number | string;
   step?: number | string;
   disabled?: boolean;
+  inputClassName?: string;
 };
 
 export const Input = ({
-  label,
+  label = { show: true, text: "" },
   type = "text",
   name,
   placeholder = "",
@@ -30,30 +34,49 @@ export const Input = ({
   max,
   step,
   disabled = false,
+  inputClassName = "",
 }: InputProps) => {
-  const inputClasses = `w-full mt-1 p-2 border rounded-xl focus:outline-none focus:border-[#48BD28] ${error ? "border-red-500" : "border-gray-300"
-    } ${className}`;
+  // Clases base para el input
+  const baseInputClasses = "w-full mt-1 p-2 border rounded-xl focus:outline-none focus:border-[#48BD28]";
+  
+  // Clases condicionales
+  const errorClasses = error ? "border-red-500" : "border-gray-300";
+  
+  // Combinación de clases
+  const combinedInputClasses = `${baseInputClasses} ${errorClasses} ${inputClassName}`;
+  const combinedContainerClasses = `w-full ${className}`;
 
   return (
-    <div className="w-full">
-      <label className="block text-sm font-medium">
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
+    <div className={combinedContainerClasses}>
+      {label.show && (
+        <label htmlFor={name} className="block text-sm font-medium">
+          {label.text}
+          {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+      
       <input
+        id={name}
         type={type}
         name={name}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className={inputClasses}
+        className={combinedInputClasses}
         required={required}
         min={min}
         max={max}
         step={step}
         disabled={disabled}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${name}-error` : undefined}
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      
+      {error && (
+        <p id={`${name}-error`} className="text-red-500 text-sm mt-1">
+          {error}
+        </p>
+      )}
     </div>
   );
 };
