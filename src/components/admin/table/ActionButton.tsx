@@ -1,14 +1,18 @@
-// components/ActionButton.tsx
 interface ActionButtonProps {
-  label: string;
+  children: React.ReactNode;
   onClick?: () => void;
+  className?: string;
+  title?: string;
 }
 
-export const ActionButton = ({ label, onClick }: ActionButtonProps) => (
-  <button
-    onClick={onClick}
-    className="bg-gray-100 px-3 py-1 rounded shadow hover:bg-gray-200"
-  >
-    {label}
-  </button>
-);
+export const ActionButton = ({ children, onClick, className = '', title }: ActionButtonProps) => {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className={`bg-[#FDF6EC] px-3 py-1 rounded-full hover:opacity-80 transition ${className}`}
+    >
+      {children}
+    </button>
+  );
+};

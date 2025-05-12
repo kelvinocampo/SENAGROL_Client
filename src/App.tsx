@@ -9,7 +9,6 @@ function App() {
       <Routes>
         <Route path="/" element={<AdminLayout />}>
         <Route path="usuarios" element={<UserTable />} />
-
         </Route>
       </Routes>
     </BrowserRouter>

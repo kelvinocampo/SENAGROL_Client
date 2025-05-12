@@ -1,72 +1,91 @@
-import { FaCheck, FaTimes, FaTrash, FaUserSlash } from 'react-icons/fa';
-
-interface User {
-  id: number;
-  name: string;
-  role: string;
-  hasTransportForm: boolean;
-  hasSellerRequest: boolean;
-}
+import { FaTrash, FaUserSlash } from 'react-icons/fa';
+import { TableHeader } from '@/components/admin/table/TableHeader';
+import { BooleanIcon } from '@/components/admin/table/BooleanIcon';
+import { ActionButton } from '@/components/admin/table/ActionButton';
+import { useContext } from 'react';
+import { UserManagementContext } from '@/contexts/AdminManagement';
 
 interface UserTableProps {
   filter?: string;
 }
 
-const users: User[] = [
-  { id: 1, name: "Elena H", role: "Admin", hasTransportForm: true, hasSellerRequest: true },
-  { id: 2, name: "Samuel", role: "Comprador", hasTransportForm: false, hasSellerRequest: true },
-  { id: 3, name: "Elena H", role: "Admin", hasTransportForm: true, hasSellerRequest: false },
-  { id: 4, name: "Elena H", role: "Admin", hasTransportForm: false, hasSellerRequest: true }
-];
-
 export const UserTable = ({ filter = '' }: UserTableProps) => {
+  // Obtener datos del contexto
+  const { users, deleteUser, disableUser, activateUserRole } = useContext(UserManagementContext);
+  
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(filter.toLowerCase())
   );
+
+  const handleDelete = async (id: number) => {
+    if (confirm('¿Estás seguro de eliminar este usuario?')) {
+      await deleteUser(id);
+    }
+  };
+
+  const handleDisable = async (id: number, role: string) => {
+    if (confirm('¿Estás seguro de desactivar este usuario?')) {
+      await disableUser(id, role);
+    }
+  };
+
+  const handleActivateRole = async (id: number, role: 'vendedor' | 'transportador') => {
+    await activateUserRole(id, role);
+  };
 
   return (
     <div className="overflow-x-auto bg-white p-4">
       <table className="min-w-full table-auto rounded-xl border-2 border-[#F5F0E5]">
         <thead className="border-2 border-[#F5F0E5]">
           <tr>
-            <th className="p-2 text-left text-[#F5F0E5]">Nombre</th>
-            <th className="p-2 text-left">Rol</th>
-            <th className="p-2 text-center">Formulario Transportador</th>
-            <th className="p-2 text-center">Petición Vendedor</th>
-            <th className="p-2 text-center">Activar Rol</th>
-            <th className="p-2 text-center">Designar Admin</th>
-            <th className="p-2 text-center">Eliminar</th>
-            <th className="p-2 text-center">Desactivar</th>
+            <TableHeader>Nombre</TableHeader>
+            <TableHeader className='pl-10'>Rol</TableHeader>
+            <TableHeader className='text-[#A1824A]'>Formulario Transportado</TableHeader>
+            <TableHeader className='text-[#A1824A]'>Petición Vendedor</TableHeader>
+            <TableHeader className='text-[#A1824A]'>Activar Rol</TableHeader>
+            <TableHeader className='text-[#A1824A]'>Designar Admin</TableHeader>
+            <TableHeader className='text-[#A1824A]'>Eliminar</TableHeader>
+            <TableHeader className='text-[#A1824A]'>Desactivar</TableHeader>
           </tr>
         </thead>
         <tbody>
           {filteredUsers.map(user => (
             <tr key={user.id} className="text-center hover:bg-gray-50 border-2 border-[#F5F0E5]">
               <td className="p-2 text-left">{user.name}</td>
-              <td className="p-2 text-left">
-                <span className="bg-gray-200 px-2 py-1 rounded-full">{user.role}</span>
+              <td className="p-2">
+                <ActionButton>{user.role}</ActionButton>
               </td>
               <td className="p-2">
-                {user.hasTransportForm
-                  ? <FaCheck className="mx-auto" />
-                  : <FaTimes className="mx-auto" />}
+                <BooleanIcon value={user.hasTransportForm} />
               </td>
               <td className="p-2">
-                {user.hasSellerRequest
-                  ? <FaCheck className="mx-auto" />
-                  : <FaTimes className="mx-auto" />}
+                <BooleanIcon value={user.hasSellerRequest} />
               </td>
               <td className="p-2">
-                <button className="bg-gray-100 px-3 py-1 rounded shadow hover:bg-gray-200">Activar</button>
+                {user.hasSellerRequest && (
+                  <ActionButton onClick={() => handleActivateRole(user.id, 'vendedor')}>
+                    Activar
+                  </ActionButton>
+                )}
               </td>
               <td className="p-2">
-                <button className="bg-gray-100 px-3 py-1 rounded shadow hover:bg-gray-200">Designar</button>
+                <ActionButton>Designar</ActionButton>
               </td>
               <td className="p-2">
-                <button className="hover:text-red-800"><FaTrash /></button>
+                <ActionButton 
+                  title="Eliminar"
+                  onClick={() => handleDelete(user.id)}
+                >
+                  <FaTrash />
+                </ActionButton>
               </td>
               <td className="p-2">
-                <button className="hover:text-gray-800"><FaUserSlash /></button>
+                <ActionButton 
+                  title="Desactivar"
+                  onClick={() => handleDisable(user.id, user.role.toLowerCase())}
+                >
+                  <FaUserSlash />
+                </ActionButton>
               </td>
             </tr>
           ))}
