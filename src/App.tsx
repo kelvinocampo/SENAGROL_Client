@@ -1,14 +1,13 @@
- import InicioManual from '@pages/inicioFormulario' 
-
+// import InicioManual from '@pages/inicioFormulario';
+import Usuarioregister from './components/Usuarioregister/RegisterForm';
 
 function App() {
   return (
     <>
-         <InicioManual />
-        
-         
+      {/* {<InicioManual />} */}
+      {<Usuarioregister />}
     </>
-  )
+  );
 }
 
-export default App
+export default App;

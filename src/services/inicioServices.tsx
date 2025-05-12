@@ -1,5 +1,3 @@
-
-
 export const login = async (identifier: string, password: string) => {
   const response = await fetch("/usuario/login", {
     method: "POST",
