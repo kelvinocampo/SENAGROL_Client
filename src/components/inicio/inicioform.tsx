@@ -2,7 +2,7 @@ import { useState } from "react";
 import Logo from "../../assets/senagrol.jpeg";
 import { login } from "@services/inicioServices";
 import Inputs from "./inputs";
-import Paragtaph from "./paragraph";
+import { Paragraph } from "@components/Inicio/Paragraph";
 import { Eye, EyeOff } from "lucide-react";
 
 const LoginForm = () => {
@@ -20,7 +20,7 @@ const LoginForm = () => {
     try {
       const data = await login(identifier, password);
 
-    
+
       localStorage.setItem("token", data.token);
 
       alert("Login exitoso. Token: " + data.token);
@@ -54,7 +54,7 @@ const LoginForm = () => {
             onChange={(e) => setIdentifier(e.target.value)}
           />
 
-         
+
           <div className="relative">
             <Inputs
               label="Contraseña"
@@ -84,7 +84,7 @@ const LoginForm = () => {
             {loading ? "Iniciando sesión" : "Iniciar sesión"}
           </button>
 
-          <Paragtaph />
+          <Paragraph />
         </form>
       </div>
     </div>
