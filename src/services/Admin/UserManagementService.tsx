@@ -47,39 +47,37 @@ export class UserManagementService {
     if (!res.ok) throw new Error('Error al desactivar usuario');
   }
 
-  static async activateUserRole(id: number, role: UserRole) {
-    let route = '';
+static async activateUserRole(userId: number, role: UserRole) {
+  let route = '';
 
-    switch (role) {
-      case 'vendedor':
-        route = `${this.API_URL}/approveRequestSeller`;
-        break;
-      case 'transportador':
-        route = `${this.API_URL}/approveRequestTransporter`;
-        break;
-      case 'administrador':
-        route = `${this.API_URL}/approveRequestAdmin`;
-        break;
-      case 'comprador':
-        route = `${this.API_URL}/approveRequestBuyer`;
-        break;
-      default:
-        throw new Error('Rol no soportado para activación');
-    }
-
-    const res = await fetch(route, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ id_usuario: id })
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text(); // para ayudar a depurar en consola
-      console.error('Error al activar el rol:', errorText);
-      throw new Error('Error al activar el rol');
-    }
+  switch (role) {
+    case 'vendedor':
+      route = `${this.API_URL}/approveRequestSeller`;
+      break;
+    case 'transportador':
+      route = `${this.API_URL}/approveRequestTransporter`;
+      break;
+    case 'administrador':
+      route = `${this.API_URL}/usuarios/${userId}`;
+      break;
+    default:
+      throw new Error('Rol no soportado para activación');
   }
+
+  const res = await fetch(route, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    },
+    body: JSON.stringify({ userId }) 
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('Error al activar el rol:', errorText);
+    throw new Error('Error al activar el rol');
+  }
+}
+
 }

@@ -25,6 +25,15 @@ export const UserTable = () => {
   const renderRoleCell = (user: any, role: UserRole) => {
     const status = user[role];
 
+    // No mostrar botones para el rol comprador
+    if (role === 'comprador') {
+      return (
+        <span className="inline-block px-3 py-1 rounded-full bg-[#FBF5ED] font-semibold text-sm text-[#5B4B2B]">
+          {status === 'Activo' ? 'Activo' : status === 'Inactivo' ? 'Inactivo' : 'no disponible'}
+        </span>
+      );
+    }
+
     if (status === 'Activo') {
       return (
         <ActionButton
