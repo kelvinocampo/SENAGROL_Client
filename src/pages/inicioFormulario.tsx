@@ -1,5 +1,5 @@
 
-import LoginForm from '../components/inicio/inicioform';
+import { LoginForm } from '@components/Inicio/LogIn';
 
 const InicioManual = () => {
   return (
