@@ -47,7 +47,7 @@ Aunque este software está dirigido especialmente a agricultores, tendrá una in
   - **`.gitignore`**  
     Excluye archivos del control de versiones.  
   - **`package.json`** / **`package-lock.json`**  
-    Dependencias y scripts npm.  
+    Dependencias y scripts npm. 
   - **`tsconfig*.json`**  
     Configuración de TypeScript.  
   - **`vite.config.ts`**  
