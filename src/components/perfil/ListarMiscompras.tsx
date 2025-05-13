@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Truck, QrCode } from "lucide-react";
-import { ProductManagementService } from "@services/PerfilServices"; // ajusta el path según tu estructura
 
 type Compra = {
   id_compra: number; 
