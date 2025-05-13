@@ -1,8 +1,10 @@
 // services/Admin/UserManagementService.ts
+export type UserRole = 'administrador' | 'comprador' | 'vendedor' | 'transportador';
+
 export class UserManagementService {
   private static API_URL = 'http://localhost:10101/admin';
 
-   static async getUsers() {
+  static async getUsers() {
     const res = await fetch(`${this.API_URL}/usuarios`, {
       method: 'GET',
       headers: {
@@ -18,10 +20,10 @@ export class UserManagementService {
     return raw.map(u => ({
       id: u.id_usuario,
       name: u.nombre,
-      administrador: u.rol_administrador,    // Ej: "No disponible"
-      comprador:     u.rol_comprador,         // Ej: "Inactivo"
-      vendedor:     u.rol_vendedor,          // Ej: "Activo"
-      transportador: u.rol_transportador     // Ej: "No disponible"
+      administrador: u.rol_administrador,
+      comprador: u.rol_comprador,
+      vendedor: u.rol_vendedor,
+      transportador: u.rol_transportador
     }));
   }
 
@@ -35,7 +37,7 @@ export class UserManagementService {
     if (!res.ok) throw new Error('Error al eliminar usuario');
   }
 
-  static async disableUser(id: number, role: string) {
+  static async disableUser(id: number, role: UserRole) {
     const res = await fetch(`${this.API_URL}/usuarios/${role}/${id}`, {
       method: 'PATCH',
       headers: {
@@ -45,11 +47,25 @@ export class UserManagementService {
     if (!res.ok) throw new Error('Error al desactivar usuario');
   }
 
-  static async activateUserRole(id: number, role: 'vendedor' | 'transportador') {
-    const route =
-      role === 'vendedor'
-        ? `${this.API_URL}/approveRequestSeller`
-        : `${this.API_URL}/approveRequestTransporter`;
+  static async activateUserRole(id: number, role: UserRole) {
+    let route = '';
+
+    switch (role) {
+      case 'vendedor':
+        route = `${this.API_URL}/approveRequestSeller`;
+        break;
+      case 'transportador':
+        route = `${this.API_URL}/approveRequestTransporter`;
+        break;
+      case 'administrador':
+        route = `${this.API_URL}/approveRequestAdmin`;
+        break;
+      case 'comprador':
+        route = `${this.API_URL}/approveRequestBuyer`;
+        break;
+      default:
+        throw new Error('Rol no soportado para activación');
+    }
 
     const res = await fetch(route, {
       method: 'POST',
@@ -57,8 +73,13 @@ export class UserManagementService {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`
       },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({ id_usuario: id })
     });
-    if (!res.ok) throw new Error('Error al activar el rol');
+
+    if (!res.ok) {
+      const errorText = await res.text(); // para ayudar a depurar en consola
+      console.error('Error al activar el rol:', errorText);
+      throw new Error('Error al activar el rol');
+    }
   }
 }

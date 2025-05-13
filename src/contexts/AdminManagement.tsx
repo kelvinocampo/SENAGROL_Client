@@ -9,12 +9,16 @@ export interface User {
   vendedor: string;
   transportador: string;
 }
+
+// Nuevo tipo para roles
+type UserRole = 'administrador' | 'comprador' | 'vendedor' | 'transportador';
+
 interface UserManagementContextProps {
   users: User[];  // siempre un array al exponerlo
   fetchUsers: () => Promise<void>;
   deleteUser: (id: number) => Promise<void>;
-  disableUser: (id: number, role: 'vendedor' | 'transportador') => Promise<void>;
-  activateUserRole: (id: number, role: 'vendedor' | 'transportador') => Promise<void>;
+  disableUser: (id: number, role: UserRole) => Promise<void>;
+  activateUserRole: (id: number, role: UserRole) => Promise<void>;
 }
 
 export const UserManagementContext = createContext<UserManagementContextProps | undefined>(undefined);
@@ -26,7 +30,7 @@ export const UserManagementProvider = ({ children }: { children: React.ReactNode
   // Para pruebas, dejamos este setItem aquí (no quitar)
   localStorage.setItem(
     'token',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDcwODc5NjYsImRhdGEiOnsiaWQiOjEsInJvbGVzIjoiYWRtaW5pc3RyYWRvciJ9LCJpYXQiOjE3NDcwODQzNjZ9.TJzC9qx1pVAP4T5cRk3zydq9NuDz3QMXMaAf7CJ54lM'
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDcxMDU3NDQsImRhdGEiOnsiaWQiOjEsInJvbGVzIjoiYWRtaW5pc3RyYWRvciJ9LCJpYXQiOjE3NDcxMDIxNDR9.oWsxZAhjPuGlFyeIh38iJABL8cu1V3UM_r0itYFxU3k'
   );
 
   const fetchUsers = async () => {
@@ -48,7 +52,7 @@ export const UserManagementProvider = ({ children }: { children: React.ReactNode
     }
   };
 
-  const disableUser = async (id: number, role: 'vendedor' | 'transportador') => {
+  const disableUser = async (id: number, role: UserRole) => {
     try {
       await UserManagementService.disableUser(id, role);
       await fetchUsers();
@@ -57,7 +61,7 @@ export const UserManagementProvider = ({ children }: { children: React.ReactNode
     }
   };
 
-  const activateUserRole = async (id: number, role: 'vendedor' | 'transportador') => {
+  const activateUserRole = async (id: number, role: UserRole) => {
     try {
       await UserManagementService.activateUserRole(id, role);
       await fetchUsers();
