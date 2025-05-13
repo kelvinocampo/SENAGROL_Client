@@ -2,7 +2,7 @@ import { useState } from "react";
 import Logo from "../../assets/senagrol.jpeg";
 import { login } from "@services/inicioServices";
 import Inputs from "./inputs";
-import { Paragraph } from "@components/Inicio/Paragraph";
+import { Paragraph } from "@/components/Inicio/Paragraph";
 import { Eye, EyeOff } from "lucide-react";
 
 const LoginForm = () => {
