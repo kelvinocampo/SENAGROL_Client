@@ -18,6 +18,8 @@ export const SellsView = () => {
     const [ventas, setVentas] = useState<Venta[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    console.log(loading, error);
+
 
     useEffect(() => {
         const fetchCompras = async () => {
