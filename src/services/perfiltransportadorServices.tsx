@@ -1,4 +1,3 @@
-// services/transportadorService.ts
 
 export const obtenerTransportadores = async () => {
   try {

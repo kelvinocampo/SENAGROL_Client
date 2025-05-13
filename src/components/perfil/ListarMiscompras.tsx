@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Truck, QrCode } from "lucide-react";
-import { ProductManagementService } from "@services/PerfilServices"; // ajusta el path según tu estructura
+import { Link } from "react-router-dom";
 
 type Compra = {
-  id_compra: number; 
+  id_compra: number;
   fecha_compra: string;
   fecha_entrega: string;
   producto_nombre: string;
@@ -13,72 +13,92 @@ type Compra = {
   precio_transporte: number;
   vendedor_nombre: string;
   transportador_nombre: string;
-  estado: string;
+  estado: "En espera" | "Asignado" | "En proceso" | "Terminado";
+};
+
+const fetchComprasDummy = async (): Promise<Compra[]> => {
+  return [
+    {
+      id_compra: 1,
+      fecha_compra: "2025-05-01",
+      fecha_entrega: "2025-05-05",
+      producto_nombre: "Bicicleta montaña",
+      cantidad: 2,
+      precio_producto: 350,
+      precioTotal: 700,
+      precio_transporte: 50,
+      vendedor_nombre: "Juan Pérez",
+      transportador_nombre: "",
+      estado: "En espera",
+    },
+    {
+      id_compra: 2,
+      fecha_compra: "2025-05-03",
+      fecha_entrega: "2025-05-07",
+      producto_nombre: "Casco profesional",
+      cantidad: 1,
+      precio_producto: 120,
+      precioTotal: 120,
+      precio_transporte: 20,
+      vendedor_nombre: "Lucía Gómez",
+      transportador_nombre: "Carlos Transporte",
+      estado: "Asignado",
+    },
+    {
+      id_compra: 3,
+      fecha_compra: "2025-05-04",
+      fecha_entrega: "2025-05-09",
+      producto_nombre: "Guantes térmicos",
+      cantidad: 3,
+      precio_producto: 25,
+      precioTotal: 75,
+      precio_transporte: 15,
+      vendedor_nombre: "Ana Torres",
+      transportador_nombre: "Logística Express",
+      estado: "En proceso",
+    },
+    {
+      id_compra: 4,
+      fecha_compra: "2025-05-06",
+      fecha_entrega: "2025-05-10",
+      producto_nombre: "Rodilleras Pro",
+      cantidad: 1,
+      precio_producto: 80,
+      precioTotal: 80,
+      precio_transporte: 10,
+      vendedor_nombre: "Santiago López",
+      transportador_nombre: "Rápido Cargo",
+      estado: "Terminado",
+    },
+  ];
 };
 
 const ListarMiscompras = () => {
   const [compras, setCompras] = useState<Compra[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchCompras = async () => {
       try {
-        // Datos quemados de ejemplo
-        const data: Compra[] = [
-          {
-            id_compra: 1,
-            fecha_compra: "2025-05-10",
-            fecha_entrega: "2025-05-15",
-            producto_nombre: "Bicicleta MTB",
-            cantidad: 1,
-            precio_producto: 500,
-            precioTotal: 500,
-            precio_transporte: 30,
-            vendedor_nombre: "Carlos Ruiz",
-            transportador_nombre: "No asignado",
-            estado: "En espera",
-          },
-          {
-            id_compra: 2,
-            fecha_compra: "2025-05-08",
-            fecha_entrega: "2025-05-13",
-            producto_nombre: "Casco Profesional",
-            cantidad: 2,
-            precio_producto: 80,
-            precioTotal: 160,
-            precio_transporte: 20,
-            vendedor_nombre: "Laura Gómez",
-            transportador_nombre: "TransExpress",
-            estado: "En proceso",
-          },
-          {
-            id_compra: 3,
-            fecha_compra: "2025-05-09",
-            fecha_entrega: "2025-05-12",
-            producto_nombre: "Guantes deportivos",
-            cantidad: 3,
-            precio_producto: 25,
-            precioTotal: 75,
-            precio_transporte: 10,
-            vendedor_nombre: "Pedro Torres",
-            transportador_nombre: "LogiFast",
-            estado: "Entregado",
-          },
-        ];
-  
+        const data = await fetchComprasDummy();
         setCompras(data);
       } catch (err: any) {
-        setError("Error al cargar las compras");
+        setError(err.message || "Error al cargar las compras");
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchCompras();
   }, []);
 
-  if (loading) return <p className="text-center">Cargando compras...</p>;
-  if (error) return <p className="text-red-500 text-center">{error}</p>;
+  if (loading) return <p className="text-center mt-4">Cargando compras...</p>;
+  if (error) return <p className="text-red-500 text-center mt-4">{error}</p>;
+
+  if (!loading && compras.length === 0) {
+    return <p className="text-center mt-4 text-gray-600">No hay compras todavía.</p>;
+  }
 
   return (
     <div className="overflow-x-auto text-sm">
@@ -112,27 +132,35 @@ const ListarMiscompras = () => {
               <td className="px-3 py-2">{c.vendedor_nombre}</td>
               <td className="px-3 py-2">{c.transportador_nombre}</td>
               <td className="px-3 py-2">{c.estado}</td>
+
               <td className="px-3 py-2 text-center">
                 {c.estado === "En espera" && (
-                  <a
-                    href={`MyPurchasesPage`}
+                  <Link
+                    to="/transportadores"
                     className="flex justify-center"
                     title="Asignar transportador"
                   >
                     <Truck size={16} className="text-black hover:text-green-600 transition-colors" />
-                  </a>
+                  </Link>
+                )}
+                {c.estado === "Asignado" && (
+                  <span className="text-black font-semibold">Asignado</span>
+                )}
+                {c.estado === "En proceso" && (
+                  <span className="text-black font-semibold">En proceso</span>
+                )}
+                {c.estado === "Terminado" && (
+                  <span className="text-black font-semibold">Terminado</span>
                 )}
               </td>
+
               <td className="px-3 py-2">
                 {c.estado === "En proceso" && (
                   <div className="flex items-center gap-1">
                     <QrCode size={16} className="text-black" />
-                    <a
-                        href={`/asignar-transportador/${c.id_compra}`}
-                        className="bg-[#48BD28] text-white px-2 py-1 rounded text-xs inline-block">
-                             Código
-                    </a>
-
+                    <button className="bg-[#48BD28] text-white px-2 py-1 rounded text-xs">
+                      Código
+                    </button>
                   </div>
                 )}
               </td>
