@@ -1,7 +1,7 @@
 
 
 export const login = async (identifier: string, password: string) => {
-  const response = await fetch("https://senagrolserver-production.up.railway.app/usuario/login", {
+  const response = await fetch("https://senagrol.up.railway.app/usuario/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
