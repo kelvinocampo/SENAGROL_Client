@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Logo from "@assets/senagrol.jpeg";
-import { login } from "@services/inicioServices";
+import { InicioService } from "@/services/inicioServices";
 import { Input } from "@components/Input";
 import { Paragraph } from "@/components/Inicio/Paragraph";
 import { Eye, EyeOff } from "lucide-react";
@@ -18,7 +18,7 @@ export const LoginForm = () => {
     setLoading(true);
 
     try {
-      const data = await login(identifier, password);
+      const data = await InicioService.login(identifier, password);
 
       localStorage.setItem("token", data.token);
 

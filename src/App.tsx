@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { InicioManual } from "@pages/Inicio"
 import { UserManagementProvider } from '@/contexts/admin/AdminManagement';
 import { AdminManagement } from "./pages/AdminManagement";
-import RegisterForm from "@components/Usuarioregister/RegisterForm";
+import { RegisterForm } from "@components/Usuarioregister/RegisterForm";
 //import { AdminLayout } from "./components/admin/AdminLayout"
 import MyPurchasesPage from "@pages/ListarMisCompras"
 
@@ -17,12 +17,12 @@ function App() {
           <Route path="/Profile" element={<MyPurchasesPage />} />
           <Route path="/MisProductos/*" element={<ProductManagement />}></Route>
           <Route path="/admin/*"
-          element={
+            element={
               <UserManagementProvider>
-              < AdminManagement/>
-            </UserManagementProvider>
-            
-          }></Route>
+                < AdminManagement />
+              </UserManagementProvider>
+
+            }></Route>
 
         </Routes>
       </BrowserRouter>

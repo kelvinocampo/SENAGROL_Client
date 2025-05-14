@@ -1,8 +1,13 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import Logo from "../../assets/senagrol.jpeg";
+import Logo from "@assets/senagrol.jpeg";
+import { InicioService } from "@services/inicioServices";
 
-export default function RegisterForm() {
+export function RegisterForm() {
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -23,11 +28,16 @@ export default function RegisterForm() {
     setStrength(Math.min(calculatedStrength, 100));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password === confirmPassword && password.length >= 8) {
-      setMessage("Registro exitoso.");
+      try {
+        await InicioService.register(name, username, email, password, phone, confirmPassword);
+        setMessage("Registro exitoso.");
+      } catch (error: any) {
+        setMessage(error.message || "Error desconocido al registrarse.");
+      }
     } else {
       setMessage("Error al registrarse. Verifica los campos.");
     }
@@ -40,21 +50,22 @@ export default function RegisterForm() {
         alt="Logo Senagrol"
         className="w-17 h-17 rounded-full border-l-2 border-r-4 border-white object-cover"
       />
-      
+
       <h2 className="text-2xl font-medium mb-6">Crear una cuenta</h2>
 
       <form className="space-y-4 max-w-xl" onSubmit={handleSubmit}>
         {[
-          { label: "Nombre Usuario", type: "text", placeholder: "Ingresa Nombre" },
-          { label: "Email", type: "email", placeholder: "Ingresa Email" },
-          { label: "Nombre Completo", type: "text", placeholder: "Ingresa Nombre Completo" },
-          { label: "Número Telefónico", type: "tel", placeholder: "Ingresa Número Telefónico" },
-        ].map((field, idx) => (
+          { label: "Nombre Usuario", type: "text", placeholder: "Ingresa Nombre", setValue: (value: any) => { setUsername(value) } },
+          { label: "Email", type: "email", placeholder: "Ingresa Email", setValue: (value: any) => { setEmail(value) } },
+          { label: "Nombre Completo", type: "text", placeholder: "Ingresa Nombre Completo", setValue: (value: any) => { setName(value) } },
+          { label: "Número Telefónico", type: "tel", placeholder: "Ingresa Número Telefónico", setValue: (value: any) => { setPhone(value) } },
+        ].map((field: any, idx) => (
           <div key={idx}>
             <label className="block text-sm font-medium mb-1">{field.label}</label>
             <input
               type={field.type}
               placeholder={field.placeholder}
+              onChange={(e) => { field.setValue(e.target.value) }}
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
@@ -110,9 +121,8 @@ export default function RegisterForm() {
 
         {message && (
           <p
-            className={`text-sm font-medium text-center ${
-              message.includes("exitoso") ? "text-green-600" : "text-red-600"
-            }`}>
+            className={`text-sm font-medium text-center ${message.includes("exitoso") ? "text-green-600" : "text-red-600"
+              }`}>
             {message}
           </p>
         )}
