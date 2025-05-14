@@ -2,10 +2,10 @@
 export type UserRole = 'administrador' | 'comprador' | 'vendedor' | 'transportador';
 
 export class UserManagementService {
-  private static API_URL = 'http://localhost:10101/admin';
+  private static API_URL = 'http://localhost:10101';
 
   static async getUsers() {
-    const res = await fetch(`${this.API_URL}/usuarios`, {
+    const res = await fetch(`${this.API_URL}/admin/usuarios`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export class UserManagementService {
   }
 
   static async deleteUser(id: number) {
-    const res = await fetch(`${this.API_URL}/usuarios/${id}`, {
+    const res = await fetch(`${this.API_URL}/admin/usuarios/${id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -38,46 +38,48 @@ export class UserManagementService {
   }
 
   static async disableUser(id: number, role: UserRole) {
-    const res = await fetch(`${this.API_URL}/usuarios/${role}/${id}`, {
+    const res = await fetch(`${this.API_URL}/admin/usuarios/${role}/${id}`, {
       method: 'PATCH',
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
+        "Authorization": `Bearer ${localStorage.getItem('token')}`
       }
     });
+    console.log(res);
+    
     if (!res.ok) throw new Error('Error al desactivar usuario');
   }
 
-static async activateUserRole(userId: number, role: UserRole) {
-  let route = '';
+  static async activateUserRole(userId: number, role: UserRole) {
+    let route = '';
 
-  switch (role) {
-    case 'vendedor':
-      route = `${this.API_URL}/approveRequestSeller`;
-      break;
-    case 'transportador':
-      route = `${this.API_URL}/approveRequestTransporter`;
-      break;
-    case 'administrador':
-      route = `${this.API_URL}/usuarios/${userId}`;
-      break;
-    default:
-      throw new Error('Rol no soportado para activación');
+    switch (role) {
+      case 'vendedor':
+        route = `${this.API_URL}/admin/approveRequestSeller`;
+        break;
+      case 'transportador':
+        route = `${this.API_URL}/admin/approveRequestTransporter`;
+        break;
+      case 'administrador':
+        route = `${this.API_URL}/admin/usuarios/${userId}`;
+        break;
+      default:
+        throw new Error('Rol no soportado para activación');
+    }
+
+    const res = await fetch(route, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ userId })
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Error al activar el rol:', errorText);
+      throw new Error('Error al activar el rol');
+    }
   }
-
-  const res = await fetch(route, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    },
-    body: JSON.stringify({ userId }) 
-  });
-
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error('Error al activar el rol:', errorText);
-    throw new Error('Error al activar el rol');
-  }
-}
 
 }

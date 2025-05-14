@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import {ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { UserManagementContext } from '@/contexts/AdminManagement';
+import { UserManagementContext } from '@/contexts/admin/AdminManagement';
 import { getUserRoleCounts } from '@utils/User/userRoleUtils';
 
 export const BarChartRoles = () => {

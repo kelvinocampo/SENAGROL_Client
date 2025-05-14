@@ -7,7 +7,7 @@ import {
   Cell,
   Legend,
 } from 'recharts';
-import { UserManagementContext } from '@/contexts/AdminManagement';
+import { UserManagementContext } from '@/contexts/admin/AdminManagement';
 import { getUserRoleCounts } from '@utils/User/userRoleUtils';
 
 const COLORS = ['#48bd28', '#a0eb8a', '#caf5bd', '#205116'];

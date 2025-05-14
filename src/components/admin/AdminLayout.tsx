@@ -10,20 +10,19 @@ export const AdminLayout = () => {
 
 
   const renderView = () => {
-  switch (activeView) {
-    case 'ListUser':
-      return  <UserTable />;
-    case 'bargraphUsers':
-      return <BarChartRoles/>;
-    case 'circularUsers':
-      return <PieChartRoles/>;
-    case 'ListProducts':
-      return    
-      <ProductTable />
-    default:
-      return <div>Seleccione una opción del menú</div>;
-  }
-};
+    switch (activeView) {
+      case 'ListUser':
+        return <UserTable />;
+      case 'bargraphUsers':
+        return <BarChartRoles />;
+      case 'circularUsers':
+        return <PieChartRoles />;
+      case 'ListProducts':
+        return <ProductTable />
+      default:
+        return <div>Seleccione una opción del menú</div>;
+    }
+  };
 
   const getTitle = () => {
     switch (activeView) {
@@ -33,10 +32,12 @@ export const AdminLayout = () => {
         return 'Gráfica de Barras';
       case 'circularUsers':
         return 'Gráfica Circular';
-      case 'productos':
+      case 'bargraphProducts':
+        return 'Gráfica de barras';
+      case 'circularProducts':
+        return 'Gráfica Circular';
+      case 'ListProducts':
         return 'Productos';
-      case 'ventas':
-        return 'Ventas';
       case 'dashboard':
         return 'Dashboard';
       default:
@@ -44,13 +45,13 @@ export const AdminLayout = () => {
     }
   };
 
-return (
-  <div className="flex">
-    <AdminMenu setActiveView={setActiveView} />
-    <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">{getTitle()}</h1>
-      {renderView()}
+  return (
+    <div className="flex">
+      <AdminMenu setActiveView={setActiveView} />
+      <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen">
+        <h1 className="text-2xl font-bold mb-4">{getTitle()}</h1>
+        {renderView()}
+      </div>
     </div>
-  </div>
-);
+  );
 };

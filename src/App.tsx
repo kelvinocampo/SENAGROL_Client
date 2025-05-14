@@ -1,7 +1,7 @@
 import { ProductManagement } from "@pages/ProductsManagement"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { InicioManual } from "@pages/Inicio"
-import { UserManagementProvider } from '@/contexts/AdminManagement';
+import { UserManagementProvider } from '@/contexts/admin/AdminManagement';
 import { AdminManagement } from "./pages/AdminManagement";
 //import { AdminLayout } from "./components/admin/AdminLayout"
 import MyPurchasesPage from "@pages/ListarMisCompras"

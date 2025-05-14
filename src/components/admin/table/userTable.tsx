@@ -3,7 +3,7 @@ import { FaTrash } from 'react-icons/fa';
 import { TableHeader } from '@/components/admin/table/TableHeader';
 import { ActionButton } from '@/components/admin/table/ActionButton';
 import { ConfirmDialog } from '@/components/admin/common/ConfirmDialog';
-import { UserManagementContext } from '@/contexts/AdminManagement';
+import { UserManagementContext } from '@/contexts/admin/AdminManagement';
 import { UserRole } from '@/services/Admin/UserManagementService';
 import { SearchBar } from '@/components/admin/table/SearchUsers'; // Asegúrate de que la ruta sea correcta
 

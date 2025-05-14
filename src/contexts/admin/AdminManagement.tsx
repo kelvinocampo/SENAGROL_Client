@@ -30,7 +30,7 @@ export const UserManagementProvider = ({ children }: { children: React.ReactNode
   // Para pruebas, dejamos este setItem aquí (no quitar)
   localStorage.setItem(
     'token',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDcyNDE1MjQsImRhdGEiOnsiaWQiOjEsInJvbGVzIjoiYWRtaW5pc3RyYWRvciJ9LCJpYXQiOjE3NDcyMzc5MjR9.rtEUySAIOHNwEfgKC821Z-mkcJKzvpjXEdPYeRvAJ7k'
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDcyNTg2MjksImRhdGEiOnsiaWQiOjEsInJvbGVzIjoiYWRtaW5pc3RyYWRvciJ9LCJpYXQiOjE3NDcyNTUwMjl9.vu56itN8sFX_44Fg-rGklTj5frelJE9nazSUe-iwgaI'
   );
 
   const fetchUsers = async () => {
