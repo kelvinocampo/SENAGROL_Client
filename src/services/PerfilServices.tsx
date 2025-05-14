@@ -1,5 +1,5 @@
 export class ProductManagementService {
-  private static API_URL = "http://localhost:10101";
+  private static API_URL = "https://senagrolserver-production.up.railway.app";
 
   static async getBySeller() {
     try {
