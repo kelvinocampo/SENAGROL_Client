@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaHome, FaChartPie, FaUsers, FaBox, FaShoppingCart, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaHome, FaChartPie, FaUsers, FaBox, FaShoppingCart, FaChevronDown, FaChevronUp, FaBars } from 'react-icons/fa';
 import senagrol from '@assets/senagrol.jpeg';
 
 interface AdminMenuProps {
@@ -9,6 +9,7 @@ interface AdminMenuProps {
 export const AdminMenu = ({ setActiveView }: AdminMenuProps) => {
   const [openProductos, setOpenProductos] = useState(false);
   const [openUsuarios, setOpenUsuarios] = useState(false);
+  const [openGraficaUsuarios, setopenGraficaUsuarios] = useState(false);
 
   const menuItemClass = "flex items-center gap-2 py-2 px-4 hover:bg-[#379e1b] rounded cursor-pointer";
 
@@ -34,13 +35,27 @@ export const AdminMenu = ({ setActiveView }: AdminMenuProps) => {
           {openUsuarios && (
             <ul className="pl-6 mt-2 space-y-1">
               <li>
-                <div onClick={() => setActiveView('usuarios')} className={menuItemClass}>
-                  <FaUsers /> Lista Usuarios
-                </div>
+                  <div className={menuItemClass} onClick={() => setopenGraficaUsuarios(!openGraficaUsuarios)}>
+                  <FaChartPie /> Graficas {openGraficaUsuarios ? <FaChevronUp /> : <FaChevronDown />}
+                  </div>
+                  {openGraficaUsuarios && (
+                    <ul className="pl-6 mt-2 space-y-1">
+                        <li>
+                         <div onClick={() => setActiveView('bargraphUsers')} className={menuItemClass}>
+                         <FaBars /> Grafica de barras 
+                        </div>
+                        </li>
+                        <li>
+                         <div onClick={() => setActiveView('circularUsers')} className={menuItemClass}>
+                         <FaChartPie /> Grafica de circular
+                        </div>
+                        </li>
+                    </ul>
+                  )}
               </li>
-              <li>
-                <div onClick={() => setActiveView('graficasCircular')} className={menuItemClass}>
-                  <FaChartPie /> Gráficas
+               <li>
+                <div onClick={() => setActiveView('ListUser')} className={menuItemClass}>
+                  <FaUsers /> Lista Usuarios
                 </div>
               </li>
             </ul>
@@ -54,14 +69,26 @@ export const AdminMenu = ({ setActiveView }: AdminMenuProps) => {
           </div>
           {openProductos && (
             <ul className="pl-6 mt-2 space-y-1">
-              <li>
-                <div onClick={() => setActiveView('graficasBarras')} className={menuItemClass}>
-                  <FaChartPie /> Gráfica de barras
-                </div>
-              </li>
-              <li>
-                <div onClick={() => setActiveView('productos')} className={menuItemClass}>
-                  <FaBox /> Lista Productos
+             <div className={menuItemClass} onClick={() => setopenGraficaUsuarios(!openGraficaUsuarios)}>
+                  <FaChartPie /> Graficas {openGraficaUsuarios ? <FaChevronUp /> : <FaChevronDown />}
+                  </div>
+                  {openGraficaUsuarios && (
+                    <ul className="pl-6 mt-2 space-y-1">
+                        <li>
+                         <div onClick={() => setActiveView('bargraphProducts')} className={menuItemClass}>
+                         <FaBars /> Grafica de barras 
+                        </div>
+                        </li>
+                        <li>
+                         <div onClick={() => setActiveView('circularProducts')} className={menuItemClass}>
+                         <FaChartPie /> Grafica de circular
+                        </div>
+                        </li>
+                    </ul>
+                  )}
+                  <li>
+                <div onClick={() => setActiveView('ListProducts')} className={menuItemClass}>
+                  <FaUsers /> Lista de productos
                 </div>
               </li>
             </ul>
