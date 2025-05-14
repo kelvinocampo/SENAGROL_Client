@@ -28,11 +28,20 @@ export const UserTable = () => {
     const status = user[role];
 
     if (role === 'comprador') {
-      return (
-        <span className="inline-block px-3 py-1 rounded-full bg-[#FBF5ED] font-semibold text-sm text-[#5B4B2B]">
+      if (status === 'Activo') {
+           return (
+        <span className="inline-block px-3 py-1 rounded-full font-semibold text-sm bg-[#E4FBDD] text-black">
           {status === 'Activo' ? 'Activo' : status === 'Inactivo' ? 'Inactivo' : 'no disponible'}
         </span>
       );
+      }else {
+        return (
+        <span className="inline-block px-3 py-1 rounded-full font-semibold text-sm text-black">
+          {status === 'Activo' ? 'Activo' : status === 'Inactivo' ? 'Inactivo' : 'no disponible'}
+        </span>
+      );
+      }
+     
     }
 
     if (status === 'Activo') {
@@ -68,7 +77,7 @@ export const UserTable = () => {
     }
 
     return (
-      <span className="inline-block px-3 py-1 rounded-full bg-[#FBF5ED] font-semibold text-sm text-[#5B4B2B]">
+      <span className="inline-block px-3 py-1 rounded-full bg-[#FBF5ED] font-semibold text-sm text-black">
         no disponible
       </span>
     );
@@ -88,14 +97,14 @@ export const UserTable = () => {
   <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
 
   <table className="min-w-full table-auto rounded-xl border-2 border-[#F5F0E5]">
-    <thead className="border-2 border-[#F5F0E5]">
-      <tr>
+    <thead className="border-2 border-[#F5F0E5] bg-[E4FBDD]">
+      <tr className='bg-[#E4FBDD]'>
         <TableHeader>Nombre</TableHeader>
-        <TableHeader className="text-[#A1824A]">Transportador</TableHeader>
-        <TableHeader className="text-[#A1824A]">Vendedor</TableHeader>
-        <TableHeader className="text-[#A1824A]">Comprador</TableHeader>
-        <TableHeader className="text-[#A1824A]">Administrador</TableHeader>
-        <TableHeader className="text-[#A1824A]">Eliminar</TableHeader>
+        <TableHeader className="text-black ">Transportador</TableHeader>
+        <TableHeader className="text-black">Vendedor</TableHeader>
+        <TableHeader className="text-black">Comprador</TableHeader>
+        <TableHeader className="text-black">Administrador</TableHeader>
+        <TableHeader className="text-black">Eliminar</TableHeader>
       </tr>
     </thead>
     <tbody>
@@ -107,9 +116,9 @@ export const UserTable = () => {
         </tr>
       ) : (
         filteredUsers.map(user => (
-          <tr key={user.id} className="text-center hover:bg-gray-50 border-2 border-[#F5F0E5]">
+          <tr key={user.id} className="text-center hover:bg-gray-50 border-2 border-[#E5E8EB]">
             <td className="p-2 text-left">{user.name}</td>
-            <td className="p-2">{renderRoleCell(user, 'transportador')}</td>
+            <td className="p-2 ">{renderRoleCell(user, 'transportador')}</td>
             <td className="p-2">{renderRoleCell(user, 'vendedor')}</td>
             <td className="p-2">{renderRoleCell(user, 'comprador')}</td>
             <td className="p-2">

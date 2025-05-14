@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaHome, FaChartPie, FaUsers, FaBox, FaShoppingCart, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaHome, FaChartPie, FaUsers, FaBox, FaShoppingCart, FaChevronDown, FaChevronUp, FaBars } from 'react-icons/fa';
 import senagrol from '@assets/senagrol.jpeg';
 
 interface AdminMenuProps {
@@ -9,6 +9,7 @@ interface AdminMenuProps {
 export const AdminMenu = ({ setActiveView }: AdminMenuProps) => {
   const [openProductos, setOpenProductos] = useState(false);
   const [openUsuarios, setOpenUsuarios] = useState(false);
+  const [openGraficaUsuarios, setopenGraficaUsuarios] = useState(false);
 
   const menuItemClass = "flex items-center gap-2 py-2 px-4 hover:bg-[#379e1b] rounded cursor-pointer";
 
@@ -39,9 +40,23 @@ export const AdminMenu = ({ setActiveView }: AdminMenuProps) => {
                 </div>
               </li>
               <li>
-                <div onClick={() => setActiveView('graficasCircular')} className={menuItemClass}>
-                  <FaChartPie /> Gráficas
-                </div>
+                  <div className={menuItemClass} onClick={() => setopenGraficaUsuarios(!openGraficaUsuarios)}>
+                  <FaChartPie /> Usuarios {openGraficaUsuarios ? <FaChevronUp /> : <FaChevronDown />}
+                  </div>
+                  {openGraficaUsuarios && (
+                    <ul className="pl-6 mt-2 space-y-1">
+                        <li>
+                         <div onClick={() => setActiveView('usuarios')} className={menuItemClass}>
+                         <FaBars /> Grafica de barras 
+                        </div>
+                        </li>
+                        <li>
+                         <div onClick={() => setActiveView('usuarios')} className={menuItemClass}>
+                         <FaChartPie /> Grafica de circular
+                        </div>
+                        </li>
+                    </ul>
+                  )}
               </li>
             </ul>
           )}

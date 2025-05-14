@@ -10,7 +10,7 @@ export const ActionButton = ({ children, onClick, className = '', title }: Actio
     <button
       onClick={onClick}
       title={title}
-      className={`bg-[#FDF6EC] px-3 py-1 rounded-full hover:opacity-80 transition ${className}`}
+      className={`bg-[#d6d6d6ee] px-3 py-1 rounded-full hover:opacity-80 transition ${className}`}
     >
       {children}
     </button>
