@@ -35,28 +35,28 @@ export const AdminMenu = ({ setActiveView }: AdminMenuProps) => {
           {openUsuarios && (
             <ul className="pl-6 mt-2 space-y-1">
               <li>
-                <div onClick={() => setActiveView('usuarios')} className={menuItemClass}>
-                  <FaUsers /> Lista Usuarios
-                </div>
-              </li>
-              <li>
                   <div className={menuItemClass} onClick={() => setopenGraficaUsuarios(!openGraficaUsuarios)}>
-                  <FaChartPie /> Usuarios {openGraficaUsuarios ? <FaChevronUp /> : <FaChevronDown />}
+                  <FaChartPie /> Graficas {openGraficaUsuarios ? <FaChevronUp /> : <FaChevronDown />}
                   </div>
                   {openGraficaUsuarios && (
                     <ul className="pl-6 mt-2 space-y-1">
                         <li>
-                         <div onClick={() => setActiveView('usuarios')} className={menuItemClass}>
+                         <div onClick={() => setActiveView('bargraphUsers')} className={menuItemClass}>
                          <FaBars /> Grafica de barras 
                         </div>
                         </li>
                         <li>
-                         <div onClick={() => setActiveView('usuarios')} className={menuItemClass}>
+                         <div onClick={() => setActiveView('circularUsers')} className={menuItemClass}>
                          <FaChartPie /> Grafica de circular
                         </div>
                         </li>
                     </ul>
                   )}
+              </li>
+               <li>
+                <div onClick={() => setActiveView('ListUser')} className={menuItemClass}>
+                  <FaUsers /> Lista Usuarios
+                </div>
               </li>
             </ul>
           )}
@@ -69,14 +69,26 @@ export const AdminMenu = ({ setActiveView }: AdminMenuProps) => {
           </div>
           {openProductos && (
             <ul className="pl-6 mt-2 space-y-1">
-              <li>
-                <div onClick={() => setActiveView('graficasBarras')} className={menuItemClass}>
-                  <FaChartPie /> Gráfica de barras
-                </div>
-              </li>
-              <li>
-                <div onClick={() => setActiveView('productos')} className={menuItemClass}>
-                  <FaBox /> Lista Productos
+             <div className={menuItemClass} onClick={() => setopenGraficaUsuarios(!openGraficaUsuarios)}>
+                  <FaChartPie /> Graficas {openGraficaUsuarios ? <FaChevronUp /> : <FaChevronDown />}
+                  </div>
+                  {openGraficaUsuarios && (
+                    <ul className="pl-6 mt-2 space-y-1">
+                        <li>
+                         <div onClick={() => setActiveView('bargraphProducts')} className={menuItemClass}>
+                         <FaBars /> Grafica de barras 
+                        </div>
+                        </li>
+                        <li>
+                         <div onClick={() => setActiveView('circularProducts')} className={menuItemClass}>
+                         <FaChartPie /> Grafica de circular
+                        </div>
+                        </li>
+                    </ul>
+                  )}
+                  <li>
+                <div onClick={() => setActiveView('ListProducts')} className={menuItemClass}>
+                  <FaUsers /> Lista de productos
                 </div>
               </li>
             </ul>

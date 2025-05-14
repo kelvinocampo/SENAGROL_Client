@@ -5,9 +5,6 @@ export const AdminManagement = () => {
   return (
     <>
     <AdminLayout></AdminLayout>
-  
-
-    
     </>
  
   );
