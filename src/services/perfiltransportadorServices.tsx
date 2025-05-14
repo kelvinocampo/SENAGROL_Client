@@ -1,4 +1,3 @@
-
 export const obtenerTransportadores = async () => {
   try {
     const response = await fetch("/transportador/");
@@ -8,8 +7,13 @@ export const obtenerTransportadores = async () => {
     }
 
     const data = await response.json();
+   
+    console.log("Respuesta del servidor (raw):", data);
+    console.log("success:", data.success);
+    console.log("transporters:", data.transporters);
 
-    if (data && data.transporters) {
+
+    if (data && data.success && data.transporters) {
       return data.transporters;
     } else {
       throw new Error("La estructura de datos no es la esperada.");
