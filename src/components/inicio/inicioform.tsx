@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Logo from "../../assets/senagrol.jpeg";
-import { login } from "@services/inicioServices";
+import { login } from "@/services/inicioService";
 import Inputs from "./inputs";
 import Paragtaph from "./paragraph";
 import { Eye, EyeOff } from "lucide-react";
