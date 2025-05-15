@@ -13,11 +13,12 @@ export class ProductManagementService {
 
     if (!res.ok) throw new Error('Error al obtener productos');
     const result = await res.json();
-
-    const raw: any[] = Array.isArray(result.product) ? result.product : [];
+    
+     
+    const raw: any[] = Array.isArray(result.products) ? result.products : [];
 
     const products = raw.map(p => ({
-      id: p.id_product,
+      id: p.id_producto,
       nombre: p.nombre,
       descripcion: p.descripcion, 
       latitud: p.latitud,
@@ -28,24 +29,35 @@ export class ProductManagementService {
       precio_unidad: p.precio_unidad,
       despublicado: p.despublicado,
       id_vendedor: p.id_vendedor,
-      nombre_vendedor: p.nombre_vendedor
+      nombre_vendedor: p.nombre_vendedor,
+      fecha_publicacion: p.fecha_publicacion
     }));
-
+    
+    
     return { products };
   }
 
   static async unpublishProduct(id: number) {
     const res = await fetch(`${this.API_URL}/admin/products/unpublish/${id}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
     if (!res.ok) throw new Error('Error al despublicar producto');
   }
+   static async publish(id: number) {
+    const res = await fetch(`${this.API_URL}/admin/products/publish/${id}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    if (!res.ok) throw new Error('Error publicar producto');
+  }
 
   static async deleteProduct(id: number) {
-    const res = await fetch(`${this.API_URL}/admin/products/${id}`, {
+    const res = await fetch(`${this.API_URL}/admin/products/delete/${id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`

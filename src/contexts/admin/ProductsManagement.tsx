@@ -14,11 +14,13 @@ export interface Product {
   despublicado: number;
   id_vendedor: number;
   nombre_vendedor: string;
+  fecha_publicacion: string;
 }
 
 interface ContextType {
   products: Product[];
   unpublishProduct: (id: number) => void;
+  publish: (id: number) => void;
   deleteProduct: (id: number) => void;
 }
 
@@ -31,13 +33,7 @@ export const ProductManagementProvider = ({ children }: { children: React.ReactN
     try {
       const response = await ProductManagementService.getProducts();
 
-      // 🔍 Verificar qué devuelve el servicio
-      console.log("Respuesta cruda de getProducts:", response);
-
-      // ✅ Asegurarse de extraer `products` correctamente
       const { products } = response;
-
-      console.log("Productos en contexto:", products); // ✅ LOG PRINCIPAL
 
       setProducts(products);
     } catch (error) {
@@ -49,12 +45,20 @@ export const ProductManagementProvider = ({ children }: { children: React.ReactN
     fetchProducts();
   }, []);
 
-  const unpublishProduct = async (id: number) => {
+  const unpublishProduct = async (id: number) => {    
     try {
       await ProductManagementService.unpublishProduct(id);
       fetchProducts();
     } catch (error) {
       console.error('❌ Error al despublicar producto:', error);
+    }
+  };
+   const publish = async (id: number) => {    
+    try {
+      await ProductManagementService.publish(id);
+      fetchProducts();
+    } catch (error) {
+      console.error('❌ Error al publicar producto:', error);
     }
   };
 
@@ -68,7 +72,7 @@ export const ProductManagementProvider = ({ children }: { children: React.ReactN
   };
 
   return (
-    <ProductManagementContext.Provider value={{ products, unpublishProduct, deleteProduct }}>
+    <ProductManagementContext.Provider value={{ products, unpublishProduct, publish, deleteProduct}}>
       {children}
     </ProductManagementContext.Provider>
   );

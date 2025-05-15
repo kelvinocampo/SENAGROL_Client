@@ -4,6 +4,8 @@ import { UserTable } from '@/components/admin/table/userTable';
 import { BarChartRoles } from '@components/admin/graphics/BargraphUsers';
 import { PieChartRoles } from '@components/admin/graphics/PieChartUsers';
 import { ProductTable } from './table/ProductsTable';
+import { PieChartProductsByMonth } from './graphics/PieChartProducts';
+import { BarChartProductsByMonth } from './graphics/BargraphProducts';
 import { ProductManagementProvider } from '@/contexts/admin/ProductsManagement';
 
 
@@ -20,6 +22,10 @@ export const AdminLayout = () => {
         return <PieChartRoles />;
       case 'ListProducts':
         return <ProductTable />;
+      case 'bargraphProducts':
+        return <BarChartProductsByMonth />;
+      case 'circularProducts':
+        return <PieChartProductsByMonth />;
       default:
         return <div>Seleccione una opción del menú</div>;
     }
