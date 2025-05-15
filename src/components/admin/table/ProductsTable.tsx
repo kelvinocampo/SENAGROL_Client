@@ -3,13 +3,13 @@ import { TableHeader } from '@/components/admin/table/TableHeader';
 import { ActionButton } from '@/components/admin/table/ActionButton';
 import { ConfirmDialog } from '@/components/admin/common/ConfirmDialog';
 import { FaTrash } from 'react-icons/fa';
-import { ProductManagementContext } from '@/contexts/ProductsManagement';
+import { ProductManagementContext } from '@/contexts/admin/ProductsManagement';
 
 export const ProductTable = () => {
   const context = useContext(ProductManagementContext);
-  if (!context) return <div>Error: contexto no disponible.</div>;
+  if (!context) return <div> Error: contexto no disponible.</div>;
 
-  const { products} = context;
+  const { products, unpublishProduct, deleteProduct } = context;
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState('');
@@ -20,7 +20,8 @@ export const ProductTable = () => {
     setOnConfirm(() => action);
     setConfirmOpen(true);
   };
-
+   console.log(products);
+   
   if (!products || products.length === 0) {
     return <div>No hay productos disponibles.</div>;
   }
@@ -33,10 +34,9 @@ export const ProductTable = () => {
             <TableHeader>Imagen</TableHeader>
             <TableHeader>Precio</TableHeader>
             <TableHeader>Cantidad</TableHeader>
-            <TableHeader>Vendedor</TableHeader>
+            <TableHeader>Nombre</TableHeader>
             <TableHeader>Publicado</TableHeader>
             <TableHeader>Eliminar</TableHeader>
-            <TableHeader>Nombre</TableHeader>
           </tr>
         </thead>
         <tbody>
@@ -44,25 +44,25 @@ export const ProductTable = () => {
             <tr key={product.id} className="text-center border-b hover:bg-gray-50">
               <td className="p-2">
                 <img
-                  src={product.imageUrl}
-                  alt={product.name}
+                  src={product.imagen}
+                  alt={product.nombre}
                   className="w-10 h-10 object-contain mx-auto"
                 />
               </td>
-              <td className="p-2 text-black">${product.price}</td>
-              <td className="p-2 text-black">{product.quantity}</td>
-              <td className="p-2 text-black">{product.sellerName}</td>
+              <td className="p-2 text-black">${product.precio_unidad}</td>
+              <td className="p-2 text-black">{product.cantidad}</td>
+              <td className="p-2 text-black">{product.nombre}</td>
               <td className="p-2">
                 <ActionButton
                   title="Cambiar publicación"
                   onClick={() =>
                     handleConfirm(
-                      `¿Estás seguro de que deseas ${product.isPublished ? 'despublicar' : 'publicar'} el producto ${product.name}?`,
-                      () => togglePublished(product.id)
+                      `¿Estás seguro de que deseas ${product.despublicado === 1 ? 'publicar' : 'despublicar'} el producto ${product.nombre}?`,
+                      () => unpublishProduct(product.id)
                     )
                   }
                 >
-                  {product.isPublished ? 'despublicar' : 'publicar'}
+                  {product.despublicado === 1 ? 'Publicar' : 'Despublicar'}
                 </ActionButton>
               </td>
               <td className="p-2">
@@ -70,7 +70,7 @@ export const ProductTable = () => {
                   title="Eliminar producto"
                   onClick={() =>
                     handleConfirm(
-                      `¿Estás seguro de que deseas eliminar el producto ${product.name}?`,
+                      `¿Estás seguro de que deseas eliminar el producto ${product.nombre}?`,
                       () => deleteProduct(product.id)
                     )
                   }
@@ -78,7 +78,6 @@ export const ProductTable = () => {
                   <FaTrash />
                 </ActionButton>
               </td>
-              <td className="p-2 text-black">{product.name}</td>
             </tr>
           ))}
         </tbody>
