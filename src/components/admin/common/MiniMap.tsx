@@ -18,20 +18,23 @@ type MiniMapProps = {
 
 export const MiniMap = ({ lat, lng }: MiniMapProps) => {
   return (
-    <MapContainer
-      center={[lat, lng]}
-      zoom={13}
-      style={{ height: '150px', width: '150px', borderRadius: '10px' }}
-      scrollWheelZoom={false}
-      dragging={false}
-      doubleClickZoom={false}
-      zoomControl={false}
-    >
-      <TileLayer
-        attribution='&copy; OpenStreetMap contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <Marker position={[lat, lng]} />
-    </MapContainer>
+    <div className="relative z-0"> {/* Aquí agregamos control del z-index */}
+      <MapContainer
+        center={[lat, lng]}
+        zoom={13}
+        style={{ height: '150px', width: '150px', borderRadius: '10px' }}
+        scrollWheelZoom={false}
+        dragging={false}
+        doubleClickZoom={false}
+        zoomControl={false}
+      >
+        <TileLayer
+          attribution='&copy; OpenStreetMap contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={[lat, lng]} />
+      </MapContainer>
+    </div>
   );
 };
+
