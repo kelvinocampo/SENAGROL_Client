@@ -56,13 +56,22 @@ export class ProductManagementService {
     if (!res.ok) throw new Error('Error publicar producto');
   }
 
-  static async deleteProduct(id: number) {
-    const res = await fetch(`${this.API_URL}/admin/products/delete/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    if (!res.ok) throw new Error('Error al eliminar producto');
+static async deleteProduct(id: number): Promise<{ success: boolean; message: string }> {
+  const res = await fetch(`${this.API_URL}/admin/products/delete/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    return { success: false, message: data.message || 'Error al eliminar producto' };
   }
+
+  return { success: true, message: data.message || 'Producto eliminado correctamente.' };
+}
+
+
 }

@@ -8,7 +8,6 @@ import { PieChartProductsByMonth } from './graphics/PieChartProducts';
 import { BarChartProductsByMonth } from './graphics/BargraphProducts';
 import { ProductManagementProvider } from '@/contexts/admin/ProductsManagement';
 
-
 export const AdminLayout = () => {
   const [activeView, setActiveView] = useState('usuarios');
 
@@ -54,14 +53,16 @@ export const AdminLayout = () => {
 
   return (
     <ProductManagementProvider>
-      <div className="flex">
+      <div className="flex flex-col md:flex-row min-h-screen">
+        {/* AdminMenu ya tiene estilos responsivos */}
         <AdminMenu setActiveView={setActiveView} />
-        <div className="p-4 w-full flex flex-col items-center justify-center min-h-screen">
-          <h1 className="text-2xl font-bold mb-4">{getTitle()}</h1>
+        
+        {/* Contenido principal */}
+        <main className="flex-1 p-4 w-full min-h-screen overflow-auto">
+          <h1 className="text-2xl font-bold mb-4 text-center md:text-left">{getTitle()}</h1>
           {renderView()}
-        </div>
+        </main>
       </div>
     </ProductManagementProvider>
   );
 };
-

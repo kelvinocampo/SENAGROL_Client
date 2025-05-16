@@ -21,8 +21,10 @@ interface ContextType {
   products: Product[];
   unpublishProduct: (id: number) => void;
   publish: (id: number) => void;
-  deleteProduct: (id: number) => void;
+  deleteProduct: (id: number) => Promise<{ success: boolean; message: string }>;  // Corregido
+   fetchProducts: () => Promise<void>;  
 }
+
 
 export const ProductManagementContext = createContext<ContextType | null>(null);
 
@@ -61,18 +63,27 @@ export const ProductManagementProvider = ({ children }: { children: React.ReactN
       console.error('❌ Error al publicar producto:', error);
     }
   };
-
-  const deleteProduct = async (id: number) => {
-    try {
-      await ProductManagementService.deleteProduct(id);
-      fetchProducts();
-    } catch (error) {
-      console.error('❌ Error al eliminar producto:', error);
+const deleteProduct = async (id: number): Promise<{ success: boolean; message: string }> => {
+  try {
+    const result = await ProductManagementService.deleteProduct(id);
+    if (result.success) {
+      await fetchProducts(); // Actualiza la lista si la eliminación fue exitosa
     }
-  };
+    return result;
+  } catch (error) {
+    console.error('Error al eliminar producto:', error);
+    return {
+      success: false,
+      message: 'Ocurrió un error al eliminar el producto.',
+    };
+  }
+};
+
+
+
 
   return (
-    <ProductManagementContext.Provider value={{ products, unpublishProduct, publish, deleteProduct}}>
+      <ProductManagementContext.Provider value={{ products, unpublishProduct, publish, deleteProduct, fetchProducts }}>
       {children}
     </ProductManagementContext.Provider>
   );

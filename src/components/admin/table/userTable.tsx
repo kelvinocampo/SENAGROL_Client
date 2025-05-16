@@ -62,6 +62,7 @@ export const UserTable = () => {
 
     if (status === 'Inactivo') {
       return (
+        
         <ActionButton
           title={`Activar ${role}`}
           onClick={() =>
@@ -107,64 +108,77 @@ export const UserTable = () => {
         <TableHeader className="text-black">Eliminar</TableHeader>
       </tr>
     </thead>
-    <tbody>
-      {filteredUsers.length === 0 ? (
-        <tr>
-          <td colSpan={6} className="text-center py-4 text-gray-500">
-            No hay usuarios que coincidan con la búsqueda.
-          </td>
-        </tr>
-      ) : (
-        filteredUsers.map(user => (
-          <tr key={user.id} className="text-center hover:bg-gray-50 border-2 border-[#E5E8EB]">
-            <td className="p-2 text-left">{user.name}</td>
-            <td className="p-2 ">{renderRoleCell(user, 'transportador')}</td>
-            <td className="p-2">{renderRoleCell(user, 'vendedor')}</td>
-            <td className="p-2">{renderRoleCell(user, 'comprador')}</td>
-            <td className="p-2">
-              {user.administrador === 'Activo' ? (
-                <ActionButton
-                  title="Desactivar administrador"
-                  onClick={() =>
-                    handleConfirm(
-                      `¿Estás seguro de que deseas desactivar el rol administrador para ${user.name}?`,
-                      () => disableUser(user.id, 'administrador')
-                    )
-                  }
-                >
-                  Desactivar
-                </ActionButton>
-              ) : (
-                <ActionButton
-                  title="Designar como administrador"
-                  onClick={() =>
-                    handleConfirm(
-                      `¿Deseas designar a ${user.name} como administrador?`,
-                      () => activateUserRole(user.id, 'administrador')
-                    )
-                  }
-                >
-                  Designar
-                </ActionButton>
-              )}
-            </td>
-            <td className="p-2">
-              <ActionButton
-                title="Eliminar usuario"
-                onClick={() =>
-                  handleConfirm(
-                    `¿Estás seguro de que deseas eliminar al usuario ${user.name}? Esta acción no se puede deshacer.`,
-                    () => deleteUser(user.id)
-                  )
-                }
-              >
-                <FaTrash />
-              </ActionButton>
-            </td>
-          </tr>
-        ))
-      )}
-    </tbody>
+  <tbody>
+  {filteredUsers.length === 0 ? (
+    <tr>
+      <td colSpan={6} className="text-center py-4 text-gray-500">
+        No hay usuarios que coincidan con la búsqueda.
+      </td>
+    </tr>
+  ) : (
+    filteredUsers.map(user => (
+      <tr
+        key={user.id}
+        className="text-center hover:bg-gray-50 border-2 border-[#E5E8EB]"
+      >
+        <td className="p-2 text-left whitespace-normal break-words max-w-[180px]">
+          {user.name}
+        </td>
+        <td className="p-2 whitespace-normal break-words max-w-[140px]">
+          {renderRoleCell(user, 'transportador')}
+        </td>
+        <td className="p-2 whitespace-normal break-words max-w-[140px]">
+          {renderRoleCell(user, 'vendedor')}
+        </td>
+        <td className="p-2 whitespace-normal break-words max-w-[140px]">
+          {renderRoleCell(user, 'comprador')}
+        </td>
+        <td className="p-2 whitespace-normal break-words max-w-[140px]">
+          {user.administrador === 'Activo' ? (
+            <ActionButton
+              title="Desactivar administrador"
+              onClick={() =>
+                handleConfirm(
+                  `¿Estás seguro de que deseas desactivar el rol administrador para ${user.name}?`,
+                  () => disableUser(user.id, 'administrador')
+                )
+              }
+            >
+              Desactivar
+            </ActionButton>
+          ) : (
+            <ActionButton
+              title="Designar como administrador"
+              onClick={() =>
+                handleConfirm(
+                  `¿Deseas designar a ${user.name} como administrador?`,
+                  () => activateUserRole(user.id, 'administrador')
+                )
+              }
+            >
+              Designar
+            </ActionButton>
+          )}
+        </td>
+        <td className="p-2">
+          <ActionButton
+            title="Eliminar usuario"
+            onClick={() =>
+              handleConfirm(
+                `¿Estás seguro de que deseas eliminar al usuario ${user.name}? Esta acción no se puede deshacer.`,
+                () => deleteUser(user.id)
+              )
+            }
+          >
+            <FaTrash />
+          </ActionButton>
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
+
+
   </table>
 
   <ConfirmDialog
