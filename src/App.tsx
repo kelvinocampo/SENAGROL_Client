@@ -1,25 +1,46 @@
-import { ProductManagement } from "@pages/ProductsManagement"
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import { InicioManual } from "@pages/Inicio"
+import { ProductManagement } from "@pages/ProductsManagement";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { InicioManual } from "@pages/Inicio";
 import { AdminManagement } from "./pages/AdminManagement";
 import { RegisterForm } from "@components/Usuarioregister/RegisterForm";
-//import { AdminLayout } from "./components/admin/AdminLayout"
-import MyPurchasesPage from "@pages/ListarMisCompras"
+import MyPurchasesPage from "@pages/ListarMisCompras";
+import { ProtectedRoute } from "@components/ProtectedRoute";
+import Error404 from "@pages/Error404";
 
 function App() {
-  return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/LogIn" element={<InicioManual />} />
-          <Route path="/Register" element={<RegisterForm />} />
-          <Route path="/Profile" element={<MyPurchasesPage />} />
-          <Route path="/MisProductos/*" element={<ProductManagement />}></Route>
-          <Route path="/admin/*" element={< AdminManagement />}></Route>
+  const isLoggedIn = !!localStorage.getItem('token'); // Esto puede mejorar con un contexto
 
-        </Routes>
-      </BrowserRouter>
-    </>
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/LogIn" element={<InicioManual />} />
+        <Route
+          path="/Register"
+          element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/" />}
+        />
+        <Route path="/Profile" element={<MyPurchasesPage />} />
+        
+        <Route
+          path="/MisProductos/*"
+          element={
+            <ProtectedRoute allowedRoles={['vendedor']}>
+              <ProductManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute allowedRoles={['administrador']}>
+              <AdminManagement />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route path="/404" element={<Error404 />} />
+        <Route path="*" element={<Navigate to="/404" />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
