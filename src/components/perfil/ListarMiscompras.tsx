@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Truck, QrCode } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ProductManagementService } from "@/services/PerfilcomprasServices"; // ajusta la ruta si es necesario
 
 type Compra = {
   id_compra: number;
@@ -16,72 +17,15 @@ type Compra = {
   estado: "En espera" | "Asignado" | "En proceso" | "Terminado";
 };
 
-const fetchComprasDummy = async (): Promise<Compra[]> => {
-  return [
-    {
-      id_compra: 1,
-      fecha_compra: "2025-05-01",
-      fecha_entrega: "2025-05-05",
-      producto_nombre: "Bicicleta montaña",
-      cantidad: 2,
-      precio_producto: 350,
-      precioTotal: 700,
-      precio_transporte: 50,
-      vendedor_nombre: "Juan Pérez",
-      transportador_nombre: "",
-      estado: "En espera",
-    },
-    {
-      id_compra: 2,
-      fecha_compra: "2025-05-03",
-      fecha_entrega: "2025-05-07",
-      producto_nombre: "Casco profesional",
-      cantidad: 1,
-      precio_producto: 120,
-      precioTotal: 120,
-      precio_transporte: 20,
-      vendedor_nombre: "Lucía Gómez",
-      transportador_nombre: "Carlos Transporte",
-      estado: "Asignado",
-    },
-    {
-      id_compra: 3,
-      fecha_compra: "2025-05-04",
-      fecha_entrega: "2025-05-09",
-      producto_nombre: "Guantes térmicos",
-      cantidad: 3,
-      precio_producto: 25,
-      precioTotal: 75,
-      precio_transporte: 15,
-      vendedor_nombre: "Ana Torres",
-      transportador_nombre: "Logística Express",
-      estado: "En proceso",
-    },
-    {
-      id_compra: 4,
-      fecha_compra: "2025-05-06",
-      fecha_entrega: "2025-05-10",
-      producto_nombre: "Rodilleras Pro",
-      cantidad: 1,
-      precio_producto: 80,
-      precioTotal: 80,
-      precio_transporte: 10,
-      vendedor_nombre: "Santiago López",
-      transportador_nombre: "Rápido Cargo",
-      estado: "Terminado",
-    },
-  ];
-};
-
 const ListarMiscompras = () => {
   const [compras, setCompras] = useState<Compra[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCompras = async () => {
+    const fetchData = async () => {
       try {
-        const data = await fetchComprasDummy();
+        const data = await ProductManagementService.getBySeller(); 
         setCompras(data);
       } catch (err: any) {
         setError(err.message || "Error al cargar las compras");
@@ -90,12 +34,11 @@ const ListarMiscompras = () => {
       }
     };
 
-    fetchCompras();
+    fetchData();
   }, []);
 
   if (loading) return <p className="text-center mt-4">Cargando compras...</p>;
   if (error) return <p className="text-red-500 text-center mt-4">{error}</p>;
-
   if (!loading && compras.length === 0) {
     return <p className="text-center mt-4 text-gray-600">No hay compras todavía.</p>;
   }
@@ -121,7 +64,7 @@ const ListarMiscompras = () => {
         </thead>
         <tbody className="bg-white divide-y divide-[#BFBFBD]">
           {compras.map((c, i) => (
-            <tr key={i} className=" transition-colors">
+            <tr key={i} className="transition-colors">
               <td className="px-3 py-2">{c.fecha_compra}</td>
               <td className="px-3 py-2">{c.fecha_entrega}</td>
               <td className="px-3 py-2">{c.producto_nombre}</td>
@@ -135,25 +78,15 @@ const ListarMiscompras = () => {
 
               <td className="px-3 py-2 text-center">
                 {c.estado === "En espera" && (
-                  <Link
-                    to="/transportadores"
-                    className="flex justify-center"
-                    title="Asignar transportador"
-                  >
+                  <Link to="/transportadores" className="flex justify-center" title="Asignar transportador">
                     <Truck size={16} className="text-black hover:text-green-600 transition-colors" />
                   </Link>
                 )}
-                {c.estado === "Asignado" && (
-                  <span className="text-black font-semibold">Asignado</span>
-                )}
-                {c.estado === "En proceso" && (
-                  <span className="text-black font-semibold">En proceso</span>
-                )}
-                {c.estado === "Terminado" && (
-                  <span className="text-black font-semibold">Terminado</span>
-                )}
+                {c.estado === "Asignado" && <span className="text-black font-semibold">Asignado</span>}
+                {c.estado === "En proceso" && <span className="text-black font-semibold">En proceso</span>}
+                {c.estado === "Terminado" && <span className="text-black font-semibold">Terminado</span>}
               </td>
-              
+
               <td className="px-3 py-2">
                 {c.estado === "En proceso" && (
                   <div className="flex items-center gap-1">

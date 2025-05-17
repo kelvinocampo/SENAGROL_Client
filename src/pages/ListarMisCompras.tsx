@@ -1,6 +1,7 @@
 import Header from '@components/Header';
 import UserLayout from '@components/perfil/PerfilIzquierdo';
 import ListarMiscompras from '@components/perfil/ListarMiscompras';
+import Footer from '@components/footer';
 
 
 const MyPurchasesPage = () => {
@@ -11,6 +12,7 @@ const MyPurchasesPage = () => {
         <h3 className="text-xl font-bold mb-4">Listar mis compras</h3>
         <ListarMiscompras />
       </UserLayout>
+      <Footer />
    
     </div>
   );
