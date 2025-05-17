@@ -14,7 +14,7 @@ type Compra = {
   precio_transporte: number;
   vendedor_nombre: string;
   transportador_nombre: string;
-  estado: "En espera" | "Asignado" | "En proceso" | "Terminado";
+  estado: "Pendiente" | "Asignado" | "En Proceso" | "Terminado";
 };
 
 const ListarMiscompras = () => {
@@ -77,23 +77,28 @@ const ListarMiscompras = () => {
               <td className="px-3 py-2">{c.estado}</td>
 
               <td className="px-3 py-2 text-center">
-                {c.estado === "En espera" && (
+                {c.estado === "Pendiente" && (
                   <Link to="/transportadores" className="flex justify-center" title="Asignar transportador">
                     <Truck size={16} className="text-black hover:text-green-600 transition-colors" />
                   </Link>
                 )}
                 {c.estado === "Asignado" && <span className="text-black font-semibold">Asignado</span>}
-                {c.estado === "En proceso" && <span className="text-black font-semibold">En proceso</span>}
+                
                 {c.estado === "Terminado" && <span className="text-black font-semibold">Terminado</span>}
               </td>
 
               <td className="px-3 py-2">
-                {c.estado === "En proceso" && (
+                {c.estado === "En Proceso" && (
                   <div className="flex items-center gap-1">
-                    <QrCode size={16} className="text-black" />
-                    <button className="bg-[#48BD28] text-white px-2 py-1 rounded text-xs">
+                    <Link to={`/codigo-qr/`}>
+                      <QrCode size={16} className="text-black" />
+                    </Link>
+                    <Link
+                      to={`/codigo-qr/`}
+                      className="bg-[#48BD28] text-white px-2 py-1 rounded text-xs"
+                    >
                       Código
-                    </button>
+                    </Link>
                   </div>
                 )}
               </td>

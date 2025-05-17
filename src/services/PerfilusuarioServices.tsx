@@ -11,7 +11,7 @@ export const obtenerPerfilUsuario = async (token: string) => {
       }
   
       const data = await res.json();
-      console.log("Datos del backend:", data);
+     
       
       // Retorna el primer usuario dentro del array user
       return data.user[0], data.user; 

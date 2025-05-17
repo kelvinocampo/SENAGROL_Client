@@ -1,17 +1,24 @@
-/*  import InicioManual from '@pages/inicioFormulario'  */
-/* import { BrowserRouter as Router, Routes, Route } from "react-router-dom";*/
-/* import MyPurchasesPage from '@pages/ListarMisCompras';  */
-/* import Transporte from '@pages/ListaTransportadores'; */
- import ListarMisCompras from '@pages/ListarMisCompras'; 
-/* import Perfilusuario from '@pages/perfilUsuario'; */
+/* import { Routes, Route } from "react-router-dom";*/
+/* import MyPurchasesPage from "@pages/ListarMisCompras";  */
+/* import Transporte from "@pages/ListaTransportadores"; */
+/* import Perfilusuario from "@pages/perfilUsuario";
+ */
+/* import ScanQRCode from "@pages/Qrcompras"; */
+import GenerateQRCode from "@pages/Qrcompras";
 
 function App() {
   return (
-  <>
-    <ListarMisCompras />
+    <>  
+      
 
-  </>
+    </>
   );
 }
 
 export default App;
+
+/*   <Routes>
+    <Route path="/" element={<MyPurchasesPage />} />
+    <Route path="/transportadores" element={<Transporte />} />
+    <Route path="/perfil" element={<Perfilusuario />} />
+  </Routes> */

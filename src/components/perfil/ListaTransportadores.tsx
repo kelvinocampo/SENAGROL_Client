@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MessageSquare } from "lucide-react";
-import { obtenerTransportadores } from "@services/perfiltransportadorServices";
+import { obtenerTransportadores } from "@services/perfiltransportadorServices"; // Ajusta la ruta si es necesario
+
 
 type Transportador = {
   nombre_usuario: string;
@@ -13,20 +14,23 @@ export default function Transportadores() {
   const [filtrados, setFiltrados] = useState<Transportador[]>([]);
   const [search, setSearch] = useState("");
 
+ 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await obtenerTransportadores();
-        console.log("Transportadores obtenidos:", data);  // Verifica que los datos sean correctos
+        console.log("✅ Transportadores recibidos:", data);
         setTransportadores(data);
         setFiltrados(data);
       } catch (error) {
-        console.error("Error al cargar transportadores en el componente:", error);
+        console.error("❌ Error al cargar transportadores en el componente:", error);
       }
     };
-
+  
     fetchData();
   }, []);
+  
+
 
   useEffect(() => {
     const resultado = transportadores.filter((t) =>
@@ -40,6 +44,7 @@ export default function Transportadores() {
   return (
     <div className="flex min-h-screen bg-white text-black">
       <div className="flex-1 p-4 sm:p-8">
+      
         <div className="mb-4 flex items-center gap-3">
           <input
             type="text"
@@ -75,6 +80,7 @@ export default function Transportadores() {
                 </tr>
               ))}
 
+          
               {filtrados.length === 0 && (
                 <tr>
                   <td colSpan={4} className="p-4 text-center text-[#F10E0E]">

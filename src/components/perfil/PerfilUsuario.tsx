@@ -16,13 +16,13 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchPerfil = async () => {
       const token = localStorage.getItem('token');
-      console.log("Token:", token);
+     
 
       if (!token) return;
 
       try {
         const data = await obtenerPerfilUsuario(token);
-        console.log("DATA COMPLETA:", JSON.stringify(data));
+       
 
       
         if (data && data[0]) {
