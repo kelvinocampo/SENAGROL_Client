@@ -16,8 +16,8 @@ type UserRole = 'administrador' | 'comprador' | 'vendedor' | 'transportador';
 interface UserManagementContextProps {
   users: User[];  // siempre un array al exponerlo
   fetchUsers: () => Promise<void>;
-  deleteUser: (id: number) => Promise<void>;
-  disableUser: (id: number, role: UserRole) => Promise<void>;
+  deleteUser: (id: number) => Promise<{ success: boolean; message: string }>;
+  disableUser: (id: number, role: UserRole) => Promise<void>,currentUserId: number ;
   activateUserRole: (id: number, role: UserRole) => Promise<void>;
 }
 
@@ -37,23 +37,31 @@ export const UserManagementProvider = ({ children }: { children: React.ReactNode
     }
   };
 
-  const deleteUser = async (id: number) => {
-    try {
-      await UserManagementService.deleteUser(id);
-      await fetchUsers();
-    } catch (error) {
-      console.error('Error deleting user:', error);
+const deleteUser = async (id: number): Promise<{ success: boolean; message: string }> => {
+  try {
+    const result = await UserManagementService.deleteUser(id);
+     if (result.success) {
+      await fetchUsers(); // Actualiza la lista si la eliminación fue exitosa
     }
-  };
+    return result; // <-- Retornamos el mensaje y estado
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return {
+      success: false,
+      message: 'Error al eliminar el usuario'
+    };
+  }
+};
 
-  const disableUser = async (id: number, role: UserRole) => {
-    try {
-      await UserManagementService.disableUser(id, role);
-      await fetchUsers();
-    } catch (error) {
-      console.error('Error disabling user:', error);
-    }
-  };
+const disableUser = async (id: number, role: UserRole, currentUserId: number) => {
+  try {
+    await UserManagementService.disableUser(id, role, currentUserId);
+    await fetchUsers();
+  } catch (error) {
+    console.error('Error disabling user:', error);
+  }
+};
+
 
   const activateUserRole = async (id: number, role: UserRole) => {
     try {

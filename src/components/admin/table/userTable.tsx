@@ -3,6 +3,7 @@ import { FaTrash } from 'react-icons/fa';
 import { TableHeader } from '@/components/admin/table/TableHeader';
 import { ActionButton } from '@/components/admin/table/ActionButton';
 import { ConfirmDialog } from '@/components/admin/common/ConfirmDialog';
+import { MessageDialog } from "@/components/admin/common/MessageDialog";
 import { UserManagementContext } from '@/contexts/admin/AdminManagement';
 import { UserRole } from '@/services/Admin/UserManagementService';
 import { SearchBar } from '@/components/admin/table/SearchUsers'; // Asegúrate de que la ruta sea correcta
@@ -11,17 +12,25 @@ export const UserTable = () => {
   const context = useContext(UserManagementContext);
   if (!context) return <div>Error: contexto no disponible.</div>;
 
-  const { users, deleteUser, disableUser, activateUserRole } = context;
+  const { users, deleteUser, disableUser, activateUserRole, fetchUsers } = context;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState('');
   const [onConfirm, setOnConfirm] = useState<() => void>(() => () => {});
 
+  const [messageOpen, setMessageOpen] = useState(false);
+  const [message, setMessage] = useState("");
+
+
   const handleConfirm = (message: string, action: () => void) => {
     setConfirmMessage(message);
     setOnConfirm(() => action);
     setConfirmOpen(true);
+  };
+  const showMessage = (msg: string) => {
+    setMessage(msg);
+    setMessageOpen(true);
   };
 
   const renderRoleCell = (user: any, role: UserRole) => {
@@ -161,17 +170,43 @@ export const UserTable = () => {
           )}
         </td>
         <td className="p-2">
-          <ActionButton
-            title="Eliminar usuario"
-            onClick={() =>
-              handleConfirm(
-                `¿Estás seguro de que deseas eliminar al usuario ${user.name}? Esta acción no se puede deshacer.`,
-                () => deleteUser(user.id)
-              )
-            }
-          >
-            <FaTrash />
-          </ActionButton>
+         <ActionButton
+  title="Eliminar usuario"
+  onClick={() =>
+    handleConfirm(
+      `¿Estás seguro de que deseas eliminar al usuario ${user.name}? Esta acción no se puede deshacer.`,
+      async () => {
+        const result = await deleteUser(user.id);
+
+        if (
+          !result ||
+          typeof result.success !== "boolean" ||
+          typeof result.message !== "string"
+        ) {
+          setConfirmOpen(false);
+          console.log("error");
+          setTimeout(() => showMessage("Respuesta inválida del servidor."), 200);
+          return;
+        }
+
+        if (result.success) {
+          setConfirmOpen(false);
+          console.log(result.message);
+          
+          setTimeout(() => showMessage(result.message), 200);
+          return;
+        }
+
+        setConfirmOpen(false);
+        await fetchUsers();
+      }
+    )
+  }
+>
+  <FaTrash />
+</ActionButton>
+
+
         </td>
       </tr>
     ))
@@ -187,6 +222,11 @@ export const UserTable = () => {
     onConfirm={onConfirm}
     message={confirmMessage}
   />
+    <MessageDialog
+        isOpen={messageOpen}
+        onClose={() => setMessageOpen(false)}
+        message={message}
+      />
 </div>
 
   );

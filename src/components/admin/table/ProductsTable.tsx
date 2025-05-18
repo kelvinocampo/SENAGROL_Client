@@ -125,7 +125,6 @@ export const ProductTable = () => {
           typeof result.message !== "string"
         ) {
           setConfirmOpen(false);
-          // Pequeño delay para asegurar que el confirmDialog se cierre antes de abrir mensaje
           setTimeout(() => showMessage("Respuesta inválida del servidor."), 200);
           return;
         }
@@ -136,8 +135,7 @@ export const ProductTable = () => {
           setTimeout(() => showMessage(result.message), 200);
           return;
         }
-       
-        // Éxito: cerrar confirm y refrescar lista
+  
         setConfirmOpen(false);
         await fetchProducts();
       }

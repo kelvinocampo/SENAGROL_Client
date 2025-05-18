@@ -27,27 +27,40 @@ export class UserManagementService {
     }));
   }
 
-  static async deleteUser(id: number) {
-    const res = await fetch(`${this.API_URL}/admin/usuarios/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    if (!res.ok) throw new Error('Error al eliminar usuario');
+static async deleteUser(id: number): Promise<{ success: boolean; message: string }> {
+  const res = await fetch(`${this.API_URL}/admin/usuarios/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+  });
+
+const data = await res.json();
+
+  if (!res.ok) {
+    return { success: false, message: data.message || 'Error al eliminar usuario' };
   }
 
-  static async disableUser(id: number, role: UserRole) {
-    const res = await fetch(`${this.API_URL}/admin/usuarios/${role}/${id}`, {
-      method: 'PATCH',
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    console.log(res);
-    
-    if (!res.ok) throw new Error('Error al desactivar usuario');
-  }
+  return { success: true, message: data.message || 'Usuario eliminado correctamente.' };
+}
+
+
+
+  static async disableUser(id: number, role: UserRole, currentUserId: number) {
+  const res = await fetch(`${this.API_URL}/admin/usuarios/${role}/${id}`, {
+    method: 'PATCH',
+    headers: {
+      "Authorization": `Bearer ${localStorage.getItem('token')}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ id_user: currentUserId })
+  });
+
+  console.log(res);
+
+  if (!res.ok) throw new Error('Error al desactivar usuario');
+}
+
 
   static async activateUserRole(userId: number, role: UserRole) {
     let route = '';
