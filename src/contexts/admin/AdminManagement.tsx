@@ -17,7 +17,7 @@ interface UserManagementContextProps {
   users: User[];  // siempre un array al exponerlo
   fetchUsers: () => Promise<void>;
   deleteUser: (id: number) => Promise<{ success: boolean; message: string }>;
-  disableUser: (id: number, role: UserRole) => Promise<void>,currentUserId: number ;
+  disableUser: (id: number, role: UserRole, currentUserId: number) => Promise<void>;
   activateUserRole: (id: number, role: UserRole) => Promise<void>;
 }
 
