@@ -25,6 +25,12 @@ export const AdminLayout = () => {
         return <BarChartProductsByMonth />;
       case 'circularProducts':
         return <PieChartProductsByMonth />;
+         case 'ListSales':
+        return <ProductTable />;
+      case 'bargraphSales':
+        return <BarChartProductsByMonth />;
+      case 'Combined Earnings Chart':
+        return <PieChartProductsByMonth />;
       default:
         return <div>Seleccione una opción del menú</div>;
     }
@@ -43,6 +49,12 @@ export const AdminLayout = () => {
       case 'circularProducts':
         return 'Gráfica Circular';
       case 'ListProducts':
+        return 'Productos';
+          case 'bargraphSales':
+        return 'Gráfica de barras';
+      case 'circularSales':
+        return 'Gráfica Circular';
+      case 'ListSales':
         return 'Productos';
       case 'dashboard':
         return 'Dashboard';
