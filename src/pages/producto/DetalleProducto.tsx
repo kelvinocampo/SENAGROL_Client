@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getProductosMock, imagenes } from "../../services/productosServices";
+import { Link } from "react-router-dom";
 
 interface Producto {
   nombre: string;
@@ -52,9 +53,10 @@ export default function DetalleProducto() {
       </div>
 
       <div className="mt-6 flex gap-4">
-        <button className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600">
-          Comprar
-        </button>
+       
+        <Link to="/compra-realizada" className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600">
+       Comprar
+      </Link>
         <button className="bg-gray-200 px-6 py-2 rounded-full hover:bg-gray-300">
           Conversar con el vendedor
         </button>

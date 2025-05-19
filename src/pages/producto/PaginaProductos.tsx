@@ -41,16 +41,17 @@ useEffect(() => {
     <div className="min-h-screen bg-white px-4 md:px-10 py-6">
       {/* BOTONES */}
      <div className="flex justify-end space-x-4 mb-6">
-  <button className="bg-[#5FC529] text-white font-bold px-6 py-2 rounded-full hover:opacity-90 transition">
+  <Link to="/inicio" className="bg-[#5FC529] text-white font-bold px-6 py-2 rounded-full hover:opacity-90 transition">
     Inicio
-  </button>
-  <button className="bg-[#5FC529] text-white font-bold px-6 py-2 rounded-full hover:opacity-90 transition">
+  </Link>
+  <Link to="/" className="bg-[#5FC529] text-white font-bold px-6 py-2 rounded-full hover:opacity-90 transition">
     Iniciar Sesión
-  </button>
-  <button className="bg-white text-black font-bold px-6 py-2 rounded-full border border-black hover:bg-gray-100 transition">
+  </Link>
+  <Link to="/cerrar-sesion" className="border border-black text-black font-bold px-6 py-2 rounded-full hover:bg-gray-200 transition">
     Cerrar
-  </button>
+  </Link>
 </div>
+
 
 
       {/* SLIDER */}
