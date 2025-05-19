@@ -1,15 +1,15 @@
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import UserLayout from '@components/perfil/PerfilIzquierdo';
-import QrComprador from "@/components/perfil/QrComprador";
+import CodigoComprador from "@/components/perfil/CodigoComprador";
 
-const Layout = () => {
+const Layout1 = () => {
   return (
     <>
       <Header />
       <UserLayout>
         <main className="min-h-[calc(100vh-64px-40px)]"> {/* ajusta según altura header/footer */}
-          <QrComprador />
+          <CodigoComprador />
         </main>
       </UserLayout>
       <Footer />
@@ -17,4 +17,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default Layout1;

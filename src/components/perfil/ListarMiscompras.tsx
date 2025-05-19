@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { Truck, QrCode } from "lucide-react";
+import { Truck } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ProductManagementService } from "@/services/PerfilcomprasServices"; // ajusta la ruta si es necesario
+import { ProductManagementService } from "@/services/PerfilcomprasServices";
+import ToggleQRorCode from "./codigo&Qr"; // Ajusta la ruta si está en otra carpeta
+
 
 type Compra = {
   id_compra: number;
@@ -64,7 +66,7 @@ const ListarMiscompras = () => {
         </thead>
         <tbody className="bg-white divide-y divide-[#BFBFBD]">
           {compras.map((c, i) => (
-            <tr key={i} className="transition-colors">
+            <tr key={i}>
               <td className="px-3 py-2">{c.fecha_compra}</td>
               <td className="px-3 py-2">{c.fecha_entrega}</td>
               <td className="px-3 py-2">{c.producto_nombre}</td>
@@ -83,25 +85,17 @@ const ListarMiscompras = () => {
                   </Link>
                 )}
                 {c.estado === "Asignado" && <span className="text-black font-semibold">Asignado</span>}
-                
                 {c.estado === "Terminado" && <span className="text-black font-semibold">Terminado</span>}
               </td>
 
-              <td className="px-3 py-2">
-                {c.estado === "En Proceso" && (
-                  <div className="flex items-center gap-1">
-                    <Link to={`/codigo-qr/`}>
-                      <QrCode size={16} className="text-black" />
-                    </Link>
-                    <Link
-                      to={`/codigo-qr/`}
-                      className="bg-[#48BD28] text-white px-2 py-1 rounded text-xs"
-                    >
-                      Código
-                    </Link>
-                  </div>
+              <td className="px-3 py-2 text-center">
+                {c.estado === "En Proceso" ? (
+                <ToggleQRorCode id_compra={c.id_compra} />
+                ) : (
+                  <span className="text-gray-400 text-xs"></span>
                 )}
               </td>
+              
             </tr>
           ))}
         </tbody>
