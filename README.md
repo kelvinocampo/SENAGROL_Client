@@ -1,26 +1,13 @@
-# SENAGROL
+SENAGROL es una plataforma web diseñada para que los agricultores tengan una conexión más directa, rápida y fácil con los consumidores. A pesar de los avances tecnológicos y la disponibilidad de herramientas en línea, los agricultores siguen enfrentando numerosos desafíos al intentar llegar a los consumidores finales y garantizar la rentabilidad de sus cultivos, lo que a menudo resulta en pérdidas económicas tanto para los agricultores como para los consumidores. 
 
-**SAMTS** es una plataforma web que permite leer y publicar artículos de manera sencilla. Ofrece un espacio gratuito para quienes desean escribir y compartir sus ideas sin complicaciones.
-
-El sistema cuenta con planes de suscripción, siendo el más económico de **15.000 pesos colombianos** por un mes, con publicaciones ilimitadas. Los planes superiores ofrecen más duración, navegación sin anuncios y acceso a inteligencia artificial para ayudar a redactar y corregir artículos.
-
-También se publicarán artículos del administrador sobre productos de Amazon e infoproductos de Hotmart. SAMTS incluirá una tienda en línea gestionada con **Shopify**.
-
-Además, el sistema integrará funciones clave como:
-
-- **Sistema de reputación** para destacar a los mejores autores.
-- **Comentarios y reacciones** para fomentar la interacción.
-- **Estadísticas de desempeño** para autores.
-- **Editor enriquecido** con opciones visuales.
-- **Monetización** mediante donaciones o suscripciones.
-- **Colaboración en artículos** entre varios usuarios.
-- **App móvil** con acceso sin conexión.
-- **Interfaz multilingüe** con traducción automática.
-
-Estas funciones hacen de SAMTS una plataforma moderna, completa y orientada a la comunidad.
+Aunque este software está dirigido especialmente a agricultores, tendrá una inclusión a todo tipo de productos con el fin de facilitar la venta de todo tipo de productos, enfocado principalmente en los productos agrícolas.
 
 ## Integrantes del Proyecto
-1. Samuel Torres Ospina (Scrum Master)
+1. Kevin Esneider Ocampo Osorio (Scrum Master)
+2. Samuel Torres Ospina (Product Owner)
+3. Luisa Fernanda Vargas Barrera
+4. Valerie Calle Loaiza
+5. Mariana Cardenas Rendon
 
 # Estructura del Proyecto Frontend (Vite + React + TypeScript)
 
@@ -72,4 +59,4 @@ Estas funciones hacen de SAMTS una plataforma moderna, completa y orientada a la
     Configuración para despliegue en Vercel.  
 
 ## Anexos
-
+- [Repositorio BackEnd](https://github.com/kelvinocampo/SENAGROL_Server)
