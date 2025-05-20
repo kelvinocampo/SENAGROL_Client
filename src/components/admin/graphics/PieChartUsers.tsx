@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -36,7 +36,7 @@ export const PieChartRoles = () => {
             outerRadius={150}
             label
           >
-            {data.map((entry, index) => (
+            {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
@@ -45,7 +45,7 @@ export const PieChartRoles = () => {
             verticalAlign="bottom"
             height={36}
             iconType="circle"
-            formatter={(value, entry) => (
+            formatter={(value, _) => (
               <span className="capitalize text-sm text-gray-700">{value}</span>
             )}
           />

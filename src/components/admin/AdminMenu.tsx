@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   FaHome,
-  FaChartPie,
   FaUsers,
   FaBox,
   FaShoppingCart,
