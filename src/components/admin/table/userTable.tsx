@@ -8,6 +8,8 @@ import { UserManagementContext } from '@/contexts/admin/AdminManagement';
 import { UserRole } from '@/services/Admin/UserManagementService';
 import { SearchBar } from '@/components/admin/table/SearchUsers'; // Asegúrate de que la ruta sea correcta
 
+// ... (importaciones sin cambios)
+
 export const UserTable = () => {
   const context = useContext(UserManagementContext);
   if (!context) return <div>Error: contexto no disponible.</div>;
@@ -18,16 +20,15 @@ export const UserTable = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState('');
   const [onConfirm, setOnConfirm] = useState<() => void>(() => () => {});
-
   const [messageOpen, setMessageOpen] = useState(false);
   const [message, setMessage] = useState("");
-
 
   const handleConfirm = (message: string, action: () => void) => {
     setConfirmMessage(message);
     setOnConfirm(() => action);
     setConfirmOpen(true);
   };
+
   const showMessage = (msg: string) => {
     setMessage(msg);
     setMessageOpen(true);
@@ -38,19 +39,18 @@ export const UserTable = () => {
 
     if (role === 'comprador') {
       if (status === 'Activo') {
-           return (
-        <span className="inline-block px-3 py-1 rounded-full font-semibold text-sm bg-[#E4FBDD] text-black">
-          {status === 'Activo' ? 'Activo' : status === 'Inactivo' ? 'Inactivo' : 'no disponible'}
-        </span>
-      );
-      }else {
         return (
-        <span className="inline-block px-3 py-1 rounded-full font-semibold text-sm text-black">
-          {status === 'Activo' ? 'Activo' : status === 'Inactivo' ? 'Inactivo' : 'no disponible'}
-        </span>
-      );
+          <span className="inline-block px-3 py-1 rounded-full font-semibold text-sm bg-[#E4FBDD] text-black">
+            Activo
+          </span>
+        );
+      } else {
+        return (
+          <span className="inline-block px-3 py-1 rounded-full font-semibold text-sm text-black">
+            {status === 'Inactivo' ? 'Inactivo' : 'no disponible'}
+          </span>
+        );
       }
-     
     }
 
     if (status === 'Activo') {
@@ -71,7 +71,6 @@ export const UserTable = () => {
 
     if (status === 'Inactivo') {
       return (
-        
         <ActionButton
           title={`Activar ${role}`}
           onClick={() =>
@@ -99,135 +98,132 @@ export const UserTable = () => {
     user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (filteredUsers.length === 0) return <div>No hay usuarios para mostrar.</div>;
-
   return (
-<div className="overflow-x-auto bg-white p-4">
-  {/* Buscador */}
-  <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
+    <div className="">
+      <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
 
-  <table className="min-w-full table-auto rounded-xl border-2 border-[#F5F0E5]">
-    <thead className="border-2 border-[#F5F0E5] bg-[E4FBDD]">
-      <tr className='bg-[#E4FBDD]'>
-        <TableHeader>Nombre</TableHeader>
-        <TableHeader className="text-black ">Transportador</TableHeader>
-        <TableHeader className="text-black">Vendedor</TableHeader>
-        <TableHeader className="text-black">Comprador</TableHeader>
-        <TableHeader className="text-black">Administrador</TableHeader>
-        <TableHeader className="text-black">Eliminar</TableHeader>
-      </tr>
-    </thead>
-  <tbody>
-  {filteredUsers.length === 0 ? (
-    <tr>
-      <td colSpan={6} className="text-center py-4 text-gray-500">
-        No hay usuarios que coincidan con la búsqueda.
-      </td>
-    </tr>
-  ) : (
-    filteredUsers.map(user => (
-      <tr
-        key={user.id}
-        className="text-center hover:bg-gray-50 border-2 border-[#E5E8EB]"
-      >
-        <td className="p-2 text-left whitespace-normal break-words max-w-[180px]">
-          {user.name}
-        </td>
-        <td className="p-2 whitespace-normal break-words max-w-[140px]">
-          {renderRoleCell(user, 'transportador')}
-        </td>
-        <td className="p-2 whitespace-normal break-words max-w-[140px]">
-          {renderRoleCell(user, 'vendedor')}
-        </td>
-        <td className="p-2 whitespace-normal break-words max-w-[140px]">
-          {renderRoleCell(user, 'comprador')}
-        </td>
-        <td className="p-2 whitespace-normal break-words max-w-[140px]">
-          {user.administrador === 'Activo' ? (
-            <ActionButton
-              title="Desactivar administrador"
-              onClick={() =>
-                handleConfirm(
-                  `¿Estás seguro de que deseas desactivar el rol administrador para ${user.name}?`,
-                  () => disableUser(user.id, 'administrador')
-                )
-              }
-            >
-              Desactivar
-            </ActionButton>
+      <table className="min-w-full table-auto rounded-xl border-2 border-[#F5F0E5]">
+        <thead className="border-2 border-[#F5F0E5] bg-[E4FBDD]">
+          <tr className="bg-[#E4FBDD]">
+            <TableHeader>Nombre</TableHeader>
+            <TableHeader className="text-black">Transportador</TableHeader>
+            <TableHeader className="text-black">Vendedor</TableHeader>
+            <TableHeader className="text-black">Comprador</TableHeader>
+            <TableHeader className="text-black">Administrador</TableHeader>
+            <TableHeader className="text-black">Eliminar</TableHeader>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredUsers.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="text-center py-4 text-gray-500">
+                No hay usuarios que coincidan con la búsqueda.
+              </td>
+            </tr>
           ) : (
-            <ActionButton
-              title="Designar como administrador"
-              onClick={() =>
-                handleConfirm(
-                  `¿Deseas designar a ${user.name} como administrador?`,
-                  () => activateUserRole(user.id, 'administrador')
-                )
-              }
-            >
-              Designar
-            </ActionButton>
+            filteredUsers.map((user) => (
+              <tr
+                key={user.id}
+                className="text-center hover:bg-gray-50 border-2 border-[#E5E8EB]"
+              >
+                <td className="p-2 text-left whitespace-normal break-words max-w-[180px]">
+                  {user.name}
+                </td>
+                <td className="p-2 whitespace-normal break-words max-w-[140px]">
+                  {renderRoleCell(user, "transportador")}
+                </td>
+                <td className="p-2 whitespace-normal break-words max-w-[140px]">
+                  {renderRoleCell(user, "vendedor")}
+                </td>
+                <td className="p-2 whitespace-normal break-words max-w-[140px]">
+                  {renderRoleCell(user, "comprador")}
+                </td>
+                <td className="p-2 whitespace-normal break-words max-w-[140px]">
+                  {user.administrador === "Activo" ? (
+                    <ActionButton
+                      title="Desactivar administrador"
+                      onClick={() =>
+                        handleConfirm(
+                          `¿Estás seguro de que deseas desactivar el rol administrador para ${user.name}?`,
+                          () => disableUser(user.id, "administrador")
+                        )
+                      }
+                    >
+                      Desactivar
+                    </ActionButton>
+                  ) : (
+                    <ActionButton
+                      title="Designar como administrador"
+                      onClick={() =>
+                        handleConfirm(
+                          `¿Deseas designar a ${user.name} como administrador?`,
+                          () => activateUserRole(user.id, "administrador")
+                        )
+                      }
+                    >
+                      Designar
+                    </ActionButton>
+                  )}
+                </td>
+                <td className="p-2">
+                  <ActionButton
+                    title="Eliminar usuario"
+                    onClick={() =>
+                      handleConfirm(
+                        `¿Estás seguro de que deseas eliminar al usuario ${user.name}? Esta acción no se puede deshacer.`,
+                        async () => {
+                          const result = await deleteUser(user.id);
+
+                          if (
+                            !result ||
+                            typeof result.success !== "boolean" ||
+                            typeof result.message !== "string"
+                          ) {
+                            setConfirmOpen(false);
+                            console.log("error");
+                            setTimeout(
+                              () =>
+                                showMessage("Respuesta inválida del servidor."),
+                              200
+                            );
+                            return;
+                          }
+
+                          if (result.success) {
+                            setConfirmOpen(false);
+                            console.log(result.message);
+                            setTimeout(() => showMessage(result.message), 200);
+                            return;
+                          }
+
+                          setConfirmOpen(false);
+                          await fetchUsers();
+                        }
+                      )
+                    }
+                  >
+                    <FaTrash />
+                  </ActionButton>
+                </td>
+              </tr>
+            ))
           )}
-        </td>
-        <td className="p-2">
-         <ActionButton
-  title="Eliminar usuario"
-  onClick={() =>
-    handleConfirm(
-      `¿Estás seguro de que deseas eliminar al usuario ${user.name}? Esta acción no se puede deshacer.`,
-      async () => {
-        const result = await deleteUser(user.id);
+        </tbody>
+      </table>
 
-        if (
-          !result ||
-          typeof result.success !== "boolean" ||
-          typeof result.message !== "string"
-        ) {
-          setConfirmOpen(false);
-          console.log("error");
-          setTimeout(() => showMessage("Respuesta inválida del servidor."), 200);
-          return;
-        }
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={onConfirm}
+        message={confirmMessage}
+      />
 
-        if (result.success) {
-          setConfirmOpen(false);
-          console.log(result.message);
-          
-          setTimeout(() => showMessage(result.message), 200);
-          return;
-        }
-
-        setConfirmOpen(false);
-        await fetchUsers();
-      }
-    )
-  }
->
-  <FaTrash />
-</ActionButton>
-
-
-        </td>
-      </tr>
-    ))
-  )}
-</tbody>
-
-
-  </table>
-
-  <ConfirmDialog
-    isOpen={confirmOpen}
-    onClose={() => setConfirmOpen(false)}
-    onConfirm={onConfirm}
-    message={confirmMessage}
-  />
-    <MessageDialog
+      <MessageDialog
         isOpen={messageOpen}
         onClose={() => setMessageOpen(false)}
         message={message}
       />
-</div>
-
+    </div>
   );
 };
+

@@ -46,14 +46,13 @@ const data = await res.json();
 
 
 
-  static async disableUser(id: number, role: UserRole, currentUserId: number) {
+  static async disableUser(id: number, role: UserRole) {
   const res = await fetch(`${this.API_URL}/admin/usuarios/${role}/${id}`, {
     method: 'PATCH',
     headers: {
       "Authorization": `Bearer ${localStorage.getItem('token')}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ id_user: currentUserId })
   });
 
   console.log(res);

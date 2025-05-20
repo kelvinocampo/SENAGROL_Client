@@ -17,7 +17,7 @@ interface UserManagementContextProps {
   users: User[];  // siempre un array al exponerlo
   fetchUsers: () => Promise<void>;
   deleteUser: (id: number) => Promise<{ success: boolean; message: string }>;
-  disableUser: (id: number, role: UserRole, currentUserId: number) => Promise<void>;
+  disableUser: (id: number, role: UserRole) => Promise<void>;
   activateUserRole: (id: number, role: UserRole) => Promise<void>;
 }
 
@@ -53,9 +53,9 @@ const deleteUser = async (id: number): Promise<{ success: boolean; message: stri
   }
 };
 
-const disableUser = async (id: number, role: UserRole, currentUserId: number) => {
+const disableUser = async (id: number, role: UserRole) => {
   try {
-    await UserManagementService.disableUser(id, role, currentUserId);
+    await UserManagementService.disableUser(id, role);
     await fetchUsers();
   } catch (error) {
     console.error('Error disabling user:', error);

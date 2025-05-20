@@ -8,7 +8,6 @@ import { MiniMap } from "@/components/admin/common/MiniMap";
 import { ProductManagementContext } from "@/contexts/admin/ProductsManagement";
 // Modal para mostrar solo mensajes sin confirmación
 
-
 export const ProductTable = () => {
   const context = useContext(ProductManagementContext);
 
@@ -48,7 +47,7 @@ export const ProductTable = () => {
   }
 
   return (
-    <div className="overflow-x-auto bg-white p-4 rounded-lg border border-gray-200">
+    <div className="">
       <table className="min-w-full table-auto border-2 border-[#F5F0E5] rounded-xl">
         <thead className="bg-[#E4FBDD] text-black">
           <tr>
@@ -69,11 +68,11 @@ export const ProductTable = () => {
               key={product.id}
               className="text-center hover:bg-gray-50 border-b border-[#E5E8EB]"
             >
-              <td className="p-2">
+              <td className="p-2 ">
                 <img
                   src={product.imagen}
                   alt={product.nombre}
-                  className="w-10 h-10 object-contain mx-auto"
+                  className="w-10 h-10 object-contain mx-auto rounded-full"
                 />
               </td>
               <td className="p-2 text-black whitespace-normal max-w-xs">
@@ -83,7 +82,9 @@ export const ProductTable = () => {
                 {product.descripcion}
               </td>
               <td className="p-2 text-black">{product.cantidad}</td>
-              <td className="p-2 text-black">{product.cantidad_minima_compra}</td>
+              <td className="p-2 text-black">
+                {product.cantidad_minima_compra}
+              </td>
               <td className="p-2">
                 <MiniMap lat={product.latitud} lng={product.longitud} />
               </td>
@@ -111,40 +112,42 @@ export const ProductTable = () => {
                 </ActionButton>
               </td>
               <td className="p-2">
-             <ActionButton
-  title="Eliminar producto"
-  onClick={() =>
-    handleConfirm(
-      `¿Estás seguro de que deseas eliminar el producto ${product.nombre}?`,
-      async () => {
-        const result = await deleteProduct(product.id);
+                <ActionButton
+                  title="Eliminar producto"
+                  onClick={() =>
+                    handleConfirm(
+                      `¿Estás seguro de que deseas eliminar el producto ${product.nombre}?`,
+                      async () => {
+                        const result = await deleteProduct(product.id);
 
-        if (
-          !result ||
-          typeof result.success !== "boolean" ||
-          typeof result.message !== "string"
-        ) {
-          setConfirmOpen(false);
-          setTimeout(() => showMessage("Respuesta inválida del servidor."), 200);
-          return;
-        }
-    
-        
-        if (result.success) {
-          setConfirmOpen(false);
-          setTimeout(() => showMessage(result.message), 200);
-          return;
-        }
-  
-        setConfirmOpen(false);
-        await fetchProducts();
-      }
-    )
-  }
->
-  <FaTrash />
-</ActionButton>
+                        if (
+                          !result ||
+                          typeof result.success !== "boolean" ||
+                          typeof result.message !== "string"
+                        ) {
+                          setConfirmOpen(false);
+                          setTimeout(
+                            () =>
+                              showMessage("Respuesta inválida del servidor."),
+                            200
+                          );
+                          return;
+                        }
 
+                        if (result.success) {
+                          setConfirmOpen(false);
+                          setTimeout(() => showMessage(result.message), 200);
+                          return;
+                        }
+
+                        setConfirmOpen(false);
+                        await fetchProducts();
+                      }
+                    )
+                  }
+                >
+                  <FaTrash />
+                </ActionButton>
               </td>
             </tr>
           ))}
