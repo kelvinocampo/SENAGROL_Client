@@ -1,6 +1,6 @@
 // ProductManagementService.ts
 export class ProductManagementService {
-  private static API_URL = 'http://localhost:10101';
+  private static API_URL = 'https://senagrol.up.railway.app';
 
   static async getProducts() {
     const res = await fetch(`${this.API_URL}/admin/products`, {
