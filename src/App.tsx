@@ -6,6 +6,7 @@ import { RegisterForm } from "@components/Usuarioregister/RegisterForm";
 import MyPurchasesPage from "@pages/ListarMisCompras";
 import { ProtectedRoute } from "@components/ProtectedRoute";
 import Error404 from "@pages/Error404";
+import { IA } from "./pages/IA";
 
 function App() {
   const isLoggedIn = !!localStorage.getItem('token'); // Esto puede mejorar con un contexto
@@ -19,7 +20,7 @@ function App() {
           element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/" />}
         />
         <Route path="/Profile" element={<MyPurchasesPage />} />
-        
+
         <Route
           path="/MisProductos/*"
           element={
@@ -36,7 +37,8 @@ function App() {
             </ProtectedRoute>
           }
         />
-        
+        <Route path="/IA" element={<IA />} />
+
         <Route path="/404" element={<Error404 />} />
         <Route path="*" element={<Navigate to="/404" />} />
       </Routes>
