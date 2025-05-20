@@ -1,7 +1,7 @@
 export const Paragraph = () => (
   <>
     <p className="text-center text-sm text-[BFBFBD]">
-      <a href="/contraseña" className="text-[#48BD28] hover:underline">
+      <a href="#" className="text-[#48BD28] hover:underline">
         ¿Olvidaste tu contraseña?
       </a>
     </p>
