@@ -6,9 +6,7 @@ import { ConfirmDialog } from '@/components/admin/common/ConfirmDialog';
 import { MessageDialog } from "@/components/admin/common/MessageDialog";
 import { UserManagementContext } from '@/contexts/admin/AdminManagement';
 import { UserRole } from '@/services/Admin/UserManagementService';
-import { SearchBar } from '@/components/admin/table/SearchUsers'; // Asegúrate de que la ruta sea correcta
-
-// ... (importaciones sin cambios)
+import { SearchBar } from '@/components/admin/table/SearchUsers'; 
 
 export const UserTable = () => {
   const context = useContext(UserManagementContext);
