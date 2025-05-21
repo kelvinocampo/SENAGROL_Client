@@ -17,7 +17,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow-md px-6 py-3 relative z-50">
+    <header className="bg-white shadow-sm hover:shadow-md px-6 py-3 relative z-50 rounded-lg">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
 
         {/* Logo and Search Input */}
