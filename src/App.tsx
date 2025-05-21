@@ -10,12 +10,15 @@ import PaginaProductos from "@pages/producto/PaginaProductos";
 import DetalleProducto from "./pages/producto/DetalleProducto";
 import CompraRealizada from "./pages/producto/CompraExitosa";
 import CerrarSesion from "./pages/producto/CerrarSesion";
+import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement";
+
 
 function App() {
   const isLoggedIn = !!localStorage.getItem('token'); // Esto puede mejorar con un contexto
 
   return (
     <BrowserRouter>
+    <DiscountedProductProvider>
       <Routes>
         <Route path="/" element={<InicioManual />} />
         <Route path="/inicio" element={<PaginaProductos />} />
@@ -49,6 +52,7 @@ function App() {
         <Route path="/404" element={<Error404 />} />
         <Route path="*" element={<Navigate to="/404" />} />
       </Routes>
+      </DiscountedProductProvider>
     </BrowserRouter>
   );
 }
