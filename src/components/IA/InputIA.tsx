@@ -34,7 +34,7 @@ export const InputIA = () => {
                     .map((result: any) => result[0].transcript)
                     .join("");
 
-                setMessage((prev: string) => prev + " " + transcript.trim());
+                setMessage(transcript.trim());
                 setStatusMessage(null);
             };
 
