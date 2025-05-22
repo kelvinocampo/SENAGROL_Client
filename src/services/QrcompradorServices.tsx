@@ -1,18 +1,22 @@
-// src/services/QRService.ts
 import axios from "axios";
 
-const API_URL = "http://localhost:10101/compra/code"; // sin ":id_compra"
+export const getCodigoCompra = async (id_compra: string, token: string | null) => {
+  if (!id_compra) {
+    throw new Error("ID de compra no válido.");
+  }
 
-export const QRService = {
-  generateCode: async (id_compra: number, token: string | null): Promise<string> => {
-    if (!token) throw new Error("No autenticado");
-
-    const response = await axios.get(`${API_URL}/${id_compra}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+  try {
+    const response = await axios.get(
+      `http://localhost:10101/compra/code/${id_compra}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    });
-
-    return response.data.code;
-  },
+    );
+    return response.data.code;  
+  } catch (error: any) {
+    console.error("Error al obtener el código:", error);
+    throw new Error("No se pudo generar el código.");
+  }
 };

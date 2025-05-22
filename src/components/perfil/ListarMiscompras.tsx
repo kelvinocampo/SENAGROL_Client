@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ProductManagementService } from "@/services/PerfilcomprasServices";
-import ToggleQRorCode from "./codigo&Qr"; // Ajusta la ruta si está en otra carpeta
+import { QrCode } from "lucide-react";
 
-
-type Compra = {
+export type Compra = {
   id_compra: number;
   fecha_compra: string;
   fecha_entrega: string;
@@ -27,7 +26,7 @@ const ListarMiscompras = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await ProductManagementService.getBySeller(); 
+        const data = await ProductManagementService.getBySeller();
         setCompras(data);
       } catch (err: any) {
         setError(err.message || "Error al cargar las compras");
@@ -80,7 +79,7 @@ const ListarMiscompras = () => {
 
               <td className="px-3 py-2 text-center">
                 {c.estado === "Pendiente" && (
-                  <Link to="/transportadores" className="flex justify-center" title="Asignar transportador">
+                  <Link to="/transporte" className="flex justify-center" title="Asignar transportador">
                     <Truck size={16} className="text-black hover:text-green-600 transition-colors" />
                   </Link>
                 )}
@@ -89,13 +88,28 @@ const ListarMiscompras = () => {
               </td>
 
               <td className="px-3 py-2 text-center">
-                {c.estado === "En Proceso" ? (
-                <ToggleQRorCode id_compra={c.id_compra} />
-                ) : (
-                  <span className="text-gray-400 text-xs"></span>
-                )}
-              </td>
-              
+  {c.estado === "En Proceso" ? (
+    <div className="flex items-center justify-center gap-2">
+      <Link
+        to={`/compra/${c.id_compra}/qr`}
+        className="text-[#48BD28] "
+        title="Ver QR"
+        >
+      <QrCode className="w-5 h-5" />
+      </Link>
+
+      <Link
+        to={`/compra/${c.id_compra}/codigo`}
+        className="text-[#48BD28] text-sm"
+        >
+        Ver Código
+      </Link>
+    </div>
+  ) : (
+    <span className="text-gray-400 text-xs"></span>
+  )}
+</td>
+
             </tr>
           ))}
         </tbody>

@@ -1,36 +1,49 @@
-import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import QRCode from "react-qr-code";
-import { QRService } from "@/services/QrcompradorServices"; // Ajusta la ruta si es necesario
+import { getCodigoCompra } from "@/services/QrcompradorServices";
 
-const QrComprador = () => {
-  const { id_compra } = useParams<{ id_compra: string }>();
+const QRCodeGenerator = () => {
+  const { id_compra } = useParams();
   const [codigo, setCodigo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchCodigo = async () => {
+      if (!id_compra) {
+        setError("ID de compra no válido.");
+        return;
+      }
+
       try {
-        const result = await QRService.generateCode(Number(id_compra), token);
-        console.log("Código recibido del backend:", result);  // <-- Aquí
-        setCodigo(result);
-      } catch (err) {
-        setError("No se pudo generar el código QR.");
+        const token = localStorage.getItem("token");
+        const code = await getCodigoCompra(id_compra, token);
+        setCodigo(code);
+      } catch (err: any) {
+        setError(err.message);
       }
     };
-  
+
     fetchCodigo();
   }, [id_compra]);
-  
+
+  if (error) return <div>{error}</div>;
+  if (!codigo) return <div>Cargando...</div>;
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen gap-4 bg-white">
-      <h2 className="text-lg font-bold">Código QR de la Compra #{id_compra}</h2>
-      {error && <p className="text-red-500">{error}</p>}
-      {codigo && <QRCode value={codigo} size={200} />}
-    </div>
-  );
+  
+        <div
+          style={{display: "flex", flexDirection: "column",justifyContent: "center",alignItems: "center",
+            height: "80vh",marginTop: "2rem", gap: "1rem",    
+          }}
+        >
+        
+          <QRCode value={codigo} size={256} />
+       
+        </div>
+      );
+      
+
 };
 
-export default QrComprador;
+export default QRCodeGenerator;

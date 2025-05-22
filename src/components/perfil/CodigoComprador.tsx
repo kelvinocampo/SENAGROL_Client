@@ -1,41 +1,40 @@
-import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { QRService } from "@/services/QrcompradorServices";
+import { useParams } from "react-router-dom";
+import { getCodigoCompra } from "@/services/QrcompradorServices";
 
-const CodigoComprador = () => {
+const CodeGenerator = () => {
   const { id_compra } = useParams();
   const [codigo, setCodigo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
     const fetchCodigo = async () => {
-      try {
-        if (!id_compra) throw new Error("ID de compra no definido");
-        if (!token) throw new Error("No autenticado");
+      if (!id_compra) {
+        setError("ID de compra no válido.");
+        return;
+      }
 
-        const result = await QRService.generateCode(Number(id_compra), token);
-        setCodigo(result);
-      } catch (err) {
-        setError("No se pudo obtener el código.");
+      try {
+        const token = localStorage.getItem("token");
+        const code = await getCodigoCompra(id_compra, token);
+        setCodigo(code);
+      } catch (err: any) {
+        setError(err.message);
       }
     };
 
     fetchCodigo();
-  }, [id_compra, token]);
+  }, [id_compra]);
+
+  if (error) return <div>{error}</div>;
+  if (!codigo) return <div>Cargando...</div>;
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen gap-4 bg-white">
-      <h2 className="text-lg font-bold">Código de la Compra #{id_compra}</h2>
-      {error && <p className="text-red-500">{error}</p>}
-      {codigo ? (
-        <div className="p-4 bg-gray-100 rounded text-xl font-mono">{codigo}</div>
-      ) : (
-        !error && <p>Cargando código...</p>
-      )}
+    <div style={{ textAlign: "center", marginTop: "2rem" }}>
+
+      <p>Código: {codigo}</p>
     </div>
   );
 };
 
-export default CodigoComprador;
+export default CodeGenerator;
