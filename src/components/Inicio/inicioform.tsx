@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // 👉 Importa useNavigate
 import Logo from "../../assets/senagrol.jpeg";
 import { InicioService } from "@/services/inicioServices";
 import Inputs from "./inputs";
@@ -6,6 +7,7 @@ import { Paragraph } from "@/components/Inicio/Paragraph";
 import { Eye, EyeOff } from "lucide-react";
 
 const LoginForm = () => {
+  const navigate = useNavigate(); // 👈 Agregado
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,10 +22,10 @@ const LoginForm = () => {
     try {
       const data = await InicioService.login(identifier, password);
 
-
       localStorage.setItem("token", data.token);
 
-      alert("Login exitoso. Token: " + data.token);
+      // ✅ Redirigir al usuario a la página de inicio
+         navigate("/inicio");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -53,7 +55,6 @@ const LoginForm = () => {
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
           />
-
 
           <div className="relative">
             <Inputs

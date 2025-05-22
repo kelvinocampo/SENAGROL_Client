@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { FaSearch } from "react-icons/fa";
-import Header from "@components/Header";
+import  Header  from "@components/Header";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -47,7 +47,7 @@ export default function PaginaProductos() {
 
   return (
     <div className="min-h-screen bg-neutral-50 px-4 md:px-15 py-2">
-      <Header />
+     <Header/>
 
       {/* CARRUSEL */}
       <div className="bg-white p-6 rounded-xl shadow-lg m-6">
