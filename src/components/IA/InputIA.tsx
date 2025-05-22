@@ -55,7 +55,8 @@ export const InputIA = () => {
         }
     };
 
-    const handleSendMessage = async () => {
+    const handleSendMessage = async (e: any) => {
+        e.preventDefault()
         if (!message.trim()) {
             setStatusMessage("Por favor, escribe un mensaje antes de enviarlo.");
             return;
@@ -78,7 +79,7 @@ export const InputIA = () => {
             )}
 
             {/* Caja de input + botones */}
-            <div className="flex sm:flex-row flex-col rounded-xl justify-between bg-[#E4FBDD] w-full">
+            <form onSubmit={(e: any) => { handleSendMessage(e) }} className="flex sm:flex-row flex-col rounded-xl justify-between bg-[#E4FBDD] w-full">
                 <input
                     type="text"
                     className="py-2 px-3 outline-0 sm:w-[80%] w-full rounded-xl"
@@ -90,7 +91,6 @@ export const InputIA = () => {
                 <div className="flex items-center justify-center gap-2 p-2">
                     <button
                         className="bg-[#48BD28] rounded-xl px-4 py-2 text-white cursor-pointer font-bold"
-                        onClick={handleSendMessage}
                     >
                         Enviar mensaje
                     </button>
@@ -101,7 +101,7 @@ export const InputIA = () => {
                         onClick={handleRecording}
                     />
                 </div>
-            </div>
+            </form>
         </div>
     );
 };
