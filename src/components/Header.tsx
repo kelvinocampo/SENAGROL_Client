@@ -1,38 +1,38 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import senagrol from "@assets/senagrol.jpeg";
+import { getUserRole } from "@/services/authService"; 
+import { useNavigate } from "react-router-dom";
 
 type User = {
   isLoggedIn: boolean;
   role: "vendedor" | "comprador" | "transportador" | "administrador" | null;
 };
 
-// Función para decodificar el token y obtener el rol
-const getUserFromLocalStorage = (): User => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) return { isLoggedIn: false, role: null };
-
-    // El payload es la segunda parte del JWT (header.payload.signature)
-    const payloadBase64 = token.split(".")[1];
-    if (!payloadBase64) return { isLoggedIn: false, role: null };
-
-    const decodedPayload = JSON.parse(atob(payloadBase64));
-
-    return {
-      isLoggedIn: true,
-      role: decodedPayload.role || null,
-    };
-  } catch (error) {
-    console.error("Error decoding token:", error);
-    return { isLoggedIn: false, role: null };
-  }
-};
-
 const Header = () => {
+  const [user, setUser] = useState<User>({ isLoggedIn: false, role: null });
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const navigate = useNavigate(); 
 
-  const user = getUserFromLocalStorage();
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser({ isLoggedIn: false, role: null });
+    navigate("/login"); // o la ruta que uses para login
+  };
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const role = await getUserRole();
+        setUser({ isLoggedIn: true, role: role as User["role"] });
+        console.log("Rol obtenido desde el backend:", role);
+      } catch (error) {
+        console.error("No se pudo obtener el rol:", error);
+        setUser({ isLoggedIn: false, role: null });
+      }
+    };
+
+    fetchUserRole();
+  }, []);
 
   const handleMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -79,47 +79,61 @@ const Header = () => {
     ),
   };
 
-  const renderLinks = () => {
-    if (!user.isLoggedIn) {
-      return [commonLinks.productos, commonLinks.chatIA, commonLinks.inicio];
-    }
+const renderLinks = () => {
+  const logoutButton = (
+    <button
+      onClick={handleLogout}
+      className="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm transition mt-4 md:mt-0 hover:bg-red-600"
+    >
+      Cerrar sesión
+    </button>
+  );
 
-    switch (user.role) {
-      case "vendedor":
-        return [
-          commonLinks.misProductos,
-          commonLinks.perfil,
-          commonLinks.chats,
-          commonLinks.chatIA,
-          commonLinks.inicio,
-        ];
-      case "comprador":
-        return [
-          commonLinks.perfil,
-          commonLinks.chats,
-          commonLinks.chatIA,
-          commonLinks.inicio,
-        ];
-      case "transportador":
-        return [
-          commonLinks.chats,
-          commonLinks.chatIA,
-          commonLinks.perfil,
-          commonLinks.inicio,
-        ];
-      case "administrador":
-        return [
-          commonLinks.inicio,
-          commonLinks.productos,
-          commonLinks.perfil,
-          commonLinks.chatIA,
-          commonLinks.chats,
-          commonLinks.administrador,
-        ];
-      default:
-        return [commonLinks.inicio];
-    }
-  };
+  if (!user.isLoggedIn || user.role === null) {
+    return [commonLinks.productos, commonLinks.chatIA, commonLinks.inicio];
+  }
+
+  switch (user.role) {
+    case "vendedor":
+      return [
+        commonLinks.misProductos,
+        commonLinks.perfil,
+        commonLinks.chats,
+        commonLinks.chatIA,
+        commonLinks.inicio,
+        logoutButton, // 👈 Aquí
+      ];
+    case "comprador":
+      return [
+        commonLinks.perfil,
+        commonLinks.chats,
+        commonLinks.chatIA,
+        commonLinks.inicio,
+        logoutButton, // 👈 Aquí
+      ];
+    case "transportador":
+      return [
+        commonLinks.chats,
+        commonLinks.chatIA,
+        commonLinks.perfil,
+        commonLinks.inicio,
+        logoutButton, // 👈 Aquí
+      ];
+    case "administrador":
+      return [
+        commonLinks.inicio,
+        commonLinks.productos,
+        commonLinks.perfil,
+        commonLinks.chatIA,
+        commonLinks.chats,
+        commonLinks.administrador,
+        logoutButton, // 👈 Aquí
+      ];
+    default:
+      return [commonLinks.inicio];
+  }
+};
+
 
   return (
     <header className="bg-white shadow-sm hover:shadow-md px-6 py-3 relative z-50 rounded-lg">

@@ -12,46 +12,44 @@ import CompraRealizada from "./pages/producto/CompraExitosa";
 import CerrarSesion from "./pages/producto/CerrarSesion";
 import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement";
 
-
 function App() {
-  const isLoggedIn = !!localStorage.getItem('token'); // Esto puede mejorar con un contexto
+  const isLoggedIn = !!localStorage.getItem("token"); // Esto puede mejorar con un contexto
 
   return (
     <BrowserRouter>
-    <DiscountedProductProvider>
-      <Routes>
-        <Route path="/" element={<InicioManual />} />
-        <Route path="/inicio" element={<PaginaProductos />} />
-        <Route path="/producto/:id" element={<DetalleProducto />} />
-        <Route path="/compra-realizada" element={<CompraRealizada />} />
-        <Route path="/cerrar-sesion" element={<CerrarSesion />} />
-        <Route path="/LogIn" element={<InicioManual />} />
-        <Route
-          path="/Register"
-          element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/" />}
-        />
-        <Route path="/Profile" element={<MyPurchasesPage />} />
+      <DiscountedProductProvider>
+        <Routes>
+          <Route path="/" element={<InicioManual />} />
+          <Route path="/inicio" element={<PaginaProductos />} />
+          <Route path="/producto/:id" element={<DetalleProducto />} />
+          <Route path="/compra-realizada" element={<CompraRealizada />} />
+          <Route path="/cerrar-sesion" element={<CerrarSesion />} />
+          <Route path="/LogIn" element={<InicioManual />} />
+          <Route
+            path="/Register"
+            element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/" />}
+          />
+          <Route path="/Profile" element={<MyPurchasesPage />} />
+          <Route
+            path="/MisProductos/*"
+            element={
+              <ProtectedRoute allowedRoles={["vendedor"]}>
+                <ProductManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/*"
+            element={
+              <ProtectedRoute allowedRoles={["administrador"]}>
+                <AdminManagement />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/MisProductos/*"
-          element={
-            <ProtectedRoute allowedRoles={['vendedor']}>
-              <ProductManagement />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/*"
-          element={
-            <ProtectedRoute allowedRoles={['administrador']}>
-              <AdminManagement />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route path="/404" element={<Error404 />} />
-        <Route path="*" element={<Navigate to="/404" />} />
-      </Routes>
+          <Route path="/404" element={<Error404 />} />
+          <Route path="*" element={<Navigate to="/404" />} />
+        </Routes>
       </DiscountedProductProvider>
     </BrowserRouter>
   );
