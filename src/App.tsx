@@ -9,7 +9,6 @@ import Error404 from "@pages/Error404";
 import PaginaProductos from "@pages/producto/PaginaProductos";
 import DetalleProducto from "./pages/producto/DetalleProducto";
 import CompraRealizada from "./pages/producto/CompraExitosa";
-import CerrarSesion from "./pages/producto/CerrarSesion";
 import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement";
 
 function App() {
@@ -19,11 +18,10 @@ function App() {
     <BrowserRouter>
       <DiscountedProductProvider>
         <Routes>
-          <Route path="/" element={<InicioManual />} />
+          <Route path="/" element={<PaginaProductos />} />
           <Route path="/inicio" element={<PaginaProductos />} />
           <Route path="/producto/:id" element={<DetalleProducto />} />
           <Route path="/compra-realizada" element={<CompraRealizada />} />
-          <Route path="/cerrar-sesion" element={<CerrarSesion />} />
           <Route path="/LogIn" element={<InicioManual />} />
           <Route
             path="/Register"

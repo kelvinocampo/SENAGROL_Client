@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@assets/senagrol.jpeg";
-import Image1 from "@assets/Blubly Delivery Illustrations.jfif";
-import Image2 from "@assets/Consórcio Itáu - CAXA estudio.jfif"; // Puedes agregar más imágenes
-import Image3 from "@assets/Urban Farming.jfif";
+import Image1 from "@assets/Fotos de Cafe - Descarga fotos gratis de gran calidad _ Freepik.jpg";
+import Image2 from "@assets/Travel.jpg";
+import Image3 from "@assets/🇨🇴.jpg";
 import { InicioService } from "@/services/inicioServices";
 import { Input } from "@components/Input";
 import { Paragraph } from "@/components/Inicio/paragraph";
 import { Eye, EyeOff } from "lucide-react";
 
-const images = [Image1, Image2, Image3]; // 👈 Slider de imágenes
+const images = [Image1, Image2, Image3];
 
 export const LoginForm = () => {
   const [identifier, setIdentifier] = useState("");
@@ -17,14 +17,14 @@ export const LoginForm = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [currentImage, setCurrentImage] = useState(0); // 👈 Slider
+  const [currentImage, setCurrentImage] = useState(0);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
-    }, 4000); // Cambia cada 4 segundos
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
@@ -47,17 +47,25 @@ export const LoginForm = () => {
   return (
     <div className="w-full h-screen flex items-center justify-center bg-[#48BD28]">
       <div className="flex w-full h-full bg-white shadow-lg overflow-hidden">
-        {/* Login Form Section */}
         <div className="relative w-full md:w-1/2 p-10 pt-16 text-white flex items-center justify-center">
           <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1">
             <img src={Logo} alt="Avatar" className="w-20 h-20 rounded-full object-cover" />
           </div>
 
           <div className="w-full max-w-[400px]">
-            {/* Tabs */}
             <div className="flex justify-between mb-6 border-b border-gray-600 pb-2">
-              <span className="text-black font-semibold border-b-2 border-white pb-1">Login</span>
-              <span className="text-gray-400 cursor-pointer hover:text-white">Sign Up</span>
+              <span
+                onClick={() => navigate("/LogIn")}
+                className="text-gray-400 cursor-pointer hover:text-black"
+              >
+                Login
+              </span>
+              <span
+                onClick={() => navigate("/Register")}
+                className="text-gray-400 cursor-pointer hover:text-black"
+              >
+                Registro
+              </span>
             </div>
 
             <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
@@ -104,7 +112,6 @@ export const LoginForm = () => {
           </div>
         </div>
 
-        {/* Right Image Section with slider */}
         <div className="hidden md:block md:w-1/2 h-full">
           <img
             src={images[currentImage]}

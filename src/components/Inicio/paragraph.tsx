@@ -1,9 +1,11 @@
+import { Link } from "react-router-dom";
+
 export const Paragraph = () => (
   <>
     <p className="text-center text-sm text-[BFBFBD]">
-      <a href="#" className="text-[#48BD28] hover:underline">
+      <Link to="/recuperar" className="text-[#48BD28] hover:underline">
         ¿Olvidaste tu contraseña?
-      </a>
+      </Link>
     </p>
 
     <button
@@ -15,9 +17,9 @@ export const Paragraph = () => (
 
     <p className="text-center text-sm text-black">
       ¿No tienes una cuenta?{" "}
-      <a href="/registro" className="text-[#48BD28] hover:underline">
+      <Link to="/Register" className="text-[#48BD28] hover:underline">
         Regístrate
-      </a>
+      </Link>
     </p>
   </>
 );
