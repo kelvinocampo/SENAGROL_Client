@@ -56,17 +56,36 @@ export const InputIA = () => {
     };
 
     const handleSendMessage = async (e: any) => {
-        e.preventDefault()
+        e.preventDefault();
         if (!message.trim()) {
             setStatusMessage("Por favor, escribe un mensaje antes de enviarlo.");
             return;
         }
-        const response = await IAService.getResponse(message)
-        setHistory([...history, { type: "user", message }, { type: "ia", message: response }]);
-        console.log("Mensaje enviado:", message);
-        console.log("Respuesta de IA:", response);
-        setStatusMessage(null);
-        setMessage("");
+
+        try {
+            // Limpiar mensajes de estado previos
+            setStatusMessage(null);
+
+            // Mostrar mensaje de carga (opcional)
+            setStatusMessage("Procesando tu mensaje...");
+
+            const response = await IAService.getResponse(message);
+
+            // Actualizar el historial con la respuesta
+            setHistory([...history,
+            { type: "user", message },
+            { type: "ia", message: response }
+            ]);
+
+            setMessage("");
+            setStatusMessage(null);
+
+        } catch (error) {
+            console.error("Error en la comunicación con la IA:", error);
+
+            let errorMessage = "Ocurrió un error al procesar tu mensaje";
+            setStatusMessage(errorMessage);
+        }
     };
 
     return (
