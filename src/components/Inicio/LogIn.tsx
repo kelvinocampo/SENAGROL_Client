@@ -6,7 +6,7 @@ import Image2 from "@assets/Travel.jpg";
 import Image3 from "@assets/🇨🇴.jpg";
 import { InicioService } from "@/services/inicioServices";
 import { Input } from "@components/Input";
-import { Paragraph } from "@/components/Inicio/paragraph";
+import { Paragraph } from "@/components/Inicio/Paragraph";
 import { Eye, EyeOff } from "lucide-react";
 
 const images = [Image1, Image2, Image3];
