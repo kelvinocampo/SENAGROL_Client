@@ -1,67 +1,69 @@
-/* // src/components/TransportCodeForm.tsx
 import React, { useState } from "react";
-import { receiveBuyCode } from "@services/EscanearQr"; 
+import { receiveBuyCode } from "@/services/EscanearQr&codigo"; // Ajusta la ruta si es necesario
 
-const TransportCodeForm: React.FC = () => {
-  const [code, setCode] = useState<string>("");
+const ManualCodeForm: React.FC = () => {
+  const [codigo, setCodigo] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [status, setStatus] = useState<"success" | "error" | "idle">("idle");
+  const [focused, setFocused] = useState(false);
+
+  const token = localStorage.getItem("token") || "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
-
-    const trimmed = code.trim();
-    if (!trimmed) {
-      setMessage("⚠️ Por favor ingresa un código válido.");
-      return;
-    }
-
-    const token = localStorage.getItem("token") || "";
-    const id_user = parseInt(localStorage.getItem("id_user") || "0", 10);
-    if (!token || !id_user) {
-      setMessage("⚠️ No se encontró nad.");
-      return;
-    }
-
-    setLoading(true);
     try {
       const res = await receiveBuyCode(codigo, token);
-      if (res.success) {
-        setMessage(res.message || "✅ Operación exitosa.");
-      } else {
-        setMessage("❌ " + (res.message || res.error || "Error desconocido."));
-      }
+      setMessage(res.message || "Compra actualizada correctamente.");
+      setStatus("success");
     } catch (err: any) {
-      setMessage("❌ " + err.message);
-    } finally {
-      setLoading(false);
+      setMessage(err.message || "Ocurrió un error.");
+      setStatus("error");
     }
   };
 
+  const inputClass = focused
+    ? "border-[#48BD28] focus:ring-[#48BD28]"
+    : status === "success"
+    ? "border-[#48BD28] focus:ring-[#48BD28]"
+    : status === "error"
+    ? "border-red-500 focus:ring-red-500"
+    : "border-gray-300 focus:ring-gray-300";
+
   return (
-    <div className="max-w-md mx-auto mt-16 p-6 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">Ingresar Código de Transporte</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <h1 className="text-2xl font-bold mb-4">Ingresar Código de Compra</h1>
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md bg-white p-6 rounded shadow"
+      >
         <input
           type="text"
-          placeholder="Código único"
-          value={code}
-          onChange={e => setCode(e.target.value)}
-          className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#48BD28] "
+          value={codigo}
+          onChange={(e) => setCodigo(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          className={`w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 transition ${inputClass}`}
+          placeholder="Ingresa el código de compra"
+          required
         />
         <button
           type="submit"
-          disabled={loading}
-          className="bg-[#48BD28]  text-white px-4 py-2 rounded disabled:opacity-50"
+          className="w-full bg-[#48BD28]  text-white font-semibold py-2 rounded transition"
         >
-          {loading ? "Procesando..." : "Enviar Código"}
+          Confirmar Código
         </button>
+        {message && (
+          <p
+            className={`mt-4 text-sm font-medium ${
+              status === "success" ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {message}
+          </p>
+        )}
       </form>
-      {message && <p className="mt-4 text-center text-lg">{message}</p>}
     </div>
   );
 };
 
-export default TransportCodeForm;
- */
+export default ManualCodeForm;

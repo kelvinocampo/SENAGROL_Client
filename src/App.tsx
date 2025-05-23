@@ -8,6 +8,7 @@ import Layout1 from "@/pages/Qrcompras";
 
 import MisTransportes from "@/pages/ListarMisTransportes";
 import EscanearQr from "@/components/perfil/EscanearQr";
+import FormularioCodigo from "@/components/perfil/CodigoTransportador";
 /* import TransportCodeForm from "@/components/perfil/CodigoTransportador";   */
 
  
@@ -25,6 +26,7 @@ function App() {
 
       <Route path="/mistransportes" element={<MisTransportes />} />
       <Route path="/escanear/:id_compra" element={<EscanearQr />} />
+      <Route path="/codigo/:id_compra" element={<FormularioCodigo />} />
       {/* <Route path="/codigo/:id_compra" element={<TransportCodeForm />} /> */}
 
 
