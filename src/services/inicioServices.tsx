@@ -17,7 +17,7 @@ export class InicioService {
     }
 
     return data;
-  };
+  }
 
   static async register(name: string, username: string, email: string, password: string, phone: string, confirmPassword: string) {
     const response = await fetch(`${this.API_URL}/usuario/register`, {
@@ -29,7 +29,7 @@ export class InicioService {
     });
 
     const data = await response.json();
-console.log(response,data);
+    console.log(response, data);
 
     if (!response.ok) {
       throw new Error(data.message || data.error || "Tienes algún dato mal");
@@ -37,4 +37,52 @@ console.log(response,data);
 
     return data;
   }
+
+  static async recoverPassword(email: string): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${this.API_URL}/usuario/recover`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || data.error || "Error al enviar el correo de recuperación");
+    }
+
+    return {
+      success: true,
+      message: data.message || "Correo enviado correctamente."
+    };
+  }
+
+
+ static async updatePassword(token: string, password: string, id_user: number): Promise<{ message: string }> {
+  const response = await fetch(`${this.API_URL}/usuario/password`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      id_user,
+      password,
+      confirmPassword: password, // 👈 esto es lo que faltaba
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'No se pudo actualizar la contraseña');
+  }
+
+  return { message: data.message || 'Contraseña actualizada con éxito.' };
+}
+
+
+
 }
