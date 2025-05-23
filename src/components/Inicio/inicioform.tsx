@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"; // 👉 Importa useNavigate
 import Logo from "../../assets/senagrol.jpeg";
 import { InicioService } from "@/services/inicioServices";
 import Inputs from "./inputs";
-import { Paragraph } from "@/components/Inicio/Paragraph";
+import { Paragraph } from "@/components/Inicio/paragraph";
 import { Eye, EyeOff } from "lucide-react";
 
 const LoginForm = () => {
