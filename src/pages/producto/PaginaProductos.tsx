@@ -68,7 +68,6 @@ export default function PaginaProductos() {
   // Cuando el rol es comprador, abre modal compra
   const handleComprar = (producto: any) => {
     if (userRole !== "comprador") {
-      // Mostrar mensaje de no permitido
       setMensajeNoPermitido(true);
       return;
     }
@@ -84,16 +83,23 @@ export default function PaginaProductos() {
     setMensajeCompraExitosa(true);
   };
 
-  const handleCerrarMensajeCompra = () => {
-    setMensajeCompraExitosa(false);
-    if (productoSeleccionado && cantidadSeleccionada !== null && ubicacionSeleccionada !== null) {
-      navigate(
-        `/comprar/${productoSeleccionado.id}?cantidad=${cantidadSeleccionada}&ubicacion=${encodeURIComponent(
-          ubicacionSeleccionada
-        )}`
-      );
-    }
-  };
+const handleCerrarMensajeCompra = () => {
+  setMensajeCompraExitosa(false);
+
+  if (
+    productoSeleccionado &&
+    cantidadSeleccionada !== null &&
+    ubicacionSeleccionada !== null
+  ) {
+    // Aquí podrías redirigir, actualizar datos, etc. Si no es necesario, simplemente deja el if vacío o elimínalo.
+    console.log("Compra registrada:", {
+      producto: productoSeleccionado,
+      cantidad: cantidadSeleccionada,
+      ubicacion: ubicacionSeleccionada,
+    });
+  }
+};
+
 
   const handleCerrarMensajeNoPermitido = () => {
     setMensajeNoPermitido(false);

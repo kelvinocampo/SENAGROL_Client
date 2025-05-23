@@ -11,7 +11,7 @@ export interface Product {
   longitud: number;
   cantidad: number;
   cantidad_minima_compra: number;
-  imagen: string;
+  imagen: string; 
   precio_unidad: number;
   descuento: number;
   despublicado: number;

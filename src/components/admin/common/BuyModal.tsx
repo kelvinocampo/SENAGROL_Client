@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { LocationPicker } from "@components/ProductsManagement/LocationPicker"; // Ajusta si es otra ruta
+import { LocationPicker } from "@components/ProductsManagement/LocationPicker";
+import { ProductManagementService } from "@/services/ProductsManagement"; // Ajusta según tu estructura
 
 type Location = {
   lat: number;
@@ -20,19 +21,43 @@ interface CompraModalProps {
 export default function CompraModal({ isOpen, onClose, onConfirm, producto }: CompraModalProps) {
   const [cantidad, setCantidad] = useState(producto.cantidad_minima || 1);
   const [ubicacion, setUbicacion] = useState<Location | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (cantidad < producto.cantidad_minima) {
       alert(`La cantidad mínima para comprar este producto es ${producto.cantidad_minima}`);
       return;
     }
+
     if (!ubicacion) {
       alert("Por favor selecciona una ubicación en el mapa.");
       return;
     }
 
     const ubicacionTexto = `Lat: ${ubicacion.lat.toFixed(6)}, Lng: ${ubicacion.lng.toFixed(6)}`;
-    onConfirm(cantidad, ubicacionTexto);
+
+    try {
+      setLoading(true);
+
+      const id_user = Number(localStorage.getItem("user_id")); // o como lo estés guardando
+
+      await ProductManagementService.buyProduct(producto.id, {
+        id_user,
+        cantidad,
+        latitud: ubicacion.lat.toFixed(6),
+        longitud: ubicacion.lng.toFixed(6),
+      });
+
+
+      alert("Compra realizada con éxito.");
+      onConfirm(cantidad, ubicacionTexto); // Puedes notificar a un componente padre
+      onClose();
+    } catch (error) {
+      console.error(error);
+      alert("Hubo un error al realizar la compra.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -53,6 +78,7 @@ export default function CompraModal({ isOpen, onClose, onConfirm, producto }: Co
           min={producto.cantidad_minima}
           className="w-full mb-3 p-2 border rounded"
           placeholder="Cantidad"
+          disabled={loading}
         />
 
         <LocationPicker
@@ -62,11 +88,19 @@ export default function CompraModal({ isOpen, onClose, onConfirm, producto }: Co
         />
 
         <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            disabled={loading}
+          >
             Cancelar
           </button>
-          <button onClick={handleConfirm} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-            Confirmar compra
+          <button
+            onClick={handleConfirm}
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            disabled={loading}
+          >
+            {loading ? "Procesando..." : "Confirmar compra"}
           </button>
         </div>
       </div>
