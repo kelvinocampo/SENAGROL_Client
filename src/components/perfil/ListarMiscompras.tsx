@@ -15,7 +15,7 @@ export type Compra = {
   precio_transporte: number;
   vendedor_nombre: string;
   transportador_nombre: string;
-  estado: "Pendiente" | "Asignado" | "En Proceso" | "Terminado";
+  estado: "Pendiente" | "Asignado" | "En Proceso" | "Completada";
 };
 
 const ListarMiscompras = () => {
@@ -84,7 +84,7 @@ const ListarMiscompras = () => {
                   </Link>
                 )}
                 {c.estado === "Asignado" && <span className="text-black font-semibold">Asignado</span>}
-                {c.estado === "Terminado" && <span className="text-black font-semibold">Terminado</span>}
+                {c.estado === "Completada" && <span className="text-black font-semibold">Completada</span>}
               </td>
 
               <td className="px-3 py-2 text-center">

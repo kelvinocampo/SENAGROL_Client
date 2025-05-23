@@ -1,9 +1,7 @@
-const API_URL = "http://localhost:10101"; // Usa tu puerto real aquí
-
+const API_URL = "http://localhost:10101";
 
 export async function receiveBuyCode(
   codigo: string,
-  id_user: number,
   token: string
 ): Promise<any> {
   try {
@@ -13,7 +11,7 @@ export async function receiveBuyCode(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ id_user }),
+
     });
 
     const data = await res.json();

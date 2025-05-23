@@ -47,7 +47,7 @@ const Header = () => {
               <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-50 text-sm">
                 <Link to="/" className="block px-3 py-2 hover:bg-[#E4FBDD]">Mis compras</Link>
                 <Link to="#" className="block px-3 py-2 hover:bg-[#E4FBDD]"> Transportadores</Link>
-                <Link to="#" className="block px-3 py-2 hover:bg-[#E4FBDD]"> Mis transportes</Link>
+                <Link to="/mistransportes" className="block px-3 py-2 hover:bg-[#E4FBDD]"> Mis transportes</Link>
                 <Link to="#" className="block px-3 py-2 hover:bg-[#E4FBDD]"> Escaneo facial</Link>
               </div>
             )}

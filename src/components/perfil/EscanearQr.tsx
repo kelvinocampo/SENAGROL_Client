@@ -1,84 +1,106 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Html5QrcodeScanner } from "html5-qrcode";
-import { receiveBuyCode } from "@/services/EscanearQr";
+import jsQR from "jsqr";
+import { receiveBuyCode } from "@/services/EscanearQr&codigo";
 
-const EscanearQR: React.FC = () => {
+const QrScanner: React.FC = () => {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [qrData, setQrData] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [scanned, setScanned] = useState(false);
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+
+  const token = localStorage.getItem("token") || "";
 
   useEffect(() => {
-    if (scanned) return;
+    const startCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+        });
 
-    const scanner = new Html5QrcodeScanner(
-      "reader",
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      false 
-    );
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.setAttribute("playsinline", "true");
+          videoRef.current.play();
+        }
 
-    scanner.render(
-      async (decodedText) => {
-        scanner.clear();
-        setScanned(true);
-        await handleScan(decodedText);
-      },
-      (error) => {
-        console.warn("No se detectó QR:", error);
+        requestAnimationFrame(scan);
+      } catch (err) {
+        console.error("Error al acceder a la cámara", err);
       }
-    );
+    };
 
-    scannerRef.current = scanner;
+    const scan = () => {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+
+      if (video && video.readyState === video.HAVE_ENOUGH_DATA && canvas) {
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        canvas.height = video.videoHeight;
+        canvas.width = video.videoWidth;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+        if (code) {
+          const codigo = code.data;
+          setQrData(codigo);
+          handleSendToBackend(codigo);
+        } else {
+          requestAnimationFrame(scan);
+        }
+      } else {
+        requestAnimationFrame(scan);
+      }
+    };
+
+    const handleSendToBackend = async (codigo: string) => {
+      try {
+        const res = await receiveBuyCode(codigo, token);
+        setMessage(`Compra actualizada correctamente: ${res.message || "OK"}`);
+      } catch (err: any) {
+        setMessage(`Error al actualizar: ${err.message}`);
+      }
+    };
+
+    startCamera();
 
     return () => {
-      scanner.clear().catch(console.error);
+      const video = videoRef.current;
+      if (video && video.srcObject) {
+        const tracks = (video.srcObject as MediaStream).getTracks();
+        tracks.forEach((track) => track.stop());
+      }
     };
-  }, [scanned]);
-
-  const handleScan = async (codigo: string) => {
-    try {
-      const token = localStorage.getItem("token");
-      const id_user = parseInt(localStorage.getItem("id_user") || "0");
-
-      if (!token || !id_user) {
-        setMessage("⚠️ No se encontró usuario o token.");
-        return;
-      }
-
-      const res = await receiveBuyCode(codigo, id_user, token);
-
-      if (res.success) {
-        setMessage("✅ Estado actualizado correctamente.");
-      } else {
-        setMessage("❌ " + (res.message || res.error));
-      }
-    } catch (err: any) {
-      setMessage("❌ " + err.message);
-    }
-  };
-
-  const volverAEscanear = () => {
-    setScanned(false);
-    setMessage(null);
-  };
+  }, [token]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6">
-      <h2 className="text-2xl font-bold mb-4">Escanea el código QR</h2>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <h1 className="text-2xl font-bold mb-4">Escáner QR</h1>
 
-      {!scanned && <div id="reader" className="mb-4" />}
+      <video
+        ref={videoRef}
+        className="rounded-lg shadow-md w-full max-w-md"
+        autoPlay
+        muted
+      />
 
-      {scanned && (
-        <button
-          onClick={volverAEscanear}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Escanear otro código
-        </button>
-      )}
+      <canvas ref={canvasRef} className="hidden" />
 
-      {message && <p className="mt-4 text-lg text-center">{message}</p>}
+      <div className="mt-4 p-4 bg-white rounded shadow-md w-full max-w-md text-center">
+        {qrData ? (
+          <p className="text-green-600 font-medium">Código: {qrData}</p>
+        ) : (
+          <p className="text-gray-500">Escaneando...</p>
+        )}
+        {message && (
+          <p className="mt-2 text-sm text-black font-medium">{message}</p>
+        )}
+      </div>
     </div>
   );
 };
 
-export default EscanearQR;
+export default QrScanner;
