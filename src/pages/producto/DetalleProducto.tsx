@@ -1,7 +1,8 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
-import { getUserRole } from "@/services/authService"; // asegúrate de que esta función esté bien implementada
+import CompraModal from "@components/admin/common/BuyModal";
+import { getUserRole } from "@/services/authService";
 import Header from "@components/Header";
 
 export default function DetalleProducto() {
@@ -11,6 +12,7 @@ export default function DetalleProducto() {
   const [cantidad, setCantidad] = useState(0);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [mensajeNoPermitido, setMensajeNoPermitido] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleComprar = () => {
@@ -18,24 +20,32 @@ export default function DetalleProducto() {
       setMensajeNoPermitido(true);
       return;
     }
-    navigate("/compra-realizada");
+    setModalOpen(true);
   };
 
   const handleCerrarMensajeNoPermitido = () => {
     setMensajeNoPermitido(false);
   };
 
+  const handleConfirmarCompra = (cantidad: number, ubicacion: string) => {
+    // Aquí puedes hacer lógica de compra si lo deseas
+    console.log("Cantidad comprada:", cantidad);
+    console.log("Ubicación:", ubicacion);
+    setModalOpen(false);
+    navigate("/inicio");
+  };
+
   useEffect(() => {
-    // Obtener el producto del contexto
     if (context && id) {
-      const found = context.allProducts.find((p) => String(p.id) === String(id));
+      const found = context.allProducts.find(
+        (p) => String(p.id) === String(id)
+      );
       setProducto(found || null);
       if (found) setCantidad(found.cantidad_minima_compra || 1);
     }
   }, [context, id]);
 
   useEffect(() => {
-    // Obtener el rol del usuario
     const fetchRole = async () => {
       const role = await getUserRole();
       setUserRole(role);
@@ -63,7 +73,11 @@ export default function DetalleProducto() {
           stroke="currentColor"
           className="w-5 h-5 mr-2"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 19.5L8.25 12l7.5-7.5"
+          />
         </svg>
         Volver al inicio
       </Link>
@@ -83,16 +97,21 @@ export default function DetalleProducto() {
         </div>
 
         <div className="flex-1 flex flex-col justify-center">
-          <h1 className="text-2xl font-bold text-gray-800">{producto.nombre}</h1>
+          <h1 className="text-2xl font-bold text-gray-800">
+            {producto.nombre}
+          </h1>
 
           <div className="flex items-center gap-2 mt-2">
             <p className="text-green-700 font-bold text-xl">
-              ${producto.precio_unidad}{" "}
-              <span className="text-sm font-normal text-gray-500">/ unidad</span>
+              ${producto.precio_unidad}
+              <span className="text-sm font-normal text-gray-500">
+                {" "}
+                / unidad
+              </span>
             </p>
             {producto.descuento > 0 && (
               <span className="text-xs bg-green-100 text-green-700 font-semibold px-2 py-1 rounded-full">
-                {producto.descuento}% OFF
+                {producto.descuento*100}% OFF
               </span>
             )}
           </div>
@@ -101,15 +120,19 @@ export default function DetalleProducto() {
 
           <div className="mt-4 text-sm text-gray-700 space-y-1">
             <p>
-              <span className="font-semibold">Vendedor:</span> {producto.nombre_vendedor}
+              <span className="font-semibold">Vendedor:</span>{" "}
+              {producto.nombre_vendedor}
             </p>
             <p>
               <span className="font-semibold">Compra mínima:</span>{" "}
               {producto.cantidad_minima_compra} unidades
             </p>
+              <p>
+              <span className="font-semibold">Cantidad disponible:</span>{" "}
+              {producto.cantidad} unidades
+            </p>
           </div>
 
-          {/* Selector de cantidad */}
           <div className="mt-6 flex items-center gap-4">
             <span className="text-sm font-medium">Cantidad:</span>
             <button
@@ -131,7 +154,6 @@ export default function DetalleProducto() {
             </button>
           </div>
 
-          {/* Botones */}
           <div className="mt-6 flex gap-4">
             <button
               onClick={handleComprar}
@@ -160,7 +182,8 @@ export default function DetalleProducto() {
             </h3>
             <p className="mb-6 text-gray-800">
               Solo los usuarios con el rol{" "}
-              <span className="font-bold">"comprador"</span> pueden realizar compras.
+              <span className="font-bold">"comprador"</span> pueden realizar
+              compras.
             </p>
             <button
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full transition duration-200"
@@ -171,6 +194,18 @@ export default function DetalleProducto() {
           </div>
         </div>
       )}
+
+      {/* Modal de compra */}
+      <CompraModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirmarCompra}
+        producto={{
+          id: producto.id,
+          nombre: producto.nombre,
+          cantidad_minima: producto.cantidad_minima_compra || 1,
+        }}
+      />
     </div>
   );
 }

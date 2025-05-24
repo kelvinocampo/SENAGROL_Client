@@ -176,7 +176,7 @@ const handleCerrarMensajeCompra = () => {
             </p>
             <p className="text-sm text-gray-800 font-semibold mt-1">${producto.precio_unidad}</p>
             {producto.descuento > 0 ? (
-              <p className="text-sm text-[#48BD28] font-semibold">Descuento: {producto.descuento}%</p>
+              <p className="text-sm text-[#48BD28] font-semibold">Descuento: {producto.descuento*100}%</p>
             ) : (
               <br />
             )}

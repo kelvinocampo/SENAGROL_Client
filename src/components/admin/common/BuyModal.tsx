@@ -63,7 +63,7 @@ export default function CompraModal({ isOpen, onClose, onConfirm, producto }: Co
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+    <div className="fixed inset-0 flex items-centerh justify-center bg-black bg-opacity-30 z-50">
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4">Comprar: {producto.nombre}</h2>
 
@@ -84,7 +84,7 @@ export default function CompraModal({ isOpen, onClose, onConfirm, producto }: Co
         <LocationPicker
           setLocation={setUbicacion}
           initialLocation={ubicacion}
-          className="mb-4"
+          className="mb-4 h-110 rounded overflow-hidden"
         />
 
         <div className="flex justify-end gap-2">
