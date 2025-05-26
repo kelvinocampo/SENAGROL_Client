@@ -80,10 +80,10 @@ const Header = () => {
               <a href="/miscompras" className="block px-3 py-2 hover:bg-[#E4FBDD]">🛒 Mis compras</a>
             )}
             {user.role === "transportador" && (
-              <a href="#" className="block px-3 py-2 hover:bg-[#E4FBDD]">📦 Mis transportes</a>
+              <a href="/mistransportes" className="block px-3 py-2 hover:bg-[#E4FBDD]">📦 Mis transportes</a>
             )}
             <a href="/transporte/:id_compra" className="block px-3 py-2 hover:bg-[#E4FBDD]">🚚 Transportadores</a>
-            <a href="#" className="block px-3 py-2 hover:bg-[#E4FBDD]">👁️ Escaneo facial</a>
+            <a href="/perfil" className="block px-3 py-2 hover:bg-[#E4FBDD]">Perfil</a>
           </div>
         )}
       </div>

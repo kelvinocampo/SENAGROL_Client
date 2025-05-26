@@ -31,37 +31,40 @@ function PerfilUsuarioUnico() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchPerfil = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
+ useEffect(() => {
+  const fetchPerfil = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-        const data = await obtenerPerfilUsuario(token);
-        if (data && data[0]) {
-          setFormData({
-            id_user: data[0].id_user,
-            username: data[0].nombre_usuario,
-            email: data[0].correo,
-            name: data[0].nombre,
-            phone: data[0].telefono,
-            roles: data.roles || "",
+      const data = await obtenerPerfilUsuario(token);
+      console.log("Datos recibidos desde backend:", data); // <---- Aquí
 
-            // Asignar campos transportador si existen
-            license: data[0].license || "",
-            soat: data[0].soat || "",
-            vehicleCard: data[0].vehicleCard || "",
-            vehicleType: data[0].vehicleType || "",
-            vehicleWeight: data[0].vehicleWeight || 0,
-          });
-        }
-      } catch (error) {
-        console.error("Error al cargar perfil:", error);
+      if (data && data[0]) {
+       setFormData({
+  id_user: data["0"].id_usuario,
+  username: data["0"].nombre_usuario,
+  email: data["0"].correo,
+  name: data["0"].nombre,
+  phone: data["0"].telefono,
+  roles: data.roles || "",
+
+  license: data.licencia_conduccion || "",
+  soat: data.soat || "",
+  vehicleCard: data.tarjeta_propiedad_vehiculo || "",
+  vehicleType: data.tipo_vehiculo || "",
+  vehicleWeight: Number(data.peso_vehiculo) || 0,
+});
+
       }
-    };
+    } catch (error) {
+      console.error("Error al cargar perfil:", error);
+    }
+  };
 
-    fetchPerfil();
-  }, []);
+  fetchPerfil();
+}, []);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!formData) return;
@@ -92,12 +95,12 @@ function PerfilUsuarioUnico() {
         roles: formData.roles,
       };
 
-      // Incluir password solo si no está vacío
+   
       if (formData.password && formData.password.trim() !== "") {
         payload.password = formData.password;
       }
 
-      // Solo enviar campos transportador si el rol incluye "transportador"
+     
       if (
         typeof formData.roles === "string" &&
         formData.roles.toLowerCase().includes("transportador")

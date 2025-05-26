@@ -1,9 +1,9 @@
-import { ProductManagement } from "@pages/ProductsManagement";
+import { ProductManagement } from "@/pages/Perfil/ProductsManagement";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { InicioManual } from "@pages/Inicio";
 import { AdminManagement } from "@pages/AdminManagement";
 import { RegisterForm } from "@components/Usuarioregister/RegisterForm";
-import MyPurchasesPage from "@pages/ListarMisCompras";
+import MyPurchasesPage from "@/pages/Perfil/ListarMisCompras";
 import { ProtectedRoute } from "@components/ProtectedRoute";
 import Error404 from "@pages/Error404";
 import PaginaProductos from "@pages/producto/PaginaProductos";
@@ -13,15 +13,17 @@ import QuienesSomos from "./pages/inicio/QuienesSomos";
 import PoliticasPrivacidad from "./pages/inicio/PoliticasPrivacidad";
 import EnviarCorreo from "./pages/inicio/RecuperaraContraseña";
 import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement";
+/* Perfil */
 import PerfilUsuarioUnico from "./components/perfil/UserEditProfile";
-import FormularioTransporte from "./pages/FormularioTransporte";
-import Layout1 from "./pages/CodigoCompras";
-import Transporte from "./pages/ListaTransportadores";
-import Perfilusuario from "./pages/perfilUsuario";
-import { Layout } from "lucide-react";
-import MisTransportes from "./pages/ListarMisTransportes";
-import QRCompras from "./pages/Qrcompras";
-import CodigoCompras from "./pages/CodigoCompras";
+import FormularioTransporte from "./pages/Perfil/FormularioTransporte";
+import Transporte from "./pages/Perfil/ListaTransportadores";
+import Perfilusuario from "./pages/Perfil/perfilUsuario";
+import MisTransportes from "./pages/Perfil/ListarMisTransportes";
+import QRCompras from "./pages/Perfil/Qrcompras";
+import CodigoCompras from "./pages/Perfil/CodigoCompras";
+import EscanearQr from "@/pages/Perfil/EscanearQr";
+import CodigoManual from "@/pages/Perfil/CodigoTransportador";
+
 
 function App() {
 
@@ -66,14 +68,21 @@ function App() {
           {<Route path="/perfil" element={<PerfilUsuarioUnico />} />}
           {<Route path="/miscompras" element={<MyPurchasesPage />} />}
           {<Route path="/formulariotransportador" element={<FormularioTransporte />} />}
-          <Route path="/compra/:id_compra/qr" element={<Layout1 />} />
-          <Route path="/transporte/:id_compra" element={<Transporte />} />
+
+
+          <Route path="/compra/:id_compra/qr" element={<QRCompras />} />
+          <Route path="/compra/:id_compra/codigo" element={<CodigoCompras />} />
+
+
+          <Route path="/transporte/" element={<Transporte />} />
           <Route path="/perfil" element={<Perfilusuario />} />
-          <Route path="/compra/:id_compra/codigo" element={<Layout />} />
 
           <Route path="/mistransportes" element={<MisTransportes />} />
-          <Route path="/escanear/:id_compra" element={<QRCompras />} />
-          <Route path="/codigo/:id_compra" element={<CodigoCompras />} />
+
+          <Route path="/escanear/:id_compra" element={<EscanearQr />} />
+          <Route path="/codigo/:id_compra" element={<CodigoManual />} />
+
+
           {/* <Route path="/codigo/:id_compra" element={<TransportCodeForm />} /> */}
 
 
