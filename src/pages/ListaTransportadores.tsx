@@ -1,6 +1,6 @@
 /* import Header from '@components/Header'; */
 import UserLayout from '@components/perfil/PerfilIzquierdo';
-import Transportadores from '@components/perfil/ListaTransportadores';
+// import Transportadores from '@components/perfil/ListaTransportadores';
 import Header from '@components/Header';
 
 

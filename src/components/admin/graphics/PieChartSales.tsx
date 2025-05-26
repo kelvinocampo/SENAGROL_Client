@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -49,7 +49,7 @@ export const PieChartSalesByMonth = () => {
             outerRadius={150}
             label
           >
-            {data.map((entry, index) => (
+            {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
