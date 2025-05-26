@@ -109,18 +109,19 @@ export const AdminLayout = () => {
             </h2>
             <PieChartSalesByMonth />
           </div>
-          <div className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
-            <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
-              Ventas
-            </h2>
-            <SalesTable />
-          </div>
            <div className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
             <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
               Grafica combinada
             </h2>
             <LineChartSalesByMonth />
           </div>
+          <div className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
+            <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
+              Ventas
+            </h2>
+            <SalesTable />
+          </div>
+          
         </section>
         
       </SalesManagementProvider>

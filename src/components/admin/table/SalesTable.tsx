@@ -34,7 +34,6 @@ export const SalesTable = () => {
 
   return (
     <div>
-      {/* Filtro por texto y mes */}
     <div className="flex gap-4 mb-4 items-center">
   <SearchBar
     searchTerm={searchTerm}

@@ -83,8 +83,7 @@ export const LoginForm = () => {
       <div className="w-full max-w-md mt-16 md:mt-0">
         <div className="flex justify-between mb-6 border-b border-gray-300 pb-2 text-sm sm:text-base">
           <span
-            onClick={() => navigate("/Login")}
-            className="text-gray-400 cursor-pointer hover:text-black"
+            className="text-black font-semibold border-b-2 border-[#48BD28] pb-1"
           >
             Login
           </span>

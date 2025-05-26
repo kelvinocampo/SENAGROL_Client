@@ -100,7 +100,7 @@ export const UserTable = () => {
     <div className="">
       <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
 
-      <table className="min-w-full table-auto rounded-xl border-2 border-[#F5F0E5]">
+      <table className="min-w-full my-4 table-auto rounded-xl border-2 border-[#F5F0E5]">
         <thead className="border-2 border-[#F5F0E5] bg-[E4FBDD]">
           <tr className="bg-[#E4FBDD]">
             <TableHeader>Nombre</TableHeader>

@@ -7,7 +7,7 @@ interface SearchBarProps {
 
 export const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, onSearch }) => {
   return (
-    <div className="mb-4">
+    <div className="">
       <input
         type="text"
         placeholder="🔎 Buscar por nombre"
