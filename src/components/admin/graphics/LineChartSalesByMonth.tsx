@@ -7,7 +7,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend
+  Legend,
+
 } from 'recharts';
 import { SalesManagementContext } from '@/contexts/admin/SalesManagement';
 import { getMonthlySalesProfits } from '@utils/Sales/getMonthlySalesProfits';

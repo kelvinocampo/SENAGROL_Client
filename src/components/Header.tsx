@@ -65,8 +65,7 @@ const Header = () => {
     productos: <a href="#" className="hover:text-[#48BD28] transition">Productos</a>,
     chatIA: <a href="#" className="hover:text-[#48BD28] transition">Chat IA</a>,
     chats: <a href="#" className="hover:text-[#48BD28] transition">Chats</a>,
-    login: <Link to="/login" className="hover:text-[#48BD28] transition">Iniciar sesión</Link>,
-    Register: <Link to="/Register" className="hover:text-[#48BD28] transition">Register</Link>,
+    login: <Link to="/login" className="hover:text-[#48BD28] transition">Ingresar</Link>,
     perfil: (
       <div
         className="relative"
@@ -112,7 +111,6 @@ const Header = () => {
         commonLinks.productos,
         commonLinks.chatIA,
         commonLinks.login,
-        commonLinks.Register,
         commonLinks.inicio
       ];
     }
@@ -154,7 +152,7 @@ const Header = () => {
           logoutButton
         ];
       default:
-        return [commonLinks.login, commonLinks.Register, commonLinks.inicio];
+        return [commonLinks.login, commonLinks.inicio];
     }
   };
 

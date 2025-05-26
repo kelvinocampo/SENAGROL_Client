@@ -1,7 +1,7 @@
 // src/pages/RegisterForm.tsx
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link} from "react-router-dom";
 import Logo from "@assets/senagrol.jpeg";
 import Image1 from "@assets/Fotos de Cafe - Descarga fotos gratis de gran calidad _ Freepik.jpg";
 import Image2 from "@assets/Travel.jpg";
@@ -90,7 +90,28 @@ export function RegisterForm() {
   return (
     <div className="h-screen w-full flex items-center justify-center bg-[#48BD28]">
       <div className="w-full max-w-8xl h-full flex flex-col md:flex-row bg-white overflow-hidden shadow-lg">
-        
+         <div className="px-4 pt-6">
+        <Link
+          to="/inicio"
+          className="inline-flex items-center text-green-700 hover:text-green-900 font-medium"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-5 h-5 mr-2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
+          </svg>
+          Volver al inicio
+        </Link>
+      </div>
         {/* Formulario */}
         <div className="relative w-full md:w-1/2 flex items-center justify-center p-6 sm:p-10">
           <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1 shadow-md">

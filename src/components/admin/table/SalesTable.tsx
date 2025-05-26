@@ -9,20 +9,63 @@ export const SalesTable = () => {
 
   const { sales } = context;
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
 
   if (!sales) return <div>Cargando ventas...</div>;
 
-  const filteredSales = sales.filter((sale) =>
-    sale.vendedor_nombre.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSales = sales.filter((sale) => {
+    const term = searchTerm.toLowerCase();
+    const vendedor = sale.vendedor_nombre?.toLowerCase() || '';
+    const comprador = sale.comprador_nombre?.toLowerCase() || '';
+    const estado = sale.estado?.toLowerCase() || '';
+    const precioProducto = String(sale.precio_producto || '').toLowerCase();
+
+    const matchesSearch =
+      vendedor.includes(term) ||
+      comprador.includes(term) ||
+      estado.includes(term) ||
+      precioProducto.includes(term);
+
+    const saleMonth = sale.fecha_compra?.slice(5, 7); // extrae el mes (formato 'YYYY-MM-DD')
+    const matchesMonth = selectedMonth ? saleMonth === selectedMonth : true;
+
+    return matchesSearch && matchesMonth;
+  });
 
   return (
     <div>
-      <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
+      {/* Filtro por texto y mes */}
+    <div className="flex gap-4 mb-4 items-center">
+  <SearchBar
+    searchTerm={searchTerm}
+    onSearch={setSearchTerm}
+  />
+  <select
+    className="w-40 p-2 rounded border border-gray-300 bg-[#E4FBDD] h-10"
+    value={selectedMonth}
+    onChange={(e) => setSelectedMonth(e.target.value)}
+  >
+    <option value="">Todos los meses</option>
+    <option value="01">Enero</option>
+    <option value="02">Febrero</option>
+    <option value="03">Marzo</option>
+    <option value="04">Abril</option>
+    <option value="05">Mayo</option>
+    <option value="06">Junio</option>
+    <option value="07">Julio</option>
+    <option value="08">Agosto</option>
+    <option value="09">Septiembre</option>
+    <option value="10">Octubre</option>
+    <option value="11">Noviembre</option>
+    <option value="12">Diciembre</option>
+  </select>
+</div>
 
+
+      {/* Tabla de ventas */}
       <table className="min-w-full table-auto rounded-xl border-2 border-[#F5F0E5]">
-        <thead className="border-2 border-[#F5F0E5] bg-[E4FBDD]">
-          <tr className="bg-[#E4FBDD]">
+        <thead className="border-2 border-[#F5F0E5] bg-[#E4FBDD]">
+          <tr>
             <TableHeader>Vendedor</TableHeader>
             <TableHeader>Transportador</TableHeader>
             <TableHeader>Comprador</TableHeader>
@@ -69,10 +112,7 @@ export const SalesTable = () => {
                   {sale.fecha_entrega || 'No asignado'}
                 </td>
                 <td className="p-2 whitespace-normal break-words max-w-[140px]">
-                  {sale.precio_transporte !== null &&
-                  sale.precio_transporte !== undefined
-                    ? sale.precio_transporte
-                    : 'No asignado'}
+                  {sale.precio_transporte ?? 'No asignado'}
                 </td>
                 <td className="p-2 whitespace-normal break-words max-w-[140px]">
                   {sale.precio_producto}

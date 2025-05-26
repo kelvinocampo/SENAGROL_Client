@@ -107,7 +107,7 @@ export default function PaginaProductos() {
               <div className="legend">
                 <h3 className="text-lg font-bold">{producto.nombre}</h3>
                 {producto.descuento > 0 && (
-                  <p className="text-sm text-green-300">Descuento: {producto.descuento}%</p>
+                  <p className="text-sm text-green-300">Descuento: {producto.descuento*100}%</p>
                 )}
               </div>
             </div>
