@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import senagrol from "@assets/senagrol.jpeg";
-import { getUserRole } from "@/services/authService";
+import { getUserRole } from "@/services/Perfil/authService";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react"; // Puedes usar íconos de Lucide o FontAwesome
 
@@ -77,12 +77,12 @@ const Header = () => {
         {isDropdownOpen && (
           <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-50 text-sm">
             {user.role === "comprador" && (
-              <a href="#" className="block px-3 py-2 hover:bg-[#E4FBDD]">🛒 Mis compras</a>
+              <a href="/miscompras" className="block px-3 py-2 hover:bg-[#E4FBDD]">🛒 Mis compras</a>
             )}
             {user.role === "transportador" && (
               <a href="#" className="block px-3 py-2 hover:bg-[#E4FBDD]">📦 Mis transportes</a>
             )}
-            <a href="#" className="block px-3 py-2 hover:bg-[#E4FBDD]">🚚 Transportadores</a>
+            <a href="/transporte/:id_compra" className="block px-3 py-2 hover:bg-[#E4FBDD]">🚚 Transportadores</a>
             <a href="#" className="block px-3 py-2 hover:bg-[#E4FBDD]">👁️ Escaneo facial</a>
           </div>
         )}

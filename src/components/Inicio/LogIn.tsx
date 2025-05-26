@@ -4,7 +4,7 @@ import Logo from "@assets/senagrol.jpeg";
 import Image1 from "@assets/Fotos de Cafe - Descarga fotos gratis de gran calidad _ Freepik.jpg";
 import Image2 from "@assets/Travel.jpg";
 import Image3 from "@assets/🇨🇴.jpg";
-import { InicioService } from "@/services/inicioServices";
+import { InicioService } from "@/services/Perfil/inicioServices";
 import { Input } from "@components/Input";
 import { Paragraph } from "@/components/Inicio/Paragraph";
 import { Eye, EyeOff } from "lucide-react";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import perfil from '@assets/sin_foto.jpg';
-import { obtenerPerfilUsuario } from '@services/PerfilusuarioServices';
+import { obtenerPerfilUsuario } from '@/services/Perfil/PerfilusuarioServices';
 
 interface Usuario {
   nombre: string;

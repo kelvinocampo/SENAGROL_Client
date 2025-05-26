@@ -67,7 +67,7 @@ function App() {
           {<Route path="/miscompras" element={<MyPurchasesPage />} />}
           {<Route path="/formulariotransportador" element={<FormularioTransporte />} />}
           <Route path="/compra/:id_compra/qr" element={<Layout1 />} />
-          <Route path="/transporte/" element={<Transporte />} />
+          <Route path="/transporte/:id_compra" element={<Transporte />} />
           <Route path="/perfil" element={<Perfilusuario />} />
           <Route path="/compra/:id_compra/codigo" element={<Layout />} />
 

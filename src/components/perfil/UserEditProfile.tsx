@@ -5,8 +5,8 @@ import Header from "@/components/Header";
 import PeticionVendedor from "@components/perfil/PeticionVendedor";
 import perfilImg from "@assets/sin_foto.jpg";
 import Footer from "@/components/Footer";
-import { obtenerPerfilUsuario } from "@services/PerfilusuarioServices";
-import { updateUserProfile } from "@services/EditProfileService";
+import { obtenerPerfilUsuario } from "@/services/Perfil/PerfilusuarioServices";
+import { updateUserProfile } from "@/services/Perfil/EditProfileService";
 
 type FormData = {
   id_user: number | string;

@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext, useMemo } from "react";
 import { ProductManagementContext } from "@/contexts/ProductsManagement";
 import { ProductCard } from "@components/ProductsManagement/ProductCard";
-import { ProductManagementService } from "@/services/ProductsManagement";
+import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { ProductSearcher } from "@components/ProductsManagement/ProductSearcher";
 
 export const ProductsView = () => {

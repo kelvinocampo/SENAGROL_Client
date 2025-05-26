@@ -2,7 +2,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import CompraModal from "@components/admin/common/BuyModal";
-import { getUserRole } from "@/services/authService";
+import { getUserRole } from "@/services/Perfil/authService";
 import Header from "@components/Header";
 
 export default function DetalleProducto() {

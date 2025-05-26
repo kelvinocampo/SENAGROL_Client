@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Truck } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ProductManagementService } from "@/services/PerfilcomprasServices";
+import { ProductManagementService } from "@/services/Perfil/PerfilcomprasServices";
 import { QrCode } from "lucide-react";
 
 export type Compra = {
@@ -79,7 +79,7 @@ const ListarMiscompras = () => {
 
               <td className="px-3 py-2 text-center">
                 {c.estado === "Pendiente" && (
-                  <Link to="/transporte" className="flex justify-center" title="Asignar transportador">
+                  <Link to={`/transporte/${c.id_compra}`}  className="flex justify-center" title="Asignar transportador">
                     <Truck size={16} className="text-black hover:text-green-600 transition-colors" />
                   </Link>
                 )}

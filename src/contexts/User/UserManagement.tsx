@@ -1,5 +1,5 @@
 import { createContext, useState } from 'react';
-import { InicioService } from '@/services/inicioServices';
+import { InicioService } from '@/services/Perfil/inicioServices';
 
 interface RecoverPasswordContextProps {
   message: string;

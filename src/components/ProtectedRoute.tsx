@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { getUserRole } from "../services/authService";
+import { getUserRole } from "../services/Perfil/authService";
 
 interface ProtectedRouteProps {
   allowedRoles: string[];
