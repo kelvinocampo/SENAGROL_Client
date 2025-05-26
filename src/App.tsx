@@ -9,13 +9,12 @@ import Error404 from "@pages/Error404";
 import PaginaProductos from "@pages/producto/PaginaProductos";
 import DetalleProducto from "./pages/producto/DetalleProducto";
 import ActulizarContraseña from "./pages/inicio/UpdatePassword";
-import  QuienesSomos  from "./pages/inicio/QuienesSomos";
-import  PoliticasPrivacidad  from "./pages/inicio/PoliticasPrivacidad";
+import QuienesSomos from "./pages/inicio/QuienesSomos";
+import PoliticasPrivacidad from "./pages/inicio/PoliticasPrivacidad";
 import EnviarCorreo from "./pages/inicio/RecuperaraContraseña";
 import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement";
 
 function App() {
-  const isLoggedIn = !!localStorage.getItem("token"); // Esto puede mejorar con un contexto
 
   return (
     <BrowserRouter>
@@ -25,13 +24,13 @@ function App() {
           <Route path="/inicio" element={<PaginaProductos />} />
           <Route path="/producto/:id" element={<DetalleProducto />} />
           <Route path="/Login" element={<InicioManual />} />
-          <Route path="/EnviarCorreo" element={<EnviarCorreo/>} />
-          <Route path="/RecuperarContraseña" element={<ActulizarContraseña/>} />
-          <Route path="/QuienesSomos" element={<QuienesSomos/>} />
-          <Route path="/PoliticasPrivacidad" element={<PoliticasPrivacidad/>} />
+          <Route path="/EnviarCorreo" element={<EnviarCorreo />} />
+          <Route path="/RecuperarContraseña" element={<ActulizarContraseña />} />
+          <Route path="/QuienesSomos" element={<QuienesSomos />} />
+          <Route path="/PoliticasPrivacidad" element={<PoliticasPrivacidad />} />
           <Route
             path="/Register"
-            element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/" />}
+            element={<RegisterForm />}
           />
           <Route path="/Profile" element={<MyPurchasesPage />} />
           <Route
