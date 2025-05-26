@@ -1,16 +1,16 @@
 import Header from '@components/Header';
 import UserLayout from '@components/perfil/PerfilIzquierdo';
-import ListarMiscompras from '@components/perfil/ListarMiscompras';
+import TransportesContenido from '@components/perfil/ListarMisTransportes';
 import Footer from '@/components/Footer';
 
 
-const MyPurchasesPage = () => {
+const MisTransportes = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
       <UserLayout>
-        <h3 className="text-xl font-bold mb-4">Listar mis compras</h3>
-        <ListarMiscompras />
+        <h3 className="text-xl font-bold mb-4">Listar mis transportes</h3>
+        <TransportesContenido />
       </UserLayout>
       <Footer />
    
@@ -18,4 +18,4 @@ const MyPurchasesPage = () => {
   );
 };
 
-export default MyPurchasesPage;
+export default MisTransportes;

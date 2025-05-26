@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
-import { Truck, QrCode } from "lucide-react";
+import { Truck } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ProductManagementService } from "@/services/PerfilcomprasServices";
+import { QrCode } from "lucide-react";
 
-type Compra = {
-  id_compra: number; 
+export type Compra = {
+  id_compra: number;
   fecha_compra: string;
   fecha_entrega: string;
   producto_nombre: string;
@@ -12,72 +15,34 @@ type Compra = {
   precio_transporte: number;
   vendedor_nombre: string;
   transportador_nombre: string;
-  estado: string;
+  estado: "Pendiente" | "Asignado" | "En Proceso" | "Completada";
 };
 
 const ListarMiscompras = () => {
   const [compras, setCompras] = useState<Compra[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    const fetchCompras = async () => {
+    const fetchData = async () => {
       try {
-        // Datos quemados de ejemplo
-        const data: Compra[] = [
-          {
-            id_compra: 1,
-            fecha_compra: "2025-05-10",
-            fecha_entrega: "2025-05-15",
-            producto_nombre: "Bicicleta MTB",
-            cantidad: 1,
-            precio_producto: 500,
-            precioTotal: 500,
-            precio_transporte: 30,
-            vendedor_nombre: "Carlos Ruiz",
-            transportador_nombre: "No asignado",
-            estado: "En espera",
-          },
-          {
-            id_compra: 2,
-            fecha_compra: "2025-05-08",
-            fecha_entrega: "2025-05-13",
-            producto_nombre: "Casco Profesional",
-            cantidad: 2,
-            precio_producto: 80,
-            precioTotal: 160,
-            precio_transporte: 20,
-            vendedor_nombre: "Laura Gómez",
-            transportador_nombre: "TransExpress",
-            estado: "En proceso",
-          },
-          {
-            id_compra: 3,
-            fecha_compra: "2025-05-09",
-            fecha_entrega: "2025-05-12",
-            producto_nombre: "Guantes deportivos",
-            cantidad: 3,
-            precio_producto: 25,
-            precioTotal: 75,
-            precio_transporte: 10,
-            vendedor_nombre: "Pedro Torres",
-            transportador_nombre: "LogiFast",
-            estado: "Entregado",
-          },
-        ];
-  
+        const data = await ProductManagementService.getBySeller();
         setCompras(data);
       } catch (err: any) {
-        setError("Error al cargar las compras");
+        setError(err.message || "Error al cargar las compras");
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchCompras();
+
+    fetchData();
   }, []);
 
-  if (loading) return <p className="text-center">Cargando compras...</p>;
-  if (error) return <p className="text-red-500 text-center">{error}</p>;
+  if (loading) return <p className="text-center mt-4">Cargando compras...</p>;
+  if (error) return <p className="text-red-500 text-center mt-4">{error}</p>;
+  if (!loading && compras.length === 0) {
+    return <p className="text-center mt-4 text-gray-600">No hay compras todavía.</p>;
+  }
 
   return (
     <div className="overflow-x-auto text-sm">
@@ -100,7 +65,7 @@ const ListarMiscompras = () => {
         </thead>
         <tbody className="bg-white divide-y divide-[#BFBFBD]">
           {compras.map((c, i) => (
-            <tr key={i} className="hover:bg-[#BFBFBD] transition-colors">
+            <tr key={i}>
               <td className="px-3 py-2">{c.fecha_compra}</td>
               <td className="px-3 py-2">{c.fecha_entrega}</td>
               <td className="px-3 py-2">{c.producto_nombre}</td>
@@ -111,30 +76,40 @@ const ListarMiscompras = () => {
               <td className="px-3 py-2">{c.vendedor_nombre}</td>
               <td className="px-3 py-2">{c.transportador_nombre}</td>
               <td className="px-3 py-2">{c.estado}</td>
-              <td className="px-3 py-2 text-center">
-                {c.estado === "En espera" && (
-                  <a
-                    href={`MyPurchasesPage`}
-                    className="flex justify-center"
-                    title="Asignar transportador"
-                  >
-                    <Truck size={16} className="text-black hover:text-green-600 transition-colors" />
-                  </a>
-                )}
-              </td>
-              <td className="px-3 py-2">
-                {c.estado === "En proceso" && (
-                  <div className="flex items-center gap-1">
-                    <QrCode size={16} className="text-black" />
-                    <a
-                        href={`/asignar-transportador/${c.id_compra}`}
-                        className="bg-[#48BD28] text-white px-2 py-1 rounded text-xs inline-block">
-                             Código
-                    </a>
 
-                  </div>
+              <td className="px-3 py-2 text-center">
+                {c.estado === "Pendiente" && (
+                  <Link to="/transporte" className="flex justify-center" title="Asignar transportador">
+                    <Truck size={16} className="text-black hover:text-green-600 transition-colors" />
+                  </Link>
                 )}
+                {c.estado === "Asignado" && <span className="text-black font-semibold">Asignado</span>}
+                {c.estado === "Completada" && <span className="text-black font-semibold">Completada</span>}
               </td>
+
+              <td className="px-3 py-2 text-center">
+  {c.estado === "En Proceso" ? (
+    <div className="flex items-center justify-center gap-2">
+      <Link
+        to={`/compra/${c.id_compra}/qr`}
+        className="text-[#48BD28] "
+        title="Ver QR"
+        >
+      <QrCode className="w-5 h-5" />
+      </Link>
+
+      <Link
+        to={`/compra/${c.id_compra}/codigo`}
+        className="text-[#48BD28] text-sm"
+        >
+        Ver Código
+      </Link>
+    </div>
+  ) : (
+    <span className="text-gray-400 text-xs"></span>
+  )}
+</td>
+
             </tr>
           ))}
         </tbody>

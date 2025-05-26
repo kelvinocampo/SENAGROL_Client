@@ -10,13 +10,14 @@ export class ProductManagementService {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
+
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-  
+
       const result = await response.json();
-      console.log('Respuesta de la API:', result); 
-  
+      console.log('Respuesta de la API:', result);
+
       if (Array.isArray(result.buys)) {
         return result.buys;
       } else {
@@ -27,4 +28,6 @@ export class ProductManagementService {
       throw error;
     }
   }
-}  
+
+
+}
