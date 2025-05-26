@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -8,7 +8,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  Dot
+
 } from 'recharts';
 import { SalesManagementContext } from '@/contexts/admin/SalesManagement';
 import { getMonthlySalesProfits } from '@utils/Sales/getMonthlySalesProfits';
