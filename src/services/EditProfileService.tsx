@@ -1,16 +1,26 @@
-// src/services/UserProfile.ts
 export const updateUserProfile = async (formData: {
+  id_user: number | string;
   name: string;
   username: string;
   email: string;
   phone: string;
-  password: string;
+  password?: string;
+  license?: string;
+  soat?: string;
+  vehicleCard?: string;
+  vehicleType?: string;
+  vehicleWeight?: number;
+  roles: string;
 }) => {
   try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No se encontró el token de autenticación.");
+
     const response = await fetch("http://localhost:10101/usuario/edit", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(formData),
     });

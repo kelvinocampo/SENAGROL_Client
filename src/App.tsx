@@ -4,7 +4,10 @@ import Transporte from "@pages/ListaTransportadores";
 import Perfilusuario from "@pages/perfilUsuario"; 
 import Layout1 from "@/pages/Qrcompras";
  import Layout from "@/pages/CodigoCompras";  
+ import PerfilUsuarioUnico from "@/components/perfil/UserEditProfile";
 /*   import Transportadores from "@/components/perfil/ListaTransportadores"; */
+
+import FormularioTransporte from "@/pages/FormularioTransporte";
 
 import MisTransportes from "@/pages/ListarMisTransportes";
 import EscanearQr from "@/components/perfil/EscanearQr";
@@ -18,7 +21,9 @@ function App() {
   return (
     <Routes>
 
-      {<Route path="/" element={<MyPurchasesPage />} />}
+      {<Route path="/" element={<PerfilUsuarioUnico />} />}
+      {<Route path="/miscompras" element={<MyPurchasesPage />} />}
+      {<Route path="/formulariotransportador" element={<FormularioTransporte />} />}
       <Route path="/compra/:id_compra/qr" element={<Layout1 />} />
       <Route path="/transporte/" element={<Transporte />} />
       <Route path="/perfil" element={<Perfilusuario />} />

@@ -10,7 +10,7 @@ const Transporte = () => {
        <Header />
       <UserLayout>
         <h3 className="text-xl font-bold mb-4">Listar Transportadores</h3>
-        <Transportadores  />
+      {/*   <Transportadores  /> */}
       </UserLayout>
    
     </div>

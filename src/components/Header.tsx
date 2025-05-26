@@ -25,7 +25,7 @@ const Header = () => {
         </div>
 
         <nav className="flex flex-wrap justify-center md:justify-end items-center gap-4 text-sm font-medium w-full md:w-auto relative">
-          {/* Estos enlaces no deben tener href="#" para evitar navegación falsa */}
+    
           <span className="hover:text-[#48BD28] transition cursor-pointer">Chats</span>
           <span className="hover:text-[#48BD28] transition cursor-pointer">Productos</span>
           <span className="hover:text-[#48BD28] transition cursor-pointer">Chat IA</span>
@@ -45,7 +45,8 @@ const Header = () => {
 
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-50 text-sm">
-                <Link to="/" className="block px-3 py-2 hover:bg-[#E4FBDD]">Mis compras</Link>
+                <Link to="/" className="block px-3 py-2 hover:bg-[#E4FBDD]">Mis datos</Link>
+                <Link to="/miscompras" className="block px-3 py-2 hover:bg-[#E4FBDD]">Mis compras</Link>
                 <Link to="#" className="block px-3 py-2 hover:bg-[#E4FBDD]"> Transportadores</Link>
                 <Link to="/mistransportes" className="block px-3 py-2 hover:bg-[#E4FBDD]"> Mis transportes</Link>
                 <Link to="#" className="block px-3 py-2 hover:bg-[#E4FBDD]"> Escaneo facial</Link>

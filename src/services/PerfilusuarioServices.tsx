@@ -13,7 +13,7 @@ export const obtenerPerfilUsuario = async (token: string) => {
       const data = await res.json();
      
       
-      // Retorna el primer usuario dentro del array user
+   
       return data.user[0], data.user; 
     } catch (error) {
       console.error('Error en obtenerPerfilUsuario:', error);
