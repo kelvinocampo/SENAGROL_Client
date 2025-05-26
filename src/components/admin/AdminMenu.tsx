@@ -56,12 +56,7 @@ export const AdminMenu = ({ setActiveView }: AdminMenuProps) => {
           <h2 className="text-xl font-bold">Admin</h2>
         </div>
         <nav className="flex-1 p-4 text-sm space-y-4 overflow-auto">
-          <div
-            onClick={() => handleSelect("dashboard")}
-            className={menuItemClass}
-          >
-            <FaHome /> Dashboard
-          </div>
+          
 
           {/* Usuarios - mostrar tabla */}
           <div

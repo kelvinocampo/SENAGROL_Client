@@ -33,7 +33,7 @@ export const BarChartProductsByMonth = () => {
           <YAxis />
           <Tooltip />
           <Legend />
-          <Bar dataKey="cantidad" fill="#48bd28" />
+           <Bar dataKey="cantidad" fill="#48bd28" radius={[10, 10, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
