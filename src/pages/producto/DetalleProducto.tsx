@@ -28,7 +28,6 @@ export default function DetalleProducto() {
   };
 
   const handleConfirmarCompra = (cantidad: number, ubicacion: string) => {
-    // Aquí puedes hacer lógica de compra si lo deseas
     console.log("Cantidad comprada:", cantidad);
     console.log("Ubicación:", ubicacion);
     setModalOpen(false);
@@ -61,119 +60,125 @@ export default function DetalleProducto() {
     <div className="bg-neutral-50 min-h-screen">
       <Header />
 
-      <Link
-        to="/inicio"
-        className="ml-6 mt-6 inline-flex items-center text-green-700 hover:text-green-900 font-medium"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2}
-          stroke="currentColor"
-          className="w-5 h-5 mr-2"
+      <div className="px-4 pt-6">
+        <Link
+          to="/inicio"
+          className="inline-flex items-center text-green-700 hover:text-green-900 font-medium"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15.75 19.5L8.25 12l7.5-7.5"
-          />
-        </svg>
-        Volver al inicio
-      </Link>
-
-      <div className="max-w-7xl mx-auto bg-white rounded-xl shadow p-6 mt-10 flex flex-col md:flex-row gap-6">
-        <div className="flex-1">
-          <div className="w-full h-full flex items-center justify-center bg-white rounded-xl border border-gray-200 shadow-sm">
-            <img
-              src={producto.imagen}
-              alt={producto.nombre}
-              className="w-full h-[400px] object-contain rounded-xl"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/placeholder.png";
-              }}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-5 h-5 mr-2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
             />
-          </div>
+          </svg>
+          Volver al inicio
+        </Link>
+      </div>
+
+      <div className="max-w-6xl mx-auto p-4 sm:p-6 mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Imagen */}
+        <div className="flex justify-center items-center">
+          <img
+            src={producto.imagen}
+            alt={producto.nombre}
+            className="w-full max-w-md h-[300px] sm:h-[400px] object-contain rounded-xl border border-gray-200 shadow-sm"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/placeholder.png";
+            }}
+          />
         </div>
 
-        <div className="flex-1 flex flex-col justify-center">
-          <h1 className="text-2xl font-bold text-gray-800">
-            {producto.nombre}
-          </h1>
+        {/* Detalles */}
+        <div className="flex flex-col justify-between space-y-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">
+              {producto.nombre}
+            </h1>
 
-          <div className="flex items-center gap-2 mt-2">
-            <p className="text-green-700 font-bold text-xl">
-              ${producto.precio_unidad}
-              <span className="text-sm font-normal text-gray-500">
-                {" "}
-                / unidad
-              </span>
-            </p>
-            {producto.descuento > 0 && (
-              <span className="text-xs bg-green-100 text-green-700 font-semibold px-2 py-1 rounded-full">
-                {producto.descuento*100}% OFF
-              </span>
-            )}
-          </div>
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <p className="text-green-700 font-bold text-xl">
+                ${producto.precio_unidad}
+                <span className="text-sm font-normal text-gray-500">
+                  {" "}
+                  / unidad
+                </span>
+              </p>
+              {producto.descuento > 0 && (
+                <span className="text-xs bg-green-100 text-green-700 font-semibold px-2 py-1 rounded-full">
+                  {producto.descuento * 100}% OFF
+                </span>
+              )}
+            </div>
 
-          <p className="text-sm text-gray-600 mt-3">{producto.descripcion}</p>
+            <p className="text-sm text-gray-600 mt-3">{producto.descripcion}</p>
 
-          <div className="mt-4 text-sm text-gray-700 space-y-1">
-            <p>
-              <span className="font-semibold">Vendedor:</span>{" "}
-              {producto.nombre_vendedor}
-            </p>
-            <p>
-              <span className="font-semibold">Compra mínima:</span>{" "}
-              {producto.cantidad_minima_compra} unidades
-            </p>
+            <div className="mt-4 text-sm text-gray-700 space-y-1">
               <p>
-              <span className="font-semibold">Cantidad disponible:</span>{" "}
-              {producto.cantidad} unidades
-            </p>
+                <span className="font-semibold">Vendedor:</span>{" "}
+                {producto.nombre_vendedor}
+              </p>
+              <p>
+                <span className="font-semibold">Compra mínima:</span>{" "}
+                {producto.cantidad_minima_compra} unidades
+              </p>
+              <p>
+                <span className="font-semibold">Cantidad disponible:</span>{" "}
+                {producto.cantidad} unidades
+              </p>
+            </div>
           </div>
 
-          <div className="mt-6 flex items-center gap-4">
-            <span className="text-sm font-medium">Cantidad:</span>
-            <button
-              onClick={() =>
-                setCantidad((prev) =>
-                  Math.max(producto.cantidad_minima_compra, prev - 1)
-                )
-              }
-              className="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300"
-            >
-              –
-            </button>
-            <span className="text-lg">{cantidad}</span>
-            <button
-              onClick={() => setCantidad((prev) => prev + 1)}
-              className="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300"
-            >
-              +
-            </button>
-          </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium">Cantidad:</span>
+              <button
+                onClick={() =>
+                  setCantidad((prev) =>
+                    Math.max(producto.cantidad_minima_compra, prev - 1)
+                  )
+                }
+                className="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                –
+              </button>
+              <span className="text-lg">{cantidad}</span>
+              <button
+                onClick={() => setCantidad((prev) => prev + 1)}
+                className="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                +
+              </button>
+            </div>
 
-          <div className="mt-6 flex gap-4">
-            <button
-              onClick={handleComprar}
-              className={`${
-                userRole !== "comprador"
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[#48BD28] hover:bg-green-600"
-              } text-white font-medium px-6 py-2 rounded transition duration-300`}
-            >
-              Comprar
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleComprar}
+                className={`${
+                  userRole !== "comprador"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#48BD28] hover:bg-green-600"
+                } w-full text-white font-medium px-6 py-2 rounded transition duration-300`}
+              >
+                Comprar
+              </button>
 
-            <button className="bg-gray-200 text-gray-800 font-medium px-6 py-2 rounded hover:bg-gray-300 transition">
-              Conversar con el vendedor
-            </button>
+              <button className="w-full bg-gray-200 text-gray-800 font-medium px-6 py-2 rounded hover:bg-gray-300 transition">
+                Conversar con el vendedor
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Modal de advertencia */}
+      {/* Modal: No permitido */}
       {mensajeNoPermitido && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white/80 rounded-2xl p-8 shadow-2xl max-w-md mx-4 text-center border border-red-200">

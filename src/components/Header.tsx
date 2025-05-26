@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import senagrol from "@assets/senagrol.jpeg";
 import { getUserRole } from "@/services/authService";
 import { Link, useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react"; // Puedes usar íconos de Lucide o FontAwesome
 
 type User = {
   isLoggedIn: boolean;
@@ -11,6 +12,7 @@ type User = {
 const Header = () => {
   const [user, setUser] = useState<User>({ isLoggedIn: false, role: null });
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
@@ -20,7 +22,6 @@ const Header = () => {
       try {
         const role = await getUserRole();
         setUser({ isLoggedIn: true, role: role as User["role"] });
-        console.log("Rol obtenido desde el backend:", role);
       } catch (error) {
         console.error("No se pudo obtener el rol:", error);
         setUser({ isLoggedIn: false, role: null });
@@ -45,19 +46,19 @@ const Header = () => {
     setShowLogoutConfirm(true);
   };
 
-const confirmLogout = () => {
-  localStorage.clear();
-  console.log("Sesión cerrada");
-  setShowLogoutConfirm(false);
-
-  // ✅ Reiniciar el estado del usuario
-  setUser({ isLoggedIn: false, role: null });
-
-  navigate("/inicio");
-};
+  const confirmLogout = () => {
+    localStorage.clear();
+    setUser({ isLoggedIn: false, role: null });
+    setShowLogoutConfirm(false);
+    navigate("/inicio");
+  };
 
   const cancelLogout = () => {
     setShowLogoutConfirm(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const commonLinks = {
@@ -90,9 +91,9 @@ const confirmLogout = () => {
     administrador: <Link to="/admin" className="hover:text-[#48BD28] transition">Administrador</Link>,
     misProductos: <a href="#" className="hover:text-[#48BD28] transition">Mis productos</a>,
     inicio: (
-      <button className="bg-[#48BD28] text-white px-3 py-1.5 rounded-full text-sm transition mt-4 md:mt-0">
-        <Link to="/inicio" className="hover:text-[#48BD28] transition">Inicio</Link>
-      </button>
+      <Link to="/inicio" className="bg-[#48BD28] text-white px-3 py-1.5 rounded-full text-sm transition mt-4 md:mt-0">
+        Inicio
+      </Link>
     ),
   };
 
@@ -100,7 +101,7 @@ const confirmLogout = () => {
     const logoutButton = (
       <button
         onClick={handleLogout}
-        className="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm transition mt-4 md:mt-0 hover:bg-red-600"
+        className="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm transition hover:bg-red-600"
       >
         Cerrar sesión
       </button>
@@ -153,29 +154,40 @@ const confirmLogout = () => {
           logoutButton
         ];
       default:
-        return [
-          commonLinks.login,
-          commonLinks.Register,
-          commonLinks.inicio
-        ];
+        return [commonLinks.login, commonLinks.Register, commonLinks.inicio];
     }
   };
 
   return (
     <>
-      <header className="bg-white shadow-sm hover:shadow-md px-6 py-3 relative z-50 rounded-lg">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-3 w-full md:w-auto">
+      <header className="bg-white shadow-sm hover:shadow-md px-6 py-4 rounded-lg z-50 relative">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-3">
             <img src={senagrol} alt="Logo" className="w-10 h-10 rounded-full" />
           </div>
 
-          <nav className="flex flex-wrap justify-center md:justify-end items-center gap-4 text-sm font-medium w-full md:w-auto relative">
+          <div className="md:hidden">
+            <button onClick={toggleMobileMenu}>
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+
+          <nav className="hidden md:flex items-center gap-4 text-sm font-medium">
             {renderLinks()}
           </nav>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <nav className="flex flex-col gap-3 mt-4 text-sm font-medium md:hidden animate-slide-down">
+            {renderLinks().map((link, idx) => (
+              <div key={idx} className="border-b pb-2 ">{link}</div>
+            ))}
+          </nav>
+        )}
       </header>
 
-      {/* Modal de confirmación para cerrar sesión */}
+      {/* Modal confirmación cierre de sesión */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
           <div className="bg-white p-6 rounded-lg shadow-md text-center max-w-sm w-full">

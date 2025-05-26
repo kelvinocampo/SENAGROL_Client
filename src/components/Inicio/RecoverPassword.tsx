@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { RecoverPasswordContext } from "@/contexts/User/UserManagement";
 import Logo from "@assets/senagrol.jpeg";
 import Image1 from "@assets/Fotos de Cafe - Descarga fotos gratis de gran calidad _ Freepik.jpg";
@@ -10,6 +11,7 @@ const images = [Image1, Image2, Image3];
 export const RecoverPassword = () => {
   const [email, setEmail] = useState("");
   const [currentImage, setCurrentImage] = useState(0);
+  const navigate = useNavigate();
 
   const context = useContext(RecoverPasswordContext);
   if (!context) {
@@ -31,24 +33,30 @@ export const RecoverPassword = () => {
   };
 
   return (
-    <div className="w-full h-screen flex items-center justify-center bg-[#48BD28]">
-      <div className="flex w-full h-full bg-white shadow-lg overflow-hidden">
-        {/* Formulario lado izquierdo */}
-        <div className="relative w-full md:w-1/2 p-10 pt-16 text-white flex items-center justify-center">
-          <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1">
-            <img src={Logo} alt="Logo" className="w-20 h-20 rounded-full object-cover" />
+    <div className="h-screen w-full flex items-center">
+      <div className="w-full h-full max-w-8xl bg-white shadow-lg flex flex-col md:flex-row overflow-hidden rounded-none">
+        
+        {/* Formulario */}
+        <div className="relative w-full md:w-1/2 h-full p-6 sm:p-10 flex items-center justify-center">
+          {/* Logo */}
+          <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1 shadow-lg">
+            <img
+              src={Logo}
+              alt="Logo"
+              className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover"
+            />
           </div>
 
-          <div className="w-full max-w-[400px]">
-            <div className="flex justify-between mb-6 border-b border-gray-600 pb-2">
+          <div className="w-full max-w-md mt-16 md:mt-0">
+            <div className="flex justify-between mb-6 border-b border-gray-300 pb-2 text-sm sm:text-base">
               <span
-                onClick={() => (location.href = "/LogIn")}
+                onClick={() => navigate("/Login")}
                 className="text-gray-400 cursor-pointer hover:text-black"
               >
                 Login
               </span>
               <span
-                onClick={() => (location.href = "/Register")}
+                onClick={() => navigate("/Register")}
                 className="text-gray-400 cursor-pointer hover:text-black"
               >
                 Registro
@@ -79,8 +87,8 @@ export const RecoverPassword = () => {
           </div>
         </div>
 
-        {/* Imagen rotatoria lado derecho */}
-        <div className="hidden md:block md:w-1/2 h-full">
+        {/* Imagen lateral */}
+        <div className="hidden md:block md:w-1/2 h-full w-full">
           <img
             src={images[currentImage]}
             alt="Decoración"
