@@ -159,4 +159,49 @@ export class ProductManagementService {
 
     return await response.json();
   }
+ static async buyProduct(
+  id_producto: number,
+  compraData: {
+    id_user: number,
+    cantidad: number,
+    latitud: string,
+    longitud: string
+  }
+) {
+  try {
+    const response = await fetch(`${this.API_URL}/producto/buy/${id_producto}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        id_user: compraData.id_user,
+        cantidad: compraData.cantidad,
+        latitud: compraData.latitud,
+        longitud: compraData.longitud
+      })
+    });
+
+    if (!response.ok) {
+      const contentType = response.headers.get("Content-Type") || "";
+      if (contentType.includes("application/json")) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al realizar la compra');
+      } else {
+        const text = await response.text();
+        throw new Error(text || 'Error desconocido al realizar la compra');
+      }
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error al realizar la compra:', error);
+    throw error;
+  }
+}
+
+
+
+
 }

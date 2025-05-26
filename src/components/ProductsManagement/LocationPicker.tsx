@@ -10,7 +10,7 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
-
+const API_URL = 'http://localhost:10101';
 type Location = {
   lat: number;
   lng: number;
@@ -23,6 +23,27 @@ type LocationPickerProps = {
   className?: string;
 };
 
+// ✅ Usa tu propia API para obtener la dirección
+async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
+  try {
+    const response = await fetch(`${API_URL}/compra/getAddress?lat=${lat}&lon=${lon}`);
+
+    const text = await response.text();
+    console.log("Respuesta del backend (texto):", text);
+
+    const data = JSON.parse(text);
+    if (data.display_name) {
+      return data.display_name;
+    }
+    return null;
+  } catch (error) {
+    console.error("❌ Error al obtener la dirección desde el backend:", error);
+    return null;
+  }
+}
+
+
+
 function LocationMarker({ 
   setLocation,
   initialLocation
@@ -31,8 +52,7 @@ function LocationMarker({
   initialLocation?: Location | null;
 }) {
   const map = useMap();
-  
-  // Efecto para centrar el mapa en la ubicación inicial
+
   useEffect(() => {
     if (initialLocation && typeof initialLocation.lat === 'number' && typeof initialLocation.lng === 'number') {
       map.flyTo([initialLocation.lat, initialLocation.lng], 15);
@@ -46,7 +66,6 @@ function LocationMarker({
     },
   });
 
-  // Mostrar marcador si hay ubicación inicial válida
   return initialLocation && typeof initialLocation.lat === 'number' && typeof initialLocation.lng === 'number' ? (
     <Marker position={[initialLocation.lat, initialLocation.lng]} />
   ) : null;
@@ -58,24 +77,29 @@ export function LocationPicker({
   className = ''
 }: LocationPickerProps) {
   const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
+  const [address, setAddress] = useState<string | null>(null);
 
-  // Sincronizar currentLocation con initialLocation cuando cambia
   useEffect(() => {
     if (initialLocation && typeof initialLocation.lat === 'number' && typeof initialLocation.lng === 'number') {
       setCurrentLocation(initialLocation);
+      reverseGeocode(initialLocation.lat, initialLocation.lng).then(setAddress);
     } else {
       setCurrentLocation(null);
+      setAddress(null);
     }
   }, [initialLocation]);
 
-  const handleLocationChange = (location: Location) => {
+  const handleLocationChange = async (location: Location) => {
     setCurrentLocation(location);
     setLocation(location);
+    const addr = await reverseGeocode(location.lat, location.lng);
+    setAddress(addr);
   };
 
   const handleClearLocation = () => {
     setCurrentLocation(null);
     setLocation(null);
+    setAddress(null);
   };
 
   return (
@@ -96,7 +120,7 @@ export function LocationPicker({
         />
       </MapContainer>
 
-      {currentLocation && typeof currentLocation.lat === 'number' && typeof currentLocation.lng === 'number' ? (
+      {currentLocation ? (
         <div className="mt-2 p-3 bg-gray-50 rounded-lg">
           <h4 className="font-medium text-gray-800">Ubicación seleccionada:</h4>
           <div className="grid grid-cols-2 gap-2 mt-1">
@@ -108,6 +132,12 @@ export function LocationPicker({
               <span className="text-sm text-gray-600">Longitud:</span>
               <p className="font-mono">{currentLocation.lng.toFixed(6)}</p>
             </div>
+            {address && (
+              <div className="col-span-2">
+                <span className="text-sm text-gray-600">Dirección:</span>
+                <p className="text-sm italic">{address}</p>
+              </div>
+            )}
           </div>
           <button
             type="button"

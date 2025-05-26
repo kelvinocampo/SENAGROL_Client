@@ -1,26 +1,18 @@
-type Props = {
-    label: string;
-    type: string;
-    name: string;
-    placeholder: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  };
-  
-  const InputField = ({ label, type, name, placeholder, value, onChange }: Props) => (
-    <div>
-      <label className="block text-sm font-medium">{label}</label>
+import React from "react";
+
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label: string;
+  className?: string;
+}
+
+export const Input: React.FC<InputProps> = ({ label, className, ...props }) => {
+  return (
+    <div className="flex flex-col">
+      <label className="text-sm font-medium text-black mb-1">{label}</label>
       <input
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        className="w-full mt-1 p-2 border rounded-xl  border-gray-300 focus:border-[#48BD28] focus:outline-none"
-        required                    
-      />      
+        {...props}
+        className={`border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#48BD28] ${className}`}
+      />
     </div>
   );
-  
-  export default InputField;
-  
+};
