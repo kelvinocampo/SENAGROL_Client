@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import UserLayout from '@components/perfil/PerfilIzquierdo';
 import CodeGenerator from "@/components/perfil/CodigoComprador";
 
-const Layout1 = () => {
+const CodigoCompras = () => {
   return (
     <>
       <Header />
@@ -17,4 +17,4 @@ const Layout1 = () => {
   );
 };
 
-export default Layout1;
+export default CodigoCompras;

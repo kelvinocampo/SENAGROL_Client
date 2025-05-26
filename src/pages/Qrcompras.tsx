@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import UserLayout from '@components/perfil/PerfilIzquierdo';
 import QRCodeGenerator from "@/components/perfil/QrComprador";
 
-const Layout = () => {
+const QRCompras = () => {
   return (
     <>
       <Header />
@@ -17,4 +17,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default QRCompras;
