@@ -13,6 +13,7 @@
     "@headlessui/react": "^2.2.3",
     "@react-google-maps/api": "^2.20.6",
     "@tailwindcss/vite": "^4.1.5",
+    "antd": "^5.25.3",
     "axios": "^1.9.0",
     "headlessui": "^0.0.0",
     "jsqr": "^1.4.0",
