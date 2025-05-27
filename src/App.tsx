@@ -13,7 +13,6 @@ import QuienesSomos from "./pages/inicio/QuienesSomos";
 import PoliticasPrivacidad from "./pages/inicio/PoliticasPrivacidad";
 import EnviarCorreo from "./pages/inicio/RecuperaraContraseña";
 import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement";
-/* Perfil */
 import PerfilUsuarioUnico from "./components/perfil/UserEditProfile";
 import FormularioTransporte from "./pages/Perfil/FormularioTransporte";
 import Transporte from "./pages/Perfil/ListaTransportadores";
@@ -74,7 +73,7 @@ function App() {
           <Route path="/compra/:id_compra/codigo" element={<CodigoCompras />} />
 
 
-          <Route path="/transporte/" element={<Transporte />} />
+          <Route path="/transporte" element={<Transporte />} />
           <Route path="/perfil" element={<Perfilusuario />} />
 
           <Route path="/mistransportes" element={<MisTransportes />} />

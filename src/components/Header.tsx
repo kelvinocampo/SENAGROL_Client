@@ -88,7 +88,7 @@ const Header = () => {
       </div>
     ),
     administrador: <Link to="/admin" className="hover:text-[#48BD28] transition">Administrador</Link>,
-    misProductos: <a href="#" className="hover:text-[#48BD28] transition">Mis productos</a>,
+    misProductos: <a href="/MisProductos/" className="hover:text-[#48BD28] transition">Mis productos</a>,
     inicio: (
       <Link to="/inicio" className="bg-[#48BD28] text-white px-3 py-1.5 rounded-full text-sm transition mt-4 md:mt-0">
         Inicio
