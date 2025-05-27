@@ -24,6 +24,7 @@ import EscanearQr from "@/pages/Perfil/EscanearQr";
 import CodigoManual from "@/pages/Perfil/CodigoTransportador";
 import QrView from "@components/ProductsManagement/codigoqr";
 import CodeGenerator from "@components/ProductsManagement/codigounico";
+import { IA } from "@pages/IA";
 
 
 function App() {
@@ -85,7 +86,7 @@ function App() {
 
           <Route path="/venta/qr/:id_compra" element={<QrView/>} />
           <Route path="/venta/codigo/:id_compra" element={<CodeGenerator />} />
-
+          <Route path="/IA" element={<IA />} />
 
           {/* <Route path="/codigo/:id_compra" element={<TransportCodeForm />} /> */}
 
