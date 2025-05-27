@@ -62,8 +62,7 @@ const Header = () => {
   };
 
   const commonLinks = {
-    productos: <a href="#" className="hover:text-[#48BD28] transition">Productos</a>,
-    chatIA: <a href="#" className="hover:text-[#48BD28] transition">Chat IA</a>,
+    chatIA: <a href="/IA" className="hover:text-[#48BD28] transition">Chat IA</a>,
     chats: <a href="#" className="hover:text-[#48BD28] transition">Chats</a>,
     login: <Link to="/login" className="hover:text-[#48BD28] transition">Ingresar</Link>,
     perfil: (
@@ -108,7 +107,6 @@ const Header = () => {
 
     if (!user.isLoggedIn || user.role === null) {
       return [
-        commonLinks.productos,
         commonLinks.chatIA,
         commonLinks.login,
         commonLinks.inicio
@@ -144,7 +142,6 @@ const Header = () => {
       case "administrador":
         return [
           commonLinks.inicio,
-          commonLinks.productos,
           commonLinks.perfil,
           commonLinks.chatIA,
           commonLinks.chats,
