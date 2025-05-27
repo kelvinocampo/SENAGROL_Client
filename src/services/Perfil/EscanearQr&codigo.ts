@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:10101";
+const API_URL = "https://senagrol.vercel.app";
 
 export async function receiveBuyCode(
   codigo: string,

@@ -1,5 +1,5 @@
 export class InicioService {
-  private static API_URL = "http://localhost:10101";
+  private static API_URL = "https://senagrol.vercel.app";
 
   static async login(identifier: string, password: string) {
     const response = await fetch(`${this.API_URL}/usuario/login`, {
