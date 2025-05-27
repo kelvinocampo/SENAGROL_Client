@@ -88,39 +88,45 @@ export const InputIA = () => {
         }
     };
 
-    return (
-        <div className="w-full flex flex-col gap-2">
-            {/* Mensaje de error o estado - Fuera del contenedor verde */}
-            {statusMessage && (
-                <p className="text-red-600 text-sm font-medium text-center">
-                    {statusMessage}
-                </p>
-            )}
+  // ...imports y lógica sin cambios
 
-            {/* Caja de input + botones */}
-            <form onSubmit={(e: any) => { handleSendMessage(e) }} className="flex sm:flex-row flex-col rounded-xl justify-between bg-[#E4FBDD] w-full">
-                <input
-                    type="text"
-                    className="py-2 px-3 outline-0 sm:w-[80%] w-full rounded-xl"
-                    placeholder="Escribe tu mensaje aquí..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                />
+return (
+  <div className="w-full flex flex-col gap-3">
+    {/* Mensaje de error o estado */}
+    {statusMessage && (
+      <p className="text-red-600 text-sm font-semibold text-center">
+        {statusMessage}
+      </p>
+    )}
 
-                <div className="flex items-center justify-center gap-2 p-2">
-                    <button
-                        className="bg-[#48BD28] rounded-xl px-4 py-2 text-white cursor-pointer font-bold"
-                    >
-                        Enviar mensaje
-                    </button>
-                    <FaMicrophone
-                        className={`text-2xl cursor-pointer hover:scale-110 transition-all duration-200 mx-2 ${isRecording ? "text-red-500" : ""
-                            }`}
-                        title="Grabar mensaje"
-                        onClick={handleRecording}
-                    />
-                </div>
-            </form>
-        </div>
-    );
+    {/* Caja de input + botones */}
+    <form
+      onSubmit={handleSendMessage}
+      className="flex sm:flex-row flex-col items-center bg-[#E4FBDD] rounded-xl p-2 gap-2 shadow-md"
+    >
+      <input
+        type="text"
+        className="py-2 px-3 outline-none sm:flex-1 w-full rounded-lg border border-[#a0eb8a] focus:ring-2 focus:ring-[#6dd850]"
+        placeholder="Escribe tu mensaje aquí..."
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+      />
+
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          className="bg-[#48BD28] hover:bg-[#379E1B] transition-colors text-white font-semibold px-4 py-2 rounded-lg shadow"
+        >
+          Enviar
+        </button>
+        <FaMicrophone
+          className={`text-2xl cursor-pointer transition-all duration-200 ${isRecording ? "text-red-600 animate-pulse" : "text-[#379E1B] hover:scale-110"}`}
+          title="Grabar mensaje"
+          onClick={handleRecording}
+        />
+      </div>
+    </form>
+  </div>
+);
+
 };
