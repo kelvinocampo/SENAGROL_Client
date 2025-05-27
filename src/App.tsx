@@ -25,6 +25,7 @@ import CodigoManual from "@/pages/Perfil/CodigoTransportador";
 import QrView from "@components/ProductsManagement/codigoqr";
 import CodeGenerator from "@components/ProductsManagement/codigounico";
 import { IA } from "@pages/IA";
+import Transportadores from "@/pages/Perfil/ListaTransportadores";
 
 
 function App() {
@@ -84,18 +85,14 @@ function App() {
           <Route path="/escanear/:id_compra" element={<EscanearQr />} />
           <Route path="/codigo/:id_compra" element={<CodigoManual />} />
 
-          <Route path="/venta/qr/:id_compra" element={<QrView/>} />
+          <Route path="/venta/qr/:id_compra" element={<QrView />} />
           <Route path="/venta/codigo/:id_compra" element={<CodeGenerator />} />
           <Route path="/IA" element={<IA />} />
-
-          {/* <Route path="/codigo/:id_compra" element={<TransportCodeForm />} /> */}
-
-
-          {/* <Route path="/assign/:id_compra/:id_transportador" element={<Transportadores />} /> */}
+          <Route path="/transporte/:id_compra" element={<Transportadores />} />
 
         </Routes>
-       </DiscountedProductProvider>
-      </BrowserRouter>
+      </DiscountedProductProvider>
+    </BrowserRouter>
   );
 }
 
