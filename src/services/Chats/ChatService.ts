@@ -16,6 +16,7 @@ export class ChatService {
             const result: any = await response.json()
 
             const chats: any[] = result.data;
+console.log('chats', chats);
 
             return chats;
         } catch (error) {
