@@ -1,6 +1,6 @@
 export const obtenerTransportadores = async () => {
   try {
-    const response = await fetch("http://localhost:10101/transportador/");
+    const response = await fetch("http://senagrol.up.railway.app/transportador/");
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }

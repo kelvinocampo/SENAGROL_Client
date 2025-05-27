@@ -8,7 +8,7 @@ export interface RouteData {
   destination: Location;
 }
 
-const API_URL = "http://localhost:10101/transportador";
+const API_URL = "http://senagrol.up.railway.app/transportador";
 
 export default {
   async getRoute(id_compra: number): Promise<RouteData> {

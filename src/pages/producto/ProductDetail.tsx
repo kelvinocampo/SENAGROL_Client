@@ -15,7 +15,7 @@ function ProductDetail() {
   const [producto, setProducto] = useState<Producto | null>(null);
 
   useEffect(() => {
-    fetch(`http://localhost:10101/productos/${id}`)
+    fetch(`http://senagrol.up.railway.app/productos/${id}`)
       .then((res) => res.json())
       .then((data: Producto) => setProducto(data))
       .catch((err) => console.error("Error al cargar producto", err));
