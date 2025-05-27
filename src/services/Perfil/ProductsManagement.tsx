@@ -1,5 +1,3 @@
-
-
 export class ProductManagementService {
   private static API_URL = "http://localhost:10101";
 

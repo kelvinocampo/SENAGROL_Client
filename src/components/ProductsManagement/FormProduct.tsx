@@ -5,6 +5,7 @@ import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { LocationPicker } from "@/components/ProductsManagement/LocationPicker";
 import { Input } from "@/components/Input";
 
+
 type ProductFormData = {
   id_producto?: number;
   nombre: string;
