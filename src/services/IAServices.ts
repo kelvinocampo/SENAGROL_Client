@@ -1,5 +1,5 @@
 export class IAService {
-    static API_URL = "https://senagrol.vercel.app";
+    static API_URL = "http://senagrol.up.railway.app";
 
     static async getResponse(prompt: string): Promise<string> {
         try {

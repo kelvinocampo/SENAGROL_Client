@@ -1,6 +1,6 @@
 
 export const requestSeller = async (token: string) => {
-    const response = await fetch("https://senagrol.vercel.app/vendedor/requestSeller", {
+    const response = await fetch("http://senagrol.up.railway.app/vendedor/requestSeller", {
    method: "POST",
     headers: {
       "Content-Type": "application/json",

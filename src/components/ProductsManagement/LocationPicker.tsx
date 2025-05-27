@@ -10,7 +10,7 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
-const API_URL = 'https://senagrol.vercel.app';
+const API_URL = 'http://senagrol.up.railway.app';
 type Location = {
   lat: number;
   lng: number;

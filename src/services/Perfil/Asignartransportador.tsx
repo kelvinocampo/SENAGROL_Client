@@ -6,7 +6,7 @@ export const asignarTransportador = async (
   const token = localStorage.getItem("token");
   try {
     const response = await fetch(
-      `https://senagrol.vercel.app/compra/assign/${id_compra}/${id_transportador}`,
+      `http://senagrol.up.railway.app/compra/assign/${id_compra}/${id_transportador}`,
       {                             
         method: "PATCH",  
         headers: {

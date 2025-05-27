@@ -1,5 +1,5 @@
 export class ProductManagementService {
-  private static API_URL = "https://senagrol.vercel.app";
+  private static API_URL = "http://senagrol.up.railway.app";
 
   static async getBySeller() {
     try {

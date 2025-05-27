@@ -1,6 +1,6 @@
 export const obtenerTransportadores = async () => {
   try {
-    const response = await fetch("https://senagrol.vercel.app/transportador/");
+    const response = await fetch("http://senagrol.up.railway.app/transportador/");
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }

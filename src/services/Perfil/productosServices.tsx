@@ -1,6 +1,6 @@
 // src/services/productosServices.ts
 
-const API_URL = "https://senagrol.vercel.app"; // Puerto correcto
+const API_URL = "http://senagrol.up.railway.app"; // Puerto correcto
 
 export class ProductosService {
   // Obtener todos los productos
