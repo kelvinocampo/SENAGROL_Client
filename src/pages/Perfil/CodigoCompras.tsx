@@ -1,7 +1,7 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@components/Header";
+import Footer from "@components/Footer";
 import UserLayout from '@components/perfil/PerfilIzquierdo';
-import CodeGenerator from "@/components/perfil/CodigoComprador";
+import CodeGenerator from "@components/perfil/CodigoComprador";
 
 const CodigoCompras = () => {
   return (
