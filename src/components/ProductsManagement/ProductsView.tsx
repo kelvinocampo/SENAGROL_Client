@@ -3,7 +3,7 @@ import { ProductManagementContext } from "@/contexts/ProductsManagement";
 import { ProductCard } from "@components/ProductsManagement/ProductCard";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { ProductSearcher } from "@components/ProductsManagement/ProductSearcher";
-import Footer from "@components/Footer";
+
 
 
 export const ProductsView = () => {
@@ -74,7 +74,7 @@ export const ProductsView = () => {
         </section>
       </main>
 
-      <Footer />
+  
     </div>
   );
 };
