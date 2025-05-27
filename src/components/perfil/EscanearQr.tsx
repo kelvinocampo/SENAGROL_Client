@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import jsQR from "jsqr";
-import { receiveBuyCode } from "@/services/EscanearQr&codigo";
+import { receiveBuyCode } from "@/services/Perfil/EscanearQr&codigo";
 
 const QrScanner: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);

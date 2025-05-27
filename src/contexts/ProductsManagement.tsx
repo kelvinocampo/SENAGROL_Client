@@ -1,5 +1,5 @@
 // TaskContext.js
-import { ProductManagementService } from '@/services/ProductsManagement';
+import { ProductManagementService } from '@/services/Perfil/ProductsManagement';
 import { createContext, useEffect, useState } from 'react';
 
 export const ProductManagementContext: any = createContext<any>(undefined);

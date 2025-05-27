@@ -7,7 +7,7 @@ import Header from "@components/Header";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import { Link, useNavigate } from "react-router-dom";
 import CompraModal from "@components/admin/common/BuyModal";
-import { getUserRole } from "@/services/authService";
+import { getUserRole } from "@/services/Perfil/authService";
 
 export default function PaginaProductos() {
   const [busqueda, setBusqueda] = useState("");

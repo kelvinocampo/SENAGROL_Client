@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { requestTransporter } from "@/services/FormTransportadorService";
+import { requestTransporter } from "@/services/Perfil/FormTransportadorService";
 
 function FormularioTransportador() {
   const navigate = useNavigate();

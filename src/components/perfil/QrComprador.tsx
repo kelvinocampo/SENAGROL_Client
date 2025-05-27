@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import QRCode from "react-qr-code";
-import { getCodigoCompra } from "@/services/Qr&codigocompradorServices";
+import { getCodigoCompra } from "@/services/Perfil/Qr&codigocompradorServices";
 
 const QRCodeGenerator = () => {
   const { id_compra } = useParams();

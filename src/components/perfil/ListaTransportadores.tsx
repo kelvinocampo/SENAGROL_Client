@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MessageSquare, X } from "lucide-react";
-import { obtenerTransportadores } from "@services/perfiltransportadorServices";
-import { asignarTransportador } from "@services/Asignartransportador";
+import { obtenerTransportadores } from "@/services/Perfil/perfiltransportadorServices";
+import { asignarTransportador } from "@/services/Perfil/Asignartransportador";
 
 type Transportador = {
   id_usuario: number;
@@ -15,7 +15,8 @@ interface Props {
 }
 
 export default function Transportadores({ id_compra }: Props) {
-  console.log("🟢 ID recibido:", id_compra);
+  console.log("🟢 ID recibido (id_compra):", id_compra);
+
   const [transportadores, setTransportadores] = useState<Transportador[]>([]);
   const [filtrados, setFiltrados] = useState<Transportador[]>([]);
   const [search, setSearch] = useState("");
@@ -28,7 +29,7 @@ export default function Transportadores({ id_compra }: Props) {
     const fetchData = async () => {
       try {
         const data = await obtenerTransportadores();
-        console.log("Transportadores cargados:", data);
+        console.log("📦 Transportadores cargados:", data);
         setTransportadores(data);
         setFiltrados(data);
       } catch (error) {
@@ -47,7 +48,7 @@ export default function Transportadores({ id_compra }: Props) {
   }, [search, transportadores, id_compra]);
 
   const handleAsignarClick = (transportador: Transportador) => {
-    console.log("Transportador seleccionado:", transportador);
+    console.log("✅ Transportador seleccionado:", transportador);
     setSelected(transportador);
     setPrecio("");
     setConfirmacionFinal(false);
@@ -55,19 +56,32 @@ export default function Transportadores({ id_compra }: Props) {
   };
 
   const handlePrimeraConfirmacion = () => {
-    if (!precio || isNaN(Number(precio)) || Number(precio) <= 0) return;
+    if (!precio || isNaN(Number(precio)) || Number(precio) <= 0) {
+      console.warn("⚠️ Precio inválido:", precio);
+      return;
+    }
     setConfirmacionFinal(true);
   };
 
   const handleAsignacionFinal = async () => {
-    console.log("id_compra desde props:", id_compra);
-    console.log("selected transportador:", selected);
-    console.log("precio:", precio);
-  
+    console.log("🚀 Iniciando asignación...");
+    console.log("➡️ id_compra:", id_compra, typeof id_compra);
+    console.log("➡️ selected transportador:", selected);
+    console.log("➡️ precio:", precio, typeof precio);
+
     if (!selected || !precio) return;
-  
+
     try {
-      await asignarTransportador(id_compra, selected.id_usuario, parseFloat(precio));
+      const parsedPrecio = parseFloat(precio);
+      console.log("✅ parsedPrecio a enviar:", parsedPrecio, typeof parsedPrecio);
+
+      const resultado = await asignarTransportador(
+        Number(id_compra),
+        Number(selected.id_usuario),
+        parsedPrecio
+      );
+
+      console.log("✅ Respuesta del backend:", resultado);
       alert("✅ Transportador asignado con éxito");
       cerrarModal();
     } catch (error) {
@@ -75,7 +89,6 @@ export default function Transportadores({ id_compra }: Props) {
       alert("❌ Error al asignar transportador");
     }
   };
-  
 
   const cerrarModal = () => {
     setMostrarModal(false);
@@ -87,7 +100,6 @@ export default function Transportadores({ id_compra }: Props) {
   return (
     <div className="flex min-h-screen bg-white text-black">
       <div className="flex-1 p-4 sm:p-8">
- 
         <div className="mb-4 flex items-center gap-3">
           <input
             type="text"
@@ -98,7 +110,6 @@ export default function Transportadores({ id_compra }: Props) {
           />
         </div>
 
-  
         <div className="overflow-x-auto">
           <table className="min-w-full border-[#E4FBDD] rounded-xl text-xs sm:text-sm">
             <thead>
@@ -119,14 +130,13 @@ export default function Transportadores({ id_compra }: Props) {
                     <td className="p-2 sm:p-4 flex items-center gap-2 sm:gap-4">
                       <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
                       <button
-    onClick={() => handleAsignarClick(t)}
-    className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 text-xs"
-    title="Asignar transportador"
-  >
-    Asignar
-  </button>
-
-                      </td>
+                        onClick={() => handleAsignarClick(t)}
+                        className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 text-xs"
+                        title="Asignar transportador"
+                      >
+                        Asignar
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
@@ -160,7 +170,7 @@ export default function Transportadores({ id_compra }: Props) {
                     placeholder="Precio del transporte"
                     value={precio}
                     onChange={(e) => {
-                      console.log("Precio cambiado a:", e.target.value);
+                      console.log("✍️ Precio modificado:", e.target.value);
                       setPrecio(e.target.value);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded mb-4"
@@ -169,7 +179,7 @@ export default function Transportadores({ id_compra }: Props) {
                   {precio && (
                     <>
                       <p className="mb-2">
-                        ¿Deseas continuar con la asignación
+                        ¿Deseas continuar con la asignación?
                       </p>
                       <button
                         onClick={handlePrimeraConfirmacion}
@@ -190,7 +200,9 @@ export default function Transportadores({ id_compra }: Props) {
                 <>
                   <h2 className="text-lg font-semibold mb-4">Confirmación final</h2>
                   <p className="mb-4">
-                    ¿Estás <strong>seguro</strong> de asignar a <strong>{selected.nombre}</strong> por un precio de <strong>${precio}</strong>?
+                    ¿Estás <strong>seguro</strong> de asignar a{" "}
+                    <strong>{selected.nombre}</strong> por un precio de{" "}
+                    <strong>${precio}</strong>?
                   </p>
                   <button
                     onClick={handleAsignacionFinal}

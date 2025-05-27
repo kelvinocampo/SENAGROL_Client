@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ProductManagementContext } from "@/contexts/ProductsManagement";
-import { ProductManagementService } from "@/services/ProductsManagement";
+import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { LocationPicker } from "@/components/ProductsManagement/LocationPicker";
 import { Input } from "@/components/Input";
 

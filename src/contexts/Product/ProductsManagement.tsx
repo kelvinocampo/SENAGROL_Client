@@ -1,7 +1,7 @@
 // src/contexts/DiscountedProductContext.tsx
 
 import { createContext, useEffect, useState } from 'react';
-import { ProductosService } from '@/services/productosServices';
+import { ProductosService } from '@/services/Perfil/productosServices';
 
 export interface Product {
   id: number;

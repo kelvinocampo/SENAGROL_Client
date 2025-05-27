@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { requestSeller } from "@/services/PeticiónVService"; 
+import { requestSeller } from "@/services/Perfil/PeticiónVService"; 
 
 export default function PeticionVendedor() {
   const [mensaje, setMensaje] = useState("");

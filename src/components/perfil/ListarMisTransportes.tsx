@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import TransportService from "@/services/ListarMisTransportes";
+import TransportService from "@/services/Perfil/ListarMisTransportes";
 import { MapPin, QrCode, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 

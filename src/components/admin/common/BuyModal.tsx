@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LocationPicker } from "@components/ProductsManagement/LocationPicker";
-import { ProductManagementService } from "@/services/ProductsManagement"; // Ajusta según tu estructura
+import { ProductManagementService } from "@/services/Perfil/ProductsManagement"; // Ajusta según tu estructura
 
 type Location = {
   lat: number;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getCodigoCompra } from "@/services/Qr&codigocompradorServices";
+import { getCodigoCompra } from "@/services/Perfil/Qr&codigocompradorServices";
 
 const CodeGenerator = () => {
   const { id_compra } = useParams();

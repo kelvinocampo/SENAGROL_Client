@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { receiveBuyCode } from "@/services/EscanearQr&codigo"; // Ajusta la ruta si es necesario
+import { receiveBuyCode } from "@/services/Perfil/EscanearQr&codigo"; // Ajusta la ruta si es necesario
 
 const ManualCodeForm: React.FC = () => {
   const [codigo, setCodigo] = useState("");
