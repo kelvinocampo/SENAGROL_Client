@@ -62,7 +62,7 @@ function LocationMarker({
   useMapEvents({
     click(e) {
       const { lat, lng } = e.latlng;
-      setLocation({ lat, lng });
+      setLocation({ lat: parseFloat(lat.toFixed(6)), lng: parseFloat(lng.toFixed(6)) });
     },
   });
 
