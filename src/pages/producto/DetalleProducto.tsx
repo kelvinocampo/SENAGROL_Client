@@ -52,7 +52,7 @@ export default function DetalleProducto() {
     fetchRole();
   }, []);
 
-  if (!context || !producto || userRole === null) {
+  if (!context || !producto) {
     return <div className="p-6">Cargando producto...</div>;
   }
 
@@ -162,7 +162,7 @@ export default function DetalleProducto() {
               <button
                 onClick={handleComprar}
                 className={`${
-                  userRole !== "comprador"
+                  (userRole !== "comprador" || userRole == null)
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#48BD28] hover:bg-green-600"
                 } w-full text-white font-medium px-6 py-2 rounded transition duration-300`}
