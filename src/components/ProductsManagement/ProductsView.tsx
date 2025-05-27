@@ -3,8 +3,8 @@ import { ProductManagementContext } from "@/contexts/ProductsManagement";
 import { ProductCard } from "@components/ProductsManagement/ProductCard";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { ProductSearcher } from "@components/ProductsManagement/ProductSearcher";
-import Footer from "../footer";
-import Header from "../Header";
+import Footer from "@components/Footer";
+
 
 export const ProductsView = () => {
   const { products = [], setProducts, searchTerm }: any = useContext(ProductManagementContext);
@@ -39,8 +39,6 @@ export const ProductsView = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-
       <main className="flex-1">
         <section className="font-[Fredoka] sm:py-8 sm:px-16 py-4 px-8 flex flex-col gap-8 flex-1">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

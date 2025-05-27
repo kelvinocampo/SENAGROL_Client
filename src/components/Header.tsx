@@ -158,7 +158,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-white shadow-sm hover:shadow-md px-6 py-4 rounded-lg z-50 relative">
+      <header className=" font-[Fredoka] bg-white shadow-sm hover:shadow-md px-6 py-4 rounded-lg z-10 relative">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <img src={senagrol} alt="Logo" className="w-10 h-10 rounded-full" />

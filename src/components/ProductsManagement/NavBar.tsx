@@ -14,11 +14,11 @@ export const Navbar = () => {
   return (
     <>
       {/* Mobile menu toggle button */}
-      <div className="flex items-center fixed top-4 right-4 z-50">
+      <div className=" font-[Fredoka] flex items-center absolute top-4 right-4 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="text-gray-700 hover:text-gray-900 focus:outline-none"
-          aria-label="Toggle menu"
+          className="text-gray-700 hover:text-gray-900 focus:outline-none relative p-2 rounded-md bg-white shadow-md transition-colors duration-300 index-100" 
+          aria-label="Toggle menu"  
         >
           <svg
             className="h-6 w-6"
@@ -62,6 +62,12 @@ export const Navbar = () => {
           className="w-full p-2 rounded-xl bg-[#48BD28] hover:bg-green-600 cursor-pointer text-white font-medium"
         >
           Crear Producto
+        </button>
+           <button
+          onClick={() => handleNavigation('/MisProductos/MisVentas')}
+          className="w-full p-2 rounded-xl bg-[#48BD28] hover:bg-green-600 cursor-pointer text-white font-medium"
+        >
+         Mis ventas
         </button>
       </nav>
     </>

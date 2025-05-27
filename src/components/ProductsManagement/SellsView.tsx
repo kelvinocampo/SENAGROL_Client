@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { QrCode, Search } from "lucide-react";
-import Header from "../Header";
-import Footer from "../footer";
+import Footer from "@components/Footer";
 import { VentasService, Venta } from "../../services/VentasService";
 import { Link } from "react-router-dom";
 
@@ -39,8 +38,8 @@ export const SellsView = () => {
     );
 
     return (
-        <div className="min-h-screen flex flex-col">
-            <Header />
+        <div className= " font-[Fredoka] min-h-screen flex flex-col">
+
 
             <main className="flex-1 flex justify-center items-start py-8 px-4">
                 <div className="w-full max-w-6xl">

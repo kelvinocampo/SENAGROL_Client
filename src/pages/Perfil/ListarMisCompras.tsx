@@ -1,7 +1,7 @@
 import Header from '@components/Header';
 import UserLayout from '@components/perfil/PerfilIzquierdo';
 import ListarMiscompras from '@components/perfil/ListarMiscompras';
-import Footer from '@/components/Footer';
+import Footer from "@components/Footer";
 
 
 const MyPurchasesPage = () => {

@@ -88,8 +88,8 @@ function App() {
           {/* <Route path="/assign/:id_compra/:id_transportador" element={<Transportadores />} /> */}
 
         </Routes>
+       </DiscountedProductProvider>
       </BrowserRouter>
-    </>
   );
 }
 
