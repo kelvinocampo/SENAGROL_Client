@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link} from "react-router-dom";
 import Logo from "@assets/senagrol.jpeg";
-import Image1 from "@assets/Fotos de Cafe - Descarga fotos gratis de gran calidad _ Freepik.jpg";
+import Image1 from "@assets/LoginImg.jpg";
 import Image2 from "@assets/Travel.jpg";
-import Image3 from "@assets/🇨🇴.jpg";
+import Image3 from "@assets/co.jpg";
 import { InicioService } from "@/services/Perfil/inicioServices";
 import { Input } from "@components/Input";
 

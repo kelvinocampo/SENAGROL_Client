@@ -11,7 +11,7 @@ import DetalleProducto from "./pages/producto/DetalleProducto";
 import ActulizarContraseña from "./pages/inicio/UpdatePassword";
 import QuienesSomos from "./pages/inicio/QuienesSomos";
 import PoliticasPrivacidad from "./pages/inicio/PoliticasPrivacidad";
-import EnviarCorreo from "./pages/inicio/RecuperaraContraseña";
+import EnviarCorreo from "./pages/inicio/RecoverPassword";
 import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement";
 import PerfilUsuarioUnico from "./components/perfil/UserEditProfile";
 import FormularioTransporte from "./pages/Perfil/FormularioTransporte";
