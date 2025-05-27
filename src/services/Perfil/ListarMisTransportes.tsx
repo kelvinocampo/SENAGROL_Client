@@ -5,7 +5,7 @@ const TransportService = {
   async getTransports(id_user: number) {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://senagrol.up.railway.app/transportador/transports", {
+      const response = await axios.get("https://senagrol.up.railway.app/transportador/transports", {
         params: { id_user },
         headers: {
           Authorization: `Bearer ${token}`,

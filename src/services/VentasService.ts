@@ -14,7 +14,7 @@ export interface Venta {
 }
 
 export class VentasService {
-  private static API_URL = "http://senagrol.up.railway.app";
+  private static API_URL = "https://senagrol.up.railway.app";
 
   static async obtenerVentasPorUsuario(): Promise<Venta[]> {
     try {

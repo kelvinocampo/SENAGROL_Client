@@ -6,7 +6,7 @@ export const asignarTransportador = async (
   const token = localStorage.getItem("token");
   try {
     const response = await fetch(
-      `http://senagrol.up.railway.app/compra/assign/${id_compra}/${id_transportador}`,
+      `https://senagrol.up.railway.app/compra/assign/${id_compra}/${id_transportador}`,
       {                             
         method: "PATCH",  
         headers: {

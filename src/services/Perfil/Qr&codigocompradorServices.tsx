@@ -7,7 +7,7 @@ export const getCodigoCompra = async (id_compra: string, token: string | null) =
 
   try {
     const response = await axios.get(
-      `http://senagrol.up.railway.app/compra/code/${id_compra}`,
+      `https://senagrol.up.railway.app/compra/code/${id_compra}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

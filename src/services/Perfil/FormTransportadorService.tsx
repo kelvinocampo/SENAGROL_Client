@@ -21,7 +21,7 @@ export async function requestTransporter(
   });
 
   const response = await fetch(
-    "http://senagrol.up.railway.app/transportador/requestTransporter",
+    "https://senagrol.up.railway.app/transportador/requestTransporter",
     {
       method: "POST",
       headers: {
