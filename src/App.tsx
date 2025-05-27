@@ -23,6 +23,7 @@ import QRCompras from "./pages/Perfil/Qrcompras";
 import CodigoCompras from "./pages/Perfil/CodigoCompras";
 import EscanearQr from "@/pages/Perfil/EscanearQr";
 import CodigoManual from "@/pages/Perfil/CodigoTransportador";
+import Transportadores from "@/pages/Perfil/ListaTransportadores";
 
 
 function App() {
@@ -82,11 +83,7 @@ function App() {
           <Route path="/escanear/:id_compra" element={<EscanearQr />} />
           <Route path="/codigo/:id_compra" element={<CodigoManual />} />
 
-
-          {/* <Route path="/codigo/:id_compra" element={<TransportCodeForm />} /> */}
-
-
-          {/* <Route path="/assign/:id_compra/:id_transportador" element={<Transportadores />} /> */}
+           <Route path="/transporte/:id_compra" element={<Transportadores />} /> 
 
         </Routes>
       </DiscountedProductProvider>
