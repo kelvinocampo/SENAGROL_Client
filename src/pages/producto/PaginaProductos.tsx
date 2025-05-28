@@ -1,4 +1,4 @@
-// Tu importación original se mantiene igual
+
 import { useContext, useEffect, useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
@@ -8,6 +8,8 @@ import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement"
 import { Link, useNavigate } from "react-router-dom";
 import CompraModal from "@components/admin/common/BuyModal";
 import { getUserRole } from "@/services/Perfil/authService";
+import  FallingLeaves  from "@/components/FallingLeaf";
+import Footer from "@/components/Footer";
 
 export default function PaginaProductos() {
   const [busqueda, setBusqueda] = useState("");
@@ -86,11 +88,16 @@ export default function PaginaProductos() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-4 sm:px-6 md:px-8 py-6">
-      <Header />
+    <>
+        <div className="fixed inset-0 z-[0] pointer-events-none">
+        <FallingLeaves quantity={20} />
+      </div>
+       <div className= "min-h-screen bg-neutral-50 px-4 sm:px-6 md:px-8 py-6">
 
+
+            <Header />
       {/* CARRUSEL */}
-      <div className="bg-white rounded-xl shadow-lg mb-10 max-w-7xl mx-auto">
+      <div className="bg-white rounded-xl shadow-lg mb-10 max-w-7xl mx-auto  ">
         <Carousel autoPlay infiniteLoop interval={4000} showThumbs={false} showStatus={false}>
           {discountedProducts.map((producto) => (
             <div
@@ -133,13 +140,13 @@ export default function PaginaProductos() {
       </div>
 
       {/* PRODUCTOS */}
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4  ">
         <h2 className="text-2xl font-bold mb-6">Productos</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 z-[100] md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {productosPaginados.map((producto) => (
             <div
               key={producto.id}
-              className="bg-white rounded-lg p-4 text-center shadow hover:shadow-md transition"
+              className="bg-white rounded-lg p-4 text-center shadow hover:shadow-md transition relative"
             >
               <img
                 src={producto.imagen}
@@ -256,6 +263,9 @@ export default function PaginaProductos() {
           </div>
         </div>
       )}
+      <Footer></Footer>
     </div>
+    </>
+   
   );
 }
