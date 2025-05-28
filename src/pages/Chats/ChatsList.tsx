@@ -1,42 +1,43 @@
-import { ChatService } from "@services/Chats/ChatService";
-import { useState, useEffect } from "react";
-import { Avatar, List, Typography, Tag, Skeleton, Empty, Badge } from "antd";
-import Header from "@/components/Header";
-
-const { Text } = Typography;
+import { useState, useEffect } from 'react';
+import { ChatService } from '@services/Chats/ChatService';
+import Header from '@/components/Header';
 
 interface Chat {
-  id_chat: number;
-  id_user1: number;
-  id_user2: number;
-  ultimo_mensaje: string;
-  fecha_reciente: string;
-  bloqueado_user1: boolean;
-  bloqueado_user2: boolean;
-  eliminado_user1: boolean;
-  eliminado_user2: boolean;
-  estado: "Activo" | "Bloqueado";
-  unread_count: number;
-  other_user_name: string;
-  other_user_avatar: string;
+    id_chat: number;
+    id_user1: number;
+    id_user2: number;
+    nombre_user1: string;
+    nombre_user2: string;
+    rol_user1: string;
+    rol_user2: string;
+    fecha_reciente: string;
+    bloqueado_user1: boolean;
+    bloqueado_user2: boolean;
+    eliminado_user1: boolean;
+    eliminado_user2: boolean;
+    estado: "Activo" | "Bloqueado";
 }
 
 export const ChatsList = () => {
     const [chats, setChats] = useState<Chat[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const currentUserId = 2;
+    const [currentUserId, setCurrentUserId] = useState<number>(0); // Inicializar con 0 o obtener del auth
 
     useEffect(() => {
         const fetchChats = async () => {
             try {
                 setLoading(true);
-                const response = await ChatService.getChats();
-                setChats(response);
-                setError(null);
-            } catch (error) {
-                console.error('Error fetching chats:', error);
-                setError("Failed to load chats. Please try again.");
+                // En una app real, obtendrías el ID del usuario autenticado
+                // const userId = await AuthService.getCurrentUserId();
+                const userId = 2; // Ejemplo - reemplazar con el ID real
+                setCurrentUserId(userId);
+
+                const chatsData = await ChatService.getChats();
+                setChats(chatsData);
+            } catch (err) {
+                setError("Error al cargar los chats");
+                console.error(err);
             } finally {
                 setLoading(false);
             }
@@ -45,59 +46,38 @@ export const ChatsList = () => {
         fetchChats();
     }, []);
 
-    const getChatStatus = (chat: Chat) => {
-        return chat.estado === "Bloqueado" 
-            ? <Tag color="red">Bloqueado</Tag>
-            : <Tag color="green">Activo</Tag>;
-    };
-
-    const formatTimeAgo = (dateString: string) => {
+    const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
-        const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+        const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-        let interval = Math.floor(seconds / 31536000);
-        if (interval >= 1) return `hace ${interval} año${interval === 1 ? '' : 's'}`;
+        if (diffInSeconds < 60) return "Ahora";
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} h`;
+        if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} d`;
 
-        interval = Math.floor(seconds / 2592000);
-        if (interval >= 1) return `hace ${interval} mes${interval === 1 ? '' : 'es'}`;
-
-        interval = Math.floor(seconds / 86400);
-        if (interval >= 1) return `hace ${interval} día${interval === 1 ? '' : 's'}`;
-
-        interval = Math.floor(seconds / 3600);
-        if (interval >= 1) return `hace ${interval} hora${interval === 1 ? '' : 's'}`;
-
-        interval = Math.floor(seconds / 60);
-        if (interval >= 1) return `hace ${interval} minuto${interval === 1 ? '' : 's'}`;
-
-        return `hace unos segundos`;
+        return date.toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'short'
+        });
     };
 
-    const renderLastMessage = (chat: Chat) => {
-        if (!chat.ultimo_mensaje) {
-            return <Text type="secondary">No hay mensajes</Text>;
-        }
-
-        return (
-            <div className="flex flex-col">
-                <p className="truncate max-w-[200px] text-gray-800 dark:text-gray-200">
-                    {chat.ultimo_mensaje}
-                </p>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {formatTimeAgo(chat.fecha_reciente)}
-                </span>
-            </div>
-        );
+    const getOtherUser = (chat: Chat) => {
+        const isUser1 = chat.id_user1 === currentUserId;
+        return {
+            name: isUser1 ? chat.nombre_user1 : chat.nombre_user2,
+            isBlocked: isUser1 ? chat.bloqueado_user1 : chat.bloqueado_user2,
+            rol: isUser1 ? chat.rol_user1 : chat.rol_user2
+        };
     };
 
     if (loading) {
         return (
-            <div className="space-y-4 p-4">
+            <div className="max-w-md mx-auto p-4 space-y-4">
                 {[...Array(5)].map((_, i) => (
-                    <div key={i} className="flex items-center space-x-4 p-3">
-                        <Skeleton.Avatar active size="large" />
-                        <Skeleton.Input active style={{ width: 200 }} />
+                    <div key={i} className="p-4 border rounded-lg animate-pulse">
+                        <div className="h-5 w-3/4 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
                     </div>
                 ))}
             </div>
@@ -106,64 +86,56 @@ export const ChatsList = () => {
 
     if (error) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <Empty description={error} />
+            <div className="max-w-md mx-auto p-4 text-red-600 bg-red-50 rounded-lg">
+                {error}
             </div>
         );
     }
 
     if (chats.length === 0) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <Empty
-                    description="No tienes chats iniciados"
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                />
+            <div className="max-w-md mx-auto p-4 text-center text-gray-500">
+                No tienes chats iniciados
             </div>
         );
     }
 
     return (
         <>
-            <Header />
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                <List
-                    itemLayout="horizontal"
-                    dataSource={chats}
-                    renderItem={(chat) => (
-                        <List.Item
-                            className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer ${
-                                chat.unread_count > 0 ? 'bg-blue-50 dark:bg-gray-800' : ''
-                            }`}
-                        >
-                            <List.Item.Meta
-                                avatar={
-                                    <Badge
-                                        count={chat.unread_count > 0 ? chat.unread_count : 0}
-                                        offset={[-10, 10]}
-                                        className="custom-badge"
-                                    >
-                                        <Avatar
-                                            src={chat.other_user_avatar}
-                                            size="large"
-                                            className="border-2 border-white dark:border-gray-800"
-                                        />
-                                    </Badge>
-                                }
-                                title={
-                                    <div className="flex justify-between items-center">
-                                        <span className="font-semibold text-gray-900 dark:text-white">
-                                            {chat.other_user_name}
+            <div className="w-full bg-white shadow-sm rounded-lg overflow-hidden p-4 m-4">
+                <div className="p-4 border-b">
+                    <h2 className="text-xl font-semibold text-gray-800">Tus Conversaciones</h2>
+                </div>
+
+                <div className="">
+                    {chats.map(chat => {
+                        const otherUser = getOtherUser(chat);
+
+                        return (
+                            <div
+                                key={chat.id_chat}
+                                className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <h3 className="text-lg font-medium text-gray-900 truncate">
+                                        {otherUser.name}
+                                    </h3>
+                                    {chat.estado === "Bloqueado" && (
+                                        <span className="text-xs px-2 py-0.5 bg-red-100 text-red-800 rounded-full">
+                                            Bloqueado
                                         </span>
-                                        {getChatStatus(chat)}
-                                    </div>
-                                }
-                                description={renderLastMessage(chat)}
-                                className="items-center"
-                            />
-                        </List.Item>
-                    )}
-                />
+                                    )}
+
+                                    <span>{otherUser.rol}</span>
+
+                                    <span className="text-sm text-gray-500 whitespace-nowrap">
+                                        {formatDate(chat.fecha_reciente)}
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </>
     );
