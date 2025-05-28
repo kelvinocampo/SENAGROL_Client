@@ -27,6 +27,7 @@ import CodeGenerator from "@components/ProductsManagement/codigounico";
 import { IA } from "@pages/IA";
 import Transportadores from "@/pages/Perfil/ListaTransportadores";
 import { ChatsList } from "./pages/Chats/ChatsList";
+import { Chat } from "./pages/Chats/Chat";
 
 
 function App() {
@@ -91,8 +92,8 @@ function App() {
           <Route path="/IA" element={<IA />} />
           <Route path="/transporte/:id_compra" element={<Transportadores />} />
 
-          <Route path="chats" element={<ChatsList/>}/>
-          <Route path="chats" element={<ChatsList/>}/>
+          <Route path="/chats" element={<ChatsList/>}/>
+          <Route path="/chat/:id_chat" element={<Chat/>}/>
 
         </Routes>
       </DiscountedProductProvider>

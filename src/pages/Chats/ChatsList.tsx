@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ChatService } from '@services/Chats/ChatService';
 import Header from '@/components/Header';
+import { useNavigate } from 'react-router-dom';
 
 interface Chat {
     id_chat: number;
@@ -19,11 +20,15 @@ interface Chat {
 }
 
 export const ChatsList = () => {
+    const navigate = useNavigate()
     const [chats, setChats] = useState<Chat[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [currentUserId, setCurrentUserId] = useState<number>(0); // Inicializar con 0 o obtener del auth
 
+    const handleClickChat = (id_chat: number) => {
+        navigate(`/chat/${id_chat}`)
+    }
     useEffect(() => {
         const fetchChats = async () => {
             try {
@@ -114,6 +119,7 @@ export const ChatsList = () => {
                         return (
                             <div
                                 key={chat.id_chat}
+                                onClick={() => handleClickChat(chat.id_chat)}
                                 className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
                             >
                                 <div className="flex justify-between items-start">
