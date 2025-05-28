@@ -10,7 +10,7 @@ const Footer = () => {
           <a href="#"><FaInstagram /></a>
           <a href="#"><FaGoogle /></a>
         </div>
-          <a href="/PoliticasPrivacidad"><FaFacebook />Politicas de privacidad</a>
+        <p>Políticas de privacidad</p>
       </footer>
       <p className="text-xs text-center text-[#48BD28] mt-4">© 2025 Senagrol</p>
     </div>
