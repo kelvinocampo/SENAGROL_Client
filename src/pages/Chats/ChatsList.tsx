@@ -24,17 +24,16 @@ export const ChatsList = () => {
     const [chats, setChats] = useState<Chat[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [currentUserId, setCurrentUserId] = useState<number>(0); // Inicializar con 0 o obtener del auth
+    const [currentUserId, setCurrentUserId] = useState<number>(0);
 
     const handleClickChat = (id_chat: number) => {
         navigate(`/chat/${id_chat}`)
     }
+    
     useEffect(() => {
         const fetchChats = async () => {
             try {
                 setLoading(true);
-                // En una app real, obtendrías el ID del usuario autenticado
-                // const userId = await AuthService.getCurrentUserId();
                 const userId = 2; // Ejemplo - reemplazar con el ID real
                 setCurrentUserId(userId);
 
@@ -106,13 +105,15 @@ export const ChatsList = () => {
     }
 
     return (
-        <>
-            <div className="w-full bg-white shadow-sm rounded-lg overflow-hidden p-4 m-4">
-                <div className="p-4 border-b">
+        <div className="min-h-screen bg-gray-50">
+            <div className=" mx-auto bg-white shadow-sm rounded-lg overflow-hidden">
+                {/* Cabecera */}
+                <div className="p-4 border-b sticky top-0 bg-white z-10">
                     <h2 className="text-xl font-semibold text-gray-800">Tus Conversaciones</h2>
                 </div>
 
-                <div className="">
+                {/* Lista de chats con scroll vertical */}
+                <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 64px)' }}>
                     {chats.map(chat => {
                         const otherUser = getOtherUser(chat);
 
@@ -120,29 +121,36 @@ export const ChatsList = () => {
                             <div
                                 key={chat.id_chat}
                                 onClick={() => handleClickChat(chat.id_chat)}
-                                className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                                className="p-4 border-b hover:bg-gray-50 transition-colors cursor-pointer"
                             >
-                                <div className="flex justify-between items-start">
-                                    <h3 className="text-lg font-medium text-gray-900 truncate">
-                                        {otherUser.name}
-                                    </h3>
-                                    {chat.estado === "Bloqueado" && (
-                                        <span className="text-xs px-2 py-0.5 bg-red-100 text-red-800 rounded-full">
-                                            Bloqueado
+                                <div className="flex justify-between items-center gap-2">
+                                    {/* Nombre del contacto */}
+                                    <div className="min-w-0 flex-1">
+                                        <h3 className="text-lg font-medium text-gray-900 truncate">
+                                            {otherUser.name}
+                                        </h3>
+                                        <p className="text-sm text-gray-500 truncate">
+                                            {otherUser.rol}
+                                        </p>
+                                    </div>
+
+                                    {/* Info derecha */}
+                                    <div className="flex flex-col items-end space-y-1">
+                                        {chat.estado === "Bloqueado" && (
+                                            <span className="text-xs px-2 py-0.5 bg-red-100 text-red-800 rounded-full whitespace-nowrap">
+                                                Bloqueado
+                                            </span>
+                                        )}
+                                        <span className="text-sm text-gray-500 whitespace-nowrap">
+                                            {formatDate(chat.fecha_reciente)}
                                         </span>
-                                    )}
-
-                                    <span>{otherUser.rol}</span>
-
-                                    <span className="text-sm text-gray-500 whitespace-nowrap">
-                                        {formatDate(chat.fecha_reciente)}
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         );
                     })}
                 </div>
             </div>
-        </>
+        </div>
     );
 };
