@@ -26,7 +26,7 @@ import QrView from "@components/ProductsManagement/codigoqr";
 import CodeGenerator from "@components/ProductsManagement/codigounico";
 import { IA } from "@pages/IA";
 import Transportadores from "@/pages/Perfil/ListaTransportadores";
-import { ChatsList } from "./pages/Chats/ChatsList";
+import { ChatsList } from "./pages/Chats/ChatList";
 import { Chat } from "./pages/Chats/Chat";
 import { UserList } from "./pages/Chats/UserList";
 
