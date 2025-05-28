@@ -28,6 +28,7 @@ import { IA } from "@pages/IA";
 import Transportadores from "@/pages/Perfil/ListaTransportadores";
 import { ChatsList } from "./pages/Chats/ChatsList";
 import { Chat } from "./pages/Chats/Chat";
+import { UserList } from "./pages/Chats/UserList";
 
 
 function App() {
@@ -94,6 +95,7 @@ function App() {
 
           <Route path="/chats" element={<ChatsList/>}/>
           <Route path="/chat/:id_chat" element={<Chat/>}/>
+          <Route path="/chats/usuarios" element={<UserList/>}/>
 
         </Routes>
       </DiscountedProductProvider>

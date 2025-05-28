@@ -10,6 +10,8 @@ export const Chat = () => {
     useEffect(() => {
         const fetchMessages = async () => {
             try {
+                console.log(id_chat);
+                
                 const result = await MessageService.getMessages(parseInt(id_chat))
                 setMessages(result)
             } catch (error) {
