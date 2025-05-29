@@ -78,72 +78,19 @@ const Footer = () => {
           transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
           className="text-lg font-medium"
         >
-      <a href="/PoliticasPrivacidad">Politicas de Privacidad</a>
+          Políticas de privacidad
         </motion.p>
-        {/* Izquierda */}
-        <motion.p
-          initial={{ x: -100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-          className="text-lg font-medium"
-        >
-     <a href="/QuienesSomos">Quienes Somos</a>
-        </motion.p>
+      </div>
 
-        {/* Íconos de redes */}
-        <motion.div
-          className="flex gap-8 text-2xl text-[#48BD28]"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.15,
-              },
-            },
-          }}
-        >
-          {socialIcons.map((item, index) => (
-            <motion.a
-              key={index}
-              href={item.link}
-              variants={{
-                hidden: { scale: 0, rotate: -90, opacity: 0 },
-                visible: {
-                  scale: 1,
-                  rotate: 0,
-                  opacity: 1,
-                  transition: {
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 20,
-                    delay: item.delay,
-                  },
-                },
-              }}
-              whileHover={{
-                scale: 1.3,
-                rotate: [0, 10, -10, 10, 0],
-                transition: { duration: 0.6 },
-              }}
-              whileTap={{ scale: 0.9 }}
-            >
-              {item.icon}
-            </motion.a>
-          ))}
-        </motion.div>
-
-        {/* Derecha */}
-        <motion.p
+      {/* Derechos de autor */}
+      <motion.p
           initial={{ x: 100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
           className="text-lg font-medium"
         >
       <a href="/PoliticasPrivacidad">Politicas de Privacidad</a>
-        </motion.p>
+      </motion.p>
     </motion.footer>
   );
 };
