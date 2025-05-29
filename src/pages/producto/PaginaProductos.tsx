@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import senagrol from "@assets/senagrol.jpeg";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import { FaSearch } from "react-icons/fa";
+import Buscador from "@components/Inicio/Search";
 import Header from "@components/Header";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import CompraModal from "@components/admin/common/BuyModal";
 import { getUserRole } from "@/services/Perfil/authService";
 import FallingLeaves from "@/components/FallingLeaf";
 import Footer from "@/components/Footer";
+import { motion } from "framer-motion";
 
 export default function PaginaProductos() {
   const [busqueda, setBusqueda] = useState("");
@@ -115,65 +116,79 @@ export default function PaginaProductos() {
         </div>
         <Header />
         {/* CARRUSEL */}
-        <div className="bg-white rounded-xl shadow-lg mb-10 max-w-7xl mx-auto">
-          <Carousel
-            autoPlay
-            infiniteLoop
-            interval={4000}
-            showThumbs={false}
-            showStatus={false}
-          >
-            {discountedProducts.map((producto) => (
-              <div
-                key={producto.id}
-                onClick={() => navigate(`/producto/${producto.id}`)}
-                className="cursor-pointer"
-              >
-                <img
-                  src={producto.imagen}
-                  alt={producto.nombre}
-                  className="object-cover h-60 sm:h-72 md:h-96 w-full"
-                  onError={(e) =>
-                    ((e.target as HTMLImageElement).src = "/placeholder.png")
-                  }
-                />
-                <div className="legend">
-                  <h3 className="text-lg font-bold">{producto.nombre}</h3>
-                  {producto.descuento > 0 && (
-                    <p className="text-sm text-green-300">
-                      Descuento: {producto.descuento * 100}%
-                    </p>
-                  )}
-                </div>
+        <Carousel
+          autoPlay
+          infiniteLoop
+          interval={5000}
+          showThumbs={false}
+          showStatus={false}
+          swipeable={true}
+          emulateTouch
+        >
+          {discountedProducts.map((producto) => (
+            <motion.div
+              key={producto.id}
+              className="cursor-pointer relative overflow-hidden"
+              onClick={() => navigate(`/producto/${producto.id}`)}
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{
+                duration: 1,
+                delay: 0.2,
+                type: "spring",
+                stiffness: 80,
+              }}
+            >
+              {/* Imagen con zoom lento */}
+              <motion.img
+                src={producto.imagen}
+                alt={producto.nombre}
+                className="object-cover h-60 sm:h-72 md:h-96 w-full transition-all duration-1000 ease-in-out"
+                onError={(e) =>
+                  ((e.target as HTMLImageElement).src = "/placeholder.png")
+                }
+                initial={{ scale: 1 }}
+                animate={{ scale: 1.05 }}
+                transition={{
+                  duration: 10,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "mirror",
+                }}
+              />
+
+              {/* Texto con fondo difuminado */}
+              <div className="absolute bottom-0 w-full bg-black/40 backdrop-blur-md text-white px-6 py-4">
+                <h3 className="text-xl font-bold">{producto.nombre}</h3>
+                {producto.descuento > 0 && (
+                  <p className="text-sm text-green-300">
+                    Descuento: {producto.descuento * 100}%
+                  </p>
+                )}
               </div>
-            ))}
-          </Carousel>
-        </div>
+            </motion.div>
+          ))}
+        </Carousel>
 
         {/* BUSCADOR */}
-        <div className="flex justify-center mb-6 px-4">
-          <div className="relative w-full max-w-md">
-            <FaSearch className="absolute top-1/2 left-4 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Buscar..."
-              value={busqueda}
-              onChange={(e) => {
-                setBusqueda(e.target.value);
-                setPaginaActual(1);
-              }}
-              className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-          </div>
-        </div>
+        <Buscador
+          busqueda={busqueda}
+          setBusqueda={setBusqueda}
+          setPaginaActual={setPaginaActual}
+        />
 
         {/* PRODUCTOS */}
-        <div className="max-w-7xl mx-auto px-4  ">
+        <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-2xl font-bold mb-6">Productos</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 z-[100] md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {productosPaginados.map((producto) => (
-              <div
+              <motion.div
                 key={producto.id}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.3 }}
                 className="bg-white rounded-lg p-4 text-center shadow hover:shadow-md transition relative"
               >
                 <img
@@ -223,7 +238,7 @@ export default function PaginaProductos() {
                     Ver más
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
