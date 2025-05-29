@@ -1,4 +1,11 @@
 import { FaFacebook, FaInstagram, FaGoogle } from "react-icons/fa";
+import { motion } from "framer-motion";
+
+const socialIcons = [
+  { icon: <FaFacebook />, link: "#", delay: 0 },
+  { icon: <FaInstagram />, link: "#", delay: 0.2 },
+  { icon: <FaGoogle />, link: "#", delay: 0.4 },
+];
 
 const Footer = () => {
   return (
