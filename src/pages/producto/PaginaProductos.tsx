@@ -1,31 +1,28 @@
 import { useContext, useEffect, useState } from "react";
-import senagrol from "@assets/senagrol.jpeg";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { GiCoffeeBeans } from "react-icons/gi";
 import Buscador from "@components/Inicio/Search";
 import Header from "@components/Header";
-import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
-import { Link, useNavigate } from "react-router-dom";
 import CompraModal from "@components/admin/common/BuyModal";
-import { getUserRole } from "@/services/Perfil/authService";
+import FloatingIcon from "@/components/Inicio/FloatingIcon";
 import FallingLeaves from "@/components/FallingLeaf";
 import Footer from "@/components/Footer";
-import { motion } from "framer-motion";
+import senagrol from '@assets/senagrol.png'
+
+import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
+import { getUserRole } from "@/services/Perfil/authService";
 
 export default function PaginaProductos() {
   const [busqueda, setBusqueda] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
-  const [productoSeleccionado, setProductoSeleccionado] = useState<any | null>(
-    null
-  );
+  const [productoSeleccionado, setProductoSeleccionado] = useState<any | null>(null);
   const [mensajeCompraExitosa, setMensajeCompraExitosa] = useState(false);
-  const [cantidadSeleccionada, setCantidadSeleccionada] = useState<
-    number | null
-  >(null);
-  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<
-    string | null
-  >(null);
+  const [cantidadSeleccionada, setCantidadSeleccionada] = useState<number | null>(null);
+  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<string | null>(null);
   const [mensajeNoPermitido, setMensajeNoPermitido] = useState(false);
   const [userRole, setUserRole] = useState<
     "vendedor" | "comprador" | "transportador" | "administrador" | null
@@ -50,13 +47,12 @@ export default function PaginaProductos() {
   if (!context) return <p className="p-10">Cargando productos...</p>;
 
   const { allProducts, discountedProducts } = context;
+
   const productosFiltrados = allProducts.filter((producto) =>
     producto.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  const totalPaginas = Math.ceil(
-    productosFiltrados.length / productosPorPagina
-  );
+  const totalPaginas = Math.ceil(productosFiltrados.length / productosPorPagina);
   const indiceInicio = (paginaActual - 1) * productosPorPagina;
   const productosPaginados = productosFiltrados.slice(
     indiceInicio,
@@ -110,77 +106,86 @@ export default function PaginaProductos() {
       <div className="fixed inset-0 z-[0] pointer-events-none">
         <FallingLeaves quantity={20} />
       </div>
-      <div className=" font-[Fredoka] min-h-screen bg-neutral-50 px-4  sm:px-6 md:px-8 py-6">
-        <div className="flex justify-center mb-6">
-          <img src={senagrol} alt="Logo" className="w-20 h-20 rounded-full" />
-        </div>
-        <Header />
-        {/* CARRUSEL */}
-        <Carousel
-          autoPlay
-          infiniteLoop
-          interval={5000}
-          showThumbs={false}
-          showStatus={false}
-          swipeable={true}
-          emulateTouch
-        >
-          {discountedProducts.map((producto) => (
-            <motion.div
-              key={producto.id}
-              className="cursor-pointer relative overflow-hidden"
-              onClick={() => navigate(`/producto/${producto.id}`)}
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{
-                duration: 1,
-                delay: 0.2,
-                type: "spring",
-                stiffness: 80,
-              }}
-            >
-              {/* Imagen con zoom lento */}
-              <motion.img
-                src={producto.imagen}
-                alt={producto.nombre}
-                className="object-cover h-60 sm:h-72 md:h-96 w-full transition-all duration-1000 ease-in-out"
-                onError={(e) =>
-                  ((e.target as HTMLImageElement).src = "/placeholder.png")
-                }
-                initial={{ scale: 1 }}
-                animate={{ scale: 1.05 }}
-                transition={{
-                  duration: 10,
-                  ease: "easeInOut",
-                  repeat: Infinity,
-                  repeatType: "mirror",
-                }}
-              />
 
-              {/* Texto con fondo difuminado */}
-              <div className="absolute bottom-0 w-full bg-black/40 backdrop-blur-md text-white px-6 py-4">
-                <h3 className="text-xl font-bold">{producto.nombre}</h3>
-                {producto.descuento > 0 && (
-                  <p className="text-sm text-green-300">
-                    Descuento: {producto.descuento * 100}%
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </Carousel>
+      <div className="font-[Fredoka] bg-neutral-50 px-4 sm:px-6">
+        <Header />
+
+        {/* CARRUSEL */}
+      <FloatingIcon
+        icon={<GiCoffeeBeans size="100%" color="gold" />}
+        top="2rem"
+        right="2rem"
+      />
+<FloatingIcon
+  icon={
+    <img
+      src={senagrol}
+      alt="Icono flotante"
+      style={{ width: "100%", height: "100%" }}
+    />
+  }
+  top="2rem"
+  left="2rem"
+  size="6rem" // Aumenta este valor para hacer la imagen más grande
+/>
+        <div className="max-w-5xl mx-auto mb-10">
+          <Carousel
+            autoPlay
+            infiniteLoop
+            interval={5000}
+            showThumbs={false}
+            showStatus={false}
+            swipeable
+            emulateTouch
+          >
+            {discountedProducts.map((producto) => (
+              <motion.div
+                key={producto.id}
+                className="cursor-pointer relative overflow-hidden"
+                onClick={() => navigate(`/producto/${producto.id}`)}
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 1,
+                  delay: 0.2,
+                  type: "spring",
+                  stiffness: 80,
+                }}
+              >
+                <motion.img
+                  src={producto.imagen}
+                  alt={producto.nombre}
+                  className="object-cover h-60 sm:h-50 md:h-96 w-full transition-all duration-1000 ease-in-out"
+                  onError={(e) => ((e.target as HTMLImageElement).src = "")}
+                  initial={{ scale: 1 }}
+                  animate={{ scale: 1.05 }}
+                  transition={{
+                    duration: 10,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                  }}
+                />
+                <div className="absolute bottom-0 w-full bg-black/40 backdrop-blur-md text-white px-6 py-4">
+                  <h3 className="text-xl font-bold">{producto.nombre}</h3>
+                  {producto.descuento > 0 && (
+                    <p className="text-sm text-green-300">
+                      Descuento: {producto.descuento * 100}%
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </Carousel>
+        </div>
 
         {/* BUSCADOR */}
-        <Buscador
-          busqueda={busqueda}
-          setBusqueda={setBusqueda}
-          setPaginaActual={setPaginaActual}
-        />
+        <Buscador busqueda={busqueda} setBusqueda={setBusqueda} setPaginaActual={setPaginaActual} />
 
         {/* PRODUCTOS */}
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-2xl font-bold mb-6">Productos</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 z-[100] md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 z-[100]">
             {productosPaginados.map((producto) => (
               <motion.div
                 key={producto.id}
@@ -196,28 +201,19 @@ export default function PaginaProductos() {
                   alt={producto.nombre}
                   className="w-full h-40 object-cover rounded cursor-pointer"
                   onClick={() => navigate(`/producto/${producto.id}`)}
-                  onError={(e) =>
-                    ((e.target as HTMLImageElement).src = "/placeholder.png")
-                  }
+                  onError={(e) => ((e.target as HTMLImageElement).src = "")}
                 />
                 <h3 className="font-bold mt-2">{producto.nombre}</h3>
-                <p
-                  className="text-sm text-gray-600 truncate"
-                  title={producto.descripcion}
-                >
+                <p className="text-sm text-gray-600 truncate" title={producto.descripcion}>
                   {producto.descripcion.slice(0, 30)}...
                 </p>
-                <p className="text-sm text-gray-800 font-semibold mt-1">
-                  ${producto.precio_unidad}
-                </p>
+                <p className="text-sm text-gray-800 font-semibold mt-1">${producto.precio_unidad}</p>
                 {producto.descuento > 0 && (
                   <p className="text-sm text-green-600 font-semibold">
                     Descuento: {producto.descuento * 100}%
                   </p>
                 )}
-                <p className="text-xs text-gray-500 mt-1">
-                  Vendedor: {producto.nombre_vendedor}
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Vendedor: {producto.nombre_vendedor}</p>
 
                 <div className="mt-3 flex flex-col gap-2">
                   <button
@@ -227,6 +223,7 @@ export default function PaginaProductos() {
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-green-600 hover:bg-green-700 hover:-translate-y-1 hover:scale-105"
                     }`}
+                    disabled={userRole !== "comprador"}
                   >
                     Comprar
                   </button>
@@ -259,9 +256,7 @@ export default function PaginaProductos() {
                 key={i}
                 onClick={() => cambiarPagina(i + 1)}
                 className={`px-3 py-1 border rounded transition-all duration-300 transform hover:scale-105 active:scale-95 ${
-                  paginaActual === i + 1
-                    ? "bg-green-400 text-white shadow-md"
-                    : "hover:bg-green-100"
+                  paginaActual === i + 1 ? "bg-green-400 text-white shadow-md" : "hover:bg-green-100"
                 }`}
               >
                 {i + 1}
@@ -296,36 +291,33 @@ export default function PaginaProductos() {
         {mensajeCompraExitosa && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
             <div className="bg-white rounded p-8 shadow-lg max-w-sm mx-4 text-center">
-              <h3 className="mb-6 text-lg font-bold">
-                ¡Compra realizada con éxito!
-              </h3>
+              <h3 className="mb-6 text-lg font-bold">¡Compra realizada con éxito!</h3>
               <button
-                className="bg-green-600 text-white px-4 py-2 rounded"
                 onClick={handleCerrarMensajeCompra}
-              >
-                Aceptar
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* MENSAJE USUARIO NO AUTORIZADO */}
-        {mensajeNoPermitido && (
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white/80 rounded-2xl p-8 shadow-2xl max-w-md mx-4 text-center border border-red-200">
-              <h3 className="text-lg font-bold text-red-700 mb-4">
-                No tienes permisos para comprar
-              </h3>
-              <button
-                className="bg-red-600 text-white px-4 py-2 rounded"
-                onClick={handleCerrarMensajeNoPermitido}
+                className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
               >
                 Cerrar
               </button>
             </div>
           </div>
         )}
-        <Footer></Footer>
+
+        {/* MENSAJE NO PERMITIDO */}
+        {mensajeNoPermitido && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div className="bg-white rounded p-8 shadow-lg max-w-sm mx-4 text-center">
+              <h3 className="mb-6 text-lg font-bold text-red-600">No estás autorizado para comprar.</h3>
+              <button
+                onClick={handleCerrarMensajeNoPermitido}
+                className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
+
+        <Footer />
       </div>
     </>
   );

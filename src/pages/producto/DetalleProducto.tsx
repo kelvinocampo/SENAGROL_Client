@@ -3,7 +3,6 @@ import { useContext, useEffect, useState } from "react";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import CompraModal from "@components/admin/common/BuyModal";
 import { getUserRole } from "@/services/Perfil/authService";
-import senagrol from "@assets/senagrol.jpeg";
 import Header from "@components/Header";
 
 export default function DetalleProducto() {
@@ -59,9 +58,6 @@ export default function DetalleProducto() {
 
   return (
     <div className="font-[Fredoka] min-h-screen bg-neutral-50 px-4  sm:px-6 md:px-8 py-6">
-<div className="flex justify-center mb-6">
-          <img src={senagrol} alt="Logo" className="w-20 h-20 rounded-full" />
-        </div>
       <Header />
 
       <div className="px-4 pt-6">
@@ -95,7 +91,7 @@ export default function DetalleProducto() {
             alt={producto.nombre}
             className="w-full max-w-md h-[300px] sm:h-[400px] object-contain rounded-xl border border-gray-200 shadow-sm"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = "/placeholder.png";
+              (e.target as HTMLImageElement).src = "";
             }}
           />
         </div>

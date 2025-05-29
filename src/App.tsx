@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { InicioManual } from "@pages/Inicio";
 import { AdminManagement } from "@pages/AdminManagement";
 import { RegisterForm } from "@components/Usuarioregister/RegisterForm";
+import FloatingCoffee from './components/Inicio/FloatingIcon';
 import MyPurchasesPage from "@/pages/Perfil/ListarMisCompras";
 import { ProtectedRoute } from "@components/ProtectedRoute";
 import Error404 from "@pages/Error404";

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link} from "react-router-dom";
-import Logo from "@assets/senagrol.jpeg";
+import senagrol from "@assets/senagrol.png";
 import Image1 from "@assets/Fotos de Cafe - Descarga fotos gratis de gran calidad _ Freepik.jpg";
 import Image2 from "@assets/Travel.jpg";
 import Image3 from "@assets/🇨🇴.jpg";
@@ -74,7 +74,7 @@ export const LoginForm = () => {
       {/* Logo */}
      <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1 shadow-lg">
   <img
-    src={Logo}
+    src={senagrol}
     alt="Avatar"
     className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover"
   />

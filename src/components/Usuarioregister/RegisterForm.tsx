@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link} from "react-router-dom";
-import Logo from "@assets/senagrol.jpeg";
+import senagrol from "@assets/senagrol.png";
 import Image1 from "@assets/Fotos de Cafe - Descarga fotos gratis de gran calidad _ Freepik.jpg";
 import Image2 from "@assets/Travel.jpg";
 import Image3 from "@assets/🇨🇴.jpg";
@@ -115,7 +115,7 @@ export function RegisterForm() {
         {/* Formulario */}
         <div className="relative w-full md:w-1/2 flex items-center justify-center p-6 sm:p-10">
           <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1 shadow-md">
-            <img src={Logo} className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover" />
+            <img src={senagrol} className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover" />
           </div>
 
           <div className="w-full max-w-[450px] mt-20 md:mt-0">

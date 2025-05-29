@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { RecoverPasswordContext } from '@/contexts/User/UserManagement';
 import { useNavigate } from 'react-router-dom';
 
-import Logo from '@assets/senagrol.jpeg';
+import senagrol from "@assets/senagrol.png";
 import Image1 from '@assets/Fotos de Cafe - Descarga fotos gratis de gran calidad _ Freepik.jpg';
 import Image2 from '@assets/Travel.jpg';
 import Image3 from '@assets/🇨🇴.jpg';
@@ -63,7 +63,7 @@ useEffect(() => {
       <div className="flex w-full h-full bg-white shadow-lg overflow-hidden">
         <div className="relative w-full md:w-1/2 p-10 pt-16 text-white flex items-center justify-center">
           <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1">
-            <img src={Logo} alt="Logo" className="w-20 h-20 rounded-full object-cover" />
+            <img src={senagrol} alt="Logo" className="w-20 h-20 rounded-full object-cover" />
           </div>
 
           <form onSubmit={handleSubmit} className="w-full max-w-[400px] flex flex-col gap-6 text-black">
