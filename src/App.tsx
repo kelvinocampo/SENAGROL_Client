@@ -26,9 +26,7 @@ import QrView from "@components/ProductsManagement/codigoqr";
 import CodeGenerator from "@components/ProductsManagement/codigounico";
 import { IA } from "@pages/IA";
 import Transportadores from "@/pages/Perfil/ListaTransportadores";
-import { ChatsList } from "./pages/Chats/ChatList";
-import { Chat } from "./pages/Chats/Chat";
-import { UserList } from "./pages/Chats/UserList";
+import { Chats } from "./pages/Chats/Chats";
 
 
 function App() {
@@ -93,9 +91,7 @@ function App() {
           <Route path="/IA" element={<IA />} />
           <Route path="/transporte/:id_compra" element={<Transportadores />} />
 
-          <Route path="/chats" element={<ChatsList/>}/>
-          <Route path="/chat/:id_chat" element={<Chat/>}/>
-          <Route path="/chats/usuarios" element={<UserList/>}/>
+          <Route path="/chats/*" element={<Chats />} />
 
         </Routes>
       </DiscountedProductProvider>

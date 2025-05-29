@@ -22,14 +22,14 @@ interface Chat {
 export const ChatsList = () => {
     const navigate = useNavigate();
     const [chats, setChats] = useState<Chat[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [currentUserId, setCurrentUserId] = useState<number>(0);
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const handleClickChat = (id_chat: number) => {
-        navigate(`/chat/${id_chat}`);
+        navigate(`/Chats/${id_chat}`);
     };
 
     useEffect(() => {
@@ -51,17 +51,18 @@ export const ChatsList = () => {
     useEffect(() => {
         const fetchChats = async () => {
             try {
-                setLoading(true);
+                setIsLoading(true);
+                setError(null);
                 const userId = 2; // Ejemplo - reemplazar con el ID real
                 setCurrentUserId(userId);
 
                 const chatsData = await ChatService.getChats();
                 setChats(chatsData);
             } catch (err) {
-                setError("Error al cargar los chats");
-                console.error(err);
+                console.error("Error al cargar chats:", err);
+                setError("No se pudieron cargar los chats. Intenta de nuevo más tarde.");
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
@@ -102,10 +103,10 @@ export const ChatsList = () => {
     const handleBlockChat = async (chatId: number, isBlocked: boolean, e: React.MouseEvent) => {
         e.stopPropagation();
         try {
+            setError(null);
             if (isBlocked) {
                 await ChatService.unblockChat(chatId);
-            }
-            else {
+            } else {
                 await ChatService.blockChat(chatId);
             }
             setChats(chats.map(chat =>
@@ -115,59 +116,44 @@ export const ChatsList = () => {
             ));
             setOpenMenuId(null);
         } catch (err) {
-            console.error("Error al bloquear/desbloquear chat:", err);
-            setError("Error al realizar la acción");
+            console.error("Error al modificar estado del chat:", err);
+            setError("No se pudo completar la acción. Intenta de nuevo.");
         }
     };
 
     const handleDeleteChat = async (chatId: number, e: React.MouseEvent) => {
         e.stopPropagation();
         try {
+            setError(null);
             await ChatService.deleteChat(chatId);
             setChats(chats.filter(chat => chat.id_chat !== chatId));
             setOpenMenuId(null);
         } catch (err) {
             console.error("Error al eliminar chat:", err);
-            setError("Error al eliminar el chat");
+            setError("No se pudo eliminar el chat. Intenta de nuevo.");
         }
     };
 
-    if (loading) {
-        return (
-            <div className="max-w-md mx-auto p-4 space-y-4">
-                {[...Array(5)].map((_, i) => (
-                    <div key={i} className="p-4 border rounded-lg animate-pulse">
-                        <div className="h-5 w-3/4 bg-gray-200 rounded mb-2"></div>
-                        <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
-                    </div>
-                ))}
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="max-w-md mx-auto p-4 text-red-600 bg-red-50 rounded-lg">
-                {error}
-            </div>
-        );
-    }
-
-    if (chats.length === 0) {
-        return (
-            <div className="max-w-md mx-auto p-4 text-center text-gray-500">
-                No tienes chats iniciados
-            </div>
-        );
-    }
-
     return (
-        <div className="min-h-screen flex-1 flex justify-center bg-gray-50">
-            <div className="bg-white shadow-sm rounded-lg flex flex-col m-4 w-full p-4">
-                <div className="p-4 border-b bg-white z-10">
-                    <h2 className="text-xl font-semibold text-gray-800">Tus Conversaciones</h2>
+        <div className="bg-white shadow-sm rounded-lg flex flex-col m-4 w-full p-4">
+            <div className="p-4 border-b border-gray-400 bg-white z-10">
+                <h2 className="text-xl font-semibold text-gray-800">Tus Conversaciones</h2>
+            </div>
+            
+            {isLoading ? (
+                <div className="p-4 space-y-4">
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="p-4 rounded-lg animate-pulse border-b border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer relative">
+                            <div className="h-5 w-3/4 bg-gray-200 rounded mb-2"></div>
+                            <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
+                        </div>
+                    ))}
                 </div>
-
+            ) : error ? (
+                <div className="p-4 text-red-500 text-center">{error}</div>
+            ) : chats.length === 0 ? (
+                <div className="p-4 text-gray-500 text-center">No tienes chats iniciados</div>
+            ) : (
                 <div className="overflow-y-auto flex-1">
                     {chats.map(chat => {
                         const otherUser = getOtherUser(chat);
@@ -178,7 +164,7 @@ export const ChatsList = () => {
                             <div
                                 key={chat.id_chat}
                                 onClick={() => handleClickChat(chat.id_chat)}
-                                className="p-4 border-b hover:bg-gray-50 transition-colors cursor-pointer relative"
+                                className="p-4 border-b border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer relative"
                             >
                                 <div className="flex justify-between items-center gap-2">
                                     <div className="min-w-0 flex-1">
@@ -238,7 +224,7 @@ export const ChatsList = () => {
                         );
                     })}
                 </div>
-            </div>
+            )}
         </div>
     );
 };

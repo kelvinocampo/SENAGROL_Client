@@ -60,7 +60,7 @@ export const Chat = () => {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-gray-50">
+        <div className="bg-white shadow-sm rounded-lg flex flex-1 flex-col m-4 w-full p-4">
             {/* Cabecera del chat - similar a tu lista */}
             <div className="bg-white p-4 border-b shadow-sm">
                 <div className="flex items-center justify-between">
