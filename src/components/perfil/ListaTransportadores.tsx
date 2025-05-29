@@ -8,6 +8,7 @@ type Transportador = {
   nombre_usuario: string;
   nombre: string;
   correo: string;
+  imagen_carro: string; 
 };
 
 interface Props {
@@ -15,8 +16,6 @@ interface Props {
 }
 
 export default function Transportadores({ id_compra }: Props) {
-  console.log("🟢 ID recibido (id_compra):", id_compra);
-
   const [transportadores, setTransportadores] = useState<Transportador[]>([]);
   const [filtrados, setFiltrados] = useState<Transportador[]>([]);
   const [search, setSearch] = useState("");
@@ -48,7 +47,6 @@ export default function Transportadores({ id_compra }: Props) {
   }, [search, transportadores, id_compra]);
 
   const handleAsignarClick = (transportador: Transportador) => {
-    console.log("✅ Transportador seleccionado:", transportador);
     setSelected(transportador);
     setPrecio("");
     setConfirmacionFinal(false);
@@ -64,17 +62,10 @@ export default function Transportadores({ id_compra }: Props) {
   };
 
   const handleAsignacionFinal = async () => {
-    console.log("🚀 Iniciando asignación...");
-    console.log("➡️ id_compra:", id_compra, typeof id_compra);
-    console.log("➡️ selected transportador:", selected);
-    console.log("➡️ precio:", precio, typeof precio);
-
     if (!selected || !precio) return;
 
     try {
       const parsedPrecio = parseFloat(precio);
-      console.log("✅ parsedPrecio a enviar:", parsedPrecio, typeof parsedPrecio);
-
       const resultado = await asignarTransportador(
         Number(id_compra),
         Number(selected.id_usuario),
@@ -114,6 +105,7 @@ export default function Transportadores({ id_compra }: Props) {
           <table className="min-w-full border-[#E4FBDD] rounded-xl text-xs sm:text-sm">
             <thead>
               <tr className="text-left bg-[#E4FBDD] text-black">
+                <th className="p-2 sm:p-4">Foto del carro</th>
                 <th className="p-2 sm:p-4">Usuario</th>
                 <th className="p-2 sm:p-4">Nombre Completo</th>
                 <th className="p-2 sm:p-4">Correo</th>
@@ -124,6 +116,13 @@ export default function Transportadores({ id_compra }: Props) {
               {filtrados.length > 0 ? (
                 filtrados.map((t, i) => (
                   <tr key={i} className="border-t">
+                    <td className="p-2 sm:p-4">
+                      <img
+                        src={t.imagen_carro}
+                        alt={`Carro de ${t.nombre}`}
+                        className="w-16 h-16 object-cover rounded border"
+                      />
+                    </td>
                     <td className="p-2 sm:p-4">{t.nombre_usuario}</td>
                     <td className="p-2 sm:p-4">{t.nombre}</td>
                     <td className="p-2 sm:p-4">{t.correo}</td>
@@ -141,7 +140,7 @@ export default function Transportadores({ id_compra }: Props) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="p-4 text-center text-[#F10E0E]">
+                  <td colSpan={5} className="p-4 text-center text-[#F10E0E]">
                     No hay transportadores disponibles.
                   </td>
                 </tr>
@@ -169,10 +168,7 @@ export default function Transportadores({ id_compra }: Props) {
                     type="number"
                     placeholder="Precio del transporte"
                     value={precio}
-                    onChange={(e) => {
-                      console.log("✍️ Precio modificado:", e.target.value);
-                      setPrecio(e.target.value);
-                    }}
+                    onChange={(e) => setPrecio(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded mb-4"
                   />
 

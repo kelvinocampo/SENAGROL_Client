@@ -1,18 +1,31 @@
-// src/services/LocationService.ts
-import axios from "axios";
-
-export type Location = { lat: number; lng: number; };
-
-export interface RouteData {
-  origin: Location;
-  destination: Location;
+// src/services/ubicacionService.ts
+export interface Ubicacion {
+  latitud_comprador: string;
+  longitud_comprador: string;
+  latitud: string;
+  longitud: string;
 }
 
-const API_URL = "http://localhost:10101/transportador";
+export interface RespuestaUbicacion {
+  success: boolean;
+  message: Ubicacion | string;
+}
 
-export default {
-  async getRoute(id_compra: number): Promise<RouteData> {
-    const res = await axios.get<RouteData>(`${API_URL}/route/${id_compra}`);
-    return res.data;
-  },
+export const obtenerUbicacionCompra = async (
+  id_compra: number,
+  token: string
+): Promise<RespuestaUbicacion> => {
+  const url = new URL(`http://localhost:10101/compra/getLocation/${id_compra}`);
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  return data;
 };

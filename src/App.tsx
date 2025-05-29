@@ -27,6 +27,8 @@ import CodeGenerator from "@components/ProductsManagement/codigounico";
 import { IA } from "@pages/IA";
 import Transportadores from "@/pages/Perfil/ListaTransportadores";
 
+import UbicacionCompra from "@/pages/Perfil/UbicacionCompra";
+
 
 function App() {
 
@@ -68,9 +70,9 @@ function App() {
           <Route path="*" element={<Navigate to="/404" />} />
 
 
-          {<Route path="/perfil" element={<PerfilUsuarioUnico />} />}
-          {<Route path="/miscompras" element={<MyPurchasesPage />} />}
-          {<Route path="/formulariotransportador" element={<FormularioTransporte />} />}
+        <Route path="/perfil" element={<PerfilUsuarioUnico />} />
+          <Route path="/miscompras" element={<MyPurchasesPage />} />
+          <Route path="/formulariotransportador" element={<FormularioTransporte />} />
 
 
           <Route path="/compra/:id_compra/qr" element={<QRCompras />} />
@@ -89,6 +91,8 @@ function App() {
           <Route path="/venta/codigo/:id_compra" element={<CodeGenerator />} />
           <Route path="/IA" element={<IA />} />
           <Route path="/transporte/:id_compra" element={<Transportadores />} />
+
+          <Route path="/ubicacion/:id" element={<UbicacionCompra />} />
 
         </Routes>
       </DiscountedProductProvider>

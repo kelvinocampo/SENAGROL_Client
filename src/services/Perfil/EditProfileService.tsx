@@ -10,7 +10,7 @@ export const updateUserProfile = async (formData: {
   vehicleCard?: string;
   vehicleType?: string;
   vehicleWeight?: number;
-  roles: string;
+  roles: string[];  // <-- Cambiado aquí
 }) => {
   try {
     const token = localStorage.getItem("token");
@@ -24,6 +24,7 @@ export const updateUserProfile = async (formData: {
       },
       body: JSON.stringify(formData),
     });
+    console.log("Datos enviados a backend:", formData);
 
     const data = await response.json();
 
