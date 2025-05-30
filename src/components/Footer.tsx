@@ -23,7 +23,7 @@ const Footer = () => {
           transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
           className="text-lg font-medium"
         >
-     <a href="/QuienesSomos">Quienes Somos</a>
+          <a href="/QuienesSomos">Quienes Somos</a>
         </motion.p>
 
         {/* Íconos de redes */}
@@ -80,7 +80,7 @@ const Footer = () => {
         >
           <a href="/PoliticasPrivacidad">Políticas de Privacidad</a>
         </motion.p>
-        </div>
+      </div>
     </motion.footer>
   );
 };
