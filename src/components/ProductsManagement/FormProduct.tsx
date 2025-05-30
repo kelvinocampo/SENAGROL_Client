@@ -4,7 +4,9 @@ import { ProductManagementContext } from "@/contexts/ProductsManagement";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { LocationPicker } from "@/components/ProductsManagement/LocationPicker";
 import { Input } from "@/components/Input";
+import Footer from "@components/Footer";
 
+import { motion } from "framer-motion";
 
 type ProductFormData = {
   id_producto?: number;
@@ -29,7 +31,6 @@ export const Form = () => {
   const [imageFile, setImageFile] = useState<File | undefined>(undefined);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Memoizar la búsqueda del producto a editar
   const productEdit = useMemo(() => {
     return products.find((p: any) => p.id_producto == id_edit_product);
   }, [id_edit_product, products]);
@@ -38,7 +39,6 @@ export const Form = () => {
     navigate('/MisProductos');
   }
 
-  // Redirigir a creación si en modo edición pero el producto no existe
   useEffect(() => {
     if (isEditMode && !productEdit && products.length > 0) {
       navigate('/MisProductos/Crear', { replace: true });
@@ -56,7 +56,6 @@ export const Form = () => {
   const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Inicialización del formulario
   useEffect(() => {
     if (!isEditMode) {
       setIsLoading(false);
@@ -81,7 +80,6 @@ export const Form = () => {
         imagen: productEdit.imagen || ''
       });
 
-      // Establecer la imagen del producto como vista previa
       if (productEdit.imagen) {
         setImagePreview(productEdit.imagen);
       }
@@ -106,14 +104,12 @@ export const Form = () => {
       const file = e.target.files[0];
       setImageFile(file);
 
-      // Crear URL para la vista previa
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
 
-      // Actualizar el estado del producto
       setProduct(prev => ({ ...prev, imagen: URL.createObjectURL(file) }));
     }
   };
@@ -142,7 +138,6 @@ export const Form = () => {
         ...product,
         latitud: location?.lat,
         longitud: location?.lng,
-        // No incluimos la propiedad imagen aquí, se manejará en el servicio
       };
 
       if (isEditMode && id_edit_product) {
@@ -177,28 +172,66 @@ export const Form = () => {
     );
   }
 
+  // Animations
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  };
+
+  const inputVariants = {
+    hidden: { opacity: 0, x: -10 },
+    visible: (i: number) => ({
+      opacity: 1,
+      x: 0,
+      transition: { delay: i * 0.1, duration: 0.3 }
+    }),
+  };
+
   return (
-    <section className="font-[Fredoka] sm:py-8 sm:px-16 py-4 px-8 flex flex-col gap-8 flex-1">
-      <h2 className="sm:text-4xl text-2xl font-lightbold">
+    <motion.section
+        className="font-[Fredoka] min-h-screen w-full py-8 px-16 flex flex-col gap-8 items-center justify-center bg-white"
+  initial="hidden"
+  animate="visible"
+      variants={containerVariants}
+    >
+      <motion.h2
+        className="sm:text-4xl text-2xl font-lightbold"
+        variants={inputVariants}
+        custom={0}
+      >
         {isEditMode ? 'Editar' : 'Crear'} Producto
-      </h2>
+      </motion.h2>
 
       {errors.general && (
-        <div className="text-red-500 text-sm">{errors.general}</div>
+        <motion.div
+          className="text-red-500 text-sm"
+          variants={inputVariants}
+          custom={1}
+        >
+          {errors.general}
+        </motion.div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-8 max-w-[600px]">
-        <Input
-          label="Nombre del producto*"
-          type="text"
-          name="name"
-          placeholder="Ingrese el nombre del producto"
-          value={product.nombre}
-          onChange={(e) => setProduct({ ...product, nombre: e.target.value })}
-          error={errors.nombre}
-        />
+      <motion.form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-8 max-w-[600px]"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        <motion.div variants={inputVariants} custom={2}>
+          <Input
+            label="Nombre del producto*"
+            type="text"
+            name="name"
+            placeholder="Ingrese el nombre del producto"
+            value={product.nombre}
+            onChange={(e) => setProduct({ ...product, nombre: e.target.value })}
+            error={errors.nombre}
+          />
+        </motion.div>
 
-        <div className="w-full">
+        <motion.div variants={inputVariants} custom={3} className="w-full">
           <label className="block text-sm font-medium">Descripción*</label>
           <textarea
             name="description"
@@ -210,9 +243,13 @@ export const Form = () => {
           {errors.descripcion && (
             <p className="text-red-500 text-sm mt-1">{errors.descripcion}</p>
           )}
-        </div>
+        </motion.div>
 
-        <div className="flex w-full gap-8 justify-between sm:flex-nowrap flex-wrap">
+        <motion.div
+          variants={inputVariants}
+          custom={4}
+          className="flex w-full gap-8 justify-between sm:flex-nowrap flex-wrap"
+        >
           <Input
             label="Cantidad (kg)*"
             type="text"
@@ -232,9 +269,9 @@ export const Form = () => {
             onChange={(e) => handleIntegerChange(e, 'cantidad_minima_compra')}
             error={errors.cantidad_minima_compra}
           />
-        </div>
+        </motion.div>
 
-        <div className="flex flex-col gap-2">
+        <motion.div variants={inputVariants} custom={5} className="flex flex-col gap-2">
           <label className="block text-sm font-medium">Ubicación*</label>
           <LocationPicker
             setLocation={setLocation}
@@ -244,9 +281,13 @@ export const Form = () => {
           {errors.location && (
             <p className="text-red-500 text-sm mt-1">{errors.location}</p>
           )}
-        </div>
+        </motion.div>
 
-        <div className="flex w-full gap-8 justify-between sm:flex-nowrap flex-wrap">
+        <motion.div
+          variants={inputVariants}
+          custom={6}
+          className="flex w-full gap-8 justify-between sm:flex-nowrap flex-wrap"
+        >
           <Input
             label="Precio por unidad*"
             type="text"
@@ -258,68 +299,65 @@ export const Form = () => {
           />
 
           <Input
-            label="Descuento porcentual (Opcional)"
-            type="number"
+            label="Descuento (opcional)"
+            type="text"
             name="discount"
-            placeholder="Ingrese el descuento porcentual"
-            value={product.descuento || ''}
-            onChange={(e) => setProduct({
-              ...product,
-              descuento: e.target.value === '' ? undefined : Number(e.target.value)
-            })}
-            min="0"
-            max="100"
+            placeholder="Ingrese descuento"
+            value={product.descuento?.toString() || ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === '' || /^\d+$/.test(val)) {
+                setProduct({ ...product, descuento: val === '' ? undefined : parseInt(val, 10) });
+              }
+            }}
+            error={errors.descuento}
           />
-        </div>
+        </motion.div>
 
-        <div className="w-full">
-          <label className="block text-sm font-medium">Imagen{!isEditMode && '*'}</label>
-
+        <motion.div variants={inputVariants} custom={7}>
+          <label className="block mb-2 font-medium">Imagen (PNG, JPG)*</label>
           <input
             type="file"
-            id="image-upload"
-            name="image"
-            accept="image/*"
-            className="hidden"
+            accept="image/png, image/jpeg"
             onChange={handleImageChange}
+            className="block w-full text-sm text-gray-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-xl file:border-0
+              file:text-sm file:font-semibold
+              file:bg-[#48BD28] file:text-white
+              hover:file:bg-[#379e1b]"
           />
+          {imagePreview && (
+            <img
+              src={imagePreview}
+              alt="Vista previa"
+              className="mt-4 max-h-40 rounded-lg object-contain border"
+            />
+          )}
+        </motion.div>
 
-          <div className="flex items-center gap-4 mt-2">
-            <label
-              htmlFor="image-upload"
-              className="px-4 py-2 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50"
-            >
-              {imagePreview ? 'Cambiar imagen' : 'Seleccionar imagen'}
-            </label>
+        <motion.div variants={inputVariants} custom={8} className="flex gap-4">
+          <button
+            type="submit"
+            className="rounded-xl bg-[#48BD28] px-6 py-3 text-white hover:bg-[#379e1b] transition"
+          >
+            {isEditMode ? 'Guardar cambios' : 'Crear producto'}
+          </button>
 
-            {imagePreview && (
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Vista previa"
-                  className="h-20 w-20 object-cover rounded"
-                />
-                {isEditMode && productEdit?.imagen === imagePreview && (
-                  <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                    Original
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full p-2 border rounded-xl border-gray-300 bg-[#48BD28] hover:bg-[#3da023] cursor-pointer text-black font-medium"
-        >
-          {isEditMode ? 'Actualizar' : 'Crear'} Producto
-        </button>
-        <button
-          onClick={handleCancel}
-          className="w-full p-2 border rounded-xl border-black bg-white cursor-pointer text-black font-medium"
-        >Cancelar</button>
-      </form>
-    </section>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="rounded-xl border border-gray-400 px-6 py-3 text-gray-700 hover:bg-gray-200 transition"
+          >
+            Cancelar
+          </button>
+        </motion.div>
+ <div className="max-w-[600px] mx-auto">
+  <Footer/> 
+</div>
+      </motion.form>
+    </motion.section>
+        
   );
+  
 };

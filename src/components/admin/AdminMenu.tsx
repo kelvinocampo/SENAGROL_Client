@@ -7,7 +7,7 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
-import senagrol from "@assets/senagrol.jpeg";
+import senagrol from "@assets/senagrol.png";
 
 interface AdminMenuProps {
   setActiveView: (view: string) => void;

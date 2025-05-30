@@ -4,6 +4,11 @@ import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement"
 import CompraModal from "@components/admin/common/BuyModal";
 import { getUserRole } from "@/services/Perfil/authService";
 import Header from "@components/Header";
+import { motion } from "framer-motion";
+import { GiCoffeeBeans } from "react-icons/gi";
+import Footer from "@/components/Footer";
+import FloatingIcon from "@/components/Inicio/FloatingIcon";
+import senagrol from "@assets/senagrol.png";
 
 export default function DetalleProducto() {
   const { id } = useParams();
@@ -57,8 +62,27 @@ export default function DetalleProducto() {
   }
 
   return (
-    <div className="bg-neutral-50 min-h-screen">
+    <div className="font-[Fredoka] min-h-screen bg-neutral-50 px-4 sm:px-6 md:px-8 py-6">
       <Header />
+      <FloatingIcon
+        icon={<GiCoffeeBeans size="100%" color="gold" />}
+        top="2rem"
+        right="2rem"
+      />
+      <Link to="/">
+        <FloatingIcon
+          icon={
+            <img
+              src={senagrol}
+              alt="Logo Senagrol"
+              style={{ width: "100%", height: "100%" }}
+            />
+          }
+          top="2rem"
+          left="2rem"
+          size="6rem"
+        />
+      </Link>
 
       <div className="px-4 pt-6">
         <Link
@@ -83,21 +107,36 @@ export default function DetalleProducto() {
         </Link>
       </div>
 
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div
+        className="max-w-6xl mx-auto p-4 sm:p-6 mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         {/* Imagen */}
-        <div className="flex justify-center items-center">
+        <motion.div
+          className="flex justify-center items-center"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
           <img
             src={producto.imagen}
             alt={producto.nombre}
             className="w-full max-w-md h-[300px] sm:h-[400px] object-contain rounded-xl border border-gray-200 shadow-sm"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = "/placeholder.png";
+              (e.target as HTMLImageElement).src = "";
             }}
           />
-        </div>
+        </motion.div>
 
         {/* Detalles */}
-        <div className="flex flex-col justify-between space-y-4">
+        <motion.div
+          className="flex flex-col justify-between space-y-4"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
               {producto.nombre}
@@ -158,7 +197,12 @@ export default function DetalleProducto() {
               </button>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <motion.div
+              className="flex flex-col sm:flex-row gap-4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <button
                 onClick={handleComprar}
                 className={`${
@@ -173,15 +217,20 @@ export default function DetalleProducto() {
               <button className="w-full bg-gray-200 text-gray-800 font-medium px-6 py-2 rounded hover:bg-gray-300 transition">
                 Conversar con el vendedor
               </button>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Modal: No permitido */}
       {mensajeNoPermitido && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white/80 rounded-2xl p-8 shadow-2xl max-w-md mx-4 text-center border border-red-200">
+          <motion.div
+            className="bg-white/80 rounded-2xl p-8 shadow-2xl max-w-md mx-4 text-center border border-red-200"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.4 }}
+          >
             <h3 className="mb-4 text-xl font-semibold text-red-700">
               Acción no permitida
             </h3>
@@ -196,7 +245,7 @@ export default function DetalleProducto() {
             >
               Cerrar
             </button>
-          </div>
+          </motion.div>
         </div>
       )}
 
@@ -211,6 +260,8 @@ export default function DetalleProducto() {
           cantidad_minima: producto.cantidad_minima_compra || 1,
         }}
       />
+
+      <Footer />
     </div>
   );
 }

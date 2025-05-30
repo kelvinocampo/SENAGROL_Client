@@ -6,7 +6,7 @@ import { Menu, X } from "lucide-react"; // Puedes usar íconos de Lucide o FontA
 
 type User = {
   isLoggedIn: boolean;
-  role: "vendedor" | "comprador" | "transportador" | "administrador" | "vendedor transportador" | null;
+  role: "vendedor" | "comprador" | "transportador" | "administrador" | "vendedor transportador" | "vendedor transportador" | null;
 };
 
 const Header = () => {
