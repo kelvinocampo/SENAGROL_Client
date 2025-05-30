@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ChatService } from '@services/Chats/ChatService';
 import { useNavigate } from 'react-router-dom';
 import { FiMoreVertical, FiX } from 'react-icons/fi';
+import { AuthService } from '@/services/AuthService';
 
 interface Chat {
     id_chat: number;
@@ -53,7 +54,7 @@ export const ChatsList = () => {
             try {
                 setIsLoading(true);
                 setError(null);
-                const userId = 2; // Ejemplo - reemplazar con el ID real
+                const userId = await AuthService.getIDUser();
                 setCurrentUserId(userId);
 
                 const chatsData = await ChatService.getChats();
@@ -86,11 +87,11 @@ export const ChatsList = () => {
     };
 
     const getOtherUser = (chat: Chat) => {
-        const isUser1 = chat.id_user1 === currentUserId;
+        const isUser1 = chat.id_user1 === currentUserId; 
         return {
-            name: isUser1 ? chat.nombre_user1 : chat.nombre_user2,
-            isBlocked: isUser1 ? chat.bloqueado_user1 : chat.bloqueado_user2,
-            rol: isUser1 ? chat.rol_user1 : chat.rol_user2
+            name: isUser1 ? chat.nombre_user2 : chat.nombre_user1,
+            isBlocked: isUser1 ? chat.bloqueado_user2 : chat.bloqueado_user1,
+            rol: isUser1 ? chat.rol_user2 : chat.rol_user1
         };
     };
 

@@ -1,3 +1,4 @@
+import { AuthService } from "@/services/AuthService";
 import { MessageService, Message } from "@/services/Chats/MessageService";
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
@@ -5,7 +6,7 @@ import { useParams } from "react-router-dom";
 export const Chat = () => {
     const { id_chat = "" } = useParams<{ id_chat: string }>();
     const [messages, setMessages] = useState<Message[]>([]);
-    const [currentUserId] = useState<number>(2);
+    const [currentUserId, setCurrentUserId] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [newMessage, setNewMessage] = useState("");
@@ -144,6 +145,19 @@ export const Chat = () => {
             }
         };
 
+        const fetchCurrentUserId = async () => {
+            try {
+                const id = await AuthService.getIDUser();
+                console.log("Current User ID:", id);
+                
+                setCurrentUserId(id);
+            } catch (error) {
+                console.error("Error fetching user ID:", error);
+                setError(error instanceof Error ? error.message : "Error al cargar el ID del usuario");
+            }
+        };
+
+        fetchCurrentUserId();
         fetchMessages();
     }, [id_chat]);
 

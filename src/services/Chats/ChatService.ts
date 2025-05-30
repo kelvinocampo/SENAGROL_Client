@@ -17,6 +17,9 @@ export class ChatService {
 
             const chats: any[] = result.data;
 
+            console.log(chats);
+            
+
             return chats;
         } catch (error) {
             console.error('Error fetching chats:', error);
