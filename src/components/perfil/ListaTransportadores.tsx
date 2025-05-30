@@ -8,7 +8,7 @@ type Transportador = {
   nombre_usuario: string;
   nombre: string;
   correo: string;
-  imagen_carro: string; 
+  fotos_vehiculo: string;
 };
 
 interface Props {
@@ -28,23 +28,23 @@ export default function Transportadores({ id_compra }: Props) {
     const fetchData = async () => {
       try {
         const data = await obtenerTransportadores();
-        console.log("📦 Transportadores cargados:", data);
         setTransportadores(data);
         setFiltrados(data);
       } catch (error) {
         console.error("❌ Error al cargar transportadores:", error);
       }
     };
-
     fetchData();
   }, []);
 
   useEffect(() => {
     const resultado = transportadores.filter((t) =>
-      `${t.nombre_usuario} ${t.nombre} ${t.correo}`.toLowerCase().includes(search.toLowerCase())
+      `${t.nombre_usuario} ${t.nombre} ${t.correo}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
     );
     setFiltrados(resultado);
-  }, [search, transportadores, id_compra]);
+  }, [search, transportadores]);
 
   const handleAsignarClick = (transportador: Transportador) => {
     setSelected(transportador);
@@ -66,13 +66,12 @@ export default function Transportadores({ id_compra }: Props) {
 
     try {
       const parsedPrecio = parseFloat(precio);
-      const resultado = await asignarTransportador(
+      await asignarTransportador(
         Number(id_compra),
         Number(selected.id_usuario),
         parsedPrecio
       );
 
-      console.log("✅ Respuesta del backend:", resultado);
       alert("✅ Transportador asignado con éxito");
       cerrarModal();
     } catch (error) {
@@ -114,30 +113,38 @@ export default function Transportadores({ id_compra }: Props) {
             </thead>
             <tbody>
               {filtrados.length > 0 ? (
-                filtrados.map((t, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="p-2 sm:p-4">
-                      <img
-                        src={t.imagen_carro}
-                        alt={`Carro de ${t.nombre}`}
-                        className="w-16 h-16 object-cover rounded border"
-                      />
-                    </td>
-                    <td className="p-2 sm:p-4">{t.nombre_usuario}</td>
-                    <td className="p-2 sm:p-4">{t.nombre}</td>
-                    <td className="p-2 sm:p-4">{t.correo}</td>
-                    <td className="p-2 sm:p-4 flex items-center gap-2 sm:gap-4">
-                      <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <button
-                        onClick={() => handleAsignarClick(t)}
-                        className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 text-xs"
-                        title="Asignar transportador"
-                      >
-                        Asignar
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                filtrados.map((t, i) => {
+                  console.log(`Transportador: ${t.nombre_usuario} - Fotos vehiculo raw:`, t.fotos_vehiculo);
+                  const fotos = t.fotos_vehiculo
+                    ? t.fotos_vehiculo.split(",").map((f) => f.trim())
+                    : [];
+                  console.log(`Transportador: ${t.nombre_usuario} - Fotos vehiculo array:`, fotos);
+
+                  return (
+                    <tr key={i} className="border-t">
+                      <td className="p-2 sm:p-4">
+                        {fotos.length > 0 ? (
+                          <Slider fotos={fotos} nombre={t.nombre} />
+                        ) : (
+                          <span className="text-gray-400">Sin imagen</span>
+                        )}
+                      </td>
+                      <td className="p-2 sm:p-4">{t.nombre_usuario}</td>
+                      <td className="p-2 sm:p-4">{t.nombre}</td>
+                      <td className="p-2 sm:p-4">{t.correo}</td>
+                      <td className="p-2 sm:p-4 flex items-center gap-2 sm:gap-4 mt-12">
+                        <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <button
+                          onClick={() => handleAsignarClick(t)}
+                          className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 text-xs"
+                          title="Asignar transportador"
+                        >
+                          Asignar
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan={5} className="p-4 text-center text-[#F10E0E]">
@@ -173,51 +180,94 @@ export default function Transportadores({ id_compra }: Props) {
                   />
 
                   {precio && (
-                    <>
-                      <p className="mb-2">
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="mb-2 text-center">
                         ¿Deseas continuar con la asignación?
                       </p>
                       <button
                         onClick={handlePrimeraConfirmacion}
-                        className="bg-[#48BD28] text-white px-4 py-2 rounded w-full"
+                        className="bg-[#48BD28] text-white px-6 py-2 rounded"
                       >
                         Continuar
                       </button>
                       <button
                         onClick={cerrarModal}
-                        className="mt-2 text-sm text-gray-500 hover:underline w-full"
+                        className="text-sm text-gray-500 hover:underline"
                       >
                         Cancelar
                       </button>
-                    </>
+                    </div>
                   )}
                 </>
               ) : (
-                <>
+                <div className="flex flex-col items-center gap-2">
                   <h2 className="text-lg font-semibold mb-4">Confirmación final</h2>
-                  <p className="mb-4">
+                  <p className="mb-4 text-center">
                     ¿Estás <strong>seguro</strong> de asignar a{" "}
                     <strong>{selected.nombre}</strong> por un precio de{" "}
                     <strong>${precio}</strong>?
                   </p>
                   <button
                     onClick={handleAsignacionFinal}
-                    className="bg-[#48BD28] text-white px-4 py-2 rounded w-full"
+                    className="bg-[#48BD28] text-white px-6 py-2 rounded"
                   >
                     Sí, asignar
                   </button>
                   <button
                     onClick={() => setConfirmacionFinal(false)}
-                    className="mt-2 text-sm text-gray-500 hover:underline w-full"
+                    className="text-sm text-gray-500 hover:underline"
                   >
                     Volver atrás
                   </button>
-                </>
+                </div>
               )}
             </div>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// Componente Slider para mostrar fotos con controles y manejo de error
+function Slider({ fotos, nombre }: { fotos: string[]; nombre: string }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    console.log(`Slider para ${nombre} - foto actual:`, fotos[index]);
+  }, [index, fotos, nombre]);
+
+  const siguiente = () => setIndex((prev) => (prev + 1) % fotos.length);
+  const anterior = () => setIndex((prev) => (prev - 1 + fotos.length) % fotos.length);
+
+  return (
+    <div className="relative w-32 h-32 overflow-hidden rounded shadow bg-white">
+      <img
+        src={fotos[index]}
+        alt={`Foto ${index + 1} del carro de ${nombre}`}
+        className="w-full h-full object-contain"
+        onError={(e) => {
+          console.warn(`❌ Error cargando imagen: ${fotos[index]} para ${nombre}`);
+          (e.currentTarget as HTMLImageElement) // imagen fallback opcional
+        }}
+      />
+
+      {fotos.length > 1 && (
+        <>
+          <button
+            onClick={anterior}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-30 text-white px-2 rounded-l"
+          >
+            ‹
+          </button>
+          <button
+            onClick={siguiente}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-30 text-white px-2 rounded-r"
+          >
+            ›
+          </button>
+        </>
+      )}
     </div>
   );
 }
