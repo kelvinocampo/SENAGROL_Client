@@ -1,28 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
-import { ChatService } from '@services/Chats/ChatService';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiMoreVertical, FiX } from 'react-icons/fi';
 import { AuthService } from '@/services/AuthService';
-
-interface Chat {
-    id_chat: number;
-    id_user1: number;
-    id_user2: number;
-    nombre_user1: string;
-    nombre_user2: string;
-    rol_user1: string;
-    rol_user2: string;
-    fecha_reciente: string;
-    bloqueado_user1: boolean;
-    bloqueado_user2: boolean;
-    eliminado_user1: boolean;
-    eliminado_user2: boolean;
-    estado: "Activo" | "Bloqueado";
-}
+import { ChatsContext } from '@/contexts/Chats';
+import { ChatService } from '@/services/Chats/ChatService';
 
 export const ChatsList = () => {
     const navigate = useNavigate();
-    const [chats, setChats] = useState<Chat[]>([]);
+    const { chats, fetchChats } = useContext(ChatsContext);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [currentUserId, setCurrentUserId] = useState<number>(0);
@@ -50,15 +35,13 @@ export const ChatsList = () => {
     }, [openMenuId]);
 
     useEffect(() => {
-        const fetchChats = async () => {
+        const loadData = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
                 const userId = await AuthService.getIDUser();
                 setCurrentUserId(userId);
-
-                const chatsData = await ChatService.getChats();
-                setChats(chatsData);
+                await fetchChats();
             } catch (err) {
                 console.error("Error al cargar chats:", err);
                 setError("No se pudieron cargar los chats. Intenta de nuevo más tarde.");
@@ -67,8 +50,8 @@ export const ChatsList = () => {
             }
         };
 
-        fetchChats();
-    }, []);
+        loadData();
+    }, [fetchChats]);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -86,7 +69,7 @@ export const ChatsList = () => {
         });
     };
 
-    const getOtherUser = (chat: Chat) => {
+    const getOtherUser = (chat: any) => {
         const isUser1 = chat.id_user1 === currentUserId; 
         return {
             name: isUser1 ? chat.nombre_user2 : chat.nombre_user1,
@@ -110,11 +93,8 @@ export const ChatsList = () => {
             } else {
                 await ChatService.blockChat(chatId);
             }
-            setChats(chats.map(chat =>
-                chat.id_chat === chatId
-                    ? { ...chat, estado: chat.estado === "Activo" ? "Bloqueado" : "Activo" }
-                    : chat
-            ));
+            // Actualizar el estado local después de la operación
+            await fetchChats();
             setOpenMenuId(null);
         } catch (err) {
             console.error("Error al modificar estado del chat:", err);
@@ -127,7 +107,8 @@ export const ChatsList = () => {
         try {
             setError(null);
             await ChatService.deleteChat(chatId);
-            setChats(chats.filter(chat => chat.id_chat !== chatId));
+            // Actualizar el estado local después de la operación
+            await fetchChats();
             setOpenMenuId(null);
         } catch (err) {
             console.error("Error al eliminar chat:", err);
@@ -156,7 +137,7 @@ export const ChatsList = () => {
                 <div className="p-4 text-gray-500 text-center">No tienes chats iniciados</div>
             ) : (
                 <div className="overflow-y-auto flex-1">
-                    {chats.map(chat => {
+                    {chats.map((chat: any) => {
                         const otherUser = getOtherUser(chat);
                         const isBlocked = chat.estado === "Bloqueado";
                         const isMenuOpen = openMenuId === chat.id_chat;

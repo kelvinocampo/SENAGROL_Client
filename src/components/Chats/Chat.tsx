@@ -1,11 +1,13 @@
 import { AuthService } from "@/services/AuthService";
 import { MessageService, Message } from "@/services/Chats/MessageService";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { FiMoreVertical, FiX, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { ChatsContext } from "@/contexts/Chats";
 
 export const Chat = () => {
     const { id_chat = "" } = useParams<{ id_chat: string }>();
+    const { chats }: any = useContext(ChatsContext);
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentUserId, setCurrentUserId] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -18,6 +20,24 @@ export const Chat = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const menuRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+
+    const chat = chats.find((chat: any) => chat.id_chat === parseInt(id_chat));
+    const [title, setTitle] = useState<string>("Chat");
+
+    useEffect(() => {
+        if (chat && currentUserId) {
+            try {
+                const isUser1 = chat.id_user1 === currentUserId;
+                const otherUserName = isUser1 ? chat.nombre_user2 : chat.nombre_user1;
+                setTitle(otherUserName || "Chat sin nombre");
+            } catch (error) {
+                console.error("Error al obtener el nombre del chat:", error);
+                setTitle("Chat");
+            }
+        } else {
+            setTitle("Chat");
+        }
+    }, [chat, currentUserId]);
 
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
@@ -247,7 +267,7 @@ export const Chat = () => {
         <div className="flex flex-col w-full h-full bg-white rounded-lg shadow-md">
             {/* Header */}
             <div className="p-4 border-b flex justify-between items-center">
-                <h2 className="font-semibold text-lg">Chat #{id_chat}</h2>
+                <h2 className="font-semibold text-lg">{title}</h2>
             </div>
 
             {/* Messages */}
