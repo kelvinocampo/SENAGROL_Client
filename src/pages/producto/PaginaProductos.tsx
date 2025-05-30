@@ -10,7 +10,7 @@ import CompraModal from "@components/admin/common/BuyModal";
 import FloatingIcon from "@/components/Inicio/FloatingIcon";
 import FallingLeaves from "@/components/FallingLeaf";
 import Footer from "@/components/Footer";
-import senagrol from '@assets/senagrol.png'
+import senagrol from "@assets/senagrol.png";
 
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import { getUserRole } from "@/services/Perfil/authService";
@@ -19,10 +19,16 @@ export default function PaginaProductos() {
   const [busqueda, setBusqueda] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
-  const [productoSeleccionado, setProductoSeleccionado] = useState<any | null>(null);
+  const [productoSeleccionado, setProductoSeleccionado] = useState<any | null>(
+    null
+  );
   const [mensajeCompraExitosa, setMensajeCompraExitosa] = useState(false);
-  const [cantidadSeleccionada, setCantidadSeleccionada] = useState<number | null>(null);
-  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<string | null>(null);
+  const [cantidadSeleccionada, setCantidadSeleccionada] = useState<
+    number | null
+  >(null);
+  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<
+    string | null
+  >(null);
   const [mensajeNoPermitido, setMensajeNoPermitido] = useState(false);
   const [userRole, setUserRole] = useState<
     "vendedor" | "comprador" | "transportador" | "administrador" | null
@@ -52,7 +58,9 @@ export default function PaginaProductos() {
     producto.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  const totalPaginas = Math.ceil(productosFiltrados.length / productosPorPagina);
+  const totalPaginas = Math.ceil(
+    productosFiltrados.length / productosPorPagina
+  );
   const indiceInicio = (paginaActual - 1) * productosPorPagina;
   const productosPaginados = productosFiltrados.slice(
     indiceInicio,
@@ -109,25 +117,27 @@ export default function PaginaProductos() {
 
       <div className="font-[Fredoka] bg-neutral-50 px-4 sm:px-6">
         <Header />
-
+  <FloatingIcon
+          icon={<GiCoffeeBeans size="100%" color="gold" />}
+          top="2rem"
+          right="2rem"
+        />
+        <Link to="/">
+          <FloatingIcon
+            icon={
+              <img
+                src={senagrol}
+                alt="Logo Senagrol"
+                style={{ width: "100%", height: "100%" }}
+              />
+            }
+            top="2rem"
+            left="2rem"
+            size="6rem"
+          />
+        </Link>
         {/* CARRUSEL */}
-      <FloatingIcon
-        icon={<GiCoffeeBeans size="100%" color="gold" />}
-        top="2rem"
-        right="2rem"
-      />
-<FloatingIcon
-  icon={
-    <img
-      src={senagrol}
-      alt="Icono flotante"
-      style={{ width: "100%", height: "100%" }}
-    />
-  }
-  top="2rem"
-  left="2rem"
-  size="6rem" // Aumenta este valor para hacer la imagen más grande
-/>
+      
         <div className="max-w-5xl mx-auto mb-10">
           <Carousel
             autoPlay
@@ -180,7 +190,11 @@ export default function PaginaProductos() {
         </div>
 
         {/* BUSCADOR */}
-        <Buscador busqueda={busqueda} setBusqueda={setBusqueda} setPaginaActual={setPaginaActual} />
+        <Buscador
+          busqueda={busqueda}
+          setBusqueda={setBusqueda}
+          setPaginaActual={setPaginaActual}
+        />
 
         {/* PRODUCTOS */}
         <div className="max-w-7xl mx-auto px-4">
@@ -204,16 +218,23 @@ export default function PaginaProductos() {
                   onError={(e) => ((e.target as HTMLImageElement).src = "")}
                 />
                 <h3 className="font-bold mt-2">{producto.nombre}</h3>
-                <p className="text-sm text-gray-600 truncate" title={producto.descripcion}>
+                <p
+                  className="text-sm text-gray-600 truncate"
+                  title={producto.descripcion}
+                >
                   {producto.descripcion.slice(0, 30)}...
                 </p>
-                <p className="text-sm text-gray-800 font-semibold mt-1">${producto.precio_unidad}</p>
+                <p className="text-sm text-gray-800 font-semibold mt-1">
+                  ${producto.precio_unidad}
+                </p>
                 {producto.descuento > 0 && (
                   <p className="text-sm text-green-600 font-semibold">
                     Descuento: {producto.descuento * 100}%
                   </p>
                 )}
-                <p className="text-xs text-gray-500 mt-1">Vendedor: {producto.nombre_vendedor}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Vendedor: {producto.nombre_vendedor}
+                </p>
 
                 <div className="mt-3 flex flex-col gap-2">
                   <button
@@ -256,7 +277,9 @@ export default function PaginaProductos() {
                 key={i}
                 onClick={() => cambiarPagina(i + 1)}
                 className={`px-3 py-1 border rounded transition-all duration-300 transform hover:scale-105 active:scale-95 ${
-                  paginaActual === i + 1 ? "bg-green-400 text-white shadow-md" : "hover:bg-green-100"
+                  paginaActual === i + 1
+                    ? "bg-green-400 text-white shadow-md"
+                    : "hover:bg-green-100"
                 }`}
               >
                 {i + 1}
@@ -291,7 +314,9 @@ export default function PaginaProductos() {
         {mensajeCompraExitosa && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
             <div className="bg-white rounded p-8 shadow-lg max-w-sm mx-4 text-center">
-              <h3 className="mb-6 text-lg font-bold">¡Compra realizada con éxito!</h3>
+              <h3 className="mb-6 text-lg font-bold">
+                ¡Compra realizada con éxito!
+              </h3>
               <button
                 onClick={handleCerrarMensajeCompra}
                 className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
@@ -306,7 +331,9 @@ export default function PaginaProductos() {
         {mensajeNoPermitido && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
             <div className="bg-white rounded p-8 shadow-lg max-w-sm mx-4 text-center">
-              <h3 className="mb-6 text-lg font-bold text-red-600">No estás autorizado para comprar.</h3>
+              <h3 className="mb-6 text-lg font-bold text-red-600">
+                No estás autorizado para comprar.
+              </h3>
               <button
                 onClick={handleCerrarMensajeNoPermitido}
                 className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"

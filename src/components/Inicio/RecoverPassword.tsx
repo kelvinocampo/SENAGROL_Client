@@ -1,5 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { RecoverPasswordContext } from "@/contexts/User/UserManagement";
 import senagrol from "@assets/senagrol.png";
 import Image1 from "@assets/Fotos de Cafe - Descarga fotos gratis de gran calidad _ Freepik.jpg";
@@ -33,69 +34,114 @@ export const RecoverPassword = () => {
   };
 
   return (
-    <div className="h-screen w-full flex items-center">
-      <div className="w-full h-full max-w-8xl bg-white shadow-lg flex flex-col md:flex-row overflow-hidden rounded-none">
-        
+    <div className="h-screen w-full flex items-center justify-center bg-[#48BD28]">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="w-full h-full max-w-8xl bg-white shadow-lg flex flex-col md:flex-row overflow-hidden"
+      >
         {/* Formulario */}
-        <div className="relative w-full md:w-1/2 h-full p-6 sm:p-10 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+          className="relative w-full md:w-1/2 h-full p-6 sm:p-10 flex items-center justify-center"
+        >
           {/* Logo */}
-          <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1 shadow-lg">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1 shadow-lg"
+          >
             <img
               src={senagrol}
               alt="Logo"
               className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover"
             />
-          </div>
+          </motion.div>
 
           <div className="w-full max-w-md mt-16 md:mt-0">
             <div className="flex justify-between mb-6 border-b border-gray-300 pb-2 text-sm sm:text-base">
               <span
                 onClick={() => navigate("/Login")}
-                className="text-gray-400 cursor-pointer hover:text-black"
+                className="text-gray-400 cursor-pointer hover:text-black transition-colors duration-300"
               >
                 Login
               </span>
               <span
                 onClick={() => navigate("/Register")}
-                className="text-gray-400 cursor-pointer hover:text-black"
+                className="text-gray-400 cursor-pointer hover:text-black transition-colors duration-300"
               >
                 Registro
               </span>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-              <label className="text-sm font-medium text-black">Correo electrónico</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Ingresa tu correo"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#48BD28] text-black"
-              />
+            <motion.form
+              onSubmit={handleSubmit}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="flex flex-col gap-6"
+            >
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-black">
+                  Correo electrónico
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Ingresa tu correo"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#48BD28] text-black transition-all duration-300"
+                />
+              </div>
 
-              {message && <p className="text-green-600 text-sm text-center">{message}</p>}
-              {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+              {message && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-green-600 text-sm text-center"
+                >
+                  {message}
+                </motion.p>
+              )}
+              {error && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-red-600 text-sm text-center"
+                >
+                  {error}
+                </motion.p>
+              )}
 
-              <button
-                type="submit"
-                className="w-full bg-[#48BD28] text-white py-2 rounded-lg hover:bg-[#379e1b] transition"
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-[#48BD28] text-white py-2 rounded-lg hover:bg-[#379e1b] transition-colors duration-300"
               >
                 Enviar correo
-              </button>
-            </form>
+              </motion.button>
+            </motion.form>
           </div>
-        </div>
+        </motion.div>
 
         {/* Imagen lateral */}
-        <div className="hidden md:block md:w-1/2 h-full w-full">
-          <img
+        <div className="hidden md:block md:w-1/2 h-full relative overflow-hidden">
+          <motion.img
+            key={currentImage}
             src={images[currentImage]}
             alt="Decoración"
-            className="w-full h-full object-cover transition-all duration-1000"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0 w-full h-full object-cover"
           />
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

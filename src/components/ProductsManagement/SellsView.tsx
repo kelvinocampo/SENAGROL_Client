@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { QrCode, Search } from "lucide-react";
 import { VentasService, Venta } from "../../services/VentasService";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export const SellsView = () => {
   const [ventas, setVentas] = useState<Venta[]>([]);
@@ -13,7 +14,6 @@ export const SellsView = () => {
     const cargarVentas = async () => {
       try {
         const data = await VentasService.obtenerVentasPorUsuario();
-
         const ventasFormateadas = data.map((v) => ({
           ...v,
           precio_producto: parseFloat(v.precio_producto as unknown as string),
@@ -21,7 +21,6 @@ export const SellsView = () => {
             ? parseFloat(v.precio_transporte as unknown as string)
             : 0,
         }));
-
         setVentas(ventasFormateadas);
       } catch (err) {
         setError("Error al cargar las ventas");
@@ -39,33 +38,61 @@ export const SellsView = () => {
   );
 
   return (
-    <div className=" font-[Fredoka] min-h-screen flex flex-col">
-      <main className="flex-1 flex justify-center items-start py-8 px-4">
-        <div className="w-full max-w-6xl">
-          <h2 className="text-3xl sm:text-4xl font-semibold font-[Fredoka] mb-6">
+    <div className="font-[Fredoka] min-h-screen flex flex-col bg-[#f4fcf1]">
+      <main className="flex-1 flex justify-center items-start py-10 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-6xl"
+        >
+          <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-[#205116]">
             Mis Ventas
           </h2>
 
-          {/* Barra de búsqueda con lupa */}
-          <div className="mb-6 relative">
+          {/* Buscador */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-6 relative"
+          >
             <Search className="absolute left-3 top-3 text-gray-500" size={20} />
             <input
               type="text"
               placeholder="Buscar mis ventas..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-10 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28] text-base"
+              className="w-full pl-10 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28] text-base bg-white"
             />
-          </div>
+          </motion.div>
 
+          {/* Tabla o mensajes */}
           {loading ? (
-            <p>Cargando ventas...</p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-gray-600"
+            >
+              Cargando ventas...
+            </motion.p>
           ) : error ? (
-            <p className="text-red-500">{error}</p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-red-500"
+            >
+              {error}
+            </motion.p>
           ) : (
-            <div className="overflow-x-auto w-full text-sm">
-              <table className="min-w-full text-xs text-left border shadow-sm rounded-md overflow-hidden">
-                <thead className="bg-[#E4FBDD] text-black uppercase">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-x-auto w-full text-sm"
+            >
+              <table className="min-w-full text-xs text-left border shadow-md rounded-lg overflow-hidden">
+                <thead className="bg-[#caf5bd] text-black uppercase text-xs">
                   <tr>
                     <th className="px-3 py-2">Fecha compra</th>
                     <th className="px-3 py-2">Fecha entrega</th>
@@ -80,12 +107,15 @@ export const SellsView = () => {
                     <th className="px-3 py-2">QR / Código</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-[#BFBFBD]">
+                <tbody className="bg-white divide-y divide-[#ccc] text-[13px]">
                   {ventasFiltradas.length > 0 ? (
                     ventasFiltradas.map((c, i) => (
-                      <tr
+                      <motion.tr
                         key={i}
-                        className="hover:bg-[#BFBFBD] transition-colors"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.03 }}
+                        className="hover:bg-[#e4fbdd] transition-colors"
                       >
                         <td className="px-3 py-2">{c.fecha_compra}</td>
                         <td className="px-3 py-2">{c.fecha_entrega}</td>
@@ -115,35 +145,38 @@ export const SellsView = () => {
                               >
                                 <QrCode
                                   size={16}
-                                  className="text-black cursor-pointer"
+                                  className="text-black cursor-pointer hover:text-green-700"
                                 />
                               </Link>
                               <Link
                                 to={`/venta/codigo/${encodeURIComponent(c.id_compra)}`}
-                                className="bg-[#48BD28] text px-2 py-1 rounded text-xs inline-block"
+                                className="bg-[#48BD28] hover:bg-[#379e1b] text-white px-2 py-1 rounded text-xs"
                               >
                                 Código
                               </Link>
                             </div>
                           )}
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))
                   ) : (
-                    <tr>
+                    <motion.tr
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                    >
                       <td
                         colSpan={11}
                         className="text-center text-gray-500 py-4"
                       >
                         No se encontraron ventas con ese nombre.
                       </td>
-                    </tr>
+                    </motion.tr>
                   )}
                 </tbody>
               </table>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       </main>
     </div>
   );
