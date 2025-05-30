@@ -169,7 +169,6 @@ export const Chat = () => {
             {/* Header */}
             <div className="p-4 border-b flex justify-between items-center">
                 <h2 className="font-semibold text-lg">Chat #{id_chat}</h2>
-                <span className="text-sm text-green-500">En línea</span>
             </div>
 
             {/* Messages */}

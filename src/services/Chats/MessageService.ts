@@ -1,6 +1,6 @@
 export class MessageService {
     static API_URL = 'http://localhost:10101';
-    
+
     static async getMessages(id_chat: number): Promise<Message[]> {
         try {
             const response = await fetch(`${this.API_URL}/chat/${id_chat}`, {
@@ -14,7 +14,7 @@ export class MessageService {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const result = await response.json();
             return result.data || [];
         } catch (error) {
@@ -37,9 +37,20 @@ export class MessageService {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const result = await response.json();
-            return result.message;
+            const data = result.data
+            const message: Message = {
+                id_mensaje: data._id_mensaje,
+                contenido: data._contenido,
+                fecha_envio: data._fecha_envio,
+                id_chat: data._id_chat,
+                id_user: data._id_user,
+                tipo: data._tipo,
+                editado: data._editado || 0
+            };
+
+            return message;
         } catch (error) {
             console.error('Error sending text message:', error);
             throw error;
@@ -62,9 +73,20 @@ export class MessageService {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const result = await response.json();
-            return result.message;
+            const data = result.data.data
+            const message: Message = {
+                id_mensaje: data._id_mensaje,
+                contenido: data._contenido,
+                fecha_envio: data._fecha_envio,
+                id_chat: data._id_chat,
+                id_user: data._id_user,
+                tipo: data._tipo,
+                editado: data._editado || 0
+            };
+
+            return message;
         } catch (error) {
             console.error('Error sending image message:', error);
             throw error;
@@ -74,7 +96,7 @@ export class MessageService {
     static async sendAudioMessage(audioBlob: Blob, id_chat: number): Promise<Message> {
         try {
             const audioFile = new File([audioBlob], 'audio_message.mp3', { type: 'audio/mpeg' });
-            
+
             const formData = new FormData();
             formData.append('audio', audioFile);
 
@@ -89,9 +111,19 @@ export class MessageService {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
             const result = await response.json();
-            return result.message;
+            const data = result.data.data
+            const message: Message = {
+                id_mensaje: data._id_mensaje,
+                contenido: data._contenido,
+                fecha_envio: data._fecha_envio,
+                id_chat: data._id_chat,
+                id_user: data._id_user,
+                tipo: data._tipo,
+                editado: data._editado || 0
+            };
+
+            return message;
         } catch (error) {
             console.error('Error sending audio message:', error);
             throw error;

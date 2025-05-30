@@ -16,7 +16,6 @@ export class ChatService {
             const result: any = await response.json()
 
             const chats: any[] = result.data;
-            console.log('chats', chats);
 
             return chats;
         } catch (error) {
@@ -27,8 +26,6 @@ export class ChatService {
 
     static async getChat(id_user2: number) {
         try {
-            console.log(id_user2);
-
             const getChat = await fetch(`${this.API_URL}/chat/${id_user2}`, {
                 method: 'POST',
                 headers: {
@@ -41,7 +38,6 @@ export class ChatService {
                 throw new Error(`Error response: ${getChat}`);
             }
             const result: any = await getChat.json()
-            console.log(result, getChat)
             return { chat: result.chat, status: result.status, message: result.message };
         } catch (error) {
             console.error('Error fetching chat:', error);
