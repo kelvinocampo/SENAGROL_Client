@@ -2,6 +2,7 @@ import { AuthService } from "@/services/AuthService";
 import { MessageService, Message } from "@/services/Chats/MessageService";
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
+import { FiMoreVertical, FiX, FiEdit2, FiTrash2 } from "react-icons/fi";
 
 export const Chat = () => {
     const { id_chat = "" } = useParams<{ id_chat: string }>();
@@ -12,8 +13,74 @@ export const Chat = () => {
     const [newMessage, setNewMessage] = useState("");
     const [isRecording, setIsRecording] = useState(false);
     const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+    const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
+    const [editedMessageContent, setEditedMessageContent] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const menuRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (openMenuId !== null) {
+                const menuButton = document.querySelector(`[data-menu-button="${openMenuId}"]`);
+                const menu = menuRefs.current[openMenuId];
+
+                if (menu && !menu.contains(event.target as Node) &&
+                    (!menuButton || !menuButton.contains(event.target as Node))) {
+                    setOpenMenuId(null);
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [openMenuId]);
+
+    const toggleMenu = (messageId: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setOpenMenuId(prevId => prevId === messageId ? null : messageId);
+    };
+
+    const handleEditMessage = (message: Message) => {
+        setEditingMessageId(message.id_mensaje);
+        setEditedMessageContent(message.contenido);
+        setOpenMenuId(null);
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editingMessageId || !editedMessageContent.trim()) return;
+
+        try {
+            const updatedMessage = await MessageService.editMessage(
+                editingMessageId,
+                editedMessageContent,
+                parseInt(id_chat)
+            );
+
+            setMessages(prev => prev.map(m =>
+                m.id_mensaje === editingMessageId ? updatedMessage : m
+            ));
+            setEditingMessageId(null);
+        } catch (error) {
+            console.error("Error editing message:", error);
+            setError(error instanceof Error ? error.message : "No se pudo editar el mensaje");
+        }
+    };
+
+    const handleDeleteMessage = async (messageId: number) => {
+        try {
+            await MessageService.deleteMessage(messageId, parseInt(id_chat));
+            setMessages(prev => prev.filter(m => m.id_mensaje !== messageId));
+            setOpenMenuId(null);
+        } catch (error) {
+            console.error("Error deleting message:", error);
+            setError(error instanceof Error ? error.message : "No se pudo eliminar el mensaje");
+        }
+    };
 
     const handleSendTextMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -148,8 +215,6 @@ export const Chat = () => {
         const fetchCurrentUserId = async () => {
             try {
                 const id = await AuthService.getIDUser();
-                console.log("Current User ID:", id);
-                
                 setCurrentUserId(id);
             } catch (error) {
                 console.error("Error fetching user ID:", error);
@@ -196,10 +261,37 @@ export const Chat = () => {
                 ) : (
                     messages.map((message) => {
                         const isCurrentUser = message.id_user === currentUserId;
+                        const isTextMessage = message.tipo === 'texto';
+                        const isMenuOpen = openMenuId === message.id_mensaje;
+
                         return (
                             <div key={message.id_mensaje} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`p-3 rounded-lg max-w-xs ${isCurrentUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-black'}`}>
-                                    {message.tipo === 'imagen' ? (
+                                <div className={`relative p-3 rounded-lg max-w-xs ${isCurrentUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-black'}`}>
+                                    {editingMessageId === message.id_mensaje && isTextMessage ? (
+                                        <div className="flex flex-col">
+                                            <textarea
+                                                value={editedMessageContent}
+                                                onChange={(e) => setEditedMessageContent(e.target.value)}
+                                                className="w-full p-2 text-black rounded border"
+                                                rows={3}
+                                                autoFocus
+                                            />
+                                            <div className="flex justify-end gap-2 mt-2">
+                                                <button
+                                                    onClick={() => setEditingMessageId(null)}
+                                                    className="px-2 py-1 text-sm bg-gray-300 rounded"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                                <button
+                                                    onClick={handleSaveEdit}
+                                                    className="px-2 py-1 text-sm bg-blue-600 text-white rounded"
+                                                >
+                                                    Guardar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : message.tipo === 'imagen' ? (
                                         <img
                                             src={message.contenido}
                                             alt="Imagen enviada"
@@ -226,6 +318,46 @@ export const Chat = () => {
                                     <div className="text-xs text-right mt-1">
                                         {formatTime(message.fecha_envio)}
                                     </div>
+
+                                    {isCurrentUser && (
+                                        <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+                                            <button
+                                                data-menu-button={message.id_mensaje}
+                                                onClick={(e) => toggleMenu(message.id_mensaje, e)}
+                                                className={`w-6 h-6 flex items-center justify-center rounded-full ${isCurrentUser ? 'bg-blue-600 text-white' : 'bg-gray-300'} hover:bg-opacity-90`}
+                                            >
+                                                {isMenuOpen ? (
+                                                    <FiX size={14} />
+                                                ) : (
+                                                    <FiMoreVertical size={14} />
+                                                )}
+                                            </button>
+
+                                            {isMenuOpen && (
+                                                <div
+                                                    ref={(el: any) => menuRefs.current[message.id_mensaje] = el}
+                                                    className="absolute right-0 z-20 w-32 bg-white rounded-md shadow-lg py-1 border border-gray-200"
+                                                >
+                                                    {isTextMessage && (
+                                                        <button
+                                                            onClick={() => handleEditMessage(message)}
+                                                            className="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                        >
+                                                            <FiEdit2 className="mr-2" size={14} />
+                                                            Editar
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => handleDeleteMessage(message.id_mensaje)}
+                                                        className="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                                    >
+                                                        <FiTrash2 className="mr-2" size={14} />
+                                                        Eliminar
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );
@@ -243,17 +375,17 @@ export const Chat = () => {
                     onChange={handleImageUpload}
                     className="hidden"
                 />
-                <button 
-                    type="button" 
-                    onClick={() => fileInputRef.current?.click()} 
+                <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
                     className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
                     title="Enviar imagen"
                 >
                     🖼️
                 </button>
-                <button 
-                    type="button" 
-                    onClick={isRecording ? stopRecording : startRecording} 
+                <button
+                    type="button"
+                    onClick={isRecording ? stopRecording : startRecording}
                     className={`p-2 rounded-full ${isRecording ? 'bg-red-500 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
                     title={isRecording ? 'Detener grabación' : 'Grabar audio'}
                 >
@@ -266,8 +398,8 @@ export const Chat = () => {
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Escribe un mensaje"
                 />
-                <button 
-                    type="submit" 
+                <button
+                    type="submit"
                     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
                 >
                     Enviar
