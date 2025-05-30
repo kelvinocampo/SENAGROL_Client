@@ -3,6 +3,7 @@ import { QrCode, Search } from "lucide-react";
 import { VentasService, Venta } from "../../services/VentasService";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import Footer from "../Footer";
 
 export const SellsView = () => {
   const [ventas, setVentas] = useState<Venta[]>([]);
@@ -177,7 +178,9 @@ export const SellsView = () => {
             </motion.div>
           )}
         </motion.div>
+        
       </main>
+      <Footer></Footer>
     </div>
   );
 };

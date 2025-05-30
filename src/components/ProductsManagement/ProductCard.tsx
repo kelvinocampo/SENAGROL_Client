@@ -29,12 +29,14 @@ export const ProductCard = ({ product }: any) => {
 
   return (
     <motion.li
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      whileHover="hover"
-      className="overflow-hidden capitalize flex flex-col gap-2 w-[200px] bg-white rounded-xl shadow-md cursor-pointer"
-    >
+  onClick={handleEditClick} // ← Nuevo
+  variants={cardVariants}
+  initial="hidden"
+  animate="visible"
+  whileHover="hover"
+  className="overflow-hidden capitalize flex flex-col gap-2 w-[200px] bg-white rounded-xl shadow-md cursor-pointer h-90"
+>
+
       <div className="relative">
         <img
           src={product.imagen}

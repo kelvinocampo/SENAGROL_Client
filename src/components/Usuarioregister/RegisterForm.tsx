@@ -93,16 +93,17 @@ export function RegisterForm() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    try {
-      await InicioService.register(name, username, email, password, phone, confirmPassword);
-      setMessage("Registro exitoso.");
-    } catch (error: any) {
-      setMessage(error.message || "Error al registrar.");
-    }
-  };
+  try {
+    await InicioService.register(name, username, email, password, phone, confirmPassword);
+    navigate("/login"); // Redirige sin mostrar mensaje
+  } catch (error: any) {
+    setMessage(error.message || "Error al registrar.");
+  }
+};
+
 
   return (
     <div className="h-screen w-full flex items-center justify-center bg-[#48BD28]">
