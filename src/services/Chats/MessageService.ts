@@ -1,6 +1,7 @@
 export class MessageService {
     static API_URL = 'http://localhost:10101';
-    static async getMessages(id_chat: number) {
+    
+    static async getMessages(id_chat: number): Promise<Message[]> {
         try {
             const response = await fetch(`${this.API_URL}/chat/${id_chat}`, {
                 method: 'GET',
@@ -10,20 +11,19 @@ export class MessageService {
                 }
             });
 
-            if (!response) {
-                throw new Error(`Error response: ${response}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const result: any = await response.json()
-
-            const messages: any[] = result.data;
-            return messages;
+            
+            const result = await response.json();
+            return result.data || [];
         } catch (error) {
             console.error('Error fetching messages:', error);
             throw error;
         }
     }
 
-    static async sendTextMessage(text: string, id_chat: number) {
+    static async sendTextMessage(text: string, id_chat: number): Promise<Message> {
         try {
             const response = await fetch(`${this.API_URL}/chat/${id_chat}/message/text`, {
                 method: 'POST',
@@ -31,72 +31,81 @@ export class MessageService {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify({
-                    text: text
-                })
+                body: JSON.stringify({ text })
             });
 
-            if (!response) {
-                throw new Error(`Error response: ${response}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const result: any = await response.json()
-
-            const message: any[] = result.message;
-            return message;
+            
+            const result = await response.json();
+            return result.message;
         } catch (error) {
             console.error('Error sending text message:', error);
             throw error;
         }
     }
 
-    static async sendImageMessage(image: any, id_chat: number) {
+    static async sendImageMessage(imageFile: File, id_chat: number): Promise<Message> {
         try {
+            const formData = new FormData();
+            formData.append('imagen', imageFile);
+
             const response = await fetch(`${this.API_URL}/chat/${id_chat}/message/image`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify({
-                    imagen: image
-                })
+                body: formData
             });
 
-            if (!response) {
-                throw new Error(`Error response: ${response}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const result: any = await response.json()
-
-            const message: any[] = result.message;
-            return message;
+            
+            const result = await response.json();
+            return result.message;
         } catch (error) {
-            console.error('Error sending text message:', error);
+            console.error('Error sending image message:', error);
             throw error;
         }
     }
-    static async sendAudioMessage(audio: any, id_chat: number) {
+
+    static async sendAudioMessage(audioBlob: Blob, id_chat: number): Promise<Message> {
         try {
+            const audioFile = new File([audioBlob], 'audio_message.mp3', { type: 'audio/mpeg' });
+            
+            const formData = new FormData();
+            formData.append('audio', audioFile);
+
             const response = await fetch(`${this.API_URL}/chat/${id_chat}/message/audio`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify({
-                    audio: audio
-                })
+                body: formData
             });
 
-            if (!response) {
-                throw new Error(`Error response: ${response}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const result: any = await response.json()
-
-            const message: any[] = result.message;
-            return message;
+            
+            const result = await response.json();
+            return result.message;
         } catch (error) {
             console.error('Error sending audio message:', error);
             throw error;
         }
     }
+}
+
+
+export interface Message {
+    id_mensaje: number;
+    contenido: string;
+    fecha_envio: string;
+    id_user: number; // Cambiado de id_usuario a id_user para coincidir con el API
+    id_chat: number;
+    tipo: 'texto' | 'imagen' | 'audio';
+    editado: number; // Añadido campo editado
 }
