@@ -1,12 +1,15 @@
 import { useState, useRef, useEffect } from "react";
-import senagrol from "@assets/senagrol.jpeg";
 import { getUserRole } from "@/services/Perfil/authService";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react"; // Puedes usar íconos de Lucide o FontAwesome
+import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+type UserRole = "vendedor" | "comprador" | "transportador" | "administrador" | null;
 
 type User = {
   isLoggedIn: boolean;
-  role: "vendedor" | "comprador" | "transportador" | "administrador" | "vendedor transportador" | "vendedor transportador" | null;
+  role: UserRole;
+
 };
 
 const Header = () => {
@@ -17,20 +20,21 @@ const Header = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
+  // Cargar rol de usuario al montar el componente
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
         const role = await getUserRole();
-        setUser({ isLoggedIn: true, role: role as User["role"] });
+        setUser({ isLoggedIn: true, role: role as UserRole });
       } catch (error) {
         console.error("No se pudo obtener el rol:", error);
         setUser({ isLoggedIn: false, role: null });
       }
     };
-
     fetchUserRole();
   }, []);
 
+  // Control del dropdown del perfil
   const handleMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setDropdownOpen(true);
@@ -39,12 +43,11 @@ const Header = () => {
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
       setDropdownOpen(false);
-    }, 200);
+    }, 250);
   };
 
-  const handleLogout = () => {
-    setShowLogoutConfirm(true);
-  };
+  // Manejo del logout
+  const handleLogout = () => setShowLogoutConfirm(true);
 
   const confirmLogout = () => {
     localStorage.clear();
@@ -53,66 +56,92 @@ const Header = () => {
     navigate("/inicio");
   };
 
-  const cancelLogout = () => {
-    setShowLogoutConfirm(false);
-  };
+  const cancelLogout = () => setShowLogoutConfirm(false);
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 
+  // Estilos comunes para los links
+  const linkClass =
+    "bg-[#48BD28] text-white px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ease-in-out hover:bg-[#379E1B] hover:scale-105";
+
+  // Links comunes según roles y estado
   const commonLinks = {
-    chatIA: <a href="/IA" className="hover:text-[#48BD28] transition">Chat IA</a>,
-    chats: <a href="#" className="hover:text-[#48BD28] transition">Chats</a>,
-    login: <Link to="/login" className="hover:text-[#48BD28] transition">Ingresar</Link>,
+    chatIA: <Link to="/IA" className={linkClass}>Chat IA</Link>,
+    chats: <Link to="/chats" className={linkClass}>Chats</Link>,
+    login: <Link to="/login" className={linkClass}>Ingresar</Link>,
     perfil: (
       <div
         className="relative"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <button className="hover:text-[#48BD28] transition">Perfil</button>
-        {isDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-50 text-sm">
-            {user.role === "comprador" && (
-              <a href="/miscompras" className="block px-3 py-2 hover:bg-[#E4FBDD]">🛒 Mis compras</a>
-            )}
-            {user.role === "transportador" && (
-              <a href="/mistransportes" className="block px-3 py-2 hover:bg-[#E4FBDD]">📦 Mis transportes</a>
-            )}
-            <a href="/transporte/:id_compra" className="block px-3 py-2 hover:bg-[#E4FBDD]">🚚 Transportadores</a>
-            <a href="/perfil" className="block px-3 py-2 hover:bg-[#E4FBDD]">Perfil</a>
-          </div>
-        )}
+        <button className={`${linkClass} flex items-center gap-2`} aria-haspopup="true" aria-expanded={isDropdownOpen}>
+          Perfil{" "}
+          <motion.span
+            initial={{ rotate: 0 }}
+            animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            ▼
+          </motion.span>
+        </button>
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-50 text-sm font-medium text-gray-700"
+              role="menu"
+              aria-label="Menú de perfil"
+            >
+              {user.role === "comprador" && (
+                <Link to="/miscompras" className="block px-4 py-2 hover:bg-[#E4FBDD] transition-colors rounded-t-lg" role="menuitem">
+                  🛒 Mis compras
+                </Link>
+              )}
+              {user.role === "transportador" && (
+                <Link to="/mistransportes" className="block px-4 py-2 hover:bg-[#E4FBDD] transition-colors" role="menuitem">
+                  📦 Mis transportes
+                </Link>
+              )}
+              {/* Este enlace parecía estar mal, debe ser dinámico o fijo, aquí fijo para ejemplo */}
+              <Link to="/transportadores" className="block px-4 py-2 hover:bg-[#E4FBDD] transition-colors" role="menuitem">
+                🚚 Transportadores
+              </Link>
+              <Link to="/perfil" className="block px-4 py-2 hover:bg-[#E4FBDD] transition-colors rounded-b-lg" role="menuitem">
+                Perfil
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     ),
-    administrador: <Link to="/admin" className="hover:text-[#48BD28] transition">Administrador</Link>,
-    misProductos: <a href="/MisProductos/" className="hover:text-[#48BD28] transition">Mis productos</a>,
-    inicio: (
-      <Link to="/inicio" className="bg-[#48BD28] text-white px-3 py-1.5 rounded-full text-sm transition mt-4 md:mt-0">
-        Inicio
-      </Link>
-    ),
+    administrador: <Link to="/admin" className={linkClass}>Administrador</Link>,
+    misProductos: <Link to="/MisProductos" className={linkClass}>Mis productos</Link>,
+    inicio: <Link to="/inicio" className={linkClass}>Inicio</Link>,
   };
 
-  const renderLinks = () => {
-    const logoutButton = (
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm transition hover:bg-red-600"
-      >
-        Cerrar sesión
-      </button>
-    );
+  // Botón de logout
+  const logoutButton = (
+    <button
+      onClick={handleLogout}
+      className="bg-[#E53935] text-white px-4 py-2 rounded-full text-sm font-semibold transition-transform duration-300 ease-in-out hover:scale-105 hover:rotate-1 shadow-md"
+      aria-label="Cerrar sesión"
+    >
+      🔓 Cerrar sesión
+    </button>
+  );
 
+  // Renderizado de links según rol
+  const renderLinks = () => {
     if (!user.isLoggedIn || user.role === null) {
       return [
         commonLinks.chatIA,
         commonLinks.login,
-        commonLinks.inicio
+        commonLinks.inicio,
       ];
     }
-
     switch (user.role) {
       case "vendedor":
         return [
@@ -121,7 +150,7 @@ const Header = () => {
           commonLinks.chats,
           commonLinks.chatIA,
           commonLinks.inicio,
-          logoutButton
+          logoutButton,
         ];
       case "comprador":
         return [
@@ -129,7 +158,7 @@ const Header = () => {
           commonLinks.chats,
           commonLinks.chatIA,
           commonLinks.inicio,
-          logoutButton
+          logoutButton,
         ];
       case "transportador":
         return [
@@ -137,7 +166,7 @@ const Header = () => {
           commonLinks.chatIA,
           commonLinks.perfil,
           commonLinks.inicio,
-          logoutButton
+          logoutButton,
         ];
       case "administrador":
         return [
@@ -146,7 +175,7 @@ const Header = () => {
           commonLinks.chatIA,
           commonLinks.chats,
           commonLinks.administrador,
-          logoutButton
+          logoutButton,
         ];
       default:
         return [commonLinks.login, commonLinks.inicio];
@@ -155,50 +184,60 @@ const Header = () => {
 
   return (
     <>
-      <header className=" font-[Fredoka] bg-white shadow-sm hover:shadow-md px-6 py-4 rounded-lg z-10 relative">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <img src={senagrol} alt="Logo" className="w-10 h-10 rounded-full" />
-          </div>
+      <header className="font-[Fredoka] bg-white shadow-md mx-auto my-10 w-full px-8 py-5 rounded-lg max-w-7xl relative select-none">
+        {/* Contenedor principal flex vertical para que items estén alineados a la izquierda */}
+        <div className="flex flex-col items-start justify-center">
 
-          <div className="md:hidden">
-            <button onClick={toggleMobileMenu}>
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {/* Toggle menú móvil */}
+          <div className="md:hidden mb-4 w-full flex justify-start">
+            <button
+              onClick={toggleMobileMenu}
+              aria-label="Toggle navigation menu"
+              className="p-2 rounded-md border border-gray-300 hover:bg-[#48BD28] hover:text-white transition-colors"
+            >
+              {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
             </button>
           </div>
 
-          <nav className="hidden md:flex items-center gap-4 text-sm font-medium">
-            {renderLinks()}
-          </nav>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <nav className="flex flex-col gap-3 mt-4 text-sm font-medium md:hidden animate-slide-down">
-            {renderLinks().map((link, idx) => (
-              <div key={idx} className="border-b pb-2 ">{link}</div>
+          {/* Menú escritorio */}
+          <nav className="hidden md:flex flex-wrap justify-start items-center gap-6 text-sm font-semibold text-gray-800 w-full">
+            {renderLinks().map((link, index) => (
+              <div key={index}>{link}</div>
             ))}
           </nav>
-        )}
+
+          {/* Menú móvil desplegable */}
+          {isMobileMenuOpen && (
+            <nav className="flex flex-col gap-4 mt-5 text-sm font-semibold md:hidden bg-white rounded-lg shadow-lg w-full max-w-xs p-4 animate-slide-down">
+              {renderLinks().map((link, idx) => (
+                <div
+                  key={idx}
+                  className="border-b border-gray-200 last:border-none pb-2 text-center"
+                >
+                  {link}
+                </div>
+              ))}
+            </nav>
+          )}
+        </div>
       </header>
 
-      {/* Modal confirmación cierre de sesión */}
+      {/* Modal confirmación cierre sesión */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
-          <div className="bg-white p-6 rounded-lg shadow-md text-center max-w-sm w-full">
-            <h1 className="text-lg font-bold text-[#1B1B1B] mb-2">Cerrar sesión</h1>
-            <p className="text-sm text-[#1B1B1B] mb-6">¿Seguro que deseas cerrar la sesión?</p>
-
-            <div className="flex flex-col gap-2">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 backdrop-blur-sm">
+          <div className="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
+            <h1 className="text-2xl font-bold text-[#1B1B1B] mb-4">Cerrar sesión</h1>
+            <p className="text-gray-700 mb-8">¿Seguro que deseas cerrar la sesión?</p>
+            <div className="flex justify-center gap-6">
               <button
                 onClick={cancelLogout}
-                className="bg-[#FAF6F2] text-[#4B4B4B] py-2 rounded-full text-sm font-medium"
+                className="bg-gray-200 text-gray-700 py-2 px-6 rounded-full font-semibold hover:bg-gray-300 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={confirmLogout}
-                className="bg-[#4CAF50] text-white py-2 rounded-full text-sm font-medium"
+                className="bg-[#4CAF50] text-white py-2 px-6 rounded-full font-semibold hover:bg-green-600 transition-colors"
               >
                 Cerrar sesión
               </button>

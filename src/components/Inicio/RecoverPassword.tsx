@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { RecoverPasswordContext } from "@/contexts/User/UserManagement";
-import Logo from "@assets/senagrol.jpeg";
+import Logo from "@assets/senagrol.png";
 import Image1 from "@assets/LoginImg.jpg";
 import Image2 from "@assets/Travel.jpg";
 import Image3 from "@assets/co.jpg";

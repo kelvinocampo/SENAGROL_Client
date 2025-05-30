@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link} from "react-router-dom";
-import Logo from "@assets/senagrol.jpeg";
-import Image1 from "@assets/LoginImg.jpg";
+import Logo from "@assets/senagrol.png";
 import Image1 from "@assets/LoginImg.jpg";
 import Image2 from "@assets/Travel.jpg";
 import Image3 from "@assets/co.jpg";
