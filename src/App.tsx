@@ -35,7 +35,6 @@ function App() {
       <DiscountedProductProvider>
         <Routes>
           <Route path="/" element={<PaginaProductos />} />
-          <Route path="/inicio" element={<PaginaProductos />} />
           <Route path="/producto/:id" element={<DetalleProducto />} />
           <Route path="/Login" element={<InicioManual />} />
           <Route path="/EnviarCorreo" element={<EnviarCorreo />} />

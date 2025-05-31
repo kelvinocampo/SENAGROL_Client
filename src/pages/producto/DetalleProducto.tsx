@@ -36,7 +36,7 @@ export default function DetalleProducto() {
     console.log("Cantidad comprada:", cantidad);
     console.log("Ubicación:", ubicacion);
     setModalOpen(false);
-    navigate("/inicio");
+    navigate("/");
   };
 
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function DetalleProducto() {
 
       <div className="px-4 pt-6">
         <Link
-          to="/inicio"
+          to="/"
           className="inline-flex items-center text-green-700 hover:text-green-900 font-medium"
         >
           <svg

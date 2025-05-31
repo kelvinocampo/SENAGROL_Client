@@ -1,25 +1,33 @@
-import { useContext, useState } from 'react';
-import { FaTrash } from 'react-icons/fa';
-import { TableHeader } from '@/components/admin/table/TableHeader';
-import { ActionButton } from '@/components/admin/table/ActionButton';
-import { ConfirmDialog } from '@/components/admin/common/ConfirmDialog';
+import { useContext, useState } from "react";
+import { FaTrash } from "react-icons/fa";
+import { TableHeader } from "@/components/admin/table/TableHeader";
+import { ActionButton } from "@/components/admin/table/ActionButton";
+import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog";
 import { MessageDialog } from "@/components/admin/common/MessageDialog";
-import { UserManagementContext } from '@/contexts/admin/AdminManagement';
-import { UserRole } from '@/services/Admin/UserManagementService';
-import { SearchBar } from '@/components/admin/table/SearchUsers'; 
+import { UserManagementContext } from "@/contexts/admin/AdminManagement";
+import { UserRole } from "@/services/Admin/UserManagementService";
+import { SearchBar } from "@/components/admin/table/SearchUsers";
+import { TransporterDetailModal } from "@/components/admin/common/TransporterDetailModal";
 
 export const UserTable = () => {
   const context = useContext(UserManagementContext);
   if (!context) return <div>Error: contexto no disponible.</div>;
 
-  const { users, deleteUser, disableUser, activateUserRole, fetchUsers } = context;
+  const { users, deleteUser, disableUser, activateUserRole, fetchUsers } =
+    context;
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirmMessage, setConfirmMessage] = useState('');
+  const [confirmMessage, setConfirmMessage] = useState("");
   const [onConfirm, setOnConfirm] = useState<() => void>(() => () => {});
   const [messageOpen, setMessageOpen] = useState(false);
   const [message, setMessage] = useState("");
+
+  // 👉 NUEVO: estados para el modal de detalles
+  const [selectedTransporter, setSelectedTransporter] = useState<any | null>(
+    null
+  );
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const handleConfirm = (message: string, action: () => void) => {
     setConfirmMessage(message);
@@ -35,23 +43,23 @@ export const UserTable = () => {
   const renderRoleCell = (user: any, role: UserRole) => {
     const status = user[role];
 
-    if (role === 'comprador') {
-      if (status === 'Activo') {
-        return (
-          <span className="inline-block px-3 py-1 rounded-full font-semibold text-sm bg-[#E4FBDD] text-black">
-            Activo
-          </span>
-        );
-      } else {
-        return (
-          <span className="inline-block px-3 py-1 rounded-full font-semibold text-sm text-black">
-            {status === 'Inactivo' ? 'Inactivo' : 'no disponible'}
-          </span>
-        );
-      }
+    if (role === "comprador") {
+      return (
+        <span
+          className={`inline-block px-3 py-1 rounded-full font-semibold text-sm ${
+            status === "Activo" ? "bg-[#E4FBDD]" : ""
+          } text-black`}
+        >
+          {status === "Activo"
+            ? "Activo"
+            : status === "Inactivo"
+            ? "Inactivo"
+            : "no disponible"}
+        </span>
+      );
     }
 
-    if (status === 'Activo') {
+    if (status === "Activo") {
       return (
         <ActionButton
           title={`Desactivar ${role}`}
@@ -67,19 +75,33 @@ export const UserTable = () => {
       );
     }
 
-    if (status === 'Inactivo') {
+    if (status === "Inactivo") {
       return (
-        <ActionButton
-          title={`Activar ${role}`}
-          onClick={() =>
-            handleConfirm(
-              `¿Estás seguro de que deseas activar el rol ${role} para ${user.name}?`,
-              () => activateUserRole(user.id, role)
-            )
-          }
-        >
-          Activar
-        </ActionButton>
+        <div className="flex flex-col items-center gap-2">
+          <ActionButton
+            title={`Activar ${role}`}
+            onClick={() =>
+              handleConfirm(
+                `¿Estás seguro de que deseas activar el rol ${role} para ${user.name}?`,
+                () => activateUserRole(user.id, role)
+              )
+            }
+          >
+            Activar
+          </ActionButton>
+
+          {role === "transportador" && (
+            <ActionButton
+              title={`Ver detalles de ${user.name}`}
+              onClick={() => {
+                setSelectedTransporter(user);
+                setIsDetailOpen(true);
+              }}
+            >
+              Ver detalles
+            </ActionButton>
+          )}
+        </div>
       );
     }
 
@@ -92,7 +114,7 @@ export const UserTable = () => {
 
   if (users === null) return <div>Cargando usuarios...</div>;
 
-  const filteredUsers = users.filter(user =>
+  const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -101,8 +123,8 @@ export const UserTable = () => {
       <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
 
       <table className="min-w-full my-4 table-auto rounded-xl border-2 border-[#F5F0E5]">
-        <thead className="border-2 border-[#F5F0E5] bg-[E4FBDD]">
-          <tr className="bg-[#E4FBDD]">
+        <thead className="border-2 border-[#F5F0E5] bg-[#E4FBDD]">
+          <tr>
             <TableHeader>Nombre</TableHeader>
             <TableHeader className="text-black">Transportador</TableHeader>
             <TableHeader className="text-black">Vendedor</TableHeader>
@@ -171,14 +193,13 @@ export const UserTable = () => {
                         `¿Estás seguro de que deseas eliminar al usuario ${user.name}? Esta acción no se puede deshacer.`,
                         async () => {
                           const result = await deleteUser(user.id);
+                          setConfirmOpen(false);
 
                           if (
                             !result ||
                             typeof result.success !== "boolean" ||
                             typeof result.message !== "string"
                           ) {
-                            setConfirmOpen(false);
-                            console.log("error");
                             setTimeout(
                               () =>
                                 showMessage("Respuesta inválida del servidor."),
@@ -188,13 +209,9 @@ export const UserTable = () => {
                           }
 
                           if (result.success) {
-                            setConfirmOpen(false);
-                            console.log(result.message);
                             setTimeout(() => showMessage(result.message), 200);
-                            return;
                           }
 
-                          setConfirmOpen(false);
                           await fetchUsers();
                         }
                       )
@@ -209,6 +226,7 @@ export const UserTable = () => {
         </tbody>
       </table>
 
+      {/* Dialogos */}
       <ConfirmDialog
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
@@ -221,7 +239,14 @@ export const UserTable = () => {
         onClose={() => setMessageOpen(false)}
         message={message}
       />
+
+      {/* 👉 NUEVO: Modal de detalle de transportador */}
+      {selectedTransporter && (
+        <TransporterDetailModal
+          user={selectedTransporter}
+          onClose={() => setIsDetailOpen(false)}
+        />
+      )}
     </div>
   );
 };
-

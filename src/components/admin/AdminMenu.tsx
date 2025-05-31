@@ -50,7 +50,7 @@ export const AdminMenu = ({ setActiveView }: AdminMenuProps) => {
         <div className="flex flex-col items-center py-6 border-b border-white">
           <div className="px-4 pt-6">
         <Link
-          to="/inicio"
+          to="/"
           className="inline-flex items-center text-white hover:text-green-900 font-medium"
         >
           <svg

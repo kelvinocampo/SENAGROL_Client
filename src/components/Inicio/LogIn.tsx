@@ -36,7 +36,7 @@ export const LoginForm = () => {
     try {
       const data = await InicioService.login(identifier, password);
       localStorage.setItem("token", data.token);
-      navigate("/inicio");
+      navigate("/");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -49,7 +49,7 @@ export const LoginForm = () => {
   <div className="w-full h-full max-w-8xl bg-white shadow-lg flex flex-col md:flex-row overflow-hidden rounded-none">
      <div className="px-4 pt-6">
         <Link
-          to="/inicio"
+          to="/"
           className="inline-flex items-center text-green-700 hover:text-green-900 font-medium"
         >
           <svg

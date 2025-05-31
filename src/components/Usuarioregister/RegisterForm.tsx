@@ -92,7 +92,7 @@ export function RegisterForm() {
       <div className="w-full max-w-8xl h-full flex flex-col md:flex-row bg-white overflow-hidden shadow-lg">
          <div className="px-4 pt-6">
         <Link
-          to="/inicio"
+          to="/"
           className="inline-flex items-center text-green-700 hover:text-green-900 font-medium"
         >
           <svg
