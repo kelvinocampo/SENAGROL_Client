@@ -1,15 +1,17 @@
 import { AuthService } from "@/services/AuthService";
 import { MessageService, Message } from "@/services/Chats/MessageService";
-import { useState, useEffect, useRef, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect, useRef, useContext, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { FiMoreVertical, FiX, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { ChatsContext } from "@/contexts/Chats";
+import { useSocket } from "@/hooks/UseSocket";
 
 export const Chat = () => {
+    const navigate = useNavigate();
     const { id_chat = "" } = useParams<{ id_chat: string }>();
     const { chats }: any = useContext(ChatsContext);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [currentUserId, setCurrentUserId] = useState<number>(0);
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [newMessage, setNewMessage] = useState("");
@@ -21,10 +23,29 @@ export const Chat = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const menuRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
-    const chat = chats.find((chat: any) => chat.id_chat === parseInt(id_chat));
     const [title, setTitle] = useState<string>("Chat");
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
+    const socket = useSocket("http://localhost:10101");
+
+    // Función para obtener el ID del usuario actual
+    const fetchCurrentUserId = useCallback(async () => {
+        try {
+            const id = await AuthService.getIDUser();
+            setCurrentUserId(id);
+            return id;
+        } catch (error) {
+            console.error("Error fetching user ID:", error);
+            setError(error instanceof Error ? error.message : "Error al cargar el ID del usuario");
+            return null;
+        }
+    }, []);
+
+    // Actualizar título del chat cuando cambia el chat o el usuario
     useEffect(() => {
+        const chat = chats.find((chat: any) => chat.id_chat === parseInt(id_chat));
+        if (!chat) console.log("/404");
+
         if (chat && currentUserId) {
             try {
                 const isUser1 = chat.id_user1 === currentUserId;
@@ -37,10 +58,9 @@ export const Chat = () => {
         } else {
             setTitle("Chat");
         }
-    }, [chat, currentUserId]);
+    }, [currentUserId]);
 
-    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
-
+    // Manejar clicks fuera del menú de opciones
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (openMenuId !== null) {
@@ -106,12 +126,15 @@ export const Chat = () => {
         e.preventDefault();
         if (!newMessage.trim()) return;
 
+        const userId = currentUserId || await fetchCurrentUserId();
+        if (!userId) return;
+
         const sendDate = new Date().toISOString();
         const tempMessage: Message = {
             id_mensaje: Date.now(),
             contenido: newMessage,
             fecha_envio: sendDate,
-            id_user: currentUserId,
+            id_user: userId,
             id_chat: parseInt(id_chat),
             tipo: 'texto',
             editado: 0
@@ -139,11 +162,14 @@ export const Chat = () => {
             return;
         }
 
+        const userId = currentUserId || await fetchCurrentUserId();
+        if (!userId) return;
+
         const tempMessage: Message = {
             id_mensaje: Date.now(),
             contenido: URL.createObjectURL(file),
             fecha_envio: new Date().toISOString(),
-            id_user: currentUserId,
+            id_user: userId,
             id_chat: parseInt(id_chat),
             tipo: 'imagen',
             editado: 0
@@ -176,11 +202,14 @@ export const Chat = () => {
                 const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
                 const audioUrl = URL.createObjectURL(audioBlob);
 
+                const userId = currentUserId || await fetchCurrentUserId();
+                if (!userId) return;
+
                 const tempMessage: Message = {
                     id_mensaje: Date.now(),
                     contenido: audioUrl,
                     fecha_envio: new Date().toISOString(),
-                    id_user: currentUserId,
+                    id_user: userId,
                     id_chat: parseInt(id_chat),
                     tipo: 'audio',
                     editado: 0
@@ -217,6 +246,7 @@ export const Chat = () => {
         }
     };
 
+    // Cargar mensajes y ID de usuario
     useEffect(() => {
         const fetchMessages = async () => {
             try {
@@ -232,24 +262,15 @@ export const Chat = () => {
             }
         };
 
-        const fetchCurrentUserId = async () => {
-            try {
-                const id = await AuthService.getIDUser();
-                setCurrentUserId(id);
-            } catch (error) {
-                console.error("Error fetching user ID:", error);
-                setError(error instanceof Error ? error.message : "Error al cargar el ID del usuario");
-            }
-        };
+        fetchCurrentUserId().then(fetchMessages);
+    }, [id_chat, fetchCurrentUserId]);
 
-        fetchCurrentUserId();
-        fetchMessages();
-    }, [id_chat]);
-
+    // Auto-scroll al final de los mensajes
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
+    // Limpiar media recorder al desmontar
     useEffect(() => {
         return () => {
             if (mediaRecorder) {
@@ -257,6 +278,42 @@ export const Chat = () => {
             }
         };
     }, [mediaRecorder]);
+
+    // Configurar Socket.IO
+    useEffect(() => {
+        if (!socket || !id_chat || currentUserId === null) return;
+
+        socket.emit("join_chat", { chatId: id_chat });
+
+        const handleNewMessage = (message: any) => {
+            if (message.usuario !== currentUserId) {
+                setMessages(prev => [...prev, message]);
+            }
+        };
+
+        const handleUpdatedMessage = (updatedMessage: { id_mensaje: number, contenido: string }) => {
+            setMessages(prev => prev.map(msg =>
+                msg.id_mensaje === updatedMessage.id_mensaje
+                    ? { ...msg, contenido: updatedMessage.contenido, editado: 1 }
+                    : msg
+            ));
+        };
+
+        const handleDeletedMessage = ({ id_mensaje }: { id_mensaje: number }) => {
+            setMessages(prev => prev.filter(msg => msg.id_mensaje !== id_mensaje));
+        };
+
+        socket.on("new_message", handleNewMessage);
+        socket.on("updated_message", handleUpdatedMessage);
+        socket.on("deleted_message", handleDeletedMessage);
+
+        return () => {
+            socket.emit("leave_chat", { chatId: id_chat });
+            socket.off("new_message", handleNewMessage);
+            socket.off("updated_message", handleUpdatedMessage);
+            socket.off("deleted_message", handleDeletedMessage);
+        };
+    }, [socket, id_chat, currentUserId]);
 
     const formatTime = (dateString: string) => {
         const date = new Date(dateString);
@@ -355,7 +412,7 @@ export const Chat = () => {
 
                                             {isMenuOpen && (
                                                 <div
-                                                    ref={(el: any) => menuRefs.current[message.id_mensaje] = el}
+                                                    ref={(el: any) => (menuRefs.current[message.id_mensaje] = el)}
                                                     className="absolute right-0 z-20 w-32 bg-white rounded-md shadow-lg py-1 border border-gray-200"
                                                 >
                                                     {isTextMessage && (
