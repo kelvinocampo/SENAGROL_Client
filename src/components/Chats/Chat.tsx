@@ -1,7 +1,7 @@
 import { AuthService } from "@/services/AuthService";
 import { MessageService, Message } from "@/services/Chats/MessageService";
 import { useState, useEffect, useRef, useContext, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FiMoreVertical, FiX, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { ChatsContext } from "@/contexts/Chats";
 import { useSocket } from "@/hooks/UseSocket";
@@ -9,6 +9,7 @@ import { useSocket } from "@/hooks/UseSocket";
 export const Chat = () => {
     const { id_chat = "" } = useParams<{ id_chat: string }>();
     const { chats }: any = useContext(ChatsContext);
+    const navigate = useNavigate();
     const socket = useSocket("http://localhost:10101");
 
     // Estados consolidados
@@ -24,6 +25,9 @@ export const Chat = () => {
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Verificar si el chat existe
+    const chatExists = chats.find((c: any) => c.id_chat === parseInt(id_chat));
 
     // Título del chat
     const title = (() => {
@@ -166,6 +170,12 @@ export const Chat = () => {
 
     // Effects
     useEffect(() => {
+        // Verificar si el chat existe una vez que los chats estén cargados
+        if (chats.length > 0 && !chatExists) {
+            navigate('/404');
+            return;
+        }
+
         const init = async () => {
             try {
                 setLoading(true);
@@ -178,8 +188,12 @@ export const Chat = () => {
                 setLoading(false);
             }
         };
-        init();
-    }, [id_chat, getCurrentUserId]);
+
+        // Solo iniciar si el chat existe
+        if (chatExists) {
+            init();
+        }
+    }, [id_chat, chats, chatExists, navigate, getCurrentUserId]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -199,7 +213,7 @@ export const Chat = () => {
 
     // Socket
     useEffect(() => {
-        if (!socket || !id_chat || currentUserId === null) return;
+        if (!socket || !id_chat || currentUserId === null || !chatExists) return;
 
         socket.emit("join_chat", { chatId: id_chat });
 
@@ -227,7 +241,21 @@ export const Chat = () => {
             socket.off("updated_message", handleUpdatedMessage);
             socket.off("deleted_message", handleDeletedMessage);
         };
-    }, [socket, id_chat, currentUserId]);
+    }, [socket, id_chat, currentUserId, chatExists]);
+
+    // Si no hay chats cargados aún, mostrar loading
+    if (chats.length === 0) {
+        return (
+            <div className="flex flex-col w-full h-full bg-white rounded-lg shadow-md items-center justify-center">
+                <p className="text-center">Cargando chats...</p>
+            </div>
+        );
+    }
+
+    // Si el chat no existe, no renderizar nada (ya se redirigió)
+    if (!chatExists) {
+        return null;
+    }
 
     const formatTime = (date: string) => new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
