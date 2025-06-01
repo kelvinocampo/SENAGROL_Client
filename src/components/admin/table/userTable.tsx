@@ -244,6 +244,7 @@ export const UserTable = () => {
       {selectedTransporter && (
         <TransporterDetailModal
           user={selectedTransporter}
+          isOpen={isDetailOpen}     
           onClose={() => setIsDetailOpen(false)}
         />
       )}

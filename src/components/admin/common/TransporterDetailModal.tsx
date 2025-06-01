@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TransporterDetailModalProps {
   user: {
@@ -13,12 +14,18 @@ interface TransporterDetailModalProps {
 }
 
 interface TransporterData {
-  licenciaConduccion: string;
-  soatVigente: string;
-  tarjetaPropiedad: string;
-  tipoVehiculo: string;
-  pesoVehiculo: string;
-  imagenes: string[];
+  licencia_conduccion: string;
+  soat: string;
+  tarjeta_propiedad_vehiculo: string;
+  tipo_vehiculo: string;
+  peso_vehiculo: string;
+  estado_transportador: string;
+  estado_rol?: string;
+  nombre?: string;
+  email?: string;
+  telefono?: string;
+  direccion?: string;
+  imagenes?: string[];
 }
 
 export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
@@ -33,11 +40,22 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
 
     const fetchTransporterData = async () => {
       try {
-        const res = await fetch(`http://localhost:10101/transporters/${user.id}`);
+        const token = localStorage.getItem("token");
+
+        const res = await fetch(`http://localhost:10101/admin/transporters/${user.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         const data = await res.json();
-        setTransporterData(data);
+        if (data.success && data.transporter.length > 0) {
+          setTransporterData(data.transporter[0]);
+        } else {
+          setTransporterData(null);
+        }
       } catch (error) {
-        console.error("Error al cargar los datos del transportador:", error);
+        setTransporterData(null);
       } finally {
         setLoading(false);
       }
@@ -49,55 +67,62 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
   if (!user) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-      <div className="bg-white rounded-xl shadow-xl p-6 w-[400px] max-h-[90vh] overflow-auto">
-        <h2 className="text-xl font-bold mb-4">Detalles del Transportador</h2>
-
-        <div className="space-y-2">
-          <div><strong>Nombre:</strong> {user.name}</div>
-          <div><strong>Email:</strong> {user.email}</div>
-          <div><strong>Teléfono:</strong> {user.phone}</div>
-          <div><strong>Dirección:</strong> {user.address}</div>
-          <div><strong>Estado del rol:</strong> {user.transportador}</div>
-        </div>
-
-        {loading ? (
-          <div className="mt-4 text-gray-600">Cargando datos del transportador...</div>
-        ) : transporterData ? (
-          <div className="space-y-2 mt-4">
-            <div><strong>Licencia de conducción:</strong> {transporterData.licenciaConduccion}</div>
-            <div><strong>SOAT vigente:</strong> {transporterData.soatVigente}</div>
-            <div><strong>Tarjeta de propiedad del vehículo:</strong> {transporterData.tarjetaPropiedad}</div>
-            <div><strong>Tipo de vehículo:</strong> {transporterData.tipoVehiculo}</div>
-            <div><strong>Peso del vehículo:</strong> {transporterData.pesoVehiculo}</div>
-
-            {transporterData.imagenes?.length > 0 && (
-              <div>
-                <strong>Imágenes:</strong>
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {transporterData.imagenes.map((img, idx) => (
-                    <img
-                      key={idx}
-                      src={img}
-                      alt={`Imagen ${idx + 1}`}
-                      className="w-full h-auto rounded border"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="mt-4 text-red-500">No se encontraron datos del transportador.</div>
-        )}
-
-        <button
-          onClick={onClose}
-          className="mt-6 px-4 py-2 bg-[#48BD28] text-white rounded-xl hover:bg-[#379E1B] transition"
+    <AnimatePresence>
+      <motion.div
+        key="overlay"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50"
+      >
+        <motion.div
+          key="modal"
+          initial={{ opacity: 0, scale: 0.8, y: 50 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: 50 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          onClick={(e) => e.stopPropagation()}
+          className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg text-gray-900 font-sans select-none"
         >
-          Cerrar
-        </button>
-      </div>
-    </div>
+          <h2 className="text-2xl font-bold mb-6 text-green-700 text-center">
+            Detalles del Transportador
+          </h2>
+
+          {loading ? (
+            <p className="text-center text-gray-500">Cargando detalles...</p>
+          ) : !transporterData ? (
+            <p className="text-center text-red-500">No se encontraron datos del transportador.</p>
+          ) : (
+            <>
+              <p><strong>Nombre:</strong> {transporterData.nombre || 'No disponible'}</p>
+              <p><strong>Email:</strong> {transporterData.email || 'No disponible'}</p>
+              <p><strong>Teléfono:</strong> {transporterData.telefono || 'No disponible'}</p>
+              <p><strong>Dirección:</strong> {transporterData.direccion || 'No disponible'}</p>
+              <p><strong>Estado del rol:</strong> {transporterData.estado_rol || 'No disponible'}</p>
+              <p><strong>Licencia de conducción:</strong> {transporterData.licencia_conduccion || 'No disponible'}</p>
+              <p><strong>SOAT vigente:</strong> {transporterData.soat || 'No disponible'}</p>
+              <p><strong>Tarjeta de propiedad del vehículo:</strong> {transporterData.tarjeta_propiedad_vehiculo || 'No disponible'}</p>
+              <p><strong>Tipo de vehículo:</strong> {transporterData.tipo_vehiculo || 'No disponible'}</p>
+              <p><strong>Peso del vehículo:</strong> {transporterData.peso_vehiculo || 'No disponible'}</p>
+              <p>
+                <strong>Estado del transportador:</strong>{" "}
+                <span className={transporterData.estado_transportador === 'Pendiente' ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold'}>
+                  {transporterData.estado_transportador || 'No disponible'}
+                </span>
+              </p>
+            </>
+          )}
+
+          <button
+            onClick={onClose}
+            className="mt-8 w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg transition-colors duration-300"
+            aria-label="Cerrar detalles del transportador"
+          >
+            Cerrar
+          </button>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
