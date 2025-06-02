@@ -1,15 +1,32 @@
 // src/pages/RegisterForm.tsx
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate, Link} from "react-router-dom";
-import Logo from "@assets/senagrol.png";
-import Image1 from "@assets/LoginImg.jpg";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import senagrol from "@assets/senagrol.png";
+import Image1 from "@assets/co.jpg";
 import Image2 from "@assets/Travel.jpg";
-import Image3 from "@assets/co.jpg";
+import Image3 from "@assets/LoginImg.jpg";
 import { InicioService } from "@/services/Perfil/inicioServices";
 import { Input } from "@components/Input";
 
 const images = [Image1, Image2, Image3];
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      when: "beforeChildren",
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
 
 export function RegisterForm() {
   const [name, setName] = useState("");
@@ -76,96 +93,103 @@ export function RegisterForm() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    try {
-      await InicioService.register(name, username, email, password, phone, confirmPassword);
-      setMessage("Registro exitoso.");
-    } catch (error: any) {
-      setMessage(error.message || "Error al registrar.");
-    }
-  };
+  try {
+    await InicioService.register(name, username, email, password, phone, confirmPassword);
+    navigate("/login"); // Redirige sin mostrar mensaje
+  } catch (error: any) {
+    setMessage(error.message || "Error al registrar.");
+  }
+};
+
 
   return (
     <div className="h-screen w-full flex items-center justify-center bg-[#48BD28]">
       <div className="w-full max-w-8xl h-full flex flex-col md:flex-row bg-white overflow-hidden shadow-lg">
-         <div className="px-4 pt-6">
-        <Link
-          to="/inicio"
-          className="inline-flex items-center text-green-700 hover:text-green-900 font-medium"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="w-5 h-5 mr-2"
+        <div className="px-4 pt-6">
+          <Link
+            to="/inicio"
+            className="inline-flex items-center text-green-700 hover:text-green-900 font-medium"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5L8.25 12l7.5-7.5"
-            />
-          </svg>
-          Volver al inicio
-        </Link>
-      </div>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+              strokeWidth={2} stroke="currentColor" className="w-5 h-5 mr-2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+            Volver al inicio
+          </Link>
+        </div>
+
         {/* Formulario */}
         <div className="relative w-full md:w-1/2 flex items-center justify-center p-6 sm:p-10">
           <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1 shadow-md">
-            <img src={Logo} className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover" />
+            <img src={senagrol} className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover" />
           </div>
 
-          <div className="w-full max-w-[450px] mt-20 md:mt-0">
+          <motion.div
+            className="w-full max-w-[450px] mt-20 md:mt-0"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             <div className="flex justify-between mb-6 border-b border-gray-300 pb-2 text-sm sm:text-base">
-              <span
+              <motion.span
                 onClick={() => navigate("/login")}
                 className="text-gray-400 cursor-pointer hover:text-black"
+                whileHover={{ scale: 1.1, color: "#000000" }}
+                transition={{ duration: 0.2 }}
               >
                 Login
-              </span>
+              </motion.span>
               <span className="text-black font-semibold border-b-2 border-[#48BD28] pb-1">
                 Registro
               </span>
             </div>
 
-            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-              <Input
-                name="name" 
-                label="Nombre de usuario"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                error={errors.username}
-              />
+            <motion.form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+              <motion.div variants={fadeInUp}>
+                <Input
+                  name="name"
+                  label="Nombre de usuario"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  error={errors.username}
+                />
+              </motion.div>
 
-              <Input
-                name="email"
-                label="Correo electrónico"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                error={errors.email}
-              />
+              <motion.div variants={fadeInUp}>
+                <Input
+                  name="email"
+                  label="Correo electrónico"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  error={errors.email}
+                />
+              </motion.div>
 
-              <Input  
-                name="nombre completo"
-                label="Nombre completo"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                error={errors.name}
-              />
+              <motion.div variants={fadeInUp}>
+                <Input
+                  name="nombre completo"
+                  label="Nombre completo"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  error={errors.name}
+                />
+              </motion.div>
 
-              <Input
-                name="phone"
-                label="Teléfono"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                error={errors.phone}
-              />
+              <motion.div variants={fadeInUp}>
+                <Input
+                  name="phone"
+                  label="Teléfono"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  error={errors.phone}
+                />
+              </motion.div>
 
-              <div className="relative">
+              <motion.div variants={fadeInUp} className="relative">
                 <Input
                   name="password"
                   label="Contraseña"
@@ -174,7 +198,8 @@ export function RegisterForm() {
                   onChange={handlePasswordChange}
                   error={errors.password}
                 />
-                <span className="absolute right-3 top-[38px] cursor-pointer text-gray-400" onClick={() => setShowPassword(!showPassword)}>
+                <span className="absolute right-3 top-[38px] cursor-pointer text-gray-400"
+                  onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </span>
                 <div className="w-full bg-gray-200 h-2 rounded mt-1">
@@ -184,9 +209,9 @@ export function RegisterForm() {
                   ></div>
                 </div>
                 <p className="text-xs text-green-600 mt-1">Usa mínimo 8 caracteres, una mayúscula y un símbolo.</p>
-              </div>
+              </motion.div>
 
-              <div className="relative">
+              <motion.div variants={fadeInUp} className="relative">
                 <Input
                   name="confirmPassword"
                   label="Confirmar contraseña"
@@ -195,25 +220,33 @@ export function RegisterForm() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   error={errors.confirmPassword}
                 />
-                <span className="absolute right-3 top-[38px] cursor-pointer text-gray-400" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                <span className="absolute right-3 top-[38px] cursor-pointer text-gray-400"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </span>
-              </div>
+              </motion.div>
 
               {message && (
-                <p className={`text-sm font-medium ${message.includes("exitoso") ? "text-green-600" : "text-red-600"}`}>
+                <motion.p
+                  variants={fadeInUp}
+                  className={`text-sm font-medium ${message.includes("exitoso") ? "text-green-600" : "text-red-600"}`}
+                >
                   {message}
-                </p>
+                </motion.p>
               )}
 
-              <button
+              <motion.button
                 type="submit"
-                className="bg-[#48BD28] text-white font-bold py-2 px-4 rounded-md hover:bg-[#379E1B] transition duration-200"
+                className="bg-[#48BD28] text-white font-bold py-2 px-4 rounded-md hover:bg-[#379E1B]"
+                variants={fadeInUp}
+                whileHover={{ scale: 1.03, boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.2)" }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ duration: 0.2 }}
               >
                 Registrarse
-              </button>
-            </form>
-          </div>
+              </motion.button>
+            </motion.form>
+          </motion.div>
         </div>
 
         {/* Imagen del slider */}
