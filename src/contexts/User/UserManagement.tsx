@@ -28,7 +28,7 @@ export const RecoverPasswordProvider = ({ children }: { children: React.ReactNod
       }
     } catch (err) {
       console.error('Error al recuperar la contraseña:', err);
-      setError('Error de conexión con el servidor');
+      setError('No se pudo enviar el correo o el correo no existe.');
     }
   };
 
