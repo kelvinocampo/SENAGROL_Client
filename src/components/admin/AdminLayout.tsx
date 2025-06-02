@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { AdminMenu } from "@/components/admin/AdminMenu";
 import { UserTable } from "@/components/admin/table/userTable";
 import { BarChartRoles } from "@/components/admin/graphics/BargraphUsers";
@@ -13,11 +14,17 @@ import { BarChartSalesByMonth } from "@components/admin/graphics/BargraphSales";
 import { PieChartSalesByMonth } from "@components/admin/graphics/PieChartSales";
 import { LineChartSalesByMonth } from "@components/admin/graphics/LineChartSalesByMonth";
 
-// Función para validar la vista almacenada
 const getValidActiveView = (): string => {
   const validViews = ["dashboard", "usuarios", "productos", "ventas"];
   const storedView = localStorage.getItem("adminActiveView");
   return validViews.includes(storedView || "") ? storedView! : "usuarios";
+};
+
+// Animación base
+const fadeUp = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 }
 };
 
 export const AdminLayout = () => {
@@ -30,100 +37,98 @@ export const AdminLayout = () => {
 
   const views: Record<string, React.ReactElement> = {
     dashboard: (
-      <section className="text-center mt-10">
+      <motion.section {...fadeUp} className="text-center mt-10">
         <h2 className="text-xl font-semibold">
           Dashboard principal (por implementar)
         </h2>
-      </section>
+      </motion.section>
     ),
 
     usuarios: (
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <h1 className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
+      <motion.section {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.h1 {...fadeUp} className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
           Dashboard Usuarios
-        </h1>
-        <div className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
+        </motion.h1>
+        <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
           <h2 className="text-xl font-semibold mb-3 text-center md:text-left">
             Gráfica de Barras de Usuarios
           </h2>
           <BarChartRoles />
-        </div>
-        <div className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
+        </motion.div>
+        <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
           <h2 className="text-xl font-semibold mb-2 text-center md:text-left">
             Gráfica Circular de Usuarios
           </h2>
           <PieChartRoles />
-        </div>
-        <div className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
+        </motion.div>
+        <motion.div {...fadeUp} className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
           <h1 className="text-2xl font-bold mb-2 text-center md:text-left">
             Usuarios
           </h1>
           <UserTable />
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
     ),
 
     productos: (
       <ProductManagementProvider>
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <h1 className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
+        <motion.section {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.h1 {...fadeUp} className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
             Dashboard Productos
-          </h1>
-          <div className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
+          </motion.h1>
+          <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
             <h2 className="text-xl font-semibold mb-2 text-center md:text-left">
               Gráfica de Barras de Productos
             </h2>
             <BarChartProductsByMonth />
-          </div>
-          <div className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
+          </motion.div>
+          <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
             <h2 className="text-xl font-semibold mb-2 text-center md:text-left">
               Gráfica Circular de Productos
             </h2>
             <PieChartProductsByMonth />
-          </div>
-          <div className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
+          </motion.div>
+          <motion.div {...fadeUp} className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
             <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
               Productos
             </h2>
             <ProductTable />
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
       </ProductManagementProvider>
     ),
 
     ventas: (
       <SalesManagementProvider>
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <h1 className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
+        <motion.section {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.h1 {...fadeUp} className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
             Dashboard Ventas
-          </h1>
-          <div className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
+          </motion.h1>
+          <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
             <h2 className="text-xl font-semibold mb-2 text-center md:text-left">
               Gráfica de Barras de Ventas
             </h2>
             <BarChartSalesByMonth />
-          </div>
-          <div className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
+          </motion.div>
+          <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
             <h2 className="text-xl font-semibold mb-2 text-center md:text-left">
               Gráfica Circular de Ventas
             </h2>
             <PieChartSalesByMonth />
-          </div>
-           <div className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
+          </motion.div>
+          <motion.div {...fadeUp} className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
             <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
-              Grafica combinada
+              Gráfica combinada
             </h2>
             <LineChartSalesByMonth />
-          </div>
-          <div className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
+          </motion.div>
+          <motion.div {...fadeUp} className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
             <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
               Ventas
             </h2>
             <SalesTable />
-          </div>
-          
-        </section>
-        
+          </motion.div>
+        </motion.section>
       </SalesManagementProvider>
     ),
   };
@@ -140,11 +145,18 @@ export const AdminLayout = () => {
           menuOpen ? "md:ml-64" : ""
         }`}
       >
-        {views[activeView] || (
-          <div className="text-center mt-10">
-            Seleccione una opción del menú
-          </div>
-        )}
+        <motion.div
+          key={activeView}
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {views[activeView] || (
+            <div className="text-center mt-10">
+              Seleccione una opción del menú
+            </div>
+          )}
+        </motion.div>
       </main>
     </div>
   );

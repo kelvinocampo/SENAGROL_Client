@@ -11,6 +11,7 @@ interface TransporterDetailModalProps {
     transportador: string;
   };
   onClose: () => void;
+  isOpen: boolean;
 }
 
 interface TransporterData {
@@ -25,28 +26,33 @@ interface TransporterData {
   email?: string;
   telefono?: string;
   direccion?: string;
-  imagenes?: string[];
+  fotos_vehiculo?: string; // CAMBIO: de "imagenes" a "fotos_vehiculo"
 }
 
 export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
   user,
   onClose,
+  isOpen,
 }) => {
-  const [transporterData, setTransporterData] = useState<TransporterData | null>(null);
+  const [transporterData, setTransporterData] =
+    useState<TransporterData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !isOpen) return;
 
     const fetchTransporterData = async () => {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await fetch(`http://localhost:10101/admin/transporters/${user.id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `http://localhost:10101/admin/transporters/${user.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         const data = await res.json();
         if (data.success && data.transporter.length > 0) {
@@ -62,9 +68,9 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
     };
 
     fetchTransporterData();
-  }, [user?.id]);
+  }, [user?.id, isOpen]);
 
-  if (!user) return null;
+  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
@@ -92,25 +98,62 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
           {loading ? (
             <p className="text-center text-gray-500">Cargando detalles...</p>
           ) : !transporterData ? (
-            <p className="text-center text-red-500">No se encontraron datos del transportador.</p>
+            <p className="text-center text-red-500">
+              No se encontraron datos del transportador.
+            </p>
           ) : (
             <>
-              <p><strong>Nombre:</strong> {transporterData.nombre || 'No disponible'}</p>
-              <p><strong>Email:</strong> {transporterData.email || 'No disponible'}</p>
-              <p><strong>Teléfono:</strong> {transporterData.telefono || 'No disponible'}</p>
-              <p><strong>Dirección:</strong> {transporterData.direccion || 'No disponible'}</p>
-              <p><strong>Estado del rol:</strong> {transporterData.estado_rol || 'No disponible'}</p>
-              <p><strong>Licencia de conducción:</strong> {transporterData.licencia_conduccion || 'No disponible'}</p>
-              <p><strong>SOAT vigente:</strong> {transporterData.soat || 'No disponible'}</p>
-              <p><strong>Tarjeta de propiedad del vehículo:</strong> {transporterData.tarjeta_propiedad_vehiculo || 'No disponible'}</p>
-              <p><strong>Tipo de vehículo:</strong> {transporterData.tipo_vehiculo || 'No disponible'}</p>
-              <p><strong>Peso del vehículo:</strong> {transporterData.peso_vehiculo || 'No disponible'}</p>
+              <p>
+                <strong>Nombre:</strong>{" "}
+                {transporterData.nombre || "No disponible"}
+              </p>
+              <p>
+                <strong>Licencia de conducción:</strong>{" "}
+                {transporterData.licencia_conduccion || "No disponible"}
+              </p>
+              <p>
+                <strong>SOAT vigente:</strong>{" "}
+                {transporterData.soat || "No disponible"}
+              </p>
+              <p>
+                <strong>Tarjeta de propiedad del vehículo:</strong>{" "}
+                {transporterData.tarjeta_propiedad_vehiculo || "No disponible"}
+              </p>
+              <p>
+                <strong>Tipo de vehículo:</strong>{" "}
+                {transporterData.tipo_vehiculo || "No disponible"}
+              </p>
+              <p>
+                <strong>Peso del vehículo:</strong>{" "}
+                {transporterData.peso_vehiculo || "No disponible"}
+              </p>
               <p>
                 <strong>Estado del transportador:</strong>{" "}
-                <span className={transporterData.estado_transportador === 'Pendiente' ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold'}>
-                  {transporterData.estado_transportador || 'No disponible'}
+                <span
+                  className={
+                    transporterData.estado_transportador === "Pendiente"
+                      ? "text-red-600 font-semibold"
+                      : "text-green-600 font-semibold"
+                  }
+                >
+                  {transporterData.estado_transportador || "No disponible"}
                 </span>
               </p>
+
+              {transporterData.fotos_vehiculo ? (
+                <div className="mt-4">
+                  <p className="font-semibold">Imagen del vehículo:</p>
+                  <img
+                    src={transporterData.fotos_vehiculo}
+                    alt="Imagen del vehículo"
+                    className="w-full h-64 object-cover rounded-lg border mt-2"
+                  />
+                </div>
+              ) : (
+                <p className="mt-4 text-gray-500">
+                  No hay imagen del vehículo disponible.
+                </p>
+              )}
             </>
           )}
 
