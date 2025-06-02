@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import senagrol from "@assets/senagrol.png";
-import Image1 from "@assets/Fotos de Cafe - Descarga fotos gratis de gran calidad _ Freepik.jpg";
+import Image1 from "@assets/LoginImg.jpg";
 import Image2 from "@assets/Travel.jpg";
-import Image3 from "@assets/🇨🇴.jpg";
+import Image3 from "@assets/co.jpg";
 import { InicioService } from "@/services/Perfil/inicioServices";
 import { Input } from "@components/Input";
 import { Paragraph } from "@/components/Inicio/Paragraph";
