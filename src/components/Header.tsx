@@ -53,7 +53,7 @@ const Header = () => {
     localStorage.clear();
     setUser({ isLoggedIn: false, role: null });
     setShowLogoutConfirm(false);
-    navigate("/inicio");
+    navigate("/");
   };
 
   const cancelLogout = () => setShowLogoutConfirm(false);
@@ -119,7 +119,7 @@ const Header = () => {
     ),
     administrador: <Link to="/admin" className={linkClass}>Administrador</Link>,
     misProductos: <Link to="/MisProductos" className={linkClass}>Mis productos</Link>,
-    inicio: <Link to="/inicio" className={linkClass}>Inicio</Link>,
+    inicio: <Link to="/" className={linkClass}>Inicio</Link>,
   };
 
   // Botón de logout

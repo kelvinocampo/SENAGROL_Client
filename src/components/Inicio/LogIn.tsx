@@ -54,7 +54,7 @@ export const LoginForm = () => {
     try {
       const data = await InicioService.login(identifier, password);
       localStorage.setItem("token", data.token);
-      navigate("/inicio");
+      navigate("/");
     } catch (err: any) {
       setError(err.message);
     } finally {
