@@ -4,7 +4,7 @@ import { FaEdit } from "react-icons/fa";
 import Header from "@/components/Header";
 import PeticionVendedor from "@components/perfil/PeticionVendedor";
 import perfilImg from "@assets/sin_foto.jpg";
-import Footer from "@/components/Footer";
+import Footer from "@components/footer";
 import { obtenerPerfilUsuario } from "@/services/Perfil/PerfilusuarioServices";
 import { updateUserProfile } from "@/services/Perfil/EditProfileService";
 

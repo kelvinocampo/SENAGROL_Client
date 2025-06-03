@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getCodigoCompra } from "@/services/QrServices";
 import Header from "../Header";
-import Footer from "@components/Footer";
+import Footer from "@components/footer";
 import imagen from "../../assets/sin_foto.jpg";
 
 const CodeGenerator = () => {

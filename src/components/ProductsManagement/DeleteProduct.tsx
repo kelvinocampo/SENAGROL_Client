@@ -3,7 +3,7 @@ import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { useParams, useNavigate } from "react-router-dom";
 import { ProductManagementContext } from "@/contexts/ProductsManagement";
 import { useContext } from "react";
-import Footer from "@components/Footer";
+import Footer from "@components/footer";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const DeleteProduct = () => {

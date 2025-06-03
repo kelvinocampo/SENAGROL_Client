@@ -1,5 +1,5 @@
 import Header from "@components/Header";
-import Footer from "@components/Footer";
+import Footer from "@components/footer";
 import UserLayout from '@components/perfil/PerfilIzquierdo';
 import CodeGenerator from "@components/perfil/CodigoComprador";
 

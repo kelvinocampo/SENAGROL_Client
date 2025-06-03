@@ -6,7 +6,7 @@ import { getUserRole } from "@/services/Perfil/authService";
 import Header from "@components/Header";
 import { motion } from "framer-motion";
 import { GiCoffeeBeans } from "react-icons/gi";
-import Footer from "@/components/Footer";
+import Footer from "@components/footer";
 import FloatingIcon from "@/components/Inicio/FloatingIcon";
 import senagrol from "@assets/senagrol.png";
 

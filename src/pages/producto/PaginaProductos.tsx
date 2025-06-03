@@ -9,7 +9,7 @@ import Header from "@components/Header";
 import CompraModal from "@components/admin/common/BuyModal";
 import FloatingIcon from "@/components/Inicio/FloatingIcon";
 import FallingLeaves from "@/components/FallingLeaf";
-import Footer from "@/components/Footer";
+import Footer from "@components/footer";
 import senagrol from "@assets/senagrol.png";
 
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";

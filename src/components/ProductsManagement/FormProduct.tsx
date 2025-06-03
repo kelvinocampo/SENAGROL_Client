@@ -4,7 +4,7 @@ import { ProductManagementContext } from "@/contexts/ProductsManagement";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { LocationPicker } from "@/components/ProductsManagement/LocationPicker";
 import { Input } from "@/components/Input";
-import Footer from "@components/Footer";
+import Footer from "@components/footer";
 
 import { motion } from "framer-motion";
 

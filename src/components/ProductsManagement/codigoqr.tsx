@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { getCodigoCompra } from "@/services/QrServices";
 import { QRCodeCanvas } from "qrcode.react";
 import Header from "../Header";
-import Footer from "@components/Footer";
+import Footer from "@components/footer";
 import imagen from "../../assets/sin_foto.jpg";
 import { motion } from "framer-motion";
 

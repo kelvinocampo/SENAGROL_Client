@@ -1,7 +1,7 @@
 import Header from '@components/Header';
 import UserLayout from '@components/perfil/PerfilIzquierdo';
 import TransportesContenido from '@components/perfil/ListarMisTransportes';
-import Footer from '@/components/Footer';
+import Footer from "@components/footer";
 
 
 const MisTransportes = () => {

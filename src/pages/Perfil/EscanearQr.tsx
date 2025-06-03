@@ -1,6 +1,6 @@
 import Header from '@components/Header';
 import UserLayout from '@components/perfil/PerfilIzquierdo';
-import Footer from '@/components/Footer';
+import Footer from "@components/footer";
 import QrScanner from '@components/perfil/EscanearQr';
 
 
