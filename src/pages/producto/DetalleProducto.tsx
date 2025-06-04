@@ -32,6 +32,15 @@ export default function DetalleProducto() {
     setMensajeNoPermitido(false);
   };
 
+  const handleConversarConVendedor = () => {
+    if (!producto?.id_vendedor) {
+      // Opcional: mostrar alerta o mensaje de error
+      console.warn("No se encontró el ID del vendedor");
+      return;
+    }
+    navigate(`/Chats/${producto.id_vendedor}`);
+  };
+
   const handleConfirmarCompra = (cantidad: number, ubicacion: string) => {
     console.log("Cantidad comprada:", cantidad);
     console.log("Ubicación:", ubicacion);
@@ -206,7 +215,7 @@ export default function DetalleProducto() {
               <button
                 onClick={handleComprar}
                 className={`${
-                  (userRole !== "comprador" || userRole == null)
+                  userRole !== "comprador" || userRole == null
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#48BD28] hover:bg-green-600"
                 } w-full text-white font-medium px-6 py-2 rounded transition duration-300`}
@@ -214,7 +223,10 @@ export default function DetalleProducto() {
                 Comprar
               </button>
 
-              <button className="w-full bg-gray-200 text-gray-800 font-medium px-6 py-2 rounded hover:bg-gray-300 transition">
+              <button
+                onClick={handleConversarConVendedor}
+                className="w-full bg-gray-200 text-gray-800 font-medium px-6 py-2 rounded hover:bg-gray-300 transition"
+              >
                 Conversar con el vendedor
               </button>
             </motion.div>

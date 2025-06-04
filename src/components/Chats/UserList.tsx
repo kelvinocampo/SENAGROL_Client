@@ -29,6 +29,7 @@ export const UserList = () => {
     try {
       setActionError(null);
       const { chat } = await ChatService.getChat(id_user2);
+      console.log("Chat recibido:", chat);
       navigate(`/Chats/${chat}`);
     } catch (err) {
       console.error("Error al obtener el chat:", err);

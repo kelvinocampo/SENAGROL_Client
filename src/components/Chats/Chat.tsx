@@ -2,7 +2,7 @@ import { AuthService } from "@/services/AuthService";
 import { MessageService, Message } from "@/services/Chats/MessageService";
 import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FiMoreVertical, FiX, FiEdit2, FiTrash2, FiSend, FiCamera, FiMic } from "react-icons/fi";
+import { FiMoreVertical, FiEdit2, FiTrash2, FiSend, FiCamera, FiMic } from "react-icons/fi";
 import { ChatsContext } from "@/contexts/Chats";
 import { useSocket } from "@/hooks/UseSocket";
 
@@ -30,12 +30,18 @@ export const Chat = () => {
   const chatExists = chats.find((c: any) => c.id_chat === parseInt(id_chat));
 
   // Título del chat
-  const title = (() => {
-    const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
-    if (!chat || !currentUserId) return "Chat";
-    const isUser1 = chat.id_user1 === currentUserId;
-    return isUser1 ? chat.nombre_user2 : chat.nombre_user1;
-  })();
+const title = (() => {
+  const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
+  if (!chat || !currentUserId) return "Chat";
+
+  const isUser1 = chat.id_user1 === currentUserId;
+  const nombre = isUser1 ? chat.nombre_user2 : chat.nombre_user1;
+  const rol = isUser1 ? chat.rol_user2 : chat.rol_user1;
+
+  return `${nombre} (${rol})`;
+})();
+
+
 
   // Utilidades
   const showError = (err: any, msg: string) => {
