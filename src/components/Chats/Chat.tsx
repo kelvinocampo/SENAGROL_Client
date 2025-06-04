@@ -8,7 +8,7 @@ import { useSocket } from "@/hooks/UseSocket";
 
 export const Chat = () => {
   const { id_chat = "" } = useParams<{ id_chat: string }>();
-  const { chats }: any = useContext(ChatsContext);
+  const { chats, loading: chatsLoading }: any = useContext(ChatsContext);
   const navigate = useNavigate();
   const socket = useSocket("http://localhost:10101");
 
@@ -27,21 +27,21 @@ export const Chat = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Verificar si el chat existe
-  const chatExists = chats.find((c: any) => c.id_chat === parseInt(id_chat));
+  const [chatExists, setChatExists] = useState<boolean | null>(null);
 
   // Título del chat
-const title = (() => {
-  const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
-  if (!chat || !currentUserId) return "Chat";
+  const title = (() => {
+    if (chatExists === false) return "Chat no encontrado";
 
-  const isUser1 = chat.id_user1 === currentUserId;
-  const nombre = isUser1 ? chat.nombre_user2 : chat.nombre_user1;
-  const rol = isUser1 ? chat.rol_user2 : chat.rol_user1;
+    const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
+    if (!chat || !currentUserId) return "Chat";
 
-  return `${nombre} (${rol})`;
-})();
+    const isUser1 = chat.id_user1 === currentUserId;
+    const nombre = isUser1 ? chat.nombre_user2 : chat.nombre_user1;
+    const rol = isUser1 ? chat.rol_user2 : chat.rol_user1;
 
-
+    return `${nombre} (${rol})`;
+  })();
 
   // Utilidades
   const showError = (err: any, msg: string) => {
@@ -187,11 +187,17 @@ const title = (() => {
 
   // Effects
   useEffect(() => {
-    // Verificar si el chat existe una vez que los chats estén cargados
-    if (chats.length > 0 && !chatExists) {
+    // Verificar si el chat existe
+    if (chatsLoading) return;
+
+    const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
+    if (!chat) {
+      setChatExists(false);
       navigate("/404");
       return;
     }
+
+    setChatExists(true);
 
     const init = async () => {
       try {
@@ -206,11 +212,8 @@ const title = (() => {
       }
     };
 
-    // Solo iniciar si el chat existe
-    if (chatExists) {
-      init();
-    }
-  }, [id_chat, chats, chatExists, navigate, getCurrentUserId]);
+    init();
+  }, [id_chat, chats, chatsLoading, navigate, getCurrentUserId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -235,7 +238,7 @@ const title = (() => {
 
   // Socket
   useEffect(() => {
-    if (!socket || !id_chat || currentUserId === null || !chatExists) return;
+    if (!socket || !id_chat || currentUserId === null || chatExists !== true) return;
 
     socket.emit("join_chat", { chatId: id_chat });
 
@@ -265,22 +268,31 @@ const title = (() => {
     };
   }, [socket, id_chat, currentUserId, chatExists]);
 
-  if (!chatExists) {
+  if (chatExists === null || chatsLoading) {
     return (
-      <div className="p-4 text-center text-red-600">
-        Chat no encontrado.
+      <div className="flex items-center justify-center h-full">
+        <div className="p-4 text-center text-gray-600">
+          Cargando chat...
+        </div>
+      </div>
+    );
+  }
+
+  if (chatExists === false) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="p-4 text-center text-red-600">
+          Chat no encontrado. Redirigiendo...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto bg-white shadow rounded">
-      {/* Header */}
+    <div className="flex flex-col h-screen w-4xl mx-auto bg-white shadow rounded">
       <header className="flex items-center justify-between p-4 border-b border-gray-200">
         <h2 className="text-xl font-semibold truncate">{title}</h2>
       </header>
-
-      {/* Messages */}
       <main className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
         {loading && <p className="text-center text-gray-500">Cargando mensajes...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
@@ -339,15 +351,18 @@ const title = (() => {
                         data-menu={msg.id_mensaje}
                         className="absolute top-6 right-1 text-black bg-white border border-gray-300 rounded shadow-md z-10"
                       >
-                        <button
-                          onClick={() => {
-                            setEditing({ id: msg.id_mensaje, content: msg.contenido });
-                            setOpenMenu(null);
-                          }}
-                          className="flex items-center px-3 py-1 hover:bg-gray-100 w-full text-left"
-                        >
-                          <FiEdit2 className="mr-2" /> Editar
-                        </button>
+                        {msg.tipo === "texto" && (
+                          <button
+                            onClick={() => {
+                              setEditing({ id: msg.id_mensaje, content: msg.contenido });
+                              setOpenMenu(null);
+                            }}
+                            className="flex items-center px-3 py-1 hover:bg-gray-100 w-full text-left"
+                          >
+                            <FiEdit2 className="mr-2" /> Editar
+                          </button>
+                        )}
+
                         <button
                           onClick={() => deleteMessage(msg.id_mensaje)}
                           className="flex items-center px-3 py-1 hover:bg-gray-100 w-full text-left text-red-600"
@@ -435,9 +450,8 @@ const title = (() => {
             type="button"
             onClick={toggleRecording}
             aria-label={recording ? "Detener grabación" : "Grabar audio"}
-            className={`p-2 rounded ${
-              recording ? "bg-red-500 text-white" : "hover:bg-gray-200"
-            }`}
+            className={`p-2 rounded ${recording ? "bg-red-500 text-white" : "hover:bg-gray-200"
+              }`}
           >
             <FiMic size={20} />
           </button>

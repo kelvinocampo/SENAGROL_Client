@@ -66,7 +66,7 @@ const Header = () => {
 
   // Links comunes según roles y estado
   const commonLinks = {
-    chatIA: <Link to="/IA" className={linkClass}>Chat IA</Link>,
+    chatIA: <Link to="/IA" className={linkClass}>Asistente IA</Link>,
     chats: <Link to="/chats" className={linkClass}>Chats</Link>,
     login: <Link to="/login" className={linkClass}>Ingresar</Link>,
     perfil: (
@@ -105,10 +105,12 @@ const Header = () => {
                   📦 Mis transportes
                 </Link>
               )}
-              {/* Este enlace parecía estar mal, debe ser dinámico o fijo, aquí fijo para ejemplo */}
-              <Link to="/transportadores" className="block px-4 py-2 hover:bg-[#E4FBDD] transition-colors" role="menuitem">
-                🚚 Transportadores
-              </Link>
+              {user.role === "comprador" && (
+                <Link to="/transportadores" className="block px-4 py-2 hover:bg-[#E4FBDD] transition-colors" role="menuitem">
+                  🚚 Transportadores
+                </Link>
+              )}
+
               <Link to="/perfil" className="block px-4 py-2 hover:bg-[#E4FBDD] transition-colors rounded-b-lg" role="menuitem">
                 Perfil
               </Link>

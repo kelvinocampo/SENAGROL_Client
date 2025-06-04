@@ -70,7 +70,7 @@ export const ChatsList = () => {
     };
 
     const getOtherUser = (chat: any) => {
-        const isUser1 = chat.id_user1 === currentUserId; 
+        const isUser1 = chat.id_user1 === currentUserId;
         return {
             name: isUser1 ? chat.nombre_user2 : chat.nombre_user1,
             isBlocked: isUser1 ? chat.bloqueado_user2 : chat.bloqueado_user1,
@@ -121,7 +121,7 @@ export const ChatsList = () => {
             <div className="p-4 border-b border-gray-400 bg-white z-10">
                 <h2 className="text-xl font-semibold text-gray-800">Tus Conversaciones</h2>
             </div>
-            
+
             {isLoading ? (
                 <div className="p-4 space-y-4">
                     {[...Array(5)].map((_, i) => (
@@ -145,8 +145,8 @@ export const ChatsList = () => {
                         return (
                             <div
                                 key={chat.id_chat}
-                                onClick={() => handleClickChat(chat.id_chat)}
                                 className="p-4 border-b border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer relative"
+                                onClick={() => handleClickChat(chat.id_chat)}
                             >
                                 <div className="flex justify-between items-center gap-2">
                                     <div className="min-w-0 flex-1">
@@ -169,10 +169,14 @@ export const ChatsList = () => {
                                                 {formatDate(chat.fecha_reciente)}
                                             </span>
                                         </div>
+
                                         <div
                                             data-menu-button={chat.id_chat}
                                             className={`flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-300 transition-colors ${isMenuOpen ? 'bg-gray-300' : 'bg-gray-200'}`}
-                                            onClick={(e) => toggleMenu(chat.id_chat, e)}
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // ✅ Importante: evita seleccionar el chat
+                                                toggleMenu(chat.id_chat, e);
+                                            }}
                                         >
                                             {isMenuOpen ? (
                                                 <FiX className="text-gray-700" />
@@ -187,6 +191,7 @@ export const ChatsList = () => {
                                     <div
                                         ref={menuRef}
                                         className="absolute right-4 top-16 z-20 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-200"
+                                        onClick={(e) => e.stopPropagation()} // ✅ Evita que el clic en el menú cierre o seleccione el chat
                                     >
                                         <button
                                             onClick={(e) => handleBlockChat(chat.id_chat, isBlocked, e)}
@@ -206,6 +211,7 @@ export const ChatsList = () => {
                         );
                     })}
                 </div>
+
             )}
         </div>
     );
