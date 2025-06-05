@@ -1,5 +1,4 @@
 export const updateUserProfile = async (formData: {
-  id_user: number | string;
   name: string;
   username: string;
   email: string;
@@ -10,7 +9,7 @@ export const updateUserProfile = async (formData: {
   vehicleCard?: string;
   vehicleType?: string;
   vehicleWeight?: number;
-  roles: string;
+  roles: string[]; 
 }) => {
   try {
     const token = localStorage.getItem("token");
@@ -24,8 +23,10 @@ export const updateUserProfile = async (formData: {
       },
       body: JSON.stringify(formData),
     });
-
+    console.log("Respuesta del servidor:", response);
+    
     const data = await response.json();
+    console.log("Datos enviados a backend:", formData, response, data);
 
     if (!response.ok) {
       throw new Error(data.message || data.error || "Error al actualizar el perfil.");

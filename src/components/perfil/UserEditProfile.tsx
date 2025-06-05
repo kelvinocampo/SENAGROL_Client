@@ -38,7 +38,7 @@ function PerfilUsuarioUnico() {
       if (!token) return;
 
       const data = await obtenerPerfilUsuario(token);
-      console.log("Datos recibidos desde backend:", data); // <---- Aquí
+      console.log("Datos recibidos desde backend:", data); 
 
       if (data && data[0]) {
        setFormData({

@@ -9,16 +9,17 @@ export async function requestTransporter(
   images: File[],
   token: string
 ) {
-  const formDataToSend = new FormData();
-  formDataToSend.append("license", formData.license);
-  formDataToSend.append("soat", formData.soat);
-  formDataToSend.append("vehicleCard", formData.vehicleCard);
-  formDataToSend.append("vehicleType", formData.vehicleType);
-  formDataToSend.append("vehicleWeight", formData.vehicleWeight);
+  const formDataToSend = new FormData()
+  formDataToSend.append("license", formData.license)
+  formDataToSend.append("soat", formData.soat)
+  formDataToSend.append("vehicleCard", formData.vehicleCard)
+  formDataToSend.append("vehicleType", formData.vehicleType)
+  formDataToSend.append("vehicleWeight", formData.vehicleWeight)
 
+  // 🔑 Usa EL MISMO nombre que espera Multer en el backend:
   images.forEach((file) => {
-    formDataToSend.append("imagen", file);
-  });
+    formDataToSend.append("imagen", file)
+  })
 
   const response = await fetch(
     "http://localhost:10101/transportador/requestTransporter",
@@ -29,13 +30,11 @@ export async function requestTransporter(
       },
       body: formDataToSend,
     }
-  );
+  )
 
-  const data = await response.json();
-
+  const data = await response.json()
   if (!response.ok) {
-    throw new Error(data.message || "Error al enviar el formulario");
+    throw new Error(data.message || "Error al enviar el formulario")
   }
-
-  return data;
+  return data
 }

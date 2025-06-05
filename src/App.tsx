@@ -26,6 +26,8 @@ import QrView from "@components/ProductsManagement/codigoqr";
 import CodeGenerator from "@components/ProductsManagement/codigounico";
 import { IA } from "@pages/IA";
 import Transportadores from "@/pages/Perfil/ListaTransportadores";
+
+import UbicacionCompra from "@/pages/Perfil/UbicacionCompra";
 import { Chats } from "./pages/Chats/Chats";
 
 function App() {
@@ -70,12 +72,8 @@ function App() {
 
           {<Route path="/perfil" element={<PerfilUsuarioUnico />} />}
           {<Route path="/miscompras" element={<MyPurchasesPage />} />}
-          {
-            <Route
-              path="/formulariotransportador"
-              element={<FormularioTransporte />}
-            />
-          }
+          {<Route path="/formulariotransportador" element={<FormularioTransporte />} />}
+
 
           <Route path="/compra/:id_compra/qr" element={<QRCompras />} />
           <Route path="/compra/:id_compra/codigo" element={<CodigoCompras />} />
@@ -94,6 +92,8 @@ function App() {
           <Route path="/transporte/:id_compra" element={<Transportadores />} />
 
           <Route path="/chats/*" element={<Chats />} />
+          <Route path="/ubicacion/:id" element={<UbicacionCompra />} />
+
         </Routes>
       </DiscountedProductProvider>
     </BrowserRouter>
