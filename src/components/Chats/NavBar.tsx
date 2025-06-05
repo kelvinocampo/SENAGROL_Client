@@ -5,8 +5,8 @@ export const NavBarChats = () => {
     const location = useLocation();
 
     const links = [
-        { path: "/Chats", label: "Chats" },
-        { path: "/Chats/Usuarios", label: "Usuarios" }
+        { path: "/chats", label: "Chats" },
+        { path: "/chats/Usuarios", label: "Usuarios" }
     ];
 
     return (

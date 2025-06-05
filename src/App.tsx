@@ -28,9 +28,7 @@ import { IA } from "@pages/IA";
 import Transportadores from "@/pages/Perfil/ListaTransportadores";
 import { Chats } from "./pages/Chats/Chats";
 
-
 function App() {
-
   return (
     <BrowserRouter>
       <DiscountedProductProvider>
@@ -39,13 +37,16 @@ function App() {
           <Route path="/producto/:id" element={<DetalleProducto />} />
           <Route path="/Login" element={<InicioManual />} />
           <Route path="/EnviarCorreo" element={<EnviarCorreo />} />
-          <Route path="/RecuperarContraseña" element={<ActulizarContraseña />} />
-          <Route path="/QuienesSomos" element={<QuienesSomos />} />
-          <Route path="/PoliticasPrivacidad" element={<PoliticasPrivacidad />} />
           <Route
-            path="/Register"
-            element={<RegisterForm />}
+            path="/RecuperarContraseña"
+            element={<ActulizarContraseña />}
           />
+          <Route path="/QuienesSomos" element={<QuienesSomos />} />
+          <Route
+            path="/PoliticasPrivacidad"
+            element={<PoliticasPrivacidad />}
+          />
+          <Route path="/Register" element={<RegisterForm />} />
           <Route path="/Profile" element={<MyPurchasesPage />} />
           <Route
             path="/MisProductos/*"
@@ -67,15 +68,17 @@ function App() {
           <Route path="/404" element={<Error404 />} />
           <Route path="*" element={<Navigate to="/404" />} />
 
-
           {<Route path="/perfil" element={<PerfilUsuarioUnico />} />}
           {<Route path="/miscompras" element={<MyPurchasesPage />} />}
-          {<Route path="/formulariotransportador" element={<FormularioTransporte />} />}
-
+          {
+            <Route
+              path="/formulariotransportador"
+              element={<FormularioTransporte />}
+            />
+          }
 
           <Route path="/compra/:id_compra/qr" element={<QRCompras />} />
           <Route path="/compra/:id_compra/codigo" element={<CodigoCompras />} />
-
 
           <Route path="/transporte" element={<Transporte />} />
           <Route path="/perfil" element={<Perfilusuario />} />
@@ -91,7 +94,6 @@ function App() {
           <Route path="/transporte/:id_compra" element={<Transportadores />} />
 
           <Route path="/chats/*" element={<Chats />} />
-
         </Routes>
       </DiscountedProductProvider>
     </BrowserRouter>

@@ -346,6 +346,7 @@ export const Chat = () => {
           </p>
         )}
         {messages.map((msg) => {
+          console.log(messages.map(msg => msg.id_mensaje));
           const isMe = msg.id_user === currentUserId;
           return (
             <div

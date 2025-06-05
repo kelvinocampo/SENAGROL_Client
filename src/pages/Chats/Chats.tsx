@@ -5,7 +5,7 @@ import { UserList } from "@/components/Chats/UserList";
 import { NavBarChats } from "@/components/Chats/NavBar";
 import { ChatsProvider } from "@/contexts/Chats";
 import Header from "@/components/Header";
-import { AnimatePresence} from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import FallingLeaves from "@/components/FallingLeaf";
 
 export const Chats = () => {
@@ -34,17 +34,35 @@ export const Chats = () => {
         {/* Contenido principal */}
         <div className="flex-1 p-6 relative z-10">
           <ChatsProvider>
-            <AnimatePresence mode="wait">
-              <Routes key={location.pathname} location={location}>
-                <Route path="" element={<ChatsList />} />
-                <Route path="usuarios" element={<UserList />} />
-                <Route path=":id_chat" element={<Chat />} />
-              </Routes>
-            </AnimatePresence>
+            <Routes location={location} key={location.pathname}>
+              <Route
+                path=""
+                element={
+                  <AnimatePresence mode="wait">
+                    <ChatsList />
+                  </AnimatePresence>
+                }
+              />
+              <Route
+                path="usuarios"
+                element={
+                  <AnimatePresence mode="wait">
+                    <UserList />
+                  </AnimatePresence>
+                }
+              />
+              <Route
+                path=":id_chat"
+                element={
+                  <AnimatePresence mode="wait">
+                    <Chat />
+                  </AnimatePresence>
+                }
+              />
+            </Routes>
           </ChatsProvider>
         </div>
       </div>
     </div>
   );
 };
-
