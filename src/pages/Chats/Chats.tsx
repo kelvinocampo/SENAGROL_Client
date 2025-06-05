@@ -11,26 +11,40 @@ import FallingLeaves from "@/components/FallingLeaf";
 export const Chats = () => {
   const location = useLocation();
 
-
   return (
-    <section className="min-h-screen flex-1 flex flex-col p-4 gap-4 font-[fredoka] bg-gray-50">
-        <div className="fixed inset-0 z-[0] pointer-events-none">
+    <div className="min-h-screen font-[fredoka] bg-gray-50 relative">
+      {/* Fondo animado */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <FallingLeaves quantity={20} />
       </div>
-      <Header />
-      .
-      <NavBarChats />
-      <ChatsProvider>
-        <div className="flex-1 w-full relative overflow-hidden">
-          <AnimatePresence mode="wait">
-            <Routes key={location.pathname}>
-              <Route path="" element={<ChatsList />} />
-              <Route path="usuarios" element={<UserList />} />
-              <Route path=":id_chat" element={<Chat />} />
-            </Routes>
-          </AnimatePresence>
+
+      {/* Header fijo arriba */}
+      <div className="sticky top-10 z-20 ml-60">
+        <Header />
+      </div>
+
+      {/* Layout principal: Sidebar + contenido */}
+      <div className="flex">
+        {/* Sidebar */}
+        <div className="w-60 h-[calc(100vh-4rem)] sticky top-[4rem] z-10">
+          {/* Asegúrate de que el Header mide 4rem de alto */}
+          <NavBarChats />
         </div>
-      </ChatsProvider>
-    </section>
+
+        {/* Contenido principal */}
+        <div className="flex-1 p-6 relative z-10">
+          <ChatsProvider>
+            <AnimatePresence mode="wait">
+              <Routes key={location.pathname} location={location}>
+                <Route path="" element={<ChatsList />} />
+                <Route path="usuarios" element={<UserList />} />
+                <Route path=":id_chat" element={<Chat />} />
+              </Routes>
+            </AnimatePresence>
+          </ChatsProvider>
+        </div>
+      </div>
+    </div>
   );
 };
+

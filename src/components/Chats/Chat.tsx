@@ -2,7 +2,14 @@ import { AuthService } from "@/services/AuthService";
 import { MessageService, Message } from "@/services/Chats/MessageService";
 import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FiMoreVertical, FiEdit2, FiTrash2, FiSend, FiCamera, FiMic } from "react-icons/fi";
+import {
+  FiMoreVertical,
+  FiEdit2,
+  FiTrash2,
+  FiSend,
+  FiCamera,
+  FiMic,
+} from "react-icons/fi";
 import { ChatsContext } from "@/contexts/Chats";
 import { useSocket } from "@/hooks/UseSocket";
 
@@ -19,8 +26,13 @@ export const Chat = () => {
   const [error, setError] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [recording, setRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [editing, setEditing] = useState<{ id: number; content: string } | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+    null
+  );
+  const [editing, setEditing] = useState<{
+    id: number;
+    content: string;
+  } | null>(null);
   const [openMenu, setOpenMenu] = useState<number | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -86,13 +98,18 @@ export const Chat = () => {
     setNewMessage("");
 
     try {
-      const response = await MessageService.sendTextMessage(newMessage, parseInt(id_chat));
+      const response = await MessageService.sendTextMessage(
+        newMessage,
+        parseInt(id_chat)
+      );
       setMessages((prev) =>
         prev.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? response : m))
       );
     } catch (err) {
       showError(err, "No se pudo enviar mensaje");
-      setMessages((prev) => prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
+      setMessages((prev) =>
+        prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje)
+      );
     }
   };
 
@@ -110,13 +127,18 @@ export const Chat = () => {
     setMessages((prev) => [...prev, tempMsg]);
 
     try {
-      const response = await MessageService.sendImageMessage(file, parseInt(id_chat));
+      const response = await MessageService.sendImageMessage(
+        file,
+        parseInt(id_chat)
+      );
       setMessages((prev) =>
         prev.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? response : m))
       );
     } catch (err) {
       showError(err, "No se pudo enviar imagen");
-      setMessages((prev) => prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
+      setMessages((prev) =>
+        prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje)
+      );
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -140,17 +162,27 @@ export const Chat = () => {
         const userId = currentUserId || (await getCurrentUserId());
         if (!userId) return;
 
-        const tempMsg = createTempMessage(URL.createObjectURL(audioBlob), "audio");
+        const tempMsg = createTempMessage(
+          URL.createObjectURL(audioBlob),
+          "audio"
+        );
         setMessages((prev) => [...prev, tempMsg]);
 
         try {
-          const response = await MessageService.sendAudioMessage(audioBlob, parseInt(id_chat));
+          const response = await MessageService.sendAudioMessage(
+            audioBlob,
+            parseInt(id_chat)
+          );
           setMessages((prev) =>
-            prev.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? response : m))
+            prev.map((m) =>
+              m.id_mensaje === tempMsg.id_mensaje ? response : m
+            )
           );
         } catch (err) {
           showError(err, "No se pudo enviar audio");
-          setMessages((prev) => prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
+          setMessages((prev) =>
+            prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje)
+          );
         }
       };
 
@@ -165,7 +197,11 @@ export const Chat = () => {
   const editMessage = async () => {
     if (!editing) return;
     try {
-      const updated = await MessageService.editMessage(editing.id, editing.content, parseInt(id_chat));
+      const updated = await MessageService.editMessage(
+        editing.id,
+        editing.content,
+        parseInt(id_chat)
+      );
       setMessages((prev) =>
         prev.map((m) => (m.id_mensaje === editing.id ? updated : m))
       );
@@ -238,7 +274,8 @@ export const Chat = () => {
 
   // Socket
   useEffect(() => {
-    if (!socket || !id_chat || currentUserId === null || chatExists !== true) return;
+    if (!socket || !id_chat || currentUserId === null || chatExists !== true)
+      return;
 
     socket.emit("join_chat", { chatId: id_chat });
 
@@ -246,9 +283,16 @@ export const Chat = () => {
       if (msg.usuario !== currentUserId) setMessages((prev) => [...prev, msg]);
     };
 
-    const handleUpdatedMessage = (msg: { id_mensaje: number; contenido: string }) => {
+    const handleUpdatedMessage = (msg: {
+      id_mensaje: number;
+      contenido: string;
+    }) => {
       setMessages((prev) =>
-        prev.map((m) => (m.id_mensaje === msg.id_mensaje ? { ...m, contenido: msg.contenido, editado: 1 } : m))
+        prev.map((m) =>
+          m.id_mensaje === msg.id_mensaje
+            ? { ...m, contenido: msg.contenido, editado: 1 }
+            : m
+        )
       );
     };
 
@@ -271,9 +315,7 @@ export const Chat = () => {
   if (chatExists === null || chatsLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="p-4 text-center text-gray-600">
-          Cargando chat...
-        </div>
+        <div className="p-4 text-center text-gray-600">Cargando chat...</div>
       </div>
     );
   }
@@ -294,10 +336,14 @@ export const Chat = () => {
         <h2 className="text-xl font-semibold truncate">{title}</h2>
       </header>
       <main className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-        {loading && <p className="text-center text-gray-500">Cargando mensajes...</p>}
+        {loading && (
+          <p className="text-center text-gray-500">Cargando mensajes...</p>
+        )}
         {error && <p className="text-center text-red-500">{error}</p>}
         {!loading && messages.length === 0 && (
-          <p className="text-center text-gray-400">No hay mensajes en este chat.</p>
+          <p className="text-center text-gray-400">
+            No hay mensajes en este chat.
+          </p>
         )}
         {messages.map((msg) => {
           const isMe = msg.id_user === currentUserId;
@@ -308,27 +354,35 @@ export const Chat = () => {
               data-message-id={msg.id_mensaje}
             >
               <div
-                className={`relative max-w-xs px-4 py-3 rounded-lg break-words
-                ${isMe ? "bg-green-500 text-white" : "bg-white text-gray-800"}
-                shadow`}
+                className={`relative max-w-md px-8 py-4 rounded-2xl break-words shadow-lg
+  ${
+    isMe ? "bg-green-500 text-white ml-auto" : "bg-white text-gray-800 mr-auto"
+  }`}
               >
-                {/* Contenido mensaje según tipo */}
+                {/* Contenido del mensaje */}
                 {msg.tipo === "texto" && (
-                  <p className="whitespace-pre-wrap">{msg.contenido}</p>
+                  <p className="whitespace-pre-wrap text-base leading-relaxed">
+                    {msg.contenido}
+                  </p>
                 )}
                 {msg.tipo === "imagen" && (
                   <img
                     src={msg.contenido}
                     alt="Imagen enviada"
-                    className="rounded max-w-full h-auto cursor-pointer"
+                    className="rounded-xl max-w-full h-auto mt-2 cursor-pointer"
                     onClick={() => window.open(msg.contenido, "_blank")}
                   />
                 )}
                 {msg.tipo === "audio" && (
-                  <audio controls src={msg.contenido} className="rounded" />
+                  <audio
+                    controls
+                    src={msg.contenido}
+                    className="rounded mt-2 w-full"
+                  />
                 )}
+
                 {msg.editado === 1 && (
-                  <span className="absolute bottom-0 right-1 text-xs italic opacity-60">
+                  <span className="absolute bottom-1 right-3 text-xs italic opacity-70">
                     (editado)
                   </span>
                 )}
@@ -338,34 +392,40 @@ export const Chat = () => {
                   <>
                     <button
                       data-menu-btn={msg.id_mensaje}
-                      className="absolute top-1 right-1 p-1 hover:bg-gray-200 rounded"
+                      className="absolute -top-4 right-[-20px] p-2 rounded-full bg-white/10 hover:bg-white/30 transition"
                       onClick={() =>
-                        setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)
+                        setOpenMenu(
+                          openMenu === msg.id_mensaje ? null : msg.id_mensaje
+                        )
                       }
                       aria-label="Abrir menú de opciones"
                     >
-                      <FiMoreVertical size={16} />
+                      <FiMoreVertical size={20} color="black" />
                     </button>
+
+                    {/* Menú de opciones */}
                     {openMenu === msg.id_mensaje && (
                       <div
                         data-menu={msg.id_mensaje}
-                        className="absolute top-6 right-1 text-black bg-white border border-gray-300 rounded shadow-md z-10"
+                        className="absolute top-10 right-[-20px] w-36 bg-white text-black border border-gray-200 rounded-md shadow-lg z-20"
                       >
                         {msg.tipo === "texto" && (
                           <button
                             onClick={() => {
-                              setEditing({ id: msg.id_mensaje, content: msg.contenido });
+                              setEditing({
+                                id: msg.id_mensaje,
+                                content: msg.contenido,
+                              });
                               setOpenMenu(null);
                             }}
-                            className="flex items-center px-3 py-1 hover:bg-gray-100 w-full text-left"
+                            className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-t-md"
                           >
                             <FiEdit2 className="mr-2" /> Editar
                           </button>
                         )}
-
                         <button
                           onClick={() => deleteMessage(msg.id_mensaje)}
-                          className="flex items-center px-3 py-1 hover:bg-gray-100 w-full text-left text-red-600"
+                          className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
                         >
                           <FiTrash2 className="mr-2" /> Eliminar
                         </button>
@@ -388,7 +448,9 @@ export const Chat = () => {
             type="text"
             value={editing.content}
             onChange={(e) =>
-              setEditing((prev) => (prev ? { ...prev, content: e.target.value } : null))
+              setEditing((prev) =>
+                prev ? { ...prev, content: e.target.value } : null
+              )
             }
           />
           <button
@@ -450,8 +512,9 @@ export const Chat = () => {
             type="button"
             onClick={toggleRecording}
             aria-label={recording ? "Detener grabación" : "Grabar audio"}
-            className={`p-2 rounded ${recording ? "bg-red-500 text-white" : "hover:bg-gray-200"
-              }`}
+            className={`p-2 rounded ${
+              recording ? "bg-red-500 text-white" : "hover:bg-gray-200"
+            }`}
           >
             <FiMic size={20} />
           </button>

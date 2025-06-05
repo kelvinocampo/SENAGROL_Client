@@ -10,7 +10,9 @@ export const NavBarChats = () => {
     ];
 
     return (
-        <nav className="relative bg-white shadow-md rounded-xl flex gap-6 justify-center w-full p-3 font-medium">
+        
+        <aside className="w-60 min-h-screen bg-white shadow-xl rounded-r-2xl p-6 flex flex-col gap-4 font-medium fixed top-0     left-0 z-50">
+            <h2 className="text-xl font-bold text-green-600 mb-6 px-2">Menú</h2>
             {links.map(({ path, label }) => {
                 const isCurrent = location.pathname === path;
 
@@ -18,13 +20,15 @@ export const NavBarChats = () => {
                     <motion.div
                         key={path}
                         className="relative"
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.02 }}
                         transition={{ type: "spring", stiffness: 300 }}
                     >
                         <NavLink
                             to={path}
-                            className={`px-4 py-2 rounded-lg transition-all duration-300 ${
-                                isCurrent ? "text-white bg-green-600 shadow-lg" : "text-gray-700 hover:bg-gray-100"
+                            className={`block px-4 py-3 rounded-lg transition-all duration-300 ${
+                                isCurrent
+                                    ? "text-white bg-green-600 shadow-md"
+                                    : "text-gray-700 hover:bg-gray-100"
                             }`}
                         >
                             {label}
@@ -33,13 +37,13 @@ export const NavBarChats = () => {
                         {isCurrent && (
                             <motion.div
                                 layoutId="underline"
-                                className="absolute bottom-0 left-0 right-0 h-[3px] bg-green-600 rounded-b-lg"
+                                className="absolute left-0 top-0 h-full w-1 bg-green-600 rounded-r-md"
                                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
                             />
                         )}
                     </motion.div>
                 );
             })}
-        </nav>
+        </aside>
     );
 };
