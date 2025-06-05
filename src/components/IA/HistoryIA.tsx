@@ -1,7 +1,7 @@
 import { IAContext } from '@/contexts/IA';
 import { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Bar, LineChart, BarChart, Legend, Line, PieChart, Pie } from 'recharts';
 
 interface ChartDataItem {
   [key: string]: string | number;
@@ -10,6 +10,8 @@ interface ChartDataItem {
 interface ChartConfig {
   data: ChartDataItem[];
   options?: {
+    chartType?: 'area' | 'bar' | 'line' | 'pie';
+    radius?: number;
     xKey?: string;
     yKeys?: string[];
     colors?: string[];
@@ -233,53 +235,194 @@ export const HistoryIA = () => {
 
   const renderChart = (chartConfig: ChartConfig): React.ReactNode => {
     const { data, options } = chartConfig;
+    const chartType = options?.chartType || 'area';
     const xKey = options?.xKey || 'vendedor';
     const yKeys = options?.yKeys || Object.keys(data[0]).filter(key => key !== xKey);
-    const colors = options?.colors || ['#8884d8', '#82ca9d', '#ffc658'];
+    const colors = options?.colors || ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+    // Configuraciones comunes mejoradas
+    const commonProps = {
+      data,
+      margin: { top: 20, right: 30, left: 30, bottom: 40 },
+    };
+
+    // Estilos consistentes para ejes
+    const axisStyle = {
+      fontSize: 12,
+      fontFamily: 'Inter, sans-serif',
+      fill: '#6b7280'
+    };
+
+    const axisProps = {
+      xAxis: {
+        dataKey: xKey,
+        label: {
+          value: options?.xLabel || xKey,
+          position: 'insideBottom',
+          offset: -15,
+          style: axisStyle
+        },
+        tick: {
+          ...axisStyle,
+          angle: chartType === 'bar' && data.length > 5 ? -45 : 0
+        },
+        height: 60,
+      },
+      yAxis: {
+        label: {
+          value: options?.yLabel || (yKeys.length === 1 ? yKeys[0] : 'Valor'),
+          angle: -90,
+          position: 'insideLeft',
+          offset: 15,
+          style: axisStyle
+        },
+        tick: axisStyle,
+        width: 80
+      }
+    };
+
+    // Tooltip mejorado con soporte especial para pie chart
+    const tooltipProps = {
+      contentStyle: {
+        borderRadius: '8px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        backgroundColor: '#fff',
+        border: 'none',
+        fontSize: '12px',
+        fontFamily: 'Inter, sans-serif'
+      },
+      formatter: (value: number, name: string) => {
+        // Formato especial para pie chart
+        if (chartType === 'pie') {
+          return [`${value} productos`, 'Cantidad'];
+        }
+        return [value, options?.yLabel || name];
+      },
+      labelFormatter: (label: string) => (
+        <strong>{`${options?.xLabel || 'Categoría'}: ${label}`}</strong>
+      ),
+      cursor: chartType === 'pie' ? false : { fill: '#f3f4f6' }
+    };
+
+    // Leyenda con configuración especial para pie chart
+    const legendProps: any = {
+      wrapperStyle: {
+        paddingTop: '20px',
+        fontSize: '12px'
+      },
+      ...(chartType === 'pie' && {
+        layout: 'vertical',
+        verticalAlign: 'middle',
+        align: 'right'
+      })
+    };
+
+    const renderChartByType = () => {
+      switch (chartType) {
+        case 'bar':
+          return (
+            <BarChart {...commonProps}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+              <XAxis {...axisProps.xAxis} />
+              <YAxis {...axisProps.yAxis} />
+              <Tooltip {...tooltipProps} />
+              <Legend {...legendProps} />
+              {yKeys.map((key, index) => (
+                <Bar
+                  key={key}
+                  dataKey={key}
+                  fill={colors[index % colors.length]}
+                  radius={[4, 4, 0, 0]}
+                  animationDuration={1500}
+                />
+              ))}
+            </BarChart>
+          );
+
+        case 'line':
+          return (
+            <LineChart {...commonProps}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+              <XAxis {...axisProps.xAxis} />
+              <YAxis {...axisProps.yAxis} />
+              <Tooltip {...tooltipProps} />
+              <Legend {...legendProps} />
+              {yKeys.map((key, index) => (
+                <Line
+                  key={key}
+                  type="monotone"
+                  dataKey={key}
+                  stroke={colors[index % colors.length]}
+                  strokeWidth={2.5}
+                  dot={{ r: 3, strokeWidth: 2, fill: '#fff' }}
+                  activeDot={{ r: 5, strokeWidth: 2, fill: '#fff' }}
+                  animationDuration={1500}
+                />
+              ))}
+            </LineChart>
+          );
+
+        case 'pie':
+          return (
+            <PieChart {...commonProps}>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={options?.radius ? options.radius * 60 : 50} // Convertir ratio a píxeles
+                outerRadius={options?.radius ? options.radius * 100 : 80}
+                paddingAngle={2}
+                dataKey={yKeys[0]}
+                nameKey={xKey}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                labelLine={false}
+                animationDuration={1500}
+              >
+                {data.map((_, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={colors[index % colors.length]}
+                    stroke="#fff"
+                    strokeWidth={2}
+                  />
+                ))}
+              </Pie>
+              <Tooltip {...tooltipProps} />
+              <Legend {...legendProps} />
+            </PieChart>
+          );
+
+        case 'area':
+        default:
+          return (
+            <AreaChart {...commonProps}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+              <XAxis {...axisProps.xAxis} />
+              <YAxis {...axisProps.yAxis} />
+              <Tooltip {...tooltipProps} />
+              <Legend {...legendProps} />
+              {yKeys.map((key, index) => (
+                <Area
+                  key={key}
+                  type="monotone"
+                  dataKey={key}
+                  stroke={colors[index % colors.length]}
+                  fill={colors[index % colors.length]}
+                  fillOpacity={0.2}
+                  strokeWidth={2.5}
+                  activeDot={{ r: 5, strokeWidth: 2, fill: '#fff' }}
+                  animationDuration={1500}
+                />
+              ))}
+            </AreaChart>
+          );
+      }
+    };
 
     return (
-      <div className="h-64 w-full">
+      <div className="h-80 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={data}
-            margin={{ top: 10, right: 30, left: 20, bottom: 30 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-            <XAxis
-              dataKey={xKey}
-              label={{ value: options?.xLabel, position: 'insideBottomRight', offset: -5 }}
-              tick={{ fontSize: 12 }}
-            />
-            <YAxis
-              label={{
-                value: options?.yLabel,
-                angle: -90,
-                position: 'insideLeft',
-                style: { textAnchor: 'middle' }
-              }}
-              tick={{ fontSize: 12 }}
-            />
-            <Tooltip
-              contentStyle={{
-                borderRadius: '8px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                backgroundColor: '#fff'
-              }}
-              formatter={(value: number) => [value, options?.yLabel || 'Valor']}
-              labelFormatter={(label) => `${options?.xLabel || 'Item'}: ${label}`}
-            />
-            {yKeys.map((key, index) => (
-              <Area
-                key={key}
-                type="monotone"
-                dataKey={key}
-                stroke={colors[index % colors.length]}
-                fill={colors[index % colors.length]}
-                fillOpacity={0.4}
-                activeDot={{ r: 6 }}
-              />
-            ))}
-          </AreaChart>
+          {renderChartByType()}
         </ResponsiveContainer>
       </div>
     );
@@ -300,9 +443,9 @@ export const HistoryIA = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-start text-left">
+              <div className="flex flex-col items-start text-left w-full">
                 <p className="text-xs text-gray-500 pl-1">IA</p>
-                <div className="bg-[#E4FBDD] text-black px-4 py-2 rounded-xl max-w-[70%]">
+                <div className="bg-[#E4FBDD] w-full text-black px-4 py-2 rounded-xl">
                   {chartData && (
                     <div className="mb-3 p-2 bg-white rounded-lg border border-gray-200 shadow-sm">
                       <p className="text-sm font-medium text-gray-500 mb-1">Gráfico generado:</p>
