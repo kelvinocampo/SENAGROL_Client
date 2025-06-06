@@ -155,12 +155,13 @@ export const HistoryIA = () => {
         else if (fullMatch.startsWith('/') || fullMatch.startsWith('[')) {
           const route = match[5] || match[8];
           const text = match[7] || route;
+          console.log(route);
+          
           elements.push(
             <NavLink
               key={`link-${pIndex}-${match.index}`}
-              to={route.startsWith('http') ? route : `/${route}`}
+              to={`${route}`}
               className="px-1.5 py-0.5 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm inline-flex mx-1"
-              target={route.startsWith('http') ? '_blank' : undefined}
             >
               {text}
             </NavLink>
@@ -213,13 +214,15 @@ export const HistoryIA = () => {
           {parts.slice(3).map((linkPart, i) => {
             if (linkPart.startsWith('[')) {
               const match = linkPart.match(/\[([^\]]+)\]\(([^)]+)\)/);
+              console.log(match);
+              
               if (match) {
                 return (
                   <NavLink
                     key={`product-link-${pIndex}-${i}`}
-                    to={match[2].startsWith('http') ? match[2] : `/${match[2]}`}
+                    to={`${match[2]}`}
                     className="px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-xs inline-block"
-                    target={match[2].startsWith('http') ? '_blank' : undefined}
+                    // target={match[2].startsWith('http') ? '_blank' : undefined}
                   >
                     {match[1]}
                   </NavLink>
