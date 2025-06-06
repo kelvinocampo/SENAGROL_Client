@@ -3,10 +3,10 @@ export class IAService {
 
     static async getResponse(prompt: string): Promise<string> {
         try {
-            // const token = localStorage.getItem("token") || "";
-            // if (token) {
-            //     return await this.getResponseUserRegistered(prompt, token);
-            // }
+            const token = localStorage.getItem("token") || "";
+            if (token) {
+                return await this.getResponseUserRegistered(prompt, token);
+            }
             const history = JSON.parse(sessionStorage.getItem("history") || "[]");
             const response = await fetch(`${this.API_URL}/IA/`, {
                 method: "POST",
