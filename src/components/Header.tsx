@@ -3,6 +3,7 @@ import { getUserRole } from "@/services/Perfil/authService";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import senagrol from "@assets/senagrol.png";
 
 type UserRole = "vendedor" | "comprador" | "transportador" | "administrador" | null;
 
@@ -105,11 +106,6 @@ const Header = () => {
                   📦 Mis transportes
                 </Link>
               )}
-              {user.role === "comprador" && (
-                <Link to="/transportadores" className="block px-4 py-2 hover:bg-[#E4FBDD] transition-colors" role="menuitem">
-                  🚚 Transportadores
-                </Link>
-              )}
 
               <Link to="/perfil" className="block px-4 py-2 hover:bg-[#E4FBDD] transition-colors rounded-b-lg" role="menuitem">
                 Perfil
@@ -186,43 +182,48 @@ const Header = () => {
 
   return (
     <>
-      <header className="font-[Fredoka] bg-white shadow-md mx-auto my-10 w-full px-8 py-5 rounded-lg max-w-7xl relative select-none">
-        {/* Contenedor principal flex vertical para que items estén alineados a la izquierda */}
-        <div className="flex flex-col items-start justify-center">
+   <header className="font-[Fredoka] bg-white shadow-md mx-auto my-10 w-full px-8 py-5 rounded-lg max-w-7xl relative select-none">
+  <div className="flex items-center justify-between">
+    {/* Logo */}
+    <div className="flex items-center gap-3">
+      <img src={senagrol} alt="Senagrol Logo" className="h-15 w-auto" />
+      <span className="text-xl font-bold text-[#379E1B] hidden sm:inline">Senagrol</span>
+    </div>
 
-          {/* Toggle menú móvil */}
-          <div className="md:hidden mb-4 w-full flex justify-start">
-            <button
-              onClick={toggleMobileMenu}
-              aria-label="Toggle navigation menu"
-              className="p-2 rounded-md border border-gray-300 hover:bg-[#48BD28] hover:text-white transition-colors"
-            >
-              {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
-            </button>
-          </div>
+    {/* Menú escritorio */}
+    <nav className="hidden md:flex flex-wrap justify-end items-center gap-4 text-sm font-semibold text-gray-800">
+      {renderLinks().map((link, index) => (
+        <div key={index}>{link}</div>
+      ))}
+    </nav>
 
-          {/* Menú escritorio */}
-          <nav className="hidden md:flex flex-wrap justify-start items-center gap-6 text-sm font-semibold text-gray-800 w-full">
-            {renderLinks().map((link, index) => (
-              <div key={index}>{link}</div>
-            ))}
-          </nav>
+    {/* Botón menú móvil */}
+    <div className="md:hidden">
+      <button
+        onClick={toggleMobileMenu}
+        aria-label="Toggle navigation menu"
+        className="p-2 rounded-md border border-gray-300 hover:bg-[#48BD28] hover:text-white transition-colors"
+      >
+        {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
+      </button>
+    </div>
+  </div>
 
-          {/* Menú móvil desplegable */}
-          {isMobileMenuOpen && (
-            <nav className="flex flex-col gap-4 mt-5 text-sm font-semibold md:hidden bg-white rounded-lg shadow-lg w-full max-w-xs p-4 animate-slide-down">
-              {renderLinks().map((link, idx) => (
-                <div
-                  key={idx}
-                  className="border-b border-gray-200 last:border-none pb-2 text-center"
-                >
-                  {link}
-                </div>
-              ))}
-            </nav>
-          )}
+  {/* Menú móvil desplegable */}
+  {isMobileMenuOpen && (
+    <nav className="flex flex-col gap-4 mt-5 text-sm font-semibold md:hidden bg-white rounded-lg shadow-lg w-full max-w-xs p-4 animate-slide-down">
+      {renderLinks().map((link, idx) => (
+        <div
+          key={idx}
+          className="border-b border-gray-200 last:border-none pb-2 text-center"
+        >
+          {link}
         </div>
-      </header>
+      ))}
+    </nav>
+  )}
+</header>
+
 
       {/* Modal confirmación cierre sesión */}
       {showLogoutConfirm && (

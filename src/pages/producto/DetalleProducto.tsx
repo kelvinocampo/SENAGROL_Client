@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { GiCoffeeBeans } from "react-icons/gi";
 import Footer from "@components/footer";
 import FloatingIcon from "@/components/Inicio/FloatingIcon";
-import senagrol from "@assets/senagrol.png";
+
 
 export default function DetalleProducto() {
   const { id } = useParams();
@@ -74,24 +74,17 @@ export default function DetalleProducto() {
     <div className="font-[Fredoka] min-h-screen bg-neutral-50 px-4 sm:px-6 md:px-8 py-6">
       <Header />
       <FloatingIcon
-        icon={<GiCoffeeBeans size="100%" color="gold" />}
+        icon={<GiCoffeeBeans size="100%" color="green" />}
         top="2rem"
         right="2rem"
       />
-      <Link to="/">
-        <FloatingIcon
-          icon={
-            <img
-              src={senagrol}
-              alt="Logo Senagrol"
-              style={{ width: "100%", height: "100%" }}
-            />
-          }
-          top="2rem"
-          left="2rem"
-          size="6rem"
-        />
-      </Link>
+      <FloatingIcon
+        icon={<GiCoffeeBeans size="100%" color="brown" />}
+        top="2rem"
+        left="2rem"
+        size="6rem"
+      />
+
 
       <div className="px-4 pt-6">
         <Link
@@ -214,11 +207,10 @@ export default function DetalleProducto() {
             >
               <button
                 onClick={handleComprar}
-                className={`${
-                  userRole !== "comprador" || userRole == null
+                className={`${userRole !== "comprador" || userRole == null
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#48BD28] hover:bg-green-600"
-                } w-full text-white font-medium px-6 py-2 rounded transition duration-300`}
+                  } w-full text-white font-medium px-6 py-2 rounded transition duration-300`}
               >
                 Comprar
               </button>

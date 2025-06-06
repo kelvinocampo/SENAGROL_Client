@@ -9,11 +9,15 @@ export const updateUserProfile = async (formData: {
   vehicleCard?: string;
   vehicleType?: string;
   vehicleWeight?: number;
-  roles: string[]; 
+  roles: string[];
 }) => {
   try {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("No se encontró el token de autenticación.");
+
+    const cleanedData = Object.fromEntries(
+      Object.entries(formData).filter(([_, v]) => v !== undefined && v !== "")
+    );
 
     const response = await fetch("http://localhost:10101/usuario/edit", {
       method: "PUT",
@@ -21,15 +25,18 @@ export const updateUserProfile = async (formData: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(cleanedData),
     });
-    console.log("Respuesta del servidor:", response);
-    
+
     const data = await response.json();
-    console.log("Datos enviados a backend:", formData, response, data);
+
+    if (process.env.NODE_ENV === "development") {
+      console.log("Datos enviados a backend:", cleanedData);
+      console.log("Respuesta del servidor:", response, data);
+    }
 
     if (!response.ok) {
-      throw new Error(data.message || data.error || "Error al actualizar el perfil.");
+      throw new Error(`${response.status} - ${data.message || data.error || "Error al actualizar el perfil."}`);
     }
 
     return data;

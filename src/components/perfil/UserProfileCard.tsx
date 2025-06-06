@@ -101,9 +101,7 @@ const UserProfileCard: React.FC = () => {
         <h2 className="text-2xl font-bold text-gray-800">
           {profileData.username}
         </h2>
-        <p className="text-[#48bd28] font-medium text-sm">
-          ID: {profileData.id_user}
-        </p>
+       
       </div>
 
       <div className="text-sm space-y-2 w-full text-center">

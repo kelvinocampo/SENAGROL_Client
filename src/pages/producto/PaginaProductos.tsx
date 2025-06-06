@@ -10,7 +10,6 @@ import CompraModal from "@components/admin/common/BuyModal";
 import FloatingIcon from "@/components/Inicio/FloatingIcon";
 import FallingLeaves from "@/components/FallingLeaf";
 import Footer from "@components/footer";
-import senagrol from "@assets/senagrol.png";
 
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import { getUserRole } from "@/services/Perfil/authService";
@@ -117,27 +116,20 @@ export default function PaginaProductos() {
 
       <div className="font-[Fredoka] bg-neutral-50 px-4 sm:px-6">
         <Header />
-  <FloatingIcon
-          icon={<GiCoffeeBeans size="100%" color="gold" />}
+        <FloatingIcon
+          icon={<GiCoffeeBeans size="100%" color="green" />}
           top="2rem"
           right="2rem"
         />
-        <Link to="/">
-          <FloatingIcon
-            icon={
-              <img
-                src={senagrol}
-                alt="Logo Senagrol"
-                style={{ width: "100%", height: "100%" }}
-              />
-            }
-            top="2rem"
-            left="2rem"
-            size="6rem"
-          />
-        </Link>
+        <FloatingIcon
+          icon={<GiCoffeeBeans size="100%" color="brown" />}
+          top="2rem"
+          left="2rem"
+          size="6rem"
+        />
+
         {/* CARRUSEL */}
-      
+
         <div className="max-w-5xl mx-auto mb-10">
           <Carousel
             autoPlay
@@ -239,11 +231,10 @@ export default function PaginaProductos() {
                 <div className="mt-3 flex flex-col gap-2">
                   <button
                     onClick={() => handleComprar(producto)}
-                    className={`text-white px-6 py-2 rounded-full transition duration-300 ease-in-out ${
-                      userRole !== "comprador"
+                    className={`text-white px-6 py-2 rounded-full transition duration-300 ease-in-out ${userRole !== "comprador"
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-green-600 hover:bg-green-700 hover:-translate-y-1 hover:scale-105"
-                    }`}
+                      }`}
                     disabled={userRole !== "comprador"}
                   >
                     Comprar
@@ -276,11 +267,10 @@ export default function PaginaProductos() {
               <button
                 key={i}
                 onClick={() => cambiarPagina(i + 1)}
-                className={`px-3 py-1 border rounded transition-all duration-300 transform hover:scale-105 active:scale-95 ${
-                  paginaActual === i + 1
+                className={`px-3 py-1 border rounded transition-all duration-300 transform hover:scale-105 active:scale-95 ${paginaActual === i + 1
                     ? "bg-green-400 text-white shadow-md"
                     : "hover:bg-green-100"
-                }`}
+                  }`}
               >
                 {i + 1}
               </button>
