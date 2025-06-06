@@ -1,6 +1,5 @@
 import { FaFacebook, FaInstagram, FaGoogle } from "react-icons/fa";
 import { motion } from "framer-motion";
-import senagrol from "@assets/senagrol.png";
 
 const socialIcons = [
   { icon: <FaFacebook />, link: "#", delay: 0 },
@@ -17,18 +16,17 @@ const Footer = () => {
       transition={{ duration: 1, ease: "easeOut" }}
     >
       <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-        {/* Izquierda con logo y enlace */}
-        <motion.div
-          className="flex items-center gap-4"
+        {/* Izquierda */}
+        <motion.p
           initial={{ x: -100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+          className="text-lg font-medium"
         >
-          <img src={senagrol} alt="Senagrol Logo" className="w-14 h-14 object-contain" />
-          <a href="/QuienesSomos" className="text-lg font-medium">Quiénes Somos</a>
-        </motion.div>
+          <a href="/QuienesSomos">Quienes Somos</a>
+        </motion.p>
 
-        {/* Íconos de redes sociales */}
+        {/* Íconos de redes */}
         <motion.div
           className="flex gap-8 text-2xl text-[#48BD28]"
           initial="hidden"
