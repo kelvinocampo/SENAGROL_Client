@@ -1,7 +1,16 @@
+// ─── Librerías ───────────────────────────────────────────────────────────────
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+// ─── Servicios ───────────────────────────────────────────────────────────────
 import { requestTransporter } from "@/services/Perfil/FormTransportadorService";
 
+// ─── Componentes ─────────────────────────────────────────────────────────────
+
+
+import { Input } from "@/components/Input";
+
+// ─── Tipado ─────────────────────────────────────────────────────────────────
 type FormDataState = {
   license: string;
   soat: string;
@@ -12,9 +21,11 @@ type FormDataState = {
 
 type FormErrors = Partial<Record<keyof FormDataState, string>>;
 
+// ─── Componente Principal ───────────────────────────────────────────────────
 function FormularioTransportador() {
   const navigate = useNavigate();
 
+  // ─── Estados ─────────────────────────────────────────────────────────────
   const [formData, setFormData] = useState<FormDataState>({
     license: "",
     soat: "",
@@ -22,46 +33,34 @@ function FormularioTransportador() {
     vehicleType: "",
     vehicleWeight: "",
   });
+
   const [imagenes, setImagenes] = useState<File[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
   const [mensaje, setMensaje] = useState<string>("");
 
-  // Reglas de validación espejo de express-validator
+  // ─── Validación ──────────────────────────────────────────────────────────
   const validateField = (name: keyof FormDataState, value: string): string => {
     switch (name) {
       case "license":
       case "soat":
       case "vehicleCard":
         if (!value.trim()) return "Este campo es obligatorio.";
-        if (value.length < 5 || value.length > 30) return `Debe tener entre 5 y 30 caracteres.`;
-        if (!/^[a-zA-Z0-9-]+$/.test(value)) return `Solo letras, números y guiones.`;
+        if (value.length < 5 || value.length > 30) return "Debe tener entre 5 y 30 caracteres.";
+        if (!/^[a-zA-Z0-9-]+$/.test(value)) return "Solo letras, números y guiones.";
         return "";
       case "vehicleType":
         if (!value.trim()) return "Este campo es obligatorio.";
-        if (value.length < 3 || value.length > 50) return `Debe tener entre 3 y 50 caracteres.`;
-        if (!/^[a-zA-Z\s]+$/.test(value)) return `Solo letras y espacios.`;
+        if (value.length < 3 || value.length > 50) return "Debe tener entre 3 y 50 caracteres.";
+        if (!/^[a-zA-Z\s]+$/.test(value)) return "Solo letras y espacios.";
         return "";
       case "vehicleWeight":
         if (!value.trim()) return "Este campo es obligatorio.";
         const num = Number(value);
         if (isNaN(num)) return "Debe ser un número.";
-        if (num < 500 || num > 50000) return `Debe estar entre 500 y 50000 kg.`;
+        if (num < 500 || num > 50000) return "Debe estar entre 500 y 50000 kg.";
         return "";
       default:
         return "";
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Validar al vuelo
-    setErrors(prev => ({ ...prev, [name]: validateField(name as keyof FormDataState, value) }));
-  };
-
-  const handleImagenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setImagenes(Array.from(e.target.files));
     }
   };
 
@@ -75,25 +74,48 @@ function FormularioTransportador() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // ─── Manejadores ─────────────────────────────────────────────────────────
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: validateField(name as keyof FormDataState, value) }));
+  };
+
+  const handleImagenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setImagenes(Array.from(e.target.files));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMensaje("");
+
     if (!validateAll()) {
       setMensaje("Por favor, corrige los errores antes de enviar.");
       return;
     }
-    if (imagenes.length < 2) {
+
+    if (imagenes.length < 2 || imagenes.length > 5) {
       setMensaje("Debes subir entre 2 y 5 imágenes.");
       return;
     }
 
     setMensaje("Enviando petición de transportador...");
+
     try {
       const token = localStorage.getItem("token") || "";
       await requestTransporter(formData, imagenes, token);
       setMensaje("✅ Petición de transportador enviada correctamente.");
-      // limpiar formulario
-      setFormData({ license: "", soat: "", vehicleCard: "", vehicleType: "", vehicleWeight: "" });
+
+      // Reset
+      setFormData({
+        license: "",
+        soat: "",
+        vehicleCard: "",
+        vehicleType: "",
+        vehicleWeight: "",
+      });
       setImagenes([]);
       setErrors({});
     } catch (error: any) {
@@ -101,28 +123,36 @@ function FormularioTransportador() {
     }
   };
 
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-white font-[Fredoka] text-[#111]">
       <main className="flex pt-32 px-10 gap-10">
         <section className="w-2/3">
           <h1 className="text-2xl font-bold mb-6">Formulario Transportador</h1>
+
           <form className="space-y-4" onSubmit={handleSubmit}>
             {(Object.keys(formData) as (keyof FormDataState)[]).map(name => (
               <div key={name}>
                 <label className="block font-medium mb-1">
-                  {name === 'license' ? 'Licencia de conducción'
-                    : name === 'soat' ? 'SOAT vigente'
-                    : name === 'vehicleCard' ? 'Tarjeta de propiedad del vehículo'
-                    : name === 'vehicleType' ? 'Tipo de vehículo'
-                    : 'Peso del vehículo'}
+                  {name === "license"
+                    ? "Licencia de conducción"
+                    : name === "soat"
+                    ? "SOAT vigente"
+                    : name === "vehicleCard"
+                    ? "Tarjeta de propiedad del vehículo"
+                    : name === "vehicleType"
+                    ? "Tipo de vehículo"
+                    : "Peso del vehículo"}
                 </label>
                 <input
                   name={name}
-                  type={name === 'vehicleWeight' ? 'number' : 'text'}
+                  type={name === "vehicleWeight" ? "number" : "text"}
                   value={formData[name]}
                   onChange={handleChange}
                   className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 ${
-                    errors[name] ? 'border-red-500 focus:ring-red-300' : 'border-gray-300 focus:ring-green-500'
+                    errors[name]
+                      ? "border-red-500 focus:ring-red-300"
+                      : "border-gray-300 focus:ring-green-500"
                   }`}
                   placeholder={errors[name] || undefined}
                 />

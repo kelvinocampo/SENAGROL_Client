@@ -1,17 +1,16 @@
-import UserProfile from './PerfilUsuario';
 
+import UserProfileCard from "@components/perfil/UserProfileCard";
 interface Props {
   children: React.ReactNode;
 }
 
 const UserLayout = ({ children }: Props) => {
   return (
-    <div className="max-w-7xl grid grid-cols-1 md:grid-cols-4 gap-8 py-10 px-4">
+    <div className="">
 
-    
-      <aside className="">
-        <UserProfile />
-      </aside>
+
+        <UserProfileCard />
+
 
      
       <main className="md:col-span-3">
