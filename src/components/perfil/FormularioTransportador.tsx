@@ -1,14 +1,26 @@
 // ─── Librerías ───────────────────────────────────────────────────────────────
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+
+// ─── Componentes ─────────────────────────────────────────────────────────────
+import Header from "@/components/Header";
+import Footer from "@/components/footer";
+import UserProfileCard from "@components/perfil/UserProfileCard";
+import { Input } from "@/components/Input";
 
 // ─── Servicios ───────────────────────────────────────────────────────────────
 import { requestTransporter } from "@/services/Perfil/FormTransportadorService";
 
-// ─── Componentes ─────────────────────────────────────────────────────────────
-
-
-import { Input } from "@/components/Input";
+// ─── Animación ───────────────────────────────────────────────────────────────
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (custom: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: custom * 0.2, ease: "easeOut", duration: 0.6 },
+  }),
+};
 
 // ─── Tipado ─────────────────────────────────────────────────────────────────
 type FormDataState = {
@@ -22,10 +34,9 @@ type FormDataState = {
 type FormErrors = Partial<Record<keyof FormDataState, string>>;
 
 // ─── Componente Principal ───────────────────────────────────────────────────
-function FormularioTransportador() {
+export default function FormularioTransportador() {
   const navigate = useNavigate();
 
-  // ─── Estados ─────────────────────────────────────────────────────────────
   const [formData, setFormData] = useState<FormDataState>({
     license: "",
     soat: "",
@@ -38,7 +49,11 @@ function FormularioTransportador() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [mensaje, setMensaje] = useState<string>("");
 
-  // ─── Validación ──────────────────────────────────────────────────────────
+  // Nueva bandera para detectar si ya envió
+  const [yaEnviado, setYaEnviado] = useState<boolean>(() => {
+    return localStorage.getItem("transportadorEnviado") === "true";
+  });
+
   const validateField = (name: keyof FormDataState, value: string): string => {
     switch (name) {
       case "license":
@@ -66,7 +81,7 @@ function FormularioTransportador() {
 
   const validateAll = (): boolean => {
     const newErrors: FormErrors = {};
-    (Object.keys(formData) as (keyof FormDataState)[]).forEach(key => {
+    (Object.keys(formData) as (keyof FormDataState)[]).forEach((key) => {
       const err = validateField(key, formData[key]);
       if (err) newErrors[key] = err;
     });
@@ -74,22 +89,24 @@ function FormularioTransportador() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // ─── Manejadores ─────────────────────────────────────────────────────────
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: validateField(name as keyof FormDataState, value) }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name as keyof FormDataState, value) }));
   };
 
   const handleImagenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setImagenes(Array.from(e.target.files));
-    }
+    if (e.target.files) setImagenes(Array.from(e.target.files));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMensaje("");
+
+    if (yaEnviado) {
+      setMensaje("⚠️ Ya has enviado tu solicitud de transportador. No puedes enviarla nuevamente.");
+      return;
+    }
 
     if (!validateAll()) {
       setMensaje("Por favor, corrige los errores antes de enviar.");
@@ -102,88 +119,96 @@ function FormularioTransportador() {
     }
 
     setMensaje("Enviando petición de transportador...");
-
     try {
       const token = localStorage.getItem("token") || "";
       await requestTransporter(formData, imagenes, token);
       setMensaje("✅ Petición de transportador enviada correctamente.");
-
-      // Reset
-      setFormData({
-        license: "",
-        soat: "",
-        vehicleCard: "",
-        vehicleType: "",
-        vehicleWeight: "",
-      });
+      setFormData({ license: "", soat: "", vehicleCard: "", vehicleType: "", vehicleWeight: "" });
       setImagenes([]);
       setErrors({});
+      setYaEnviado(true);
+      localStorage.setItem("transportadorEnviado", "true");
     } catch (error: any) {
       setMensaje("❌ Error al enviar la petición: " + error.message);
     }
   };
 
-  // ─── Render ───────────────────────────────────────────────────────────────
+  const getLabel = (name: keyof FormDataState) => {
+    switch (name) {
+      case "license":
+        return "Licencia de conducción";
+      case "soat":
+        return "SOAT vigente";
+      case "vehicleCard":
+        return "Tarjeta propiedad vehículo";
+      case "vehicleType":
+        return "Tipo de vehículo";
+      case "vehicleWeight":
+        return "Peso del vehículo (kg)";
+      default:
+        return name;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white font-[Fredoka] text-[#111]">
-      <main className="flex pt-32 px-10 gap-10">
-        <section className="w-2/3">
-          <h1 className="text-2xl font-bold mb-6">Formulario Transportador</h1>
+      <Header />
+      <main className="flex flex-col lg:flex-row pt-32 px-10 gap-10">
+        <UserProfileCard />
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            {(Object.keys(formData) as (keyof FormDataState)[]).map(name => (
-              <div key={name}>
-                <label className="block font-medium mb-1">
-                  {name === "license"
-                    ? "Licencia de conducción"
-                    : name === "soat"
-                    ? "SOAT vigente"
-                    : name === "vehicleCard"
-                    ? "Tarjeta de propiedad del vehículo"
-                    : name === "vehicleType"
-                    ? "Tipo de vehículo"
-                    : "Peso del vehículo"}
-                </label>
-                <input
-                  name={name}
-                  type={name === "vehicleWeight" ? "number" : "text"}
-                  value={formData[name]}
-                  onChange={handleChange}
-                  className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 ${
-                    errors[name]
-                      ? "border-red-500 focus:ring-red-300"
-                      : "border-gray-300 focus:ring-green-500"
-                  }`}
-                  placeholder={errors[name] || undefined}
-                />
-                {errors[name] && <p className="text-sm text-red-600 mt-1">{errors[name]}</p>}
-              </div>
-            ))}
+        <motion.section
+          className="lg:w-2/3 w-full"
+          initial="hidden"
+          animate="visible"
+          variants={fadeInUp}
+        >
+          <form className="bg-white p-8 rounded-2xl shadow-md space-y-6" onSubmit={handleSubmit}>
+            <h2 className="text-2xl font-bold mb-4 text-[#205116]">Formulario Transportador</h2>
 
-            <div>
-              <label className="block font-medium mb-1">Subir Imágenes (2-5)</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {(Object.keys(formData) as (keyof FormDataState)[]).map((name, idx) => (
+                <motion.div variants={fadeInUp} custom={idx} key={name} className="relative">
+                  <Input
+                    name={name}
+                    type={name === "vehicleWeight" ? "number" : "text"}
+                    label={getLabel(name)}
+                    value={formData[name]}
+                    onChange={handleChange}
+                    error={errors[name]}
+                  />
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.div variants={fadeInUp} custom={6}>
+              <label className="block font-medium mb-1">Subir Imágenes (2–5)</label>
               <input
                 type="file"
                 accept="image/*"
                 multiple
                 onChange={handleImagenChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200"
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-green-100 file:text-green-700 hover:file:bg-green-200"
               />
-            </div>
+            </motion.div>
 
-            <div className="flex gap-4 mt-6">
-              <button
-                type="submit"
-                className="bg-[#48BD28] text-white px-6 py-2 rounded-full hover:bg-green-700 transition"
-              >
-                Enviar petición
-              </button>
+            <div className="pt-6 text-right flex gap-4 justify-end">
               <button
                 type="button"
                 onClick={() => navigate("/perfil")}
-                className="bg-[#F5F0E5] text-black px-6 py-2 rounded-full hover:bg-gray-300 transition"
+                className="bg-[#F5F0E5] text-black py-2 px-6 rounded-xl hover:bg-gray-300 transition"
               >
                 Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={yaEnviado}
+                className={`py-2 px-6 rounded-xl shadow-md transition ${
+                  yaEnviado
+                    ? "bg-gray-400 cursor-not-allowed text-white"
+                    : "bg-[#48bd28] hover:bg-[#379e1b] text-white"
+                }`}
+              >
+                {yaEnviado ? "Ya enviado" : "Enviar petición"}
               </button>
             </div>
 
@@ -191,10 +216,9 @@ function FormularioTransportador() {
               <p className="mt-4 font-semibold text-center text-red-600">{mensaje}</p>
             )}
           </form>
-        </section>
+        </motion.section>
       </main>
+      <Footer />
     </div>
   );
 }
-
-export default FormularioTransportador;

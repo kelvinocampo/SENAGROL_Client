@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { requestSeller } from "@/services/Perfil/PeticiónVService"; 
+import { requestSeller } from "@/services/Perfil/PeticiónVService";
+import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog"; // Ajusta la ruta si es necesario
 
 export default function PeticionVendedor() {
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const solicitarVendedor = async () => {
-    const confirmacion = window.confirm("¿Está seguro de enviar la petición para ser vendedor?");
-    if (!confirmacion) return;
-
+  const handleConfirm = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -35,23 +34,34 @@ export default function PeticionVendedor() {
   return (
     <div className="w-full max-w-md mx-auto">
       <button
-        onClick={solicitarVendedor}
+        onClick={() => setIsDialogOpen(true)}
         className="bg-[#48BD28] text-white py-2 rounded-full w-full hover:bg-green-600 transition"
       >
         Petición Vendedor
       </button>
 
+      {/* Mensaje de éxito */}
       {mensaje && (
         <div className="mt-2 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded text-sm">
           {mensaje}
         </div>
       )}
 
+      {/* Mensaje de error */}
       {error && (
         <div className="mt-2 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm">
           {error}
         </div>
       )}
+
+      {/* Componente de confirmación */}
+      <ConfirmDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={handleConfirm}
+        title="Confirmar solicitud"
+        message="¿Está seguro de enviar la petición para ser vendedor?"
+      />
     </div>
   );
 }

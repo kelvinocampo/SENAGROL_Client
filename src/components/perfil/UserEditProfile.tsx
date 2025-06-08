@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import UserProfileCard from "@components/perfil/UserProfileCard";
 import { Input } from "@/components/Input";
+import { MessageDialog } from "@components/admin/common/MessageDialog"; // Asegúrate de que la ruta sea correcta
 
 // ─── Servicios ───────────────────────────────────────────────────────────────
 import { obtenerPerfilUsuario } from "@/services/Perfil/PerfilusuarioServices";
@@ -40,6 +41,8 @@ type FormData = {
 };
 
 // ─── Componente Principal ───────────────────────────────────────────────────
+// ─── ...imports omitidos para brevedad ───
+
 function PerfilUsuarioUnico() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -49,6 +52,12 @@ function PerfilUsuarioUnico() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [dialog, setDialog] = useState<{ open: boolean; type: "success" | "error"; message: string }>({
+    open: false,
+    type: "success",
+    message: "",
+  });
 
   useEffect(() => {
     const fetchPerfil = async () => {
@@ -94,17 +103,29 @@ function PerfilUsuarioUnico() {
     if (!formData) return;
 
     if (!formData.username || !formData.email || !formData.name || !formData.phone) {
-      alert("Por favor completa todos los campos obligatorios.");
+      setDialog({
+        open: true,
+        type: "error",
+        message: "Por favor completa todos los campos obligatorios.",
+      });
       return;
     }
 
     if (password) {
       if (password.length < 6) {
-        alert("La contraseña debe tener al menos 6 caracteres.");
+        setDialog({
+          open: true,
+          type: "error",
+          message: "La contraseña debe tener al menos 6 caracteres.",
+        });
         return;
       }
       if (password !== confirmPassword) {
-        alert("Las contraseñas no coinciden.");
+        setDialog({
+          open: true,
+          type: "error",
+          message: "Las contraseñas no coinciden.",
+        });
         return;
       }
     }
@@ -116,13 +137,27 @@ function PerfilUsuarioUnico() {
         ...(password && { password }),
       };
 
+      if (!formData.vehicleWeight || formData.vehicleWeight === 0) {
+        delete payload.vehicleWeight;
+      }
+
       await updateUserProfile(payload);
-      alert("Perfil actualizado correctamente.");
+
+      setDialog({
+        open: true,
+        type: "success",
+        message: "Perfil actualizado correctamente.",
+      });
+
       setPassword("");
       setConfirmPassword("");
     } catch (err: any) {
       console.error("Error al actualizar perfil:", err);
-      alert(err.message || "Hubo un error al actualizar el perfil.");
+      setDialog({
+        open: true,
+        type: "error",
+        message: err.message || "Hubo un error al actualizar el perfil.",
+      });
     } finally {
       setLoading(false);
     }
@@ -156,8 +191,8 @@ function PerfilUsuarioUnico() {
             <h2 className="text-2xl font-bold mb-4 text-[#205116]">Editar Perfil</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                { label: "Nombre de usuario", name: "username", type: "text", value: formData.username },
+              {/* Campos principales */}
+              {[{ label: "Nombre de usuario", name: "username", type: "text", value: formData.username },
                 { label: "Correo", name: "email", type: "email", value: formData.email },
                 { label: "Nombre completo", name: "name", type: "text", value: formData.name },
                 { label: "Teléfono", name: "phone", type: "text", value: formData.phone },
@@ -185,6 +220,7 @@ function PerfilUsuarioUnico() {
                 </span>
               </motion.div>
 
+              {/* Confirmar contraseña */}
               <motion.div variants={fadeInUp} custom={5} className="relative">
                 <Input
                   label="Confirmar Contraseña"
@@ -202,18 +238,19 @@ function PerfilUsuarioUnico() {
                 </span>
               </motion.div>
 
-              {/* Campos solo si es transportador */}
+              {/* Campos de transportador */}
               {formData.roles.toLowerCase().includes("transportador") &&
                 [
                   { label: "Licencia", name: "license", placeholder: "Ingresa tu licencia" },
                   { label: "SOAT", name: "soat", placeholder: "Ingresa tu SOAT" },
                   { label: "Tarjeta Vehículo", name: "vehicleCard", placeholder: "Tarjeta de propiedad" },
                   { label: "Tipo Vehículo", name: "vehicleType", placeholder: "Tipo de vehículo" },
+                  { label: "Peso Vehículo (kg)", name: "vehicleWeight", placeholder: "Peso en kilogramos" },
                 ].map((field, idx) => (
                   <motion.div key={field.name} variants={fadeInUp} custom={6 + idx}>
                     <Input
                       {...field}
-                      type="text"
+                      type={field.name === "vehicleWeight" ? "number" : "text"}
                       value={formData[field.name as keyof FormData] || ""}
                       onChange={handleChange}
                       className={inputSharedStyles}
@@ -233,9 +270,20 @@ function PerfilUsuarioUnico() {
           </div>
         </motion.section>
       </main>
+
+      {/* Diálogo de mensaje */}
+    <MessageDialog
+  isOpen={dialog.open}
+  message={dialog.message}
+  onClose={() => setDialog({ ...dialog, open: false })}
+/>
+
+
       <Footer />
     </div>
   );
 }
+
+
 
 export default PerfilUsuarioUnico;

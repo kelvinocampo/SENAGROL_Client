@@ -1,5 +1,5 @@
-import React from "react";
-import { twMerge } from 'tailwind-merge'
+import React, { useState, useEffect } from "react";
+import { twMerge } from "tailwind-merge";
 
 type InputProps = {
   label?: string;
@@ -17,6 +17,9 @@ type InputProps = {
   step?: number | string;
   disabled?: boolean;
   inputClassName?: string;
+  accept?: string;
+  multiple?: boolean;
+  showPreview?: boolean; // si quieres mostrar vista previa para imágenes
 };
 
 export const Input = ({
@@ -35,16 +38,39 @@ export const Input = ({
   step,
   disabled = false,
   inputClassName = "",
+  accept,
+  multiple = false,
+  showPreview = false,
 }: InputProps) => {
-  // Clases base para el input
-  const baseInputClasses = "w-full mt-1 p-2 border rounded-xl focus:outline-none focus:border-[#48BD28]";
-
-  // Clases condicionales
+  const baseInputClasses =
+    "w-full mt-1 p-2 border rounded-xl focus:outline-none focus:border-[#48BD28]";
   const errorClasses = error ? "border-red-500" : "border-gray-300";
-
-  // Combinación de clases
   const combinedInputClasses = twMerge(baseInputClasses, errorClasses, inputClassName);
   const combinedContainerClasses = `w-full ${className}`;
+
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Limpia la URL del objeto al desmontar o al cambiar de archivo
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (type === "file" && showPreview) {
+      const file = e.target.files?.[0];
+      if (file && file.type.startsWith("image/")) {
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+      } else {
+        setPreviewUrl(null);
+      }
+    }
+    onChange(e);
+  };
 
   return (
     <div className={combinedContainerClasses}>
@@ -59,9 +85,9 @@ export const Input = ({
         id={name}
         type={type}
         name={name}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
+        placeholder={type !== "file" ? placeholder : undefined}
+        value={type !== "file" ? value : undefined}
+        onChange={type === "file" ? handleFileChange : onChange}
         className={combinedInputClasses}
         required={required}
         min={min}
@@ -70,7 +96,19 @@ export const Input = ({
         disabled={disabled}
         aria-invalid={!!error}
         aria-describedby={error ? `${name}-error` : undefined}
+        accept={type === "file" ? accept : undefined}
+        multiple={type === "file" ? multiple : undefined}
       />
+
+      {showPreview && previewUrl && (
+        <div className="mt-2">
+          <img
+            src={previewUrl}
+            alt="Vista previa"
+            className="max-w-xs max-h-40 rounded-lg border"
+          />
+        </div>
+      )}
 
       {error && (
         <p id={`${name}-error`} className="text-red-500 text-sm mt-1">

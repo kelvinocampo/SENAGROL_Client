@@ -16,7 +16,6 @@ import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement
 import PerfilUsuarioUnico from "./components/perfil/UserEditProfile";
 import FormularioTransporte from "./pages/Perfil/FormularioTransporte";
 import Transporte from "./pages/Perfil/ListaTransportadores";
-import Perfilusuario from "./pages/Perfil/perfilUsuario";
 import MisTransportes from "./pages/Perfil/ListarMisTransportes";
 import QRCompras from "./pages/Perfil/Qrcompras";
 import CodigoCompras from "./pages/Perfil/CodigoCompras";
@@ -79,7 +78,7 @@ function App() {
           <Route path="/compra/:id_compra/codigo" element={<CodigoCompras />} />
 
           <Route path="/transporte" element={<Transporte />} />
-          <Route path="/perfil" element={<Perfilusuario />} />
+          
 
           <Route path="/mistransportes" element={<MisTransportes />} />
 

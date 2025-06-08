@@ -48,7 +48,7 @@ export default function CompraModal({ isOpen, onClose, onConfirm, producto }: Co
         longitud: ubicacion.lng.toFixed(6),
       });
 
-      alert("Compra realizada con éxito.");
+     
       onConfirm(cantidad, ubicacionTexto);
       onClose();
     } catch (error) {

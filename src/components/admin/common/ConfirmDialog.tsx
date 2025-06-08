@@ -30,7 +30,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             Cancelar
           </button>
           <button
-            className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+            className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
             onClick={() => {
               onConfirm();
               onClose();
