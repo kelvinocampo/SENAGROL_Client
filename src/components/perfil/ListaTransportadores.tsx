@@ -44,6 +44,7 @@ export default function Transportadores({ id_compra }: Props) {
   const [precio, setPrecio] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
   const [confirmacionFinal, setConfirmacionFinal] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,31 +71,31 @@ export default function Transportadores({ id_compra }: Props) {
   const handleAsignarClick = (transportador: Transportador) => {
     setSelected(transportador);
     setPrecio("");
+    setError("");
     setConfirmacionFinal(false);
     setMostrarModal(true);
   };
 
   const handlePrimeraConfirmacion = () => {
-    if (!precio || isNaN(Number(precio)) || Number(precio) <= 0) {
-      alert("⚠️ Precio inválido");
+    const parsed = Number(precio);
+    if (!precio || isNaN(parsed) || parsed <= 0) {
+      setError("⚠️ Por favor ingresa un precio válido mayor a 0");
       return;
     }
+    setError("");
     setConfirmacionFinal(true);
   };
 
   const handleAsignacionFinal = async () => {
     if (!selected || !precio) return;
-
     try {
-      const parsedPrecio = parseFloat(precio);
       await asignarTransportador(
         Number(id_compra),
-        Number(selected.id_usuario),
-        parsedPrecio
+        selected.id_usuario,
+        parseFloat(precio)
       );
-
-      alert("✅ Transportador asignado con éxito");
       cerrarModal();
+      alert("✅ Transportador asignado con éxito");
     } catch (error) {
       console.error("❌ Error al asignar transportador:", error);
       alert("❌ Error al asignar transportador");
@@ -105,6 +106,7 @@ export default function Transportadores({ id_compra }: Props) {
     setMostrarModal(false);
     setSelected(null);
     setPrecio("");
+    setError("");
     setConfirmacionFinal(false);
   };
 
@@ -169,7 +171,7 @@ export default function Transportadores({ id_compra }: Props) {
                         <td className="p-4">{t.nombre}</td>
                         <td className="p-4">{t.correo}</td>
                         <td className="p-4 flex items-center gap-3">
-                          <MessageSquare className="w-5 h-5 text-blue-500" />
+                          <MessageSquare className="w-5 h-5 text-gray-400" />
                           <button
                             onClick={() => handleAsignarClick(t)}
                             className="bg-[#48BD28] text-white px-3 py-1.5 rounded hover:bg-[#379E1B] transition"
@@ -182,10 +184,7 @@ export default function Transportadores({ id_compra }: Props) {
                   })
                 ) : (
                   <tr>
-                    <td
-                      colSpan={5}
-                      className="p-6 text-center text-[#F10E0E]"
-                    >
+                    <td colSpan={5} className="p-6 text-center text-[#F10E0E]">
                       No hay transportadores disponibles.
                     </td>
                   </tr>
@@ -222,36 +221,37 @@ export default function Transportadores({ id_compra }: Props) {
                         Asignar Transportador
                       </h2>
                       <p className="mb-2 text-sm">
-                        Pon un precio para el transporte:
+                        Ingresa el precio del transporte:
                       </p>
-
                       <input
                         type="number"
+                        min="1"
                         placeholder="Precio del transporte"
                         value={precio}
                         onChange={(e) => setPrecio(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded mb-4"
+                        className="w-full px-4 py-2 border border-gray-300 rounded mb-2"
                       />
-
-                      {precio && (
-                        <div className="flex flex-col items-center gap-3">
-                          <p className="text-center text-sm">
-                            ¿Deseas continuar con la asignación?
-                          </p>
-                          <button
-                            onClick={handlePrimeraConfirmacion}
-                            className="bg-[#48BD28] text-white px-6 py-2 rounded hover:bg-[#379E1B]"
-                          >
-                            Continuar
-                          </button>
-                          <button
-                            onClick={cerrarModal}
-                            className="text-sm text-gray-500 hover:underline"
-                          >
-                            Cancelar
-                          </button>
-                        </div>
+                      {error && (
+                        <p className="text-red-500 text-sm mb-2">{error}</p>
                       )}
+
+                      <div className="flex flex-col items-center gap-3">
+                        <p className="text-center text-sm">
+                          ¿Deseas continuar con la asignación?
+                        </p>
+                        <button
+                          onClick={handlePrimeraConfirmacion}
+                          className="bg-[#48BD28] text-white px-6 py-2 rounded hover:bg-[#379E1B]"
+                        >
+                          Continuar
+                        </button>
+                        <button
+                          onClick={cerrarModal}
+                          className="text-sm text-gray-500 hover:underline"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
                     </>
                   ) : (
                     <div className="flex flex-col items-center gap-4">
@@ -289,7 +289,7 @@ export default function Transportadores({ id_compra }: Props) {
   );
 }
 
-
+// ─── Slider para mostrar fotos del vehículo ───────────────────────────────────
 function Slider({ fotos, nombre }: { fotos: string[]; nombre: string }) {
   const [index, setIndex] = useState(0);
 
@@ -302,22 +302,19 @@ function Slider({ fotos, nombre }: { fotos: string[]; nombre: string }) {
         src={fotos[index]}
         alt={`Foto ${index + 1} del carro de ${nombre}`}
         className="w-full h-full object-cover"
-        onError={(e) => {
-          e.currentTarget.src = "/fallback.jpg";
-        }}
+        onError={(e) => (e.currentTarget.src = "/img/default-car.png")}
       />
-
       {fotos.length > 1 && (
         <>
           <button
             onClick={anterior}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-30 text-white text-xs px-1 rounded-l"
+            className="absolute left-1 top-1/2 transform -translate-y-1/2 text-white text-xs bg-black bg-opacity-50 px-1 rounded"
           >
             ‹
           </button>
           <button
             onClick={siguiente}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-30 text-white text-xs px-1 rounded-r"
+            className="absolute right-1 top-1/2 transform -translate-y-1/2 text-white text-xs bg-black bg-opacity-50 px-1 rounded"
           >
             ›
           </button>
