@@ -10,7 +10,6 @@ export const updateUserProfile = async (formData: {
   vehicleType?: string;
   vehicleWeight?: number;
   roles: string[];
-  roles: string[];
 }) => {
   try {
     const token = localStorage.getItem("token");
