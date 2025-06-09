@@ -1,5 +1,5 @@
 export class MessageService {
-    static API_URL = 'https://senagrol.up.railway.app';
+    static API_URL = 'http://localhost:10101';
 
     static async getMessages(id_chat: number): Promise<Message[]> {
         try {
