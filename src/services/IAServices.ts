@@ -1,5 +1,5 @@
 export class IAService {
-    static API_URL = "http://localhost:10101";
+    static API_URL = "https://senagrol.up.railway.app";
 
     static async getResponse(prompt: string): Promise<string> {
         try {
