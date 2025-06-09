@@ -1,12 +1,12 @@
 export class IAService {
-    static API_URL = "https://senagrol.up.railway.app";
+    static API_URL = "http://localhost:10101";
 
     static async getResponse(prompt: string): Promise<string> {
         try {
-            // const token = localStorage.getItem("token") || "";
-            // if (token) {
-            //     return await this.getResponseUserRegistered(prompt, token);
-            // }
+            const token = localStorage.getItem("token") || "";
+            if (token) {
+                return await this.getResponseUserRegistered(prompt, token);
+            }
             const history = JSON.parse(sessionStorage.getItem("history") || "[]");
             const response = await fetch(`${this.API_URL}/IA/`, {
                 method: "POST",
