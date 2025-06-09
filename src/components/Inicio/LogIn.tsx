@@ -68,7 +68,7 @@ export const LoginForm = () => {
         {/* Volver */}
         <div className="absolute top-5 left-5 z-10">
           <Link
-            to="/inicio"
+            to="/"
             className="inline-flex items-center text-green-700 hover:text-green-900 font-medium transition-colors duration-300"
           >
             <svg

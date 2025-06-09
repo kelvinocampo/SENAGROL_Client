@@ -6,6 +6,7 @@ import { UserList } from "@/components/Chats/UserList";
 import { NavBarChats } from "@/components/Chats/NavBar";
 import { ChatsProvider } from "@/contexts/Chats";
 import Header from "@/components/Header";
+import Footer from "@/components/footer";
 import { AnimatePresence } from "framer-motion";
 import FallingLeaves from "@/components/FallingLeaf";
 
@@ -112,7 +113,9 @@ export const Chats = () => {
             </Routes>
           </ChatsProvider>
         </div>
+        
       </div>
+      <Footer></Footer>
     </div>
   );
 };
