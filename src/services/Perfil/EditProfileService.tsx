@@ -15,7 +15,11 @@ export const updateUserProfile = async (formData: {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("No se encontró el token de autenticación.");
 
-    const response = await fetch("https://senagrol.up.railway.app/usuario/edit", {
+    const cleanedData = Object.fromEntries(
+      Object.entries(formData).filter(([_, v]) => v !== undefined && v !== "")
+    );
+
+    const response = await fetch("http://localhost:10101/usuario/edit", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
