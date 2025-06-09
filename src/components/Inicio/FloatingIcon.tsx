@@ -20,7 +20,7 @@ const FloatingIcon: React.FC<FloatingIconProps> = ({
   size = "6rem", // 24 = 6rem
   className = "",
 }) => {
-  const style = {
+  const style: any = {
     position: "fixed" as const,
     top,
     right,

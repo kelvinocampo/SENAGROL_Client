@@ -174,7 +174,7 @@ const TransportesContenido: React.FC = () => {
                   icon: QrCode,
                   custom: 2,
                 },
-              ].map((item, i) => (
+              ].map((item, _) => (
                 <Link to={item.to} key={item.to}>
                   {item.icon ? (
                     <motion.div

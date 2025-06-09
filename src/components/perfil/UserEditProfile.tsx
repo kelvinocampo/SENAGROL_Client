@@ -1,6 +1,6 @@
 // ─── Librerías ───────────────────────────────────────────────────────────────
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -46,7 +46,7 @@ type FormData = {
 // ─── ...imports omitidos para brevedad ───
 
 function PerfilUsuarioUnico() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData | null>(null);
   const [loading, setLoading] = useState(true);
 
