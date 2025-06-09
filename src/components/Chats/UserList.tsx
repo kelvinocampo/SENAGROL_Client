@@ -29,10 +29,8 @@ export const UserList = () => {
     try {
       setActionError(null);
       const { chat } = await ChatService.getChat(id_user2);
-      console.log("Chat recibido:", chat);
       navigate(`/Chats/${chat}`);
     } catch (err) {
-      console.error("Error al obtener el chat:", err);
       setActionError("No se pudo iniciar el chat. Intenta de nuevo.");
     }
   };
@@ -49,7 +47,6 @@ export const UserList = () => {
 
       setUsers(filteredUsers);
     } catch (err) {
-      console.error("Error al obtener usuarios:", err);
       setError("Error al cargar la lista de usuarios. Recarga la página.");
     } finally {
       setIsLoading(false);
@@ -76,18 +73,20 @@ export const UserList = () => {
 
   return (
     <motion.div
-      className="bg-white shadow-md rounded-xl flex flex-1 flex-col m-4 w-full p-4"
+      className="bg-white shadow-md rounded-xl m-4 p-4 w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto flex flex-col flex-1"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
       <div className="p-4 border-b border-gray-300">
-        <h2 className="text-xl font-semibold text-gray-800">Lista de Usuarios</h2>
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 text-center sm:text-left">
+          Lista de Usuarios
+        </h2>
       </div>
 
       {actionError && (
         <motion.div
-          className="p-2 mx-4 mt-2 text-red-500 text-sm bg-red-50 rounded text-center"
+          className="p-2 mt-2 text-red-500 text-sm bg-red-50 rounded text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -121,10 +120,10 @@ export const UserList = () => {
         </div>
       ) : (
         <>
-          <div className="px-4 py-2 text-sm text-gray-500 border-b">
+          <div className="px-4 py-2 text-sm text-gray-500 border-b text-center sm:text-left">
             {users.length} {users.length === 1 ? "usuario" : "usuarios"} encontrados
           </div>
-          <ul className="overflow-y-auto flex-1">
+          <ul className="overflow-y-auto flex-1 max-h-[60vh]">
             <AnimatePresence>
               {users.map((user) => (
                 <motion.li
@@ -138,10 +137,8 @@ export const UserList = () => {
                   exit={{ opacity: 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 >
-                  <div className="flex justify-between items-center gap-2">
-                    <p className="font-medium text-gray-700 truncate">
-                      {user.nombre_usuario}
-                    </p>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <p className="font-medium text-gray-700 truncate">{user.nombre_usuario}</p>
                     <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
                       {user.roles}
                     </span>

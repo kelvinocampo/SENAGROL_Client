@@ -40,6 +40,8 @@ type FormData = {
   vehicleWeight?: number;
 };
 
+
+
 // ─── Componente Principal ───────────────────────────────────────────────────
 // ─── ...imports omitidos para brevedad ───
 
@@ -82,6 +84,8 @@ function PerfilUsuarioUnico() {
             vehicleType: user.tipo_vehiculo || "",
             vehicleWeight: Number(user.peso_vehiculo) || 0,
           });
+          console.log("Perfil cargado:", user); 
+          
         }
       } catch (err) {
         console.error("Error al cargar perfil:", err);
@@ -172,8 +176,6 @@ function PerfilUsuarioUnico() {
     );
   }
 
-  const inputSharedStyles =
-    "w-full border border-gray-300 rounded-lg px-4 py-2 text-black focus:outline-none focus:ring-2 focus:ring-[#48bd28] transition-all duration-300";
 
   return (
     <div className="min-h-screen bg-white font-[Fredoka] text-[#111]">
@@ -253,7 +255,7 @@ function PerfilUsuarioUnico() {
                       type={field.name === "vehicleWeight" ? "number" : "text"}
                       value={formData[field.name as keyof FormData] || ""}
                       onChange={handleChange}
-                      className={inputSharedStyles}
+                   
                     />
                   </motion.div>
                 ))}

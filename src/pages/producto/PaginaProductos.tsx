@@ -120,12 +120,14 @@ export default function PaginaProductos() {
           icon={<GiCoffeeBeans size="100%" color="green" />}
           top="2rem"
           right="2rem"
+            className="hidden md:block"  // <-- oculto en xs y sm, visible en md+
         />
         <FloatingIcon
           icon={<GiCoffeeBeans size="100%" color="brown" />}
           top="2rem"
           left="2rem"
           size="6rem"
+            className="hidden md:block"  // <-- oculto en xs y sm, visible en md+
         />
 
         {/* CARRUSEL */}

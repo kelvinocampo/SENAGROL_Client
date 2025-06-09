@@ -331,196 +331,191 @@ export const Chat = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen w-4xl mx-auto bg-white shadow rounded">
-      <header className="flex items-center justify-between p-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold truncate">{title}</h2>
-      </header>
-      <main className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-        {loading && (
-          <p className="text-center text-gray-500">Cargando mensajes...</p>
-        )}
-        {error && <p className="text-center text-red-500">{error}</p>}
-        {!loading && messages.length === 0 && (
-          <p className="text-center text-gray-400">
-            No hay mensajes en este chat.
-          </p>
-        )}
-        {messages.map((msg) => {
-          console.log(messages.map(msg => msg.id_mensaje));
-          const isMe = msg.id_user === currentUserId;
-          return (
-            <div
-              key={msg.id_mensaje}
-              className={`flex ${isMe ? "justify-end" : "justify-start"}`}
-              data-message-id={msg.id_mensaje}
-            >
-              <div
-                className={`relative max-w-md px-8 py-4 rounded-2xl break-words shadow-lg
-  ${
-    isMe ? "bg-green-500 text-white ml-auto" : "bg-white text-gray-800 mr-auto"
-  }`}
-              >
-                {/* Contenido del mensaje */}
-                {msg.tipo === "texto" && (
-                  <p className="whitespace-pre-wrap text-base leading-relaxed">
-                    {msg.contenido}
-                  </p>
-                )}
-                {msg.tipo === "imagen" && (
-                  <img
-                    src={msg.contenido}
-                    alt="Imagen enviada"
-                    className="rounded-xl max-w-full h-auto mt-2 cursor-pointer"
-                    onClick={() => window.open(msg.contenido, "_blank")}
-                  />
-                )}
-                {msg.tipo === "audio" && (
-                  <audio
-                    controls
-                    src={msg.contenido}
-                    className="rounded mt-2 w-full"
-                  />
-                )}
+  <div className="flex flex-col h-screen w-full max-w-4xl mx-auto bg-white shadow rounded">
+  <header className="flex items-center justify-between p-4 border-b border-gray-200">
+    <h2 className="text-lg sm:text-xl font-semibold truncate">{title}</h2>
+  </header>
 
-                {msg.editado === 1 && (
-                  <span className="absolute bottom-1 right-3 text-xs italic opacity-70">
-                    (editado)
-                  </span>
-                )}
+  <main className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 bg-gray-50">
+    {loading && (
+      <p className="text-center text-gray-500">Cargando mensajes...</p>
+    )}
+    {error && <p className="text-center text-red-500">{error}</p>}
+    {!loading && messages.length === 0 && (
+      <p className="text-center text-gray-400">No hay mensajes en este chat.</p>
+    )}
 
-                {/* Opciones mensaje solo si es mío */}
-                {isMe && (
-                  <>
-                    <button
-                      data-menu-btn={msg.id_mensaje}
-                      className="absolute -top-4 right-[-20px] p-2 rounded-full bg-white/10 hover:bg-white/30 transition"
-                      onClick={() =>
-                        setOpenMenu(
-                          openMenu === msg.id_mensaje ? null : msg.id_mensaje
-                        )
-                      }
-                      aria-label="Abrir menú de opciones"
-                    >
-                      <FiMoreVertical size={20} color="black" />
-                    </button>
-
-                    {/* Menú de opciones */}
-                    {openMenu === msg.id_mensaje && (
-                      <div
-                        data-menu={msg.id_mensaje}
-                        className="absolute top-10 right-[-20px] w-36 bg-white text-black border border-gray-200 rounded-md shadow-lg z-20"
-                      >
-                        {msg.tipo === "texto" && (
-                          <button
-                            onClick={() => {
-                              setEditing({
-                                id: msg.id_mensaje,
-                                content: msg.contenido,
-                              });
-                              setOpenMenu(null);
-                            }}
-                            className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-t-md"
-                          >
-                            <FiEdit2 className="mr-2" /> Editar
-                          </button>
-                        )}
-                        <button
-                          onClick={() => deleteMessage(msg.id_mensaje)}
-                          className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
-                        >
-                          <FiTrash2 className="mr-2" /> Eliminar
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </main>
-
-      {/* Editar mensaje */}
-      {editing && (
-        <div className="p-4 border-t border-gray-300 bg-gray-100 flex space-x-2">
-          <input
-            className="flex-grow p-2 border border-gray-300 rounded"
-            type="text"
-            value={editing.content}
-            onChange={(e) =>
-              setEditing((prev) =>
-                prev ? { ...prev, content: e.target.value } : null
-              )
-            }
-          />
-          <button
-            onClick={editMessage}
-            disabled={!editing.content.trim()}
-            className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
-          >
-            Guardar
-          </button>
-          <button
-            onClick={() => setEditing(null)}
-            className="px-4 py-2 bg-gray-300 rounded"
-          >
-            Cancelar
-          </button>
-        </div>
-      )}
-
-      {/* Formulario para enviar mensajes */}
-      {!editing && (
-        <form
-          onSubmit={sendTextMessage}
-          className="p-4 border-t border-gray-300 flex items-center space-x-2"
+    {messages.map((msg) => {
+      const isMe = msg.id_user === currentUserId;
+      return (
+        <div
+          key={msg.id_mensaje}
+          className={`flex ${isMe ? "justify-end" : "justify-start"}`}
         >
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            aria-label="Enviar imagen"
-            className="p-2 rounded hover:bg-gray-200"
+          <div
+            className={`relative max-w-[85%] sm:max-w-md px-4 sm:px-8 py-3 sm:py-4 rounded-2xl break-words shadow-lg
+              ${
+                isMe
+                  ? "bg-green-500 text-white ml-auto"
+                  : "bg-white text-gray-800 mr-auto"
+              }`}
           >
-            <FiCamera size={20} />
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={sendImage}
-          />
+            {msg.tipo === "texto" && (
+              <p className="whitespace-pre-wrap text-base leading-relaxed">
+                {msg.contenido}
+              </p>
+            )}
+            {msg.tipo === "imagen" && (
+              <img
+                src={msg.contenido}
+                alt="Imagen enviada"
+                className="rounded-xl max-w-full h-auto mt-2 cursor-pointer"
+                onClick={() => window.open(msg.contenido, "_blank")}
+              />
+            )}
+            {msg.tipo === "audio" && (
+              <audio
+                controls
+                src={msg.contenido}
+                className="rounded mt-2 w-full"
+              />
+            )}
+            {msg.editado === 1 && (
+              <span className="absolute bottom-1 right-3 text-xs italic opacity-70">
+                (editado)
+              </span>
+            )}
 
-          <input
-            type="text"
-            placeholder="Escribe un mensaje"
-            className="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-green-400"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-          />
+            {isMe && (
+              <>
+                <button
+                  data-menu-btn={msg.id_mensaje}
+                  className="absolute -top-4 right-[-20px] p-2 rounded-full bg-white/10 hover:bg-white/30 transition"
+                  onClick={() =>
+                    setOpenMenu(
+                      openMenu === msg.id_mensaje ? null : msg.id_mensaje
+                    )
+                  }
+                  aria-label="Abrir menú de opciones"
+                >
+                  <FiMoreVertical size={20} color="black" />
+                </button>
 
-          <button
-            type="submit"
-            disabled={!newMessage.trim()}
-            className="p-2 bg-green-500 text-white rounded disabled:opacity-50"
-            aria-label="Enviar mensaje"
-          >
-            <FiSend size={20} />
-          </button>
+                {openMenu === msg.id_mensaje && (
+                  <div
+                    data-menu={msg.id_mensaje}
+                    className="absolute top-10 right-[-20px] w-36 bg-white text-black border border-gray-200 rounded-md shadow-lg z-20"
+                  >
+                    {msg.tipo === "texto" && (
+                      <button
+                        onClick={() => {
+                          setEditing({
+                            id: msg.id_mensaje,
+                            content: msg.contenido,
+                          });
+                          setOpenMenu(null);
+                        }}
+                        className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-t-md"
+                      >
+                        <FiEdit2 className="mr-2" /> Editar
+                      </button>
+                    )}
+                    <button
+                      onClick={() => deleteMessage(msg.id_mensaje)}
+                      className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
+                    >
+                      <FiTrash2 className="mr-2" /> Eliminar
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      );
+    })}
 
-          <button
-            type="button"
-            onClick={toggleRecording}
-            aria-label={recording ? "Detener grabación" : "Grabar audio"}
-            className={`p-2 rounded ${
-              recording ? "bg-red-500 text-white" : "hover:bg-gray-200"
-            }`}
-          >
-            <FiMic size={20} />
-          </button>
-        </form>
-      )}
+    <div ref={messagesEndRef} />
+  </main>
+
+  {editing && (
+    <div className="p-3 sm:p-4 border-t border-gray-300 bg-gray-100 flex flex-col sm:flex-row gap-2">
+      <input
+        className="flex-grow p-2 border border-gray-300 rounded"
+        type="text"
+        value={editing.content}
+        onChange={(e) =>
+          setEditing((prev) =>
+            prev ? { ...prev, content: e.target.value } : null
+          )
+        }
+      />
+      <div className="flex gap-2">
+        <button
+          onClick={editMessage}
+          disabled={!editing.content.trim()}
+          className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
+        >
+          Guardar
+        </button>
+        <button
+          onClick={() => setEditing(null)}
+          className="px-4 py-2 bg-gray-300 rounded"
+        >
+          Cancelar
+        </button>
+      </div>
     </div>
+  )}
+
+  {!editing && (
+    <form
+      onSubmit={sendTextMessage}
+      className="p-3 sm:p-4 border-t border-gray-300 flex items-center gap-2 flex-wrap"
+    >
+      <button
+        type="button"
+        onClick={() => fileInputRef.current?.click()}
+        aria-label="Enviar imagen"
+        className="p-2 rounded hover:bg-gray-200"
+      >
+        <FiCamera size={20} />
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={sendImage}
+      />
+      <input
+        type="text"
+        placeholder="Escribe un mensaje"
+        className="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-green-400 min-w-[150px]"
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
+      />
+      <button
+        type="submit"
+        disabled={!newMessage.trim()}
+        className="p-2 bg-green-500 text-white rounded disabled:opacity-50"
+        aria-label="Enviar mensaje"
+      >
+        <FiSend size={20} />
+      </button>
+      <button
+        type="button"
+        onClick={toggleRecording}
+        aria-label={recording ? "Detener grabación" : "Grabar audio"}
+        className={`p-2 rounded ${
+          recording ? "bg-red-500 text-white" : "hover:bg-gray-200"
+        }`}
+      >
+        <FiMic size={20} />
+      </button>
+    </form>
+  )}
+</div>
+
   );
 };

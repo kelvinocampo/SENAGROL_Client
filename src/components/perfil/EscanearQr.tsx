@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import jsQR from "jsqr";
 import { receiveBuyCode } from "@/services/Perfil/EscanearQr&codigo";
+import { motion, AnimatePresence } from "framer-motion";
 
 const QrScanner: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -77,29 +78,84 @@ const QrScanner: React.FC = () => {
   }, [token]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold mb-4">Escáner QR</h1>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.6 }}
+      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br  p-6"
+    >
+      <motion.h1
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-3xl font-bold text-gray-800 mb-6"
+      >
+        Escáner QR
+      </motion.h1>
 
-      <video
-        ref={videoRef}
-        className="rounded-lg shadow-md w-full max-w-md"
-        autoPlay
-        muted
-      />
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="rounded-xl shadow-lg overflow-hidden w-full max-w-md border border-gray-300"
+      >
+        <video
+          ref={videoRef}
+          className="w-full h-auto"
+          autoPlay
+          muted
+        />
+      </motion.div>
 
       <canvas ref={canvasRef} className="hidden" />
 
-      <div className="mt-4 p-4 bg-white rounded shadow-md w-full max-w-md text-center">
-        {qrData ? (
-          <p className="text-green-600 font-medium">Código: {qrData}</p>
-        ) : (
-          <p className="text-gray-500">Escaneando...</p>
-        )}
-        {message && (
-          <p className="mt-2 text-sm text-black font-medium">{message}</p>
-        )}
-      </div>
-    </div>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="mt-6 p-4 bg-white rounded-xl shadow w-full max-w-md text-center"
+      >
+        <AnimatePresence mode="wait">
+          {qrData ? (
+            <motion.p
+              key="code"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 5 }}
+              className="text-green-600 font-semibold text-lg"
+            >
+              Código: {qrData}
+            </motion.p>
+          ) : (
+            <motion.p
+              key="scanning"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 5 }}
+              className="text-gray-500 text-base"
+            >
+              Escaneando...
+            </motion.p>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {message && (
+            <motion.p
+              key="message"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ delay: 0.2 }}
+              className="mt-2 text-sm text-black font-medium"
+            >
+              {message}
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 };
 

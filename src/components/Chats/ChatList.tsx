@@ -93,7 +93,6 @@ export const ChatsList = () => {
             } else {
                 await ChatService.blockChat(chatId);
             }
-            // Actualizar el estado local después de la operación
             await fetchChats();
             setOpenMenuId(null);
         } catch (err) {
@@ -107,7 +106,6 @@ export const ChatsList = () => {
         try {
             setError(null);
             await ChatService.deleteChat(chatId);
-            // Actualizar el estado local después de la operación
             await fetchChats();
             setOpenMenuId(null);
         } catch (err) {
@@ -117,15 +115,15 @@ export const ChatsList = () => {
     };
 
     return (
-        <div className="bg-white shadow-sm rounded-lg flex flex-col m-4 w-full p-4">
-            <div className="p-4 border-b border-gray-400 bg-white z-10">
-                <h2 className="text-xl font-semibold text-gray-800">Tus Conversaciones</h2>
+        <div className="bg-white shadow-sm rounded-lg flex flex-col m-4 w-full max-w-4xl mx-auto p-2 sm:p-4">
+            <div className="p-2 sm:p-4 border-b border-gray-300 bg-white z-10">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 text-center sm:text-left">Tus Conversaciones</h2>
             </div>
 
             {isLoading ? (
                 <div className="p-4 space-y-4">
                     {[...Array(5)].map((_, i) => (
-                        <div key={i} className="p-4 rounded-lg animate-pulse border-b border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer relative">
+                        <div key={i} className="p-4 rounded-lg animate-pulse border-b border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer relative">
                             <div className="h-5 w-3/4 bg-gray-200 rounded mb-2"></div>
                             <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
                         </div>
@@ -136,7 +134,7 @@ export const ChatsList = () => {
             ) : chats.length === 0 ? (
                 <div className="p-4 text-gray-500 text-center">No tienes chats iniciados</div>
             ) : (
-                <div className="overflow-y-auto flex-1">
+                <div className="overflow-y-auto flex-1 max-h-[70vh]">
                     {chats.map((chat: any) => {
                         const otherUser = getOtherUser(chat);
                         const isBlocked = chat.estado === "Bloqueado";
@@ -145,12 +143,12 @@ export const ChatsList = () => {
                         return (
                             <div
                                 key={chat.id_chat}
-                                className="p-4 border-b border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer relative"
+                                className="p-4 border-b border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer relative"
                                 onClick={() => handleClickChat(chat.id_chat)}
                             >
-                                <div className="flex justify-between items-center gap-2">
-                                    <div className="min-w-0 flex-1">
-                                        <h3 className="text-lg font-medium text-gray-900 truncate">
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">
                                             {otherUser.name}
                                         </h3>
                                         <p className="text-sm text-gray-500 truncate">
@@ -158,8 +156,8 @@ export const ChatsList = () => {
                                         </p>
                                     </div>
 
-                                    <div className='flex gap-4'>
-                                        <div className="flex flex-col items-end space-y-1">
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex flex-col items-end space-y-1 text-right">
                                             {isBlocked && (
                                                 <span className="text-xs px-2 py-0.5 bg-red-100 text-red-800 rounded-full whitespace-nowrap">
                                                     Bloqueado
@@ -173,10 +171,7 @@ export const ChatsList = () => {
                                         <div
                                             data-menu-button={chat.id_chat}
                                             className={`flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-300 transition-colors ${isMenuOpen ? 'bg-gray-300' : 'bg-gray-200'}`}
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // ✅ Importante: evita seleccionar el chat
-                                                toggleMenu(chat.id_chat, e);
-                                            }}
+                                            onClick={(e) => toggleMenu(chat.id_chat, e)}
                                         >
                                             {isMenuOpen ? (
                                                 <FiX className="text-gray-700" />
@@ -191,7 +186,7 @@ export const ChatsList = () => {
                                     <div
                                         ref={menuRef}
                                         className="absolute right-4 top-16 z-20 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-200"
-                                        onClick={(e) => e.stopPropagation()} // ✅ Evita que el clic en el menú cierre o seleccione el chat
+                                        onClick={(e) => e.stopPropagation()}
                                     >
                                         <button
                                             onClick={(e) => handleBlockChat(chat.id_chat, isBlocked, e)}
@@ -211,7 +206,6 @@ export const ChatsList = () => {
                         );
                     })}
                 </div>
-
             )}
         </div>
     );

@@ -3,6 +3,10 @@ import { MapContainer, TileLayer, Marker, Polyline, Popup } from "react-leaflet"
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { obtenerUbicacionCompra, Ubicacion } from "@/services/Perfil/UbicacionTRansportador";
+import { motion } from "framer-motion";
+
+
+// Configuración del ícono por defecto
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -25,7 +29,6 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
   useEffect(() => {
     const obtenerUbicacion = async () => {
       try {
-        console.log("[API] -> Iniciando petición para ubicación de compra con id:", id_compra);
         setLoading(true);
         setError(null);
 
@@ -33,7 +36,6 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
         if (!token) throw new Error("❌ No hay token de autenticación");
 
         const data = await obtenerUbicacionCompra(id_compra, token);
-        console.log("[API] -> Respuesta recibida:", data);
 
         if (
           data.success &&
@@ -50,7 +52,6 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
           setUbicacion(null);
         }
       } catch (err: any) {
-        console.error("[API] -> Error en la petición:", err);
         setError(err.message || "Error desconocido");
         setUbicacion(null);
       } finally {
@@ -69,11 +70,10 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
             position.coords.latitude,
             position.coords.longitude,
           ];
-          console.log("[GEO] -> Ubicación usuario obtenida:", coords);
           setUbicacionUsuario(coords);
         },
         (err) => {
-          console.warn("[GEO] -> Error obteniendo ubicación usuario:", err.message);
+          alert("No se pudo obtener tu ubicación: " + err.message);
         }
       );
     } else {
@@ -87,13 +87,9 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
         !ubicacion ||
         isNaN(Number(ubicacion.latitud)) ||
         isNaN(Number(ubicacion.longitud))
-      ) {
-        console.log("[DIR] -> Coordenadas inválidas para obtener dirección:", ubicacion);
-        return;
-      }
+      ) return;
 
       try {
-        console.log("[DIR] -> Solicitando dirección para:", ubicacion.latitud, ubicacion.longitud);
         const response = await fetch(
           `http://localhost:10101/compra/getAddress?lat=${ubicacion.latitud}&lng=${ubicacion.longitud}`
         );
@@ -102,11 +98,9 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
         if (data.success && data.message) {
           setDireccionVendedor(data.message);
         } else {
-          console.warn("[DIR] -> No se pudo obtener la dirección:", data.message || "Sin mensaje");
           setDireccionVendedor("Dirección no disponible");
         }
       } catch (error) {
-        console.error("[DIR] -> Error al obtener la dirección:", error);
         setDireccionVendedor("Error al obtener la dirección");
       }
     };
@@ -114,9 +108,12 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
     fetchDireccion();
   }, [ubicacion]);
 
-  if (loading) return <p>Cargando mapa...</p>;
-  if (error) return <p className="text-red-600">❌ Error: {error}</p>;
-  if (!ubicacion) return <p>⚠️ No se encontró la ubicación.</p>;
+  if (loading)
+    return <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mt-4">Cargando mapa...</motion.p>;
+  if (error)
+    return <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-red-600 font-semibold mt-4">❌ Error: {error}</motion.p>;
+  if (!ubicacion)
+    return <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">⚠️ No se encontró la ubicación.</motion.p>;
 
   const comprador: [number, number] = [
     parseFloat(ubicacion.latitud_comprador),
@@ -139,15 +136,28 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
       ];
 
   return (
-    <div>
-      <button
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto mt-6 p-4 rounded-xl bg-white shadow-xl"
+    >
+      
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={solicitarGeolocalizacion}
-        className="mb-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        className="mb-4 px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium rounded-full shadow hover:from-blue-700 hover:to-blue-600"
       >
-        Obtener mi ubicación
-      </button>
+        📍 Obtener mi ubicación
+      </motion.button>
 
-      <div className="h-[500px] w-full rounded-xl overflow-hidden shadow-lg">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="h-[500px] w-full rounded-lg overflow-hidden border border-gray-300"
+      >
         <MapContainer center={centro} zoom={13} className="h-full w-full">
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
@@ -174,8 +184,8 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
 
           <Polyline positions={[comprador, vendedor]} color="blue" />
         </MapContainer>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
