@@ -10,7 +10,7 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
-const API_URL = 'http://localhost/10101';
+const API_URL = 'http://localhost:10101';
 type Location = {
   lat: number;
   lng: number;

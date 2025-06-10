@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LocationPicker } from "@components/ProductsManagement/LocationPicker";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 type Location = {
   lat: number;
@@ -20,6 +21,8 @@ interface CompraModalProps {
 }
 
 export default function CompraModal({ isOpen, onClose, onConfirm, producto }: CompraModalProps) {
+  const stripe = useStripe();
+  const elements = useElements();
   const [cantidad, setCantidad] = useState(producto.cantidad_minima || 1);
   const [ubicacion, setUbicacion] = useState<Location | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,7 +51,7 @@ export default function CompraModal({ isOpen, onClose, onConfirm, producto }: Co
         longitud: ubicacion.lng.toFixed(6),
       });
 
-     
+
       onConfirm(cantidad, ubicacionTexto);
       onClose();
     } catch (error) {
@@ -100,6 +103,16 @@ export default function CompraModal({ isOpen, onClose, onConfirm, producto }: Co
               className="mb-4 h-110 rounded overflow-hidden border"
             />
 
+            <CardElement className="p-3 
+              border border-gray-300 
+              rounded-lg 
+              shadow-sm 
+              hover:border-indigo-400 
+              transition-colors
+              focus:outline-none
+              focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+              bg-white" />
+
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={onClose}
@@ -112,9 +125,8 @@ export default function CompraModal({ isOpen, onClose, onConfirm, producto }: Co
               <button
                 onClick={handleConfirm}
                 disabled={loading}
-                className={`px-4 py-2 text-white rounded transition ${
-                  loading ? "bg-green-300" : "bg-green-600 hover:bg-green-700"
-                }`}
+                className={`px-4 py-2 text-white rounded transition ${loading ? "bg-green-300" : "bg-green-600 hover:bg-green-700"
+                  }`}
               >
                 {loading ? (
                   <span className="flex items-center gap-2">

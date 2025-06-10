@@ -1,6 +1,6 @@
 export const obtenerPerfilUsuario = async (token: string) => {
     try {
-      const res = await fetch('http://localhost/10101/usuario/', {
+      const res = await fetch('http://localhost:10101/usuario/', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
