@@ -147,12 +147,7 @@ const UserProfileCard: React.FC = () => {
 
           {profileData.fotosVehiculo && (
             <>
-              <p className="text-[#48bd28] font-semibold">Foto del Vehículo</p>
-              <img
-                src={profileData.fotosVehiculo}
-                alt="Foto del vehículo"
-                className="w-48 h-auto mx-auto rounded-lg shadow-lg border border-gray-300"
-              />
+               <Slider fotos={profileData.fotosVehiculo} />
             </>
           )}
         </div>
@@ -182,6 +177,42 @@ const UserProfileCard: React.FC = () => {
         </button>
       )}
     </motion.aside>
+  );
+};
+const Slider: React.FC<{ fotos: string }> = ({ fotos }) => {
+  const imagenes = fotos.split(",").map((url) => url.trim());
+  const [index, setIndex] = useState(0);
+
+  const nextImage = () => setIndex((prev) => (prev + 1) % imagenes.length);
+  const prevImage = () =>
+    setIndex((prev) => (prev - 1 + imagenes.length) % imagenes.length);
+
+  return (
+    <div className="w-full flex flex-col items-center space-y-2">
+      <p className="text-[#48bd28] font-semibold">Fotos del Vehículo</p>
+      <div className="relative w-64 h-40 overflow-hidden">
+        <img
+          src={imagenes[index]}
+          alt={`Vehículo ${index + 1}`}
+          className="w-full h-full object-cover rounded-lg shadow-lg border border-gray-300"
+        />
+        <button
+          onClick={prevImage}
+          className="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-1 rounded-full shadow hover:bg-gray-100"
+        >
+          ◀
+        </button>
+        <button
+          onClick={nextImage}
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-1 rounded-full shadow hover:bg-gray-100"
+        >
+          ▶
+        </button>
+      </div>
+      <div className="text-sm text-gray-600">
+        Imagen {index + 1} de {imagenes.length}
+      </div>
+    </div>
   );
 };
 

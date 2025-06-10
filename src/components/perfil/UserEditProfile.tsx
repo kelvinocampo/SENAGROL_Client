@@ -1,7 +1,6 @@
 // ─── Librerías ───────────────────────────────────────────────────────────────
 import { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 
 // ─── Componentes ─────────────────────────────────────────────────────────────
@@ -9,7 +8,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import UserProfileCard from "@components/perfil/UserProfileCard";
 import { Input } from "@/components/Input";
-import { MessageDialog } from "@components/admin/common/MessageDialog"; // Asegúrate de que la ruta sea correcta
+import { MessageDialog } from "@components/admin/common/MessageDialog";
+import { ConfirmDialog } from "../admin/common/ConfirmDialog";
 
 // ─── Servicios ───────────────────────────────────────────────────────────────
 import { obtenerPerfilUsuario } from "@/services/Perfil/PerfilusuarioServices";
@@ -38,16 +38,11 @@ type FormData = {
   vehicleCard?: string;
   vehicleType?: string;
   vehicleWeight?: number;
-   vehicleImage?: string; // nueva propiedad
+  vehicleImage?: string;
 };
 
-
-
 // ─── Componente Principal ───────────────────────────────────────────────────
-// ─── ...imports omitidos para brevedad ───
-
 function PerfilUsuarioUnico() {
-  // const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -56,21 +51,31 @@ function PerfilUsuarioUnico() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [dialog, setDialog] = useState<{ open: boolean; type: "success" | "error"; message: string }>({
+  const [dialog, setDialog] = useState<{ 
+    open: boolean; 
+    type: "success" | "error"; 
+    message: string 
+  }>({
     open: false,
     type: "success",
     message: "",
+  });
+
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
   });
 
   useEffect(() => {
     const fetchPerfil = async () => {
       const token = localStorage.getItem("token");
       if (!token) return setLoading(false);
-     
+
       try {
         const data = await obtenerPerfilUsuario(token);
         const user = data?.[0];
-        
 
         if (user) {
           setFormData({
@@ -81,15 +86,12 @@ function PerfilUsuarioUnico() {
             phone: user.telefono,
             roles: data.roles || "",
             license: data.licencia_conduccion || "",
-            soat: user.soat || "",
-            vehicleCard: user.tarjeta_propiedad_vehiculo || "",
-            vehicleType: user.tipo_vehiculo || "",
-            vehicleWeight: Number(user.peso_vehiculo) || 0,
-            vehicleImage: user.imagen_vehiculo || "", // nuevo campo
-            
+            soat: data.soat || "",
+            vehicleCard: data.tarjeta_propiedad_vehiculo || "",
+            vehicleType: data.tipo_vehiculo || "",
+            vehicleWeight: Number(data.peso_vehiculo) || 0,
+            vehicleImage: data.imagen_vehiculo || "",
           });
-          console.log("Perfil cargado:", user); 
-          
         }
       } catch (err) {
         console.error("Error al cargar perfil:", err);
@@ -100,6 +102,42 @@ function PerfilUsuarioUnico() {
 
     fetchPerfil();
   }, []);
+
+  const performUpdate = async () => {
+    if (!formData) return;
+    setLoading(true);
+    
+    try {
+      const payload: any = {
+        ...formData,
+        ...(password && { password }),
+      };
+
+      if (!formData.vehicleWeight || formData.vehicleWeight === 0) {
+        delete payload.vehicleWeight;
+      }
+
+      await updateUserProfile(payload);
+
+      setDialog({
+        open: true,
+        type: "success",
+        message: "Perfil actualizado correctamente.",
+      });
+
+      setPassword("");
+      setConfirmPassword("");
+    } catch (err: any) {
+      console.error("Error al actualizar perfil:", err);
+      setDialog({
+        open: true,
+        type: "error",
+        message: err.message || "Hubo un error al actualizar el perfil.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!formData) return;
@@ -138,37 +176,12 @@ function PerfilUsuarioUnico() {
       }
     }
 
-    setLoading(true);
-    try {
-      const payload: any = {
-        ...formData,
-        ...(password && { password }),
-      };
-
-      if (!formData.vehicleWeight || formData.vehicleWeight === 0) {
-        delete payload.vehicleWeight;
-      }
-
-      await updateUserProfile(payload);
-
-      setDialog({
-        open: true,
-        type: "success",
-        message: "Perfil actualizado correctamente.",
-      });
-
-      setPassword("");
-      setConfirmPassword("");
-    } catch (err: any) {
-      console.error("Error al actualizar perfil:", err);
-      setDialog({
-        open: true,
-        type: "error",
-        message: err.message || "Hubo un error al actualizar el perfil.",
-      });
-    } finally {
-      setLoading(false);
-    }
+    setConfirmDialog({
+      open: true,
+      title: "Confirmar cambios",
+      message: "¿Estás seguro de que deseas guardar los cambios?",
+      onConfirm: performUpdate
+    });
   };
 
   if (loading || !formData) {
@@ -179,7 +192,6 @@ function PerfilUsuarioUnico() {
       </div>
     );
   }
-
 
   return (
     <div className="min-h-screen bg-white font-[Fredoka] text-[#111]">
@@ -198,7 +210,8 @@ function PerfilUsuarioUnico() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Campos principales */}
-              {[{ label: "Nombre de usuario", name: "username", type: "text", value: formData.username },
+              {[
+                { label: "Nombre de usuario", name: "username", type: "text", value: formData.username },
                 { label: "Correo", name: "email", type: "email", value: formData.email },
                 { label: "Nombre completo", name: "name", type: "text", value: formData.name },
                 { label: "Teléfono", name: "phone", type: "text", value: formData.phone },
@@ -247,49 +260,110 @@ function PerfilUsuarioUnico() {
               {/* Campos de transportador */}
               {formData.roles.toLowerCase().includes("transportador") &&
                 [
-                  { label: "Licencia", name: "license", placeholder: "Ingresa tu licencia", value: formData.license },
-                  { label: "SOAT", name: "soat", placeholder: "Ingresa tu SOAT", value: formData.soat },
-                  { label: "Tarjeta Vehículo", name: "vehicleCard", placeholder: "Tarjeta de propiedad", value: formData.vehicleCard },
-                  { label: "Tipo Vehículo", name: "vehicleType", placeholder: "Tipo de vehículo", value: formData.vehicleType},
-                  { label: "Peso Vehículo (kg)", name: "vehicleWeight", placeholder: "Peso en kilogramos", value: formData.vehicleWeight },
+                  { label: "Licencia", name: "license", placeholder: "Ingresa tu licencia", value: formData.license || "" },
+                  { label: "SOAT", name: "soat", placeholder: "Ingresa tu SOAT", value: formData.soat || "" },
+                  { label: "Tarjeta Vehículo", name: "vehicleCard", placeholder: "Tarjeta de propiedad", value: formData.vehicleCard || "" },
+                  { label: "Tipo Vehículo", name: "vehicleType", placeholder: "Tipo de vehículo", value: formData.vehicleType || "" },
+                  { label: "Peso Vehículo (kg)", name: "vehicleWeight", placeholder: "Peso en kilogramos", value: formData.vehicleWeight || "" },
                 ].map((field, idx) => (
                   <motion.div key={field.name} variants={fadeInUp} custom={6 + idx}>
                     <Input
                       {...field}
                       type={field.name === "vehicleWeight" ? "number" : "text"}
-                      value={formData[field.name as keyof FormData] || ""}
                       onChange={handleChange}
-                   
                     />
                   </motion.div>
                 ))}
+
+              {/* Vista previa de imagen */}
+              {formData.vehicleImage && (
+                <motion.div variants={fadeInUp} custom={99}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Imagen del Vehículo</label>
+                  <img
+                    src={formData.vehicleImage}
+                    alt="Vehículo"
+                    className="w-full h-48 object-cover rounded-lg border"
+                  />
+                </motion.div>
+              )}
+
+              {/* Input para cambiar imagen */}
+              <motion.div variants={fadeInUp} custom={100}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cambiar Imagen</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const url = URL.createObjectURL(file);
+                      setFormData({ ...formData, vehicleImage: url });
+                    }
+                  }}
+                  className="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-green-50 file:text-green-700
+                    hover:file:bg-green-100"
+                />
+              </motion.div>
             </div>
 
             <div className="pt-6 text-right">
               <button
                 onClick={handleUpdate}
                 className="bg-[#48bd28] hover:bg-[#379e1b] text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300"
+                disabled={loading}
               >
-                Guardar Cambios
+                {loading ? "Guardando..." : "Guardar Cambios"}
               </button>
             </div>
           </div>
         </motion.section>
       </main>
 
-      {/* Diálogo de mensaje */}
-    <MessageDialog
-  isOpen={dialog.open}
-  message={dialog.message}
-  onClose={() => setDialog({ ...dialog, open: false })}
-/>
+      <AnimatePresence>
+        {confirmDialog.open && (
+          <motion.div
+            key="confirm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ConfirmDialog
+              isOpen={confirmDialog.open}
+              onClose={() => setConfirmDialog({ ...confirmDialog, open: false })}
+              onConfirm={confirmDialog.onConfirm}
+              title={confirmDialog.title}
+              message={confirmDialog.message}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
+      <AnimatePresence>
+        {dialog.open && (
+          <motion.div
+            key="message"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <MessageDialog
+              isOpen={dialog.open}
+              onClose={() => setDialog({ ...dialog, open: false })}
+              message={dialog.message}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>
   );
 }
-
-
 
 export default PerfilUsuarioUnico;
