@@ -38,6 +38,7 @@ type FormData = {
   vehicleCard?: string;
   vehicleType?: string;
   vehicleWeight?: number;
+   vehicleImage?: string; // nueva propiedad
 };
 
 
@@ -65,10 +66,11 @@ function PerfilUsuarioUnico() {
     const fetchPerfil = async () => {
       const token = localStorage.getItem("token");
       if (!token) return setLoading(false);
-
+     
       try {
         const data = await obtenerPerfilUsuario(token);
         const user = data?.[0];
+        
 
         if (user) {
           setFormData({
@@ -78,11 +80,13 @@ function PerfilUsuarioUnico() {
             name: user.nombre,
             phone: user.telefono,
             roles: data.roles || "",
-            license: user.licencia_conduccion || "",
+            license: data.licencia_conduccion || "",
             soat: user.soat || "",
             vehicleCard: user.tarjeta_propiedad_vehiculo || "",
             vehicleType: user.tipo_vehiculo || "",
             vehicleWeight: Number(user.peso_vehiculo) || 0,
+            vehicleImage: user.imagen_vehiculo || "", // nuevo campo
+            
           });
           console.log("Perfil cargado:", user); 
           
@@ -243,11 +247,11 @@ function PerfilUsuarioUnico() {
               {/* Campos de transportador */}
               {formData.roles.toLowerCase().includes("transportador") &&
                 [
-                  { label: "Licencia", name: "license", placeholder: "Ingresa tu licencia" },
-                  { label: "SOAT", name: "soat", placeholder: "Ingresa tu SOAT" },
-                  { label: "Tarjeta Vehículo", name: "vehicleCard", placeholder: "Tarjeta de propiedad" },
-                  { label: "Tipo Vehículo", name: "vehicleType", placeholder: "Tipo de vehículo" },
-                  { label: "Peso Vehículo (kg)", name: "vehicleWeight", placeholder: "Peso en kilogramos" },
+                  { label: "Licencia", name: "license", placeholder: "Ingresa tu licencia", value: formData.license },
+                  { label: "SOAT", name: "soat", placeholder: "Ingresa tu SOAT", value: formData.soat },
+                  { label: "Tarjeta Vehículo", name: "vehicleCard", placeholder: "Tarjeta de propiedad", value: formData.vehicleCard },
+                  { label: "Tipo Vehículo", name: "vehicleType", placeholder: "Tipo de vehículo", value: formData.vehicleType},
+                  { label: "Peso Vehículo (kg)", name: "vehicleWeight", placeholder: "Peso en kilogramos", value: formData.vehicleWeight },
                 ].map((field, idx) => (
                   <motion.div key={field.name} variants={fadeInUp} custom={6 + idx}>
                     <Input

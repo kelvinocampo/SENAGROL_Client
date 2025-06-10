@@ -10,7 +10,16 @@ import PeticionVendedor from "./PeticionVendedor";
 export interface FormDataProfile {
   id_user: number | string;
   username: string;
+  name: string;
+  email: string;
+  phone: string;
   roles: string;
+  tipoVehiculo?: string;
+  tarjetaPropiedad?: string;
+  licenciaConduccion?: string;
+  soat?: string;
+  pesoVehiculo?: string;
+  fotosVehiculo?: string;
 }
 
 const UserProfileCard: React.FC = () => {
@@ -29,20 +38,28 @@ const UserProfileCard: React.FC = () => {
 
         const data = await obtenerPerfilUsuario(token);
 
+ if (data) {
+  const userObj = data;
 
-        if (data) {
-          // Extraemos el rol directamente de data.roles
-          const rolReal = (data.roles as string) || "";
+  setProfileData({
+    id_user: userObj[0]?.id_usuario || "",
+    name: userObj[0]?.nombre || "",
+    username: userObj[0]?.nombre_usuario || "",
+    email: userObj[0]?.correo || "",
+    phone: userObj[0]?.telefono || "",
+    roles: userObj.roles || "",
+    tipoVehiculo: userObj.tipo_vehiculo || "",
+    tarjetaPropiedad: userObj.tarjeta_propiedad_vehiculo || "",
+    licenciaConduccion: userObj.licencia_conduccion || "",
+    soat: userObj.soat || "",
+    pesoVehiculo: userObj.peso_vehiculo || "",
+    fotosVehiculo: userObj.fotos_vehiculo || "",
+  });
+}
 
-          // Extraemos id_usuario y nombre_usuario de data[0]
-          const userObj = data[0] as Record<string, any>;
 
-          setProfileData({
-            id_user: userObj.id_usuario,
-            username: userObj.nombre_usuario,
-            roles: rolReal,
-          });
-        }
+
+
       } catch (error) {
         console.error("Error al cargar perfil en UserProfileCard:", error);
       } finally {
@@ -53,7 +70,6 @@ const UserProfileCard: React.FC = () => {
     fetchProfile();
   }, []);
 
-  // Estado de carga
   if (loading) {
     return (
       <motion.aside
@@ -67,7 +83,6 @@ const UserProfileCard: React.FC = () => {
     );
   }
 
-  // Si no hay datos de perfil
   if (!profileData) {
     return (
       <motion.aside
@@ -81,7 +96,6 @@ const UserProfileCard: React.FC = () => {
     );
   }
 
-  console.log("profileData en render CARD:", profileData);
   const lowerRole = profileData.roles.toLowerCase();
 
   return (
@@ -101,15 +115,49 @@ const UserProfileCard: React.FC = () => {
         <h2 className="text-2xl font-bold text-gray-800">
           {profileData.username}
         </h2>
-       
       </div>
 
       <div className="text-sm space-y-2 w-full text-center">
+        <p className="text-[#48bd28] font-semibold">Nombre Completo</p>
+        <p className="text-gray-700">{profileData.name || "—Sin nombre—"}</p>
+        <p className="text-[#48bd28] font-semibold">Correo</p>
+        <p className="text-gray-700">{profileData.email || "—Sin Correo—"}</p>
+        <p className="text-[#48bd28] font-semibold">Teléfono</p>
+        <p className="text-gray-700">{profileData.phone || "—Sin teléfono—"}</p>
         <p className="text-[#48bd28] font-semibold">Rol</p>
         <p className="text-gray-700">{profileData.roles || "—Sin rol—"}</p>
       </div>
 
-      {/* Si NO es transportador, mostramos “Formulario Transportador” */}
+      {lowerRole.includes("transportador") && (
+        <div className="text-sm space-y-2 w-full text-center">
+          <p className="text-[#48bd28] font-semibold">Tipo de Vehículo</p>
+          <p className="text-gray-700">{profileData.tipoVehiculo || "—Sin tipo—"}</p>
+
+          <p className="text-[#48bd28] font-semibold">Placa / Tarjeta de Propiedad</p>
+          <p className="text-gray-700">{profileData.tarjetaPropiedad || "—Sin tarjeta—"}</p>
+
+          <p className="text-[#48bd28] font-semibold">Licencia de Conducción</p>
+          <p className="text-gray-700">{profileData.licenciaConduccion || "—Sin licencia—"}</p>
+
+          <p className="text-[#48bd28] font-semibold">SOAT</p>
+          <p className="text-gray-700">{profileData.soat || "—Sin SOAT—"}</p>
+
+          <p className="text-[#48bd28] font-semibold">Peso del Vehículo</p>
+          <p className="text-gray-700">{profileData.pesoVehiculo || "—Sin peso—"}</p>
+
+          {profileData.fotosVehiculo && (
+            <>
+              <p className="text-[#48bd28] font-semibold">Foto del Vehículo</p>
+              <img
+                src={profileData.fotosVehiculo}
+                alt="Foto del vehículo"
+                className="w-48 h-auto mx-auto rounded-lg shadow-lg border border-gray-300"
+              />
+            </>
+          )}
+        </div>
+      )}
+
       {!lowerRole.includes("transportador") && (
         <button
           onClick={() => navigate("/formulariotransportador")}
@@ -119,11 +167,19 @@ const UserProfileCard: React.FC = () => {
         </button>
       )}
 
-      {/* Si NO es vendedor, mostramos “Petición Vendedor” */}
       {!lowerRole.includes("vendedor") && (
         <div className="w-full mt-2">
           <PeticionVendedor />
         </div>
+      )}
+
+      {lowerRole.includes("cliente") && (
+        <button
+          onClick={() => navigate("/perfil/editar")}
+          className="mt-2 bg-blue-600 text-white py-2 w-full rounded-full font-medium hover:bg-blue-700 transition-colors shadow-md"
+        >
+          Editar Perfil
+        </button>
       )}
     </motion.aside>
   );
