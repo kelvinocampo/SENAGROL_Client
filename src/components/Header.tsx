@@ -147,8 +147,6 @@ const Header = () => {
         return [commonLinks.login, commonLinks.inicio];
     }
   };
-
-
   const renderPerfilDropdown = (isMobile = false) => (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
