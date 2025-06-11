@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TransportService from "@/services/Perfil/ListarMisTransportes";
-import { MapPin, QrCode, Truck } from "lucide-react";
+import { MapPin, QrCode, Truck, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -19,6 +19,7 @@ const estadoColor: Record<Compra["estado"], string> = {
   "En Proceso": "bg-yellow-400",
   Completada: "bg-green-500",
 };
+
 const iconVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.8 },
   visible: (i: number) => ({
@@ -41,60 +42,65 @@ const iconVariants = {
 
 const TransportesContenido: React.FC = () => {
   const [compras, setCompras] = useState<Compra[]>([]);
+  const [toast, setToast] = useState<{ mensaje: string; tipo: "success" | "error" } | null>(null);
+
+  const cargarTransportes = async () => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem("user") || "{}").id;
+      const data = await TransportService.getTransports(id_user);
+      const comprasFiltradas = data.filter((compra: Compra) =>
+        ["Asignada", "En Proceso", "Completada"].includes(compra.estado)
+      );
+      setCompras(comprasFiltradas);
+    } catch (error) {
+      setToast({ mensaje: "Error al cargar transportes", tipo: "error" });
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const id_user = JSON.parse(localStorage.getItem("user") || "{}").id;
-        const data = await TransportService.getTransports(id_user);
-
-        const comprasFiltradas = data.filter((compra: Compra) => {
-          const estado = compra.estado?.trim();
-          return (
-            estado === "En Proceso" ||
-            estado === "Completada" ||
-            estado === "Asignada"
-          );
-        });
-
-        setCompras(comprasFiltradas);
-      } catch (error) {
-        console.error("Error al cargar transportes:", error);
-      }
-    };
-
-    fetchData();
+    cargarTransportes();
   }, []);
 
+  const handleCancelarCompra = async (id_compra: number) => {
+    try {
+      await TransportService.cancelarCompra(id_compra);
+      setToast({ mensaje: "Compra cancelada correctamente", tipo: "success" });
+      cargarTransportes();
+    } catch (error) {
+      setToast({ mensaje: "Error al cancelar la compra", tipo: "error" });
+    }
+  };
+
   const countByEstado = {
-    Asignado: compras.filter((c) => c.estado === "Asignada").length,
+    Asignada: compras.filter((c) => c.estado === "Asignada").length,
     "En Proceso": compras.filter((c) => c.estado === "En Proceso").length,
     Completada: compras.filter((c) => c.estado === "Completada").length,
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="max-w-3xl mx-auto px-4 py-6 relative">
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`fixed top-4 right-4 px-4 py-2 rounded shadow text-white z-50 ${
+            toast.tipo === "success" ? "bg-green-600" : "bg-red-600"
+          }`}
+          onClick={() => setToast(null)}
+          style={{ cursor: "pointer" }}
+        >
+          {toast.mensaje}
+        </div>
+      )}
+
       {/* Indicadores de estado */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex gap-4 items-center">
           <span className="text-sm text-gray-600">Estado:</span>
           <div className="flex items-center gap-4">
             {[
-              {
-                label: "Asignada",
-                color: "bg-red-400",
-                count: countByEstado.Asignado,
-              },
-              {
-                label: "Proceso",
-                color: "bg-yellow-400",
-                count: countByEstado["En Proceso"],
-              },
-              {
-                label: "Completada",
-                color: "bg-green-500",
-                count: countByEstado.Completada,
-              },
+              { label: "Asignada", color: "bg-red-400", count: countByEstado.Asignada },
+              { label: "Proceso", color: "bg-yellow-400", count: countByEstado["En Proceso"] },
+              { label: "Completada", color: "bg-green-500", count: countByEstado.Completada },
             ].map((estado) => (
               <div key={estado.label} className="flex items-center gap-1">
                 <span className={`w-3 h-3 ${estado.color} rounded-full`} />
@@ -120,11 +126,7 @@ const TransportesContenido: React.FC = () => {
             <Truck className="w-10 h-10 text-green-600 shrink-0" />
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span
-                  className={`w-3 h-3 rounded-full ${
-                    estadoColor[compra.estado]
-                  }`}
-                />
+                <span className={`w-3 h-3 rounded-full ${estadoColor[compra.estado]}`} />
                 <span className="font-semibold text-lg text-gray-800">
                   {compra.producto_nombre}
                 </span>
@@ -140,10 +142,19 @@ const TransportesContenido: React.FC = () => {
                 <br />
                 Vendedor: {compra.vendedor_nombre}
                 <br />
-                Fecha entrega:{" "}
-                {new Date(compra.fecha_entrega).toLocaleDateString()}
+                Fecha entrega: {new Date(compra.fecha_entrega).toLocaleDateString()}
               </p>
+              {/* Botón de cancelar */}
+              {compra.estado === "Asignada" && (
+                <button
+                  onClick={() => handleCancelarCompra(compra.id_compra)}
+                  className="mt-2 text-sm text-red-600 hover:underline"
+                >
+                  Cancelar transporte
+                </button>
+              )}
             </div>
+
             <motion.div
               className="flex flex-col items-center gap-2"
               initial="hidden"
@@ -174,7 +185,7 @@ const TransportesContenido: React.FC = () => {
                   icon: QrCode,
                   custom: 2,
                 },
-              ].map((item, _) => (
+              ].map((item) => (
                 <Link to={item.to} key={item.to}>
                   {item.icon ? (
                     <motion.div
