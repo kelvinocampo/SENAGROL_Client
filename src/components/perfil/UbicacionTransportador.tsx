@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Polyline, Popup } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Polyline,
+  Popup,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { obtenerUbicacionCompra, Ubicacion } from "@/services/Perfil/UbicacionTRansportador";
+import {
+  obtenerUbicacionCompra,
+  Ubicacion,
+} from "@/services/Perfil/UbicacionTRansportador";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
   shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
 });
@@ -82,16 +92,14 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
 
     const fetchDirecciones = async () => {
       try {
-        // Dirección del vendedor
         const respVendedor = await fetch(
-          `https://senagrol.up.railway.app/compra/getAddress?lat=${ubicacion.latitud}&lon=${ubicacion.longitud}`
+          `http://localhost:10101/compra/getAddress?lat=${ubicacion.latitud}&lon=${ubicacion.longitud}`
         );
         const dataVendedor = await respVendedor.json();
         setDireccionVendedor(dataVendedor.success ? dataVendedor.message : "Dirección no disponible");
 
-        // Dirección del comprador
         const respComprador = await fetch(
-          `https://senagrol.up.railway.app/compra/getAddress?lat=${ubicacion.latitud_comprador}&lon=${ubicacion.longitud_comprador}`
+          `http://localhost:10101/compra/getAddress?lat=${ubicacion.latitud_comprador}&lon=${ubicacion.longitud_comprador}`
         );
         const dataComprador = await respComprador.json();
         setDireccionComprador(dataComprador.success ? dataComprador.message : "Dirección no disponible");
@@ -159,9 +167,9 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
     obtenerRutaVendedorComprador();
   }, [ubicacion]);
 
-  if (loading) return <p>Cargando mapa...</p>;
-  if (error) return <p className="text-red-600">❌ Error: {error}</p>;
-  if (!ubicacion) return <p>⚠️ No se encontró la ubicación.</p>;
+  if (loading) return <p className="text-center text-gray-600">⏳ Cargando mapa...</p>;
+  if (error) return <p className="text-center text-red-600 font-semibold">❌ Error: {error}</p>;
+  if (!ubicacion) return <p className="text-center text-yellow-600">⚠️ No se encontró la ubicación.</p>;
 
   const comprador: [number, number] = [
     parseFloat(ubicacion.latitud_comprador),
@@ -184,8 +192,11 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
       ];
 
   return (
-    <div>
-      <div className="h-[500px] w-full rounded-xl overflow-hidden shadow-lg">
+    <div className="p-4 bg-white rounded-xl shadow-lg">
+      <h2 className="text-2xl font-bold text-green-700 mb-4 text-center flex items-center justify-center gap-2">
+        🗺️ Ruta de entrega
+      </h2>
+      <div className="h-[500px] w-full rounded-xl overflow-hidden border border-gray-200">
         <MapContainer center={centro} zoom={13} className="h-full w-full">
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 

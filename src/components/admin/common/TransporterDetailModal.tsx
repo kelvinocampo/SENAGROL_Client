@@ -46,7 +46,7 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-          `https://senagrol.up.railway.app/admin/transporters/${user.id}`,
+          `http://localhost:10101/admin/transporters/${user.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

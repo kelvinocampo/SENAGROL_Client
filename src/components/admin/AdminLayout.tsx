@@ -20,7 +20,6 @@ const getValidActiveView = (): string => {
   return validViews.includes(storedView || "") ? storedView! : "usuarios";
 };
 
-// Animación base
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
@@ -43,7 +42,6 @@ export const AdminLayout = () => {
         </h2>
       </motion.section>
     ),
-
     usuarios: (
       <motion.section {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.h1 {...fadeUp} className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
@@ -69,7 +67,6 @@ export const AdminLayout = () => {
         </motion.div>
       </motion.section>
     ),
-
     productos: (
       <ProductManagementProvider>
         <motion.section {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -97,7 +94,6 @@ export const AdminLayout = () => {
         </motion.section>
       </ProductManagementProvider>
     ),
-
     ventas: (
       <SalesManagementProvider>
         <motion.section {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -130,7 +126,7 @@ export const AdminLayout = () => {
           </motion.div>
         </motion.section>
       </SalesManagementProvider>
-    ),
+    )
   };
 
   return (
