@@ -2,7 +2,9 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LocationPicker } from "@components/ProductsManagement/LocationPicker";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { CardElement, 
+  // useStripe, useElements 
+} from '@stripe/react-stripe-js';
 
 type Location = {
   lat: number;
@@ -21,8 +23,8 @@ interface CompraModalProps {
 }
 
 export default function CompraModal({ isOpen, onClose, onConfirm, producto }: CompraModalProps) {
-  const stripe = useStripe();
-  const elements = useElements();
+  // const stripe = useStripe();
+  // const elements = useElements();
   const [cantidad, setCantidad] = useState(producto.cantidad_minima || 1);
   const [ubicacion, setUbicacion] = useState<Location | null>(null);
   const [loading, setLoading] = useState(false);
