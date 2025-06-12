@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -13,27 +13,63 @@ const COLORS = ['#48bd28', '#a0eb8a', '#caf5bd', '#205116', '#6dd850', '#e4fbdd'
 
 const getMonthName = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleString('default', { month: 'long' }); // ejemplo: 'enero', 'febrero'
+  return date.toLocaleString('default', { month: 'long' });
 };
 
 export const PieChartProductsByMonth = () => {
   const context = useContext(ProductManagementContext);
-  if (!context) return null;
+  const [data, setData] = useState<{ name: string; value: number }[]>([]);
+  const [error, setError] = useState(false);
+  const [noData, setNoData] = useState(false);
 
-  const { products } = context;
+  useEffect(() => {
+    try {
+      if (!context || !context.products) {
+        setNoData(true); // Flujo Interno 2
+        return;
+      }
 
-  // Contar productos por mes
-  const monthCounts: Record<string, number> = {};
+      const monthCounts: Record<string, number> = {};
+      context.products.forEach((product) => {
+        const monthName = getMonthName(product.fecha_publicacion);
+        monthCounts[monthName] = (monthCounts[monthName] || 0) + 1;
+      });
 
-  products.forEach((product) => {
-    const monthName = getMonthName(product.fecha_publicacion); // ⚠️ Asegúrate que `created_at` exista
-    monthCounts[monthName] = (monthCounts[monthName] || 0) + 1;
-  });
+      const formattedData = Object.entries(monthCounts).map(([month, count]) => ({
+        name: month,
+        value: count,
+      }));
 
-  const data = Object.entries(monthCounts).map(([month, count]) => ({
-    name: month,
-    value: count,
-  }));
+      if (formattedData.length === 0) {
+        setNoData(true); // Flujo Interno 2
+      } else {
+        setData(formattedData);
+        setNoData(false);
+      }
+
+    } catch (err) {
+      setError(true); // Flujo Interno 1
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    }
+  }, [context]);
+
+  if (error) {
+    return (
+      <div className="text-red-600 font-semibold text-center">
+        Error al cargar la gráfica. Recargando página...
+      </div>
+    );
+  }
+
+  if (noData) {
+    return (
+      <div className="text-yellow-600 font-semibold text-center">
+        No se puede visualizar la gráfica de productos en este momento. Intente más tarde.
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">

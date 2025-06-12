@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { TableHeader } from "@/components/admin/table/TableHeader";
 import { ActionButton } from "@/components/admin/table/ActionButton";
 import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog";
@@ -6,10 +6,7 @@ import { MessageDialog } from "@/components/admin/common/MessageDialog";
 import { FaTrash } from "react-icons/fa";
 import { MiniMap } from "@/components/admin/common/MiniMap";
 import { ProductManagementContext } from "@/contexts/admin/ProductsManagement";
-
-// 🆕 Importa Framer Motion
 import { motion, AnimatePresence } from "framer-motion";
-
 
 const rowVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -17,14 +14,10 @@ const rowVariants = {
   exit: { opacity: 0, y: -10 },
 };
 
+// ...importaciones omitidas para brevedad
+
 export const ProductTable = () => {
- 
   const context = useContext(ProductManagementContext);
-
-  if (!context) return <div>Error: contexto no disponible.</div>;
-
-  const { products, unpublishProduct, publish, deleteProduct, fetchProducts } =
-    context;
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
@@ -48,8 +41,35 @@ export const ProductTable = () => {
     setMessageOpen(true);
   };
 
+  // Flujo Interno 1: Contexto no disponible
+  useEffect(() => {
+    if (!context) {
+      const timer = setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [context]);
+
+  if (!context) {
+    return (
+      <div className="text-red-600 font-semibold text-center mt-4">
+        Error: contexto no disponible. Reintentando cargar...
+      </div>
+    );
+  }
+
+  const { products, unpublishProduct, publish, deleteProduct, fetchProducts } =
+    context;
+
+  // Flujo Interno 2: Lista de productos vacía
   if (!products || products.length === 0) {
-    return <div>No hay productos disponibles.</div>;
+    return (
+      <div className="text-yellow-600 font-semibold text-center mt-4">
+        No hay productos disponibles en este momento. Por favor, intente más
+        tarde.
+      </div>
+    );
   }
 
   return (
@@ -107,15 +127,32 @@ export const ProductTable = () => {
                     onClick={() =>
                       handleConfirm(
                         `¿Estás seguro de que deseas ${
-                          product.despublicado === 1 ? "publicar" : "despublicar"
+                          product.despublicado === 1
+                            ? "publicar"
+                            : "despublicar"
                         } el producto ${product.nombre}?`,
                         async () => {
                           if (product.despublicado === 1) {
                             await publish(product.id);
+                            setConfirmOpen(false);
+                            setTimeout(
+                              () =>
+                                showMessage(
+                                  "Producto ha sido publicado exitosamente."
+                                ),
+                              200
+                            );
                           } else {
                             await unpublishProduct(product.id);
+                            setConfirmOpen(false);
+                            setTimeout(
+                              () =>
+                                showMessage(
+                                  "Producto ha sido despublicado exitosamente."
+                                ),
+                              200
+                            );
                           }
-                          setConfirmOpen(false);
                         }
                       )
                     }
@@ -148,7 +185,13 @@ export const ProductTable = () => {
 
                           if (result.success) {
                             setConfirmOpen(false);
-                            setTimeout(() => showMessage(result.message), 200);
+                            setTimeout(
+                              () =>
+                                showMessage(
+                                  "Se eliminó el producto exitosamente."
+                                ),
+                              200
+                            );
                             return;
                           }
 
@@ -167,7 +210,7 @@ export const ProductTable = () => {
         </tbody>
       </table>
 
-      {/* Modal Confirmación */}
+      {/* Confirmación */}
       <AnimatePresence>
         {confirmOpen && (
           <motion.div
@@ -187,7 +230,7 @@ export const ProductTable = () => {
         )}
       </AnimatePresence>
 
-      {/* Modal Mensajes */}
+      {/* Mensaje */}
       <AnimatePresence>
         {messageOpen && (
           <motion.div
