@@ -10,6 +10,7 @@ import { ProductManagementContext } from "@/contexts/admin/ProductsManagement";
 // 🆕 Importa Framer Motion
 import { motion, AnimatePresence } from "framer-motion";
 
+
 const rowVariants = {
   hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0 },
@@ -17,6 +18,7 @@ const rowVariants = {
 };
 
 export const ProductTable = () => {
+ 
   const context = useContext(ProductManagementContext);
 
   if (!context) return <div>Error: contexto no disponible.</div>;
