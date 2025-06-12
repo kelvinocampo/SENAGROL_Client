@@ -15,6 +15,7 @@ export interface Product {
   id_vendedor: number;
   nombre_vendedor: string;
   fecha_publicacion: string;
+eliminado: number; // 👈 necesario
 }
 
 interface ContextType {
@@ -31,17 +32,14 @@ export const ProductManagementContext = createContext<ContextType | null>(null);
 export const ProductManagementProvider = ({ children }: { children: React.ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
 
-  const fetchProducts = async () => {
-    try {
-      const response = await ProductManagementService.getProducts();
-
-      const { products } = response;
-
-      setProducts(products);
-    } catch (error) {
-      console.error('❌ Error al cargar productos:', error);
-    }
-  };
+ const fetchProducts = async () => {
+  try {
+    const { products } = await ProductManagementService.getProducts();
+    setProducts(products);
+  } catch (error) {
+    console.error('❌ Error al cargar productos:', error);
+  }
+};
 
   useEffect(() => {
     fetchProducts();

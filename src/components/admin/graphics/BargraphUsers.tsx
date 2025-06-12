@@ -14,7 +14,15 @@ import { getUserRoleCounts } from '@utils/User/userRoleUtils';
 
 export const BarChartRoles = () => {
   const context = useContext(UserManagementContext);
-  if (!context || !context.users) return null;
+
+  // Flujo Alterno 1: Contexto o usuarios no disponibles
+  if (!context || !context.users || context.users.length === 0) {
+    return (
+      <div className="text-red-600 font-semibold text-center mt-4">
+        La gráfica de barras Usuarios no está disponible, intente más tarde.
+      </div>
+    );
+  }
 
   const roleCounts = getUserRoleCounts(context.users);
   const data = Object.entries(roleCounts).map(([role, count]) => ({

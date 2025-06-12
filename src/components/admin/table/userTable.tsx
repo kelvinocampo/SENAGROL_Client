@@ -119,6 +119,19 @@ export const UserTable = () => {
 
   if (users === null) return <div>Cargando usuarios...</div>;
 
+  // ⚠️ NUEVA LÓGICA DEL FLUJO ALTERNO 1
+  if (users.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-center mt-10 text-gray-600"
+      >
+        No hay usuarios en este momento.
+      </motion.div>
+    );
+  }
+
   const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -150,7 +163,7 @@ export const UserTable = () => {
                 exit={{ opacity: 0 }}
               >
                 <td colSpan={6} className="text-center py-4 text-gray-500">
-                  No hay usuarios que coincidan con la búsqueda.
+                  No se encontraron Usuarios con esos datos.
                 </td>
               </motion.tr>
             ) : (

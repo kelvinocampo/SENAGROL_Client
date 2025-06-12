@@ -30,7 +30,8 @@ export class ProductManagementService {
       despublicado: p.despublicado,
       id_vendedor: p.id_vendedor,
       nombre_vendedor: p.nombre_vendedor,
-      fecha_publicacion: p.fecha_publicacion
+      fecha_publicacion: p.fecha_publicacion,
+      eliminado: p.eliminado
     }));
     
     

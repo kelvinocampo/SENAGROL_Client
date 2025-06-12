@@ -14,8 +14,6 @@ const rowVariants = {
   exit: { opacity: 0, y: -10 },
 };
 
-// ...importaciones omitidas para brevedad
-
 export const ProductTable = () => {
   const context = useContext(ProductManagementContext);
 
@@ -41,7 +39,6 @@ export const ProductTable = () => {
     setMessageOpen(true);
   };
 
-  // Flujo Interno 1: Contexto no disponible
   useEffect(() => {
     if (!context) {
       const timer = setTimeout(() => {
@@ -62,7 +59,6 @@ export const ProductTable = () => {
   const { products, unpublishProduct, publish, deleteProduct, fetchProducts } =
     context;
 
-  // Flujo Interno 2: Lista de productos vacía
   if (!products || products.length === 0) {
     return (
       <div className="text-yellow-600 font-semibold text-center mt-4">
@@ -147,7 +143,7 @@ export const ProductTable = () => {
                             setConfirmOpen(false);
                             setTimeout(
                               () =>
-                                showMessage(
+                                showMessage(  
                                   "Producto ha sido despublicado exitosamente."
                                 ),
                               200
@@ -162,8 +158,13 @@ export const ProductTable = () => {
                 </td>
                 <td className="p-2">
                   <ActionButton
-                    title="Eliminar producto"
-                    onClick={() =>
+                    title={
+                      product.eliminado === 1
+                        ? "Este producto ya ha sido eliminado"
+                        : "Eliminar producto"
+                    }
+                    onClick={() => {
+                      if (product.eliminado === 1) return;
                       handleConfirm(
                         `¿Estás seguro de que deseas eliminar el producto ${product.nombre}?`,
                         async () => {
@@ -198,8 +199,9 @@ export const ProductTable = () => {
                           setConfirmOpen(false);
                           await fetchProducts();
                         }
-                      )
-                    }
+                      );
+                    }}
+                    disabled={product.eliminado === 1}
                   >
                     <FaTrash />
                   </ActionButton>
@@ -210,7 +212,6 @@ export const ProductTable = () => {
         </tbody>
       </table>
 
-      {/* Confirmación */}
       <AnimatePresence>
         {confirmOpen && (
           <motion.div
@@ -230,7 +231,6 @@ export const ProductTable = () => {
         )}
       </AnimatePresence>
 
-      {/* Mensaje */}
       <AnimatePresence>
         {messageOpen && (
           <motion.div
