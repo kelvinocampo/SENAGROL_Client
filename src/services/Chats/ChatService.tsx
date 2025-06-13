@@ -83,6 +83,8 @@ export class ChatService {
                 throw new Error(`Error response: ${blockChat}`);
             }
             const result: any = await blockChat.json()
+            console.log("bloqueado");
+            
             return result;
         } catch (error) {
             console.error('Error blocking chat:', error);
