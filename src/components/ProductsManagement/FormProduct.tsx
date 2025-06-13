@@ -5,7 +5,6 @@ import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { LocationPicker } from "@/components/ProductsManagement/LocationPicker";
 import { Input } from "@/components/Input";
 import Footer from "@components/footer";
-
 import { motion } from "framer-motion";
 
 type ProductFormData = {
@@ -30,14 +29,55 @@ export const Form = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [imageFile, setImageFile] = useState<File | undefined>(undefined);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const productEdit = useMemo(() => {
     return products.find((p: any) => p.id_producto == id_edit_product);
   }, [id_edit_product, products]);
 
+  const checkForDuplicateProduct = async (nombre: string, idToExclude?: number) => {
+    try {
+      const allProducts = await ProductManagementService.getBySeller;
+      return allProducts.some(
+        (p: any) => p.nombre.toLowerCase() === nombre.toLowerCase() && p.id_producto !== idToExclude
+      );
+    } catch (error) {
+      console.error('Error verificando productos duplicados:', error);
+      return false;
+    }
+  };
+
   const handleCancel = () => {
+    const hasChanges = isEditMode 
+      ? product.nombre !== productEdit?.nombre ||
+        product.descripcion !== productEdit?.descripcion ||
+        product.cantidad !== Number(productEdit?.cantidad) ||
+        product.cantidad_minima_compra !== Number(productEdit?.cantidad_minima_compra) ||
+        product.precio_unidad !== Number(productEdit?.precio_unidad) ||
+        product.descuento !== (productEdit?.descuento ? Number(productEdit.descuento) : undefined) ||
+        (location?.lat !== Number(productEdit?.latitud)) || 
+        (location?.lng !== Number(productEdit?.longitud)) ||
+        imageFile !== undefined
+      : product.nombre !== '' ||
+        product.descripcion !== '' ||
+        product.cantidad !== 0 ||
+        product.cantidad_minima_compra !== 0 ||
+        product.precio_unidad !== 0 ||
+        product.descuento !== undefined ||
+        location !== null ||
+        imageFile !== undefined;
+
+    if (hasChanges) {
+      setShowCancelConfirm(true);
+    } else {
+      navigate('/MisProductos');
+    }
+  };
+
+  const confirmCancel = () => {
+    setShowCancelConfirm(false);
     navigate('/MisProductos');
-  }
+  };
 
   useEffect(() => {
     if (isEditMode && !productEdit && products.length > 0) {
@@ -89,6 +129,31 @@ export const Form = () => {
     }
   }, [isEditMode, productEdit]);
 
+  // Validación en tiempo real
+  useEffect(() => {
+    if (product.nombre && product.nombre.length > 100) {
+      setErrors(prev => ({ ...prev, nombre: 'Nombre no puede exceder 100 caracteres' }));
+    } else if (errors.nombre === 'Nombre no puede exceder 100 caracteres') {
+      setErrors(prev => ({ ...prev, nombre: '' }));
+    }
+  }, [product.nombre]);
+
+  useEffect(() => {
+    if (product.descripcion && product.descripcion.length > 500) {
+      setErrors(prev => ({ ...prev, descripcion: 'Descripción no puede exceder 500 caracteres' }));
+    } else if (errors.descripcion === 'Descripción no puede exceder 500 caracteres') {
+      setErrors(prev => ({ ...prev, descripcion: '' }));
+    }
+  }, [product.descripcion]);
+
+  useEffect(() => {
+    if (product.cantidad_minima_compra > product.cantidad) {
+      setErrors(prev => ({ ...prev, cantidad_minima_compra: 'No puede ser mayor que la cantidad total' }));
+    } else if (errors.cantidad_minima_compra === 'No puede ser mayor que la cantidad total') {
+      setErrors(prev => ({ ...prev, cantidad_minima_compra: '' }));
+    }
+  }, [product.cantidad_minima_compra, product.cantidad]);
+
   const handleIntegerChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof ProductFormData) => {
     const value = e.target.value;
     if (value === '' || /^\d+$/.test(value)) {
@@ -118,11 +183,16 @@ export const Form = () => {
     const newErrors: Record<string, string> = {};
 
     if (!product.nombre.trim()) newErrors.nombre = 'Nombre es requerido';
+    if (product.nombre.length > 100) newErrors.nombre = 'Nombre no puede exceder 100 caracteres';
     if (!product.descripcion.trim()) newErrors.descripcion = 'Descripción es requerida';
+    if (product.descripcion.length > 500) newErrors.descripcion = 'Descripción no puede exceder 500 caracteres';
     if (product.cantidad <= 0) newErrors.cantidad = 'Cantidad debe ser mayor a 0';
     if (product.cantidad_minima_compra <= 0) newErrors.cantidad_minima_compra = 'Cantidad mínima inválida';
+    if (product.cantidad_minima_compra > product.cantidad) newErrors.cantidad_minima_compra = 'No puede ser mayor que la cantidad total';
     if (product.precio_unidad <= 0) newErrors.precio_unidad = 'Precio debe ser mayor a 0';
+    if (product.descuento && (product.descuento < 0 || product.descuento > 100)) newErrors.descuento = 'Descuento debe ser entre 0 y 100';
     if (!location) newErrors.location = 'Debes seleccionar una ubicación';
+    if (!isEditMode && !imageFile) newErrors.imagen = 'La imagen es requerida';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -134,6 +204,17 @@ export const Form = () => {
     if (!validateForm()) return;
 
     try {
+      // Verificar duplicados
+      const isDuplicate = await checkForDuplicateProduct(
+        product.nombre,
+        isEditMode ? Number(id_edit_product) : undefined
+      );
+
+      if (isDuplicate) {
+        setErrors({ ...errors, nombre: 'Ya existe un producto con este nombre' });
+        return;
+      }
+
       const productData = {
         ...product,
         latitud: location?.lat,
@@ -159,7 +240,7 @@ export const Form = () => {
       navigate('/MisProductos');
     } catch (error) {
       console.error('Error al guardar producto:', error);
-      setErrors({ ...errors, general: 'Error al guardar el producto' });
+      setErrors({ ...errors, general: 'Error al guardar el producto. Por favor intente nuevamente.' });
     }
   };
 
@@ -189,9 +270,9 @@ export const Form = () => {
 
   return (
     <motion.section
-        className="font-[Fredoka] min-h-screen w-full py-8 px-16 flex flex-col gap-8 items-center justify-center bg-white"
-  initial="hidden"
-  animate="visible"
+      className="font-[Fredoka] min-h-screen w-full py-8 px-16 flex flex-col gap-8 items-center justify-center bg-white"
+      initial="hidden"
+      animate="visible"
       variants={containerVariants}
     >
       <motion.h2
@@ -204,11 +285,13 @@ export const Form = () => {
 
       {errors.general && (
         <motion.div
-          className="text-red-500 text-sm"
+          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded"
           variants={inputVariants}
           custom={1}
+          role="alert"
         >
-          {errors.general}
+          <p className="font-bold">Error</p>
+          <p>{errors.general}</p>
         </motion.div>
       )}
 
@@ -327,6 +410,9 @@ export const Form = () => {
               file:bg-[#48BD28] file:text-white
               hover:file:bg-[#379e1b]"
           />
+          {errors.imagen && (
+            <p className="text-red-500 text-sm mt-1">{errors.imagen}</p>
+          )}
           {imagePreview && (
             <img
               src={imagePreview}
@@ -352,12 +438,43 @@ export const Form = () => {
             Cancelar
           </button>
         </motion.div>
- <div className="max-w-[600px] mx-auto">
-  <Footer/> 
-</div>
-      </motion.form>
-    </motion.section>
         
+        <div className="max-w-[600px] mx-auto">
+          <Footer/> 
+        </div>
+      </motion.form>
+
+      {showCancelConfirm && (
+        <motion.div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="bg-white rounded-xl p-6 max-w-md w-full"
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+          >
+            <h3 className="text-lg font-bold mb-4">¿Estás seguro que quieres cancelar?</h3>
+            <p className="mb-6">Tienes cambios sin guardar que se perderán.</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+              >
+                Continuar editando
+              </button>
+              <button
+                onClick={confirmCancel}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Sí, cancelar
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </motion.section>
   );
-  
 };

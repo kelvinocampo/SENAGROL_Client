@@ -20,23 +20,26 @@ export class InicioService {
   }
 
   static async register(name: string, username: string, email: string, password: string, phone: string, confirmPassword: string) {
-    const response = await fetch(`${this.API_URL}/usuario/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name, username, email, password, phone, confirmPassword })
-    });
+  const response = await fetch(`${this.API_URL}/usuario/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ name, username, email, password, phone, confirmPassword })
+  });
 
-    const data = await response.json();
-    console.log(response, data);
+  const data = await response.json();
+  console.log(response, data);
 
-    if (!response.ok) {
-      throw new Error(data.message || data.error || "Tienes algún dato mal");
-    }
-
-    return data;
+  if (!response.ok) {
+    // Creamos un error con un campo adicional para poder acceder a los datos
+    const error: any = new Error("Error en el registro");
+    error.errorInfo = data?.errorInfo || data?.message || "Tienes algún dato mal";
+    throw error;
   }
+
+  return data;
+}
 
   static async recoverPassword(email: string): Promise<{ success: boolean; message: string }> {
     const response = await fetch(`${this.API_URL}/usuario/recover`, {
