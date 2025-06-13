@@ -1,6 +1,7 @@
 import { AuthService } from "@/services/AuthService";
 import { MessageService, Message } from "@/services/Chats/MessageService";
 import { useState, useEffect, useRef, useContext, useCallback } from "react";
+import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   FiMoreVertical,
@@ -20,7 +21,24 @@ export const Chat = () => {
   const navigate = useNavigate();
   const socket = useSocket("http://localhost:10101");
 
-  // Estados
+  /* ─── ConfirmDialog ─────────────────────────────────────────────── */
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const confirmAction = useRef<() => void>(() => {});
+
+  const openConfirmDialog = (
+    title: string,
+    message: string,
+    action: () => void
+  ) => {
+    setConfirmTitle(title);
+    setConfirmMessage(message);
+    confirmAction.current = action;
+    setConfirmOpen(true);
+  };
+
+  /* ─── Estados generales ────────────────────────────────────────── */
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,38 +46,74 @@ export const Chat = () => {
   const [newMessage, setNewMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [editing, setEditing] = useState<{ id: number; content: string } | null>(null);
+  const [editing, setEditing] = useState<{ id: number; content: string } | null>(
+    null
+  );
   const [openMenu, setOpenMenu] = useState<number | null>(null);
-  const [isBlocked, setIsBlocked] = useState(false); // Estado de bloqueo
-  const [blockedUserId, setBlockedUserId] = useState<number | null>(null); // ID del usuario bloqueado
-
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockedUserId, setBlockedUserId] = useState<number | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [chatExists, setChatExists] = useState<boolean | null>(null);
 
-  // Obtener información del chat
-  const currentChat = chats.find((c: any) => c.id_chat === parseInt(id_chat)) || null;
+  /* ─── Chat y bloqueo ────────────────────────────────────────────── */
+  const currentChat =
+    chats.find((c: any) => c.id_chat === parseInt(id_chat)) || null;
 
-  // Título del chat con indicador de bloqueo
   const title = (() => {
     if (chatExists === false) return "Chat no encontrado";
     if (!currentChat || !currentUserId) return "Chat";
 
     const isUser1 = currentChat.id_user1 === currentUserId;
-    const nombre = isUser1 ? currentChat.nombre_user2 : currentChat.nombre_user1;
+    const nombre = isUser1
+      ? currentChat.nombre_user2
+      : currentChat.nombre_user1;
     const rol = isUser1 ? currentChat.rol_user2 : currentChat.rol_user1;
-
     return `${nombre} (${rol})`;
   })();
 
-  // Mostrar errores
   const showError = (err: any, msg: string) => {
     console.error(err);
     setError(err instanceof Error ? err.message : msg);
-  }; 
+  };
 
-  console.log(blockedUserId, "ID del usuario bloqueado");
-  // Crear mensaje temporal
+ const verifyBlockStatus = (userId: number, chat: any) => {
+  const isUser1 = chat.id_user1 === userId;
+  
+  // Verificar si yo he bloqueado el chat
+  const iBlockedThisChat = isUser1 
+    ? chat.bloqueado_user1 === 1 
+    : chat.bloqueado_user2 === 1;
+  
+  // Verificar si el otro usuario ha bloqueado el chat
+  const otherUserBlocked = isUser1
+    ? chat.bloqueado_user2 === 1
+    : chat.bloqueado_user1 === 1;
+
+  // El chat está bloqueado si alguno de los dos lo bloqueó
+  const chatIsBlocked = iBlockedThisChat || otherUserBlocked;
+  
+  setIsBlocked(chatIsBlocked);
+  setBlockedUserId(chatIsBlocked ? (isUser1 ? chat.id_user2 : chat.id_user1) : null);
+};
+  const getCurrentUserId = useCallback(async () => {
+    try {
+      const id = await AuthService.getIDUser();
+      setCurrentUserId(id);
+      if (currentChat) verifyBlockStatus(id, currentChat);
+      return id;
+    } catch (err) {
+      showError(err, "Error al cargar usuario");
+      return null;
+    }
+  }, [currentChat]);
+
+  const checkIfBlocked = () => {
+    if (currentChat && currentUserId) verifyBlockStatus(currentUserId, currentChat);
+  };
+
+  /* ─── Mensajes: enviar texto ───────────────────────────────────── */
   const createTempMessage = (
     content: string,
     type: "texto" | "imagen" | "audio" = "texto"
@@ -72,56 +126,7 @@ export const Chat = () => {
     tipo: type,
     editado: 0,
   });
-const verifyBlockStatus = (
-  userId: number,
-  chat: any,                       // usa el tipo real si lo tienes
-) => {
-  const isUser1 = chat.id_user1 === userId;
 
-  // ¿yo he bloqueado este chat?
-  const iBlockedThisChat = isUser1
-    ? chat.bloqueado_user1 === 1    // ← si soy user1, miro bloqueado_user1
-    : chat.bloqueado_user2 === 1;   // ← si soy user2, miro bloqueado_user2
-
-  // ID del otro usuario
-  const otherUserId = isUser1 ? chat.id_user2 : chat.id_user1;
-
-  setIsBlocked(iBlockedThisChat);
-  if (iBlockedThisChat) {
-    setBlockedUserId(otherUserId);
-  } else {
-    setBlockedUserId(null);
-  }
-};
-
-  // Obtener ID del usuario actual
-const getCurrentUserId = useCallback(async () => {
-  try {
-    const id = await AuthService.getIDUser();
-    setCurrentUserId(id);                     // ← guarda ID
-
-    // Si el chat ya se cargó, verifica bloqueo
-    if (currentChat) verifyBlockStatus(id, currentChat);
-
-    return id;
-  } catch (err) {
-    showError(err, "Error al cargar usuario");
-    return null;
-  }
-}, [currentChat]);
-
-
-
-  // Verificar si el usuario está bloqueado (solo frontend)
-const checkIfBlocked = () => {
-  if (currentChat && currentUserId) {
-    verifyBlockStatus(currentUserId, currentChat);
-  }
-};
-
-
-
-  // Enviar mensaje de texto
   const sendTextMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isBlocked) {
@@ -134,129 +139,123 @@ const checkIfBlocked = () => {
     if (!userId) return;
 
     const tempMsg = createTempMessage(newMessage);
-    setMessages((prev) => [...prev, tempMsg]);
+    setMessages((p) => [...p, tempMsg]);
     setNewMessage("");
 
     try {
-      const response = await MessageService.sendTextMessage(newMessage, parseInt(id_chat));
-      setMessages((prev) =>
-        prev.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? response : m))
+      const res = await MessageService.sendTextMessage(
+        newMessage,
+        parseInt(id_chat)
       );
+      setMessages((p) => p.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? res : m)));
     } catch (err) {
       showError(err, "No se pudo enviar mensaje");
-      setMessages((prev) => prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
+      setMessages((p) => p.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
     }
   };
 
-  // Enviar imagen
-  const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  /* ─── Mensajes: enviar imagen ──────────────────────────────────── */
+const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isBlocked) {
-      setError("No puedes enviar mensajes a usuarios bloqueados");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
+        setError("No puedes enviar mensajes a usuarios bloqueados");
+        fileInputRef.current && (fileInputRef.current.value = "");
+        return;
     }
 
     const file = e.target.files?.[0];
     if (!file || !file.type.match("image.*")) {
-      setError("Solo se permiten imágenes");
-      return;
+        setError("Solo se permiten imágenes");
+        return;
     }
 
-    const userId = currentUserId || (await getCurrentUserId());
-    if (!userId) return;
+    // Mostrar diálogo de confirmación
+    openConfirmDialog(
+        "Enviar imagen",
+        "¿Estás seguro de que quieres enviar esta imagen?",
+        async () => {
+            const userId = currentUserId || (await getCurrentUserId());
+            if (!userId) return;
 
-    const tempMsg = createTempMessage(URL.createObjectURL(file), "imagen");
-    setMessages((prev) => [...prev, tempMsg]);
+            const tempMsg = createTempMessage(URL.createObjectURL(file), "imagen");
+            setMessages((p) => [...p, tempMsg]);
 
-    try {
-      const response = await MessageService.sendImageMessage(file, parseInt(id_chat));
-      setMessages((prev) =>
-        prev.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? response : m))
-      );
-    } catch (err) {
-      showError(err, "No se pudo enviar imagen");
-      setMessages((prev) => prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
-    }
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
+            try {
+                const res = await MessageService.sendImageMessage(file, parseInt(id_chat));
+                setMessages((p) => p.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? res : m)));
+            } catch (err) {
+                showError(err, "No se pudo enviar imagen");
+                setMessages((p) => p.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
+            }
+            fileInputRef.current && (fileInputRef.current.value = "");
+        }
+    );
+};
 
-  // Grabar audio
+  /* ─── Grabación de audio ───────────────────────────────────────── */
   const toggleRecording = async () => {
-    if (isBlocked) {
-      setError("No puedes enviar mensajes a usuarios bloqueados");
-      return;
-    }
-
     if (recording) {
       mediaRecorder?.stop();
-      mediaRecorder?.stream.getTracks().forEach((track) => track.stop());
       setRecording(false);
-      return;
-    }
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+        setMediaRecorder(recorder);
+        setAudioChunks([]);
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
+        recorder.ondataavailable = (e) => e.data.size > 0 && setAudioChunks((p) => [...p, e.data]);
 
-      recorder.ondataavailable = (e) => chunks.push(e.data);
-      recorder.onstop = async () => {
-        const audioBlob = new Blob(chunks, { type: "audio/mpeg" });
-        const userId = currentUserId || (await getCurrentUserId());
-        if (!userId) return;
+        recorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+          /* TODO: subir audioBlob */
+          console.log("Audio grabado:", audioBlob);
+          stream.getTracks().forEach((t) => t.stop());
+        };
 
-        const tempMsg = createTempMessage(URL.createObjectURL(audioBlob), "audio");
-        setMessages((prev) => [...prev, tempMsg]);
-
-        try {
-          const response = await MessageService.sendAudioMessage(audioBlob, parseInt(id_chat));
-          setMessages((prev) =>
-            prev.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? response : m))
-          );
-        } catch (err) {
-          showError(err, "No se pudo enviar audio");
-          setMessages((prev) => prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
-        }
-      };
-
-      recorder.start();
-      setMediaRecorder(recorder);
-      setRecording(true);
-    } catch (err) {
-      showError(err, "No se pudo acceder al micrófono");
+        recorder.start();
+        setRecording(true);
+      } catch (err) {
+        console.error("Error al acceder al micrófono:", err);
+      }
     }
   };
 
-  // Editar mensaje
+  const cancelRecording = () => {
+    if (mediaRecorder && recording) {
+      mediaRecorder.stop();
+      setAudioChunks([]);
+      setRecording(false);
+      console.log("Grabación cancelada.");
+    }
+  };
+
+  /* ─── Editar / eliminar mensaje ────────────────────────────────── */
   const editMessage = async () => {
     if (!editing || isBlocked) return;
     try {
-      const updated = await MessageService.editMessage(
+      const upd = await MessageService.editMessage(
         editing.id,
         editing.content,
         parseInt(id_chat)
       );
-      setMessages((prev) =>
-        prev.map((m) => (m.id_mensaje === editing.id ? updated : m))
-      );
+      setMessages((p) => p.map((m) => (m.id_mensaje === editing.id ? upd : m)));
       setEditing(null);
     } catch (err) {
       showError(err, "No se pudo editar mensaje");
     }
   };
 
-  // Eliminar mensaje
   const deleteMessage = async (id: number) => {
     try {
       await MessageService.deleteMessage(id, parseInt(id_chat));
-      setMessages((prev) => prev.filter((m) => m.id_mensaje !== id));
+      setMessages((p) => p.filter((m) => m.id_mensaje !== id));
       setOpenMenu(null);
     } catch (err) {
       showError(err, "No se pudo eliminar mensaje");
     }
   };
 
-  // Efecto para cargar el chat
+  /* ─── Carga inicial del chat ───────────────────────────────────── */
   useEffect(() => {
     if (chatsLoading) return;
 
@@ -269,11 +268,11 @@ const checkIfBlocked = () => {
 
     setChatExists(true);
 
-    const init = async () => {
+    (async () => {
       try {
         setLoading(true);
         await getCurrentUserId();
-        checkIfBlocked(); // Verificar bloqueo
+        checkIfBlocked();
         const msgs = await MessageService.getMessages(parseInt(id_chat));
         setMessages(msgs);
       } catch (err) {
@@ -281,89 +280,73 @@ const checkIfBlocked = () => {
       } finally {
         setLoading(false);
       }
-    };
-
-    init();
+    })();
   }, [id_chat, chats, chatsLoading, navigate, getCurrentUserId]);
 
-  // Efecto para scroll al final de los mensajes
+  /* ─── Scroll al último mensaje ─────────────────────────────────── */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Efecto para cerrar menú al hacer clic fuera
+  /* ─── Cierre de menú al clic afuera ────────────────────────────── */
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (openMenu === null) return;
-
-      const target = e.target as Element;
+    const handler = (e: MouseEvent) => {
       if (
-        !target.closest(`[data-menu="${openMenu}"]`) &&
-        !target.closest(`[data-menu-btn="${openMenu}"]`)
+        openMenu !== null &&
+        !(
+          (e.target as Element).closest(`[data-menu="${openMenu}"]`) ||
+          (e.target as Element).closest(`[data-menu-btn="${openMenu}"]`)
+        )
       ) {
         setOpenMenu(null);
       }
     };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
   }, [openMenu]);
 
-  // Socket
+  /* ─── Sockets ──────────────────────────────────────────────────── */
   useEffect(() => {
     if (!socket || !id_chat || currentUserId === null || chatExists !== true) return;
 
     socket.emit("join_chat", { chatId: id_chat });
 
-    const handleNewMessage = (msg: any) => {
-      if (msg.usuario !== currentUserId) setMessages((prev) => [...prev, msg]);
-    };
-
-    const handleUpdatedMessage = (msg: { id_mensaje: number; contenido: string }) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id_mensaje === msg.id_mensaje
-            ? { ...m, contenido: msg.contenido, editado: 1 }
-            : m
-        )
+    const onNew = (msg: any) => msg.usuario !== currentUserId && setMessages((p) => [...p, msg]);
+    const onUpd = (m: { id_mensaje: number; contenido: string }) =>
+      setMessages((p) =>
+        p.map((msg) => (msg.id_mensaje === m.id_mensaje ? { ...msg, contenido: m.contenido, editado: 1 } : msg))
       );
-    };
+    const onDel = (id: number) => setMessages((p) => p.filter((msg) => msg.id_mensaje !== id));
 
-    const handleDeletedMessage = (msgId: number) => {
-      setMessages((prev) => prev.filter((m) => m.id_mensaje !== msgId));
-    };
-
-    socket.on("new_message", handleNewMessage);
-    socket.on("update_message", handleUpdatedMessage);
-    socket.on("delete_message", handleDeletedMessage);
+    socket.on("new_message", onNew);
+    socket.on("update_message", onUpd);
+    socket.on("delete_message", onDel);
 
     return () => {
       socket.emit("leave_chat", { chatId: id_chat });
-      socket.off("new_message", handleNewMessage);
-      socket.off("update_message", handleUpdatedMessage);
-      socket.off("delete_message", handleDeletedMessage);
+      socket.off("new_message", onNew);
+      socket.off("update_message", onUpd);
+      socket.off("delete_message", onDel);
     };
   }, [socket, id_chat, currentUserId, chatExists]);
 
-  if (chatExists === null || chatsLoading) {
+  /* ─── Render ───────────────────────────────────────────────────── */
+  if (chatExists === null || chatsLoading)
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="p-4 text-center text-gray-600">Cargando chat...</div>
+        <p className="text-gray-600">Cargando chat...</p>
       </div>
     );
-  }
-
-  if (chatExists === false) {
+  if (chatExists === false)
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="p-4 text-center text-red-600">
-          Chat no encontrado. Redirigiendo...
-        </div>
+        <p className="text-red-600">Chat no encontrado. Redirigiendo…</p>
       </div>
     );
-  }
 
   return (
     <div className="flex flex-col h-screen w-full max-w-4xl mx-auto bg-white shadow rounded">
+      {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-gray-200">
         <div className="flex items-center">
           <h2 className="text-lg sm:text-xl font-semibold truncate">{title}</h2>
@@ -375,17 +358,9 @@ const checkIfBlocked = () => {
         </div>
       </header>
 
-      {/* Banner de usuario bloqueado */}
-      {isBlocked && (
-        <div className="bg-red-50 border-b border-red-200 p-3 text-center text-red-600 text-sm">
-          No puedes enviar mensajes a este usuario porque está bloqueado
-        </div>
-      )}
-
+      {/* Mensajes */}
       <main className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 bg-gray-50">
-        {loading && (
-          <p className="text-center text-gray-500">Cargando mensajes...</p>
-        )}
+        {loading && <p className="text-center text-gray-500">Cargando mensajes…</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
         {!loading && messages.length === 0 && (
           <p className="text-center text-gray-400">No hay mensajes en este chat.</p>
@@ -394,22 +369,14 @@ const checkIfBlocked = () => {
         {messages.map((msg) => {
           const isMe = msg.id_user === currentUserId;
           return (
-            <div
-              key={msg.id_mensaje}
-              className={`flex ${isMe ? "justify-end" : "justify-start"}`}
-            >
+            <div key={msg.id_mensaje} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
               <div
                 className={`relative max-w-[85%] sm:max-w-md px-4 sm:px-8 py-3 sm:py-4 rounded-2xl break-words shadow-lg ${
-                  isMe
-                    ? "bg-green-500 text-white ml-auto"
-                    : "bg-white text-gray-800 mr-auto"
+                  isMe ? "bg-green-500 text-white ml-auto" : "bg-white text-gray-800 mr-auto"
                 }`}
               >
-                {msg.tipo === "texto" && (
-                  <p className="whitespace-pre-wrap text-base leading-relaxed">
-                    {msg.contenido}
-                  </p>
-                )}
+                {/* Contenido */}
+                {msg.tipo === "texto" && <p className="whitespace-pre-wrap">{msg.contenido}</p>}
                 {msg.tipo === "imagen" && (
                   <img
                     src={msg.contenido}
@@ -418,49 +385,47 @@ const checkIfBlocked = () => {
                     onClick={() => window.open(msg.contenido, "_blank")}
                   />
                 )}
-                {msg.tipo === "audio" && (
-                  <audio controls src={msg.contenido} className="rounded mt-2 w-full" />
-                )}
+                {msg.tipo === "audio" && <audio controls src={msg.contenido} className="mt-2 w-full" />}
                 {msg.editado === 1 && (
-                  <span className="absolute bottom-1 right-3 text-xs italic opacity-70">
-                    (editado)
-                  </span>
+                  <span className="absolute bottom-1 right-3 text-xs italic opacity-70">(editado)</span>
                 )}
 
+                {/* Menú de mi mensaje */}
                 {isMe && (
                   <>
                     <button
                       data-menu-btn={msg.id_mensaje}
                       className="absolute -top-4 right-[-20px] p-2 rounded-full bg-white/10 hover:bg-white/30 transition"
-                      onClick={() =>
-                        setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)
-                      }
+                      onClick={() => setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)}
                       aria-label="Abrir menú de opciones"
                     >
-                      <FiMoreVertical size={20} color="black" />
+                      <FiMoreVertical  className=" text-black" size={20} />
                     </button>
 
                     {openMenu === msg.id_mensaje && (
                       <div
                         data-menu={msg.id_mensaje}
-                        className="absolute top-10 right-[-20px] w-36 bg-white text-black border border-gray-200 rounded-md shadow-lg z-20"
+                        className="absolute top-10 right-[-20px] w-40 bg-white border border-gray-200 rounded-md shadow-lg z-20 text-black"
                       >
                         {msg.tipo === "texto" && (
                           <button
                             onClick={() => {
-                              setEditing({
-                                id: msg.id_mensaje,
-                                content: msg.contenido,
-                              });
+                              setEditing({ id: msg.id_mensaje, content: msg.contenido });
                               setOpenMenu(null);
                             }}
-                            className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-t-md"
+                            className="flex items-center w-full px-3 py-2 text-sm  rounded-t-md"
                           >
-                            <FiEdit2 className="mr-2" /> Editar
+                            <FiEdit2 className="mr-2 text-black" /> Editar
                           </button>
                         )}
                         <button
-                          onClick={() => deleteMessage(msg.id_mensaje)}
+                          onClick={() =>
+                            openConfirmDialog(
+                              "Eliminar mensaje",
+                              "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
+                              () => deleteMessage(msg.id_mensaje)
+                            )
+                          }
                           className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
                         >
                           <FiTrash2 className="mr-2" /> Eliminar
@@ -476,6 +441,7 @@ const checkIfBlocked = () => {
         <div ref={messagesEndRef} />
       </main>
 
+      {/* Edición */}
       {editing && (
         <div className="p-3 sm:p-4 border-t border-gray-300 bg-gray-100 flex flex-col sm:flex-row gap-2">
           <input
@@ -483,9 +449,7 @@ const checkIfBlocked = () => {
             type="text"
             value={editing.content}
             onChange={(e) =>
-              setEditing((prev) =>
-                prev ? { ...prev, content: e.target.value } : null
-              )
+              setEditing((p) => (p ? { ...p, content: e.target.value } : null))
             }
             disabled={isBlocked}
           />
@@ -497,71 +461,113 @@ const checkIfBlocked = () => {
             >
               Guardar
             </button>
-            <button
-              onClick={() => setEditing(null)}
-              className="px-4 py-2 bg-gray-300 rounded"
-            >
+            <button onClick={() => setEditing(null)} className="px-4 py-2 bg-gray-300 rounded">
               Cancelar
             </button>
           </div>
         </div>
       )}
 
-      {!editing && (
-        <form
-          onSubmit={sendTextMessage}
-          className={`p-3 sm:p-4 border-t border-gray-300 flex items-center gap-2 flex-wrap ${
-            isBlocked ? "opacity-50 pointer-events-none" : ""
-          }`}
+      {/* Entrada normal */}
+    
+{!editing && (
+  <form
+    onSubmit={sendTextMessage}
+    className={`p-3 sm:p-4 border-t border-gray-300 flex items-center gap-2 flex-wrap ${
+      isBlocked ? "bg-gray-100" : ""
+    }`}
+  >
+    
+    
+    <button
+      type="button"
+      onClick={() => !isBlocked && fileInputRef.current?.click()}
+      aria-label="Enviar imagen"
+      className={`p-2 rounded ${
+        isBlocked ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-200"
+      }`}
+      disabled={isBlocked}
+    >
+      <FiCamera size={20} />
+    </button>
+
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={!isBlocked ? sendImage : undefined}
+      disabled={isBlocked}
+    />
+
+    <input
+      type="text"
+      placeholder={isBlocked ? "Chat bloqueado" : "Escribe un mensaje"}
+      className={`flex-grow border border-gray-300 rounded px-3 py-2 min-w-[150px] ${
+        isBlocked ? "bg-gray-200 cursor-not-allowed" : "focus:ring focus:ring-green-400"
+      }`}
+      value={newMessage}
+      onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
+      disabled={isBlocked}
+    />
+
+    <button
+      type="submit"
+      disabled={isBlocked || !newMessage.trim()}
+      className={`p-2 rounded ${
+        isBlocked ? "bg-gray-300 text-gray-500" : "bg-green-500 text-white"
+      }`}
+      aria-label="Enviar mensaje"
+    >
+      <FiSend size={20} />
+    </button>
+
+    {/* Audio */}
+    <div className="flex items-center space-x-2">
+      <button
+        type="button"
+        onClick={!isBlocked ? toggleRecording : undefined}
+        aria-label={recording ? "Detener grabación" : "Grabar audio"}
+        className={`p-2 rounded ${
+          isBlocked 
+            ? "text-gray-400 cursor-not-allowed" 
+            : recording 
+              ? "bg-red-500 text-white" 
+              : "hover:bg-gray-200"
+        }`}
+        disabled={isBlocked}
+      >
+        <FiMic size={20} />
+      </button>
+
+      {recording && (
+        <button
+          type="button"
+          onClick={cancelRecording}
+          aria-label="Cancelar grabación"
+          className="p-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
         >
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            aria-label="Enviar imagen"
-            className="p-2 rounded hover:bg-gray-200"
-            disabled={isBlocked}
-          >
-            <FiCamera size={20} />
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={sendImage}
-            disabled={isBlocked}
-          />
-          <input
-            type="text"
-            placeholder={isBlocked ? "Usuario bloqueado" : "Escribe un mensaje"}
-            className={`flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none min-w-[150px] ${
-              isBlocked ? "bg-gray-100 cursor-not-allowed" : "focus:ring focus:ring-green-400"
-            }`}
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            disabled={isBlocked}
-          />
-          <button
-            type="submit"
-            disabled={isBlocked || !newMessage.trim()}
-            className="p-2 bg-green-500 text-white rounded disabled:opacity-50"
-            aria-label="Enviar mensaje"
-          >
-            <FiSend size={20} />
-          </button>
-          <button
-            type="button"
-            onClick={toggleRecording}
-            aria-label={recording ? "Detener grabación" : "Grabar audio"}
-            className={`p-2 rounded ${
-              recording ? "bg-red-500 text-white" : "hover:bg-gray-200"
-            }`}
-            disabled={isBlocked}
-          >
-            <FiMic size={20} />
-          </button>
-        </form>
+          Cancelar
+        </button>
       )}
+    </div>
+  </form>
+)}
+
+      {/* ConfirmDialog */}
+      <ConfirmDialog
+    isOpen={confirmOpen}
+    onClose={() => {
+        setConfirmOpen(false);
+        fileInputRef.current && (fileInputRef.current.value = "");
+    }}
+    onConfirm={() => {
+        confirmAction.current();
+        setConfirmOpen(false);
+    }}
+    title={confirmTitle}
+    message={confirmMessage}
+/>
     </div>
   );
 };

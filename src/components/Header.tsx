@@ -89,7 +89,6 @@ const Header = () => {
       </button>
     ),
     administrador: <Link to="/admin" className={linkClass}>Administrador</Link>,
-    misProductos: <Link to="/MisProductos" className={linkClass}>Mis productos</Link>,
     inicio: <Link to="/" className={linkClass}>Inicio</Link>,
   };
 
@@ -111,7 +110,6 @@ const Header = () => {
     switch (user.role) {
       case "vendedor":
         return [
-          commonLinks.misProductos,
           commonLinks.perfilButton,
           commonLinks.chats,
           commonLinks.chatIA,
@@ -165,6 +163,16 @@ const Header = () => {
           onClick={() => isMobile && setMobileMenuOpen(false)}
         >
           🛒 Mis compras
+        </Link>
+      )}
+        {user.role === "vendedor" && (
+        <Link
+          to="/MisProductos"
+          className={`${isMobile ? "block px-4 py-2" : "block px-4 py-2 hover:bg-[#E4FBDD] transition-colors rounded-t-lg"}`}
+          role="menuitem"
+          onClick={() => isMobile && setMobileMenuOpen(false)}
+        >
+           Mis Productos
         </Link>
       )}
       {user.role === "transportador" && (
