@@ -6,11 +6,13 @@ import { motion } from "framer-motion";
 export const ProductCard = ({ product }: any) => {
   const navigate = useNavigate();
 
-  const handleEditClick = () => {
+  const handleEditClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation(); // ← evita propagación al li
     navigate(`/MisProductos/Editar/${product.id_producto}`);
   };
 
-  const handleDeleteClick = () => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // ← evita propagación al li
     navigate(`/MisProductos/Eliminar/${product.id_producto}`);
   };
 
@@ -29,14 +31,13 @@ export const ProductCard = ({ product }: any) => {
 
   return (
     <motion.li
-  onClick={handleEditClick} // ← Nuevo
-  variants={cardVariants}
-  initial="hidden"
-  animate="visible"
-  whileHover="hover"
-  className="overflow-hidden capitalize flex flex-col gap-2 w-[200px] bg-white rounded-xl shadow-md cursor-pointer h-90"
->
-
+      onClick={handleEditClick}
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      whileHover="hover"
+      className="overflow-hidden capitalize flex flex-col gap-2 w-[200px] bg-white rounded-xl shadow-md cursor-pointer h-90"
+    >
       <div className="relative">
         <img
           src={product.imagen}
@@ -83,7 +84,7 @@ export const ProductCard = ({ product }: any) => {
 
         <div className="flex gap-4 mt-3">
           <motion.button
-            onClick={handleEditClick}
+            onClick={(e) => handleEditClick(e)}
             className="p-1 rounded transition-colors duration-300 hover:bg-green-100"
             aria-label="Editar producto"
             whileTap={{ scale: 0.9 }}
@@ -91,7 +92,7 @@ export const ProductCard = ({ product }: any) => {
             <img className="w-6" src={editIcon} alt="Editar" />
           </motion.button>
           <motion.button
-            onClick={handleDeleteClick}
+            onClick={(e) => handleDeleteClick(e)}
             className="p-1 rounded transition-colors duration-300 hover:bg-red-100"
             aria-label="Eliminar producto"
             whileTap={{ scale: 0.9 }}

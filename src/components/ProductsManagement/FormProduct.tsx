@@ -30,6 +30,7 @@ export const Form = () => {
   const [imageFile, setImageFile] = useState<File | undefined>(undefined);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+const [showSuccess, setShowSuccess] = useState(false);
 
   const productEdit = useMemo(() => {
     return products.find((p: any) => p.id_producto == id_edit_product);
@@ -236,8 +237,9 @@ export const Form = () => {
           imageFile
         );
       }
+       setShowSuccess(true);
 
-      navigate('/MisProductos');
+    setTimeout(() => navigate('/MisProductos'), 1500);
     } catch (error) {
       console.error('Error al guardar producto:', error);
       setErrors({ ...errors, general: 'Error al guardar el producto. Por favor intente nuevamente.' });
@@ -294,6 +296,16 @@ export const Form = () => {
           <p>{errors.general}</p>
         </motion.div>
       )}
+{showSuccess && (
+  <motion.div
+    className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50"
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -10 }}
+  >
+    Producto {isEditMode ? 'actualizado' : 'creado'} exitosamente
+  </motion.div>
+)}
 
       <motion.form
         onSubmit={handleSubmit}
