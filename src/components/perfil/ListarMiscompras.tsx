@@ -94,7 +94,8 @@ export default function ListarMiscompras() {
                   <th className="px-3 py-2">Transportador</th>
                   <th className="px-3 py-2">Estado</th>
                   <th className="px-3 py-2">Asignar Transportador</th>
-                  <th className="px-3 py-2">QR / Código</th>
+                  <th className="px-3 py-2">QR</th>
+                  <th className="px-3 py-2">Código</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-[#BFBFBD]">
