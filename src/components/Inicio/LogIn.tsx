@@ -65,7 +65,6 @@ export const LoginForm = () => {
   return (
     <div className="h-screen w-full flex items-center bg-white">
       <div className="w-full h-full max-w-8xl shadow-lg flex flex-col md:flex-row overflow-hidden">
-        {/* Volver */}
         <div className="absolute top-5 left-5 z-10">
           <Link
             to="/"
