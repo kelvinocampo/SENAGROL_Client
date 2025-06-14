@@ -1,15 +1,20 @@
 import { useState, useEffect } from "react";
 import { QrCode, Search } from "lucide-react";
 import { VentasService, Venta } from "../../services/VentasService";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Footer from "@components/footer";
+import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog"; // ajusta la ruta si es distinta
+
+type DialogTarget = { type: "qr" | "code"; id: string };
 
 export const SellsView = () => {
   const [ventas, setVentas] = useState<Venta[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
+  const [dialogTarget, setDialogTarget] = useState<DialogTarget | null>(null); // 👉 nuevo
+  const navigate = useNavigate(); // 👉 nuevo
 
   useEffect(() => {
     const cargarVentas = async () => {
@@ -34,9 +39,30 @@ export const SellsView = () => {
     cargarVentas();
   }, []);
 
-  const ventasFiltradas = ventas.filter((venta) =>
-    venta.producto_nombre.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const normalizar = (val: unknown) =>
+    val ? val.toString().toLowerCase() : "";
+
+  const ventasFiltradas = ventas.filter((v) => {
+    const texto = normalizar(busqueda);
+    return (
+      normalizar(v.vendedor_nombre).includes(texto) ||
+      normalizar(v.producto_nombre).includes(texto) ||
+      normalizar(v.fecha_compra).includes(texto) ||
+      normalizar(v.estado).includes(texto) ||
+      normalizar(v.fecha_entrega).includes(texto)
+    );
+  });
+
+  /* ───────── Función que se llama al confirmar ───────── */
+  const handleConfirm = () => {
+    if (!dialogTarget) return;
+    const { type, id } = dialogTarget;
+    navigate(
+      type === "qr"
+        ? `/venta/qr/${encodeURIComponent(id)}`
+        : `/venta/codigo/${encodeURIComponent(id)}`
+    );
+  };
 
   return (
     <div className="font-[Fredoka] min-h-screen flex flex-col bg-[#f4fcf1]">
@@ -61,7 +87,7 @@ export const SellsView = () => {
             <Search className="absolute left-3 top-3 text-gray-500" size={20} />
             <input
               type="text"
-              placeholder="Buscar mis ventas..."
+              placeholder="Buscar por comprador, producto, fecha o estado..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="w-full pl-10 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28] text-base bg-white"
@@ -106,7 +132,6 @@ export const SellsView = () => {
                     <th className="px-3 py-2">Transportador</th>
                     <th className="px-3 py-2">Estado</th>
                     <th className="px-3 py-2">QR/Código</th>
-
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-[#ccc] text-[13px]">
@@ -142,35 +167,43 @@ export const SellsView = () => {
                         <td className="px-3 py-2">
                           {c.estado === "Asignada" && (
                             <div className="flex items-center gap-1">
-                              <Link
-                                to={`/venta/qr/${encodeURIComponent(c.id_compra)}`}
+                              {/* 👉 Botón para QR */}
+                              <button
+                                onClick={() =>
+                                  setDialogTarget({
+                                    type: "qr",
+                                    id: c.id_compra.toString(),
+                                  })
+                                }
+                                className="p-1 rounded hover:text-green-700"
                               >
-                                <QrCode
-                                  size={16}
-                                  className="text-black cursor-pointer hover:text-green-700"
-                                />
-                              </Link>
-                              <Link
-                                to={`/venta/codigo/${encodeURIComponent(c.id_compra)}`}
+                                <QrCode size={16} />
+                              </button>
+
+                              {/* 👉 Botón para Código */}
+                              <button
+                                onClick={() =>
+                                  setDialogTarget({
+                                    type: "code",
+                                    id: c.id_compra.toString(),
+                                  })
+                                }
                                 className="bg-[#48BD28] hover:bg-[#379e1b] text-white px-2 py-1 rounded text-xs"
                               >
                                 Código
-                              </Link>
+                              </button>
                             </div>
                           )}
                         </td>
                       </motion.tr>
                     ))
                   ) : (
-                    <motion.tr
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                    >
+                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                       <td
                         colSpan={11}
                         className="text-center text-gray-500 py-4"
                       >
-                        No se encontraron ventas con ese nombre.
+                        No se encontraron ventas con ese criterio de búsqueda.
                       </td>
                     </motion.tr>
                   )}
@@ -179,9 +212,24 @@ export const SellsView = () => {
             </motion.div>
           )}
         </motion.div>
-        
       </main>
-      <Footer></Footer>
+
+      {/* 👉 ConfirmDialog reutilizable */}
+      <ConfirmDialog
+        isOpen={dialogTarget !== null}
+        onClose={() => setDialogTarget(null)}
+        onConfirm={handleConfirm}
+        title={
+          dialogTarget?.type === "qr" ? "Ver código QR" : "Ver código alfanumérico"
+        }
+        message={
+          dialogTarget?.type === "qr"
+            ? "¿Deseas abrir el código QR de esta venta?"
+            : "¿Deseas abrir el código alfanumérico de esta venta?"
+        }
+      />
+
+      <Footer />
     </div>
   );
 };
