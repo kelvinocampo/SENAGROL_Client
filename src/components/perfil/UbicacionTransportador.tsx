@@ -93,13 +93,13 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
     const fetchDirecciones = async () => {
       try {
         const respVendedor = await fetch(
-          `http://localhost:10101/compra/getAddress?lat=${ubicacion.latitud}&lon=${ubicacion.longitud}`
+          `https://senagrol.up.railway.app/compra/getAddress?lat=${ubicacion.latitud}&lon=${ubicacion.longitud}`
         );
         const dataVendedor = await respVendedor.json();
         setDireccionVendedor(dataVendedor.success ? dataVendedor.message : "Dirección no disponible");
 
         const respComprador = await fetch(
-          `http://localhost:10101/compra/getAddress?lat=${ubicacion.latitud_comprador}&lon=${ubicacion.longitud_comprador}`
+          `https://senagrol.up.railway.app/compra/getAddress?lat=${ubicacion.latitud_comprador}&lon=${ubicacion.longitud_comprador}`
         );
         const dataComprador = await respComprador.json();
         setDireccionComprador(dataComprador.success ? dataComprador.message : "Dirección no disponible");

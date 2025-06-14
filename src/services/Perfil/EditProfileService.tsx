@@ -19,7 +19,7 @@ export const updateUserProfile = async (formData: {
       Object.entries(formData).filter(([_, v]) => v !== undefined && v !== "")
     );
 
-    const response = await fetch("http://localhost:10101/usuario/edit", {
+    const response = await fetch("https://senagrol.up.railway.app/usuario/edit", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
