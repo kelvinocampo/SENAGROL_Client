@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { QrCode, Search } from "lucide-react";
 import { VentasService, Venta } from "../../services/VentasService";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Footer from "@components/footer";
 import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog"; // ajusta la ruta si es distinta

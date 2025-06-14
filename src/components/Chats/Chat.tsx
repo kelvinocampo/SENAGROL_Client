@@ -51,7 +51,7 @@ export const Chat = () => {
   );
   const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [isBlocked, setIsBlocked] = useState(false);
-  const [blockedUserId, setBlockedUserId] = useState<number | null>(null);
+  const [_, setBlockedUserId] = useState<number | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

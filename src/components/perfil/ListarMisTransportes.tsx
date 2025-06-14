@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TransportService from "@/services/Perfil/ListarMisTransportes";
-import { MapPin, QrCode, Truck, X } from "lucide-react";
+import { MapPin, QrCode, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 

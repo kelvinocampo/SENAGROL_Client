@@ -30,7 +30,7 @@ export const Form = () => {
   const [imageFile, setImageFile] = useState<File | undefined>(undefined);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-const [showSuccess, setShowSuccess] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const productEdit = useMemo(() => {
     return products.find((p: any) => p.id_producto == id_edit_product);
@@ -38,7 +38,7 @@ const [showSuccess, setShowSuccess] = useState(false);
 
   const checkForDuplicateProduct = async (nombre: string, idToExclude?: number) => {
     try {
-      const allProducts = await ProductManagementService.getBySeller;
+      const allProducts: any[] = await ProductManagementService.getBySeller();
       return allProducts.some(
         (p: any) => p.nombre.toLowerCase() === nombre.toLowerCase() && p.id_producto !== idToExclude
       );
@@ -49,24 +49,24 @@ const [showSuccess, setShowSuccess] = useState(false);
   };
 
   const handleCancel = () => {
-    const hasChanges = isEditMode 
+    const hasChanges = isEditMode
       ? product.nombre !== productEdit?.nombre ||
-        product.descripcion !== productEdit?.descripcion ||
-        product.cantidad !== Number(productEdit?.cantidad) ||
-        product.cantidad_minima_compra !== Number(productEdit?.cantidad_minima_compra) ||
-        product.precio_unidad !== Number(productEdit?.precio_unidad) ||
-        product.descuento !== (productEdit?.descuento ? Number(productEdit.descuento) : undefined) ||
-        (location?.lat !== Number(productEdit?.latitud)) || 
-        (location?.lng !== Number(productEdit?.longitud)) ||
-        imageFile !== undefined
+      product.descripcion !== productEdit?.descripcion ||
+      product.cantidad !== Number(productEdit?.cantidad) ||
+      product.cantidad_minima_compra !== Number(productEdit?.cantidad_minima_compra) ||
+      product.precio_unidad !== Number(productEdit?.precio_unidad) ||
+      product.descuento !== (productEdit?.descuento ? Number(productEdit.descuento) : undefined) ||
+      (location?.lat !== Number(productEdit?.latitud)) ||
+      (location?.lng !== Number(productEdit?.longitud)) ||
+      imageFile !== undefined
       : product.nombre !== '' ||
-        product.descripcion !== '' ||
-        product.cantidad !== 0 ||
-        product.cantidad_minima_compra !== 0 ||
-        product.precio_unidad !== 0 ||
-        product.descuento !== undefined ||
-        location !== null ||
-        imageFile !== undefined;
+      product.descripcion !== '' ||
+      product.cantidad !== 0 ||
+      product.cantidad_minima_compra !== 0 ||
+      product.precio_unidad !== 0 ||
+      product.descuento !== undefined ||
+      location !== null ||
+      imageFile !== undefined;
 
     if (hasChanges) {
       setShowCancelConfirm(true);
@@ -237,9 +237,9 @@ const [showSuccess, setShowSuccess] = useState(false);
           imageFile
         );
       }
-       setShowSuccess(true);
+      setShowSuccess(true);
 
-    setTimeout(() => navigate('/MisProductos'), 1500);
+      setTimeout(() => navigate('/MisProductos'), 1500);
     } catch (error) {
       console.error('Error al guardar producto:', error);
       setErrors({ ...errors, general: 'Error al guardar el producto. Por favor intente nuevamente.' });
@@ -296,16 +296,16 @@ const [showSuccess, setShowSuccess] = useState(false);
           <p>{errors.general}</p>
         </motion.div>
       )}
-{showSuccess && (
-  <motion.div
-    className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50"
-    initial={{ opacity: 0, y: -10 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -10 }}
-  >
-    Producto {isEditMode ? 'actualizado' : 'creado'} exitosamente
-  </motion.div>
-)}
+      {showSuccess && (
+        <motion.div
+          className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+        >
+          Producto {isEditMode ? 'actualizado' : 'creado'} exitosamente
+        </motion.div>
+      )}
 
       <motion.form
         onSubmit={handleSubmit}
@@ -450,20 +450,20 @@ const [showSuccess, setShowSuccess] = useState(false);
             Cancelar
           </button>
         </motion.div>
-        
+
         <div className="max-w-[600px] mx-auto">
-          <Footer/> 
+          <Footer />
         </div>
       </motion.form>
 
       {showCancelConfirm && (
-        <motion.div 
+        <motion.div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <motion.div 
+          <motion.div
             className="bg-white rounded-xl p-6 max-w-md w-full"
             initial={{ scale: 0.9, y: 20 }}
             animate={{ scale: 1, y: 0 }}
