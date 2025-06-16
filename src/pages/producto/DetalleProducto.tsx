@@ -1,7 +1,8 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate} from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import CompraModal from "@components/admin/common/BuyModal";
+import { BackToHome } from "@/components/admin/common/BackToHome";
 import { getUserRole } from "@/services/Perfil/authService";
 import Header from "@components/Header";
 import { motion } from "framer-motion";
@@ -77,16 +78,7 @@ export default function DetalleProducto() {
   return (
     <div className="font-[Fredoka] min-h-screen bg-neutral-50 px-4 sm:px-6 md:px-8 py-6">
       <Header />
-      <div className="px-4 pt-6">
-        <Link to="/" className="inline-flex items-center text-green-700 hover:text-green-900 font-medium">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mr-2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-          </svg>
-          Volver al inicio
-        </Link>
-      </div>
-
-      {/* Contenido */}
+        <BackToHome />
       <motion.div
         className="max-w-6xl mx-auto p-4 sm:p-6 mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6"
         initial={{ opacity: 0, y: 20 }}

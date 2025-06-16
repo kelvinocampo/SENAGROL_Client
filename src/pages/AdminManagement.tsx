@@ -8,9 +8,5 @@ export const AdminManagement = () => {
      <AdminLayout></AdminLayout>
     </UserManagementProvider>
     </div>
-    
-   
-  
- 
   );
 };

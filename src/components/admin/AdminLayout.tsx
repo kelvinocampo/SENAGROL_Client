@@ -14,6 +14,7 @@ import { BarChartSalesByMonth } from "@components/admin/graphics/BargraphSales";
 import { PieChartSalesByMonth } from "@components/admin/graphics/PieChartSales";
 import { LineChartSalesByMonth } from "@components/admin/graphics/LineChartSalesByMonth";
 
+
 // ErrorBoundary implementado directamente aquí o puedes moverlo a un archivo común
 type ErrorBoundaryProps = {
   children: React.ReactNode;

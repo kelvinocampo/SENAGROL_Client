@@ -2,22 +2,28 @@ import { motion } from "framer-motion";
 import { FaSearch } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
-const placeholderText = "Buscar productos por nombre";
-
 interface BuscadorProps {
   busqueda: string;
   setBusqueda: (value: string) => void;
   setPaginaActual: (page: number) => void;
+  placeholderText: string;
 }
 
 export default function Buscador({
   busqueda,
   setBusqueda,
   setPaginaActual,
+  placeholderText,
 }: BuscadorProps) {
   const [placeholder, setPlaceholder] = useState("");
   const [index, setIndex] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
+
+  // Reiniciar placeholder cuando cambia el texto base
+  useEffect(() => {
+    setPlaceholder("");
+    setIndex(0);
+  }, [placeholderText]);
 
   // Efecto de escritura automática
   useEffect(() => {
@@ -28,7 +34,7 @@ export default function Buscador({
       }, 50);
       return () => clearTimeout(timeout);
     }
-  }, [index]);
+  }, [index, placeholderText]);
 
   return (
     <motion.div

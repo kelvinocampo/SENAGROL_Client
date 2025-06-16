@@ -7,7 +7,7 @@ import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog";
 import { MessageDialog } from "@/components/admin/common/MessageDialog";
 import { UserManagementContext } from "@/contexts/admin/AdminManagement";
 import { UserRole } from "@/services/Admin/UserManagementService";
-import { SearchBar } from "@/components/admin/table/SearchUsers";
+import  Buscador  from "@/components/Inicio/Search";
 import { TransporterDetailModal } from "@/components/admin/common/TransporterDetailModal";
 
 export const UserTable = () => {
@@ -132,13 +132,23 @@ export const UserTable = () => {
     );
   }
 
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const term = searchTerm.toLowerCase();
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(term) ||
+      ["transportador", "vendedor", "comprador", "administrador"].some((r) =>
+        term.includes(r) && u[r as UserRole] !== "no disponible"
+      )
   );
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
-      <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
+           <Buscador
+        busqueda={searchTerm}
+        setBusqueda={setSearchTerm}
+        setPaginaActual={() => {}} // no hay paginación aquí
+        placeholderText="Buscar por nombre, correo o rol..."
+      />
 
       <motion.table
         layout
