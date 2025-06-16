@@ -18,6 +18,7 @@ export interface Product {
   id_vendedor: number;
   nombre_vendedor: string;
   fecha_publicacion: string;
+  eliminado?: boolean; 
 }
 
 interface DiscountedProductContextType {
