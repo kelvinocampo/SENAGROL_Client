@@ -58,7 +58,7 @@ const UpdatePassword = () => {
     }
 
     await updatePassword(token, newPassword, id_user);
-    navigate("/login"); // Redirige sin mostrar mensaje
+  //  navigate("/login"); 
   };
 
   return (

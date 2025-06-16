@@ -7,13 +7,8 @@ const MisTransportes = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
-
       <div className="flex p-10 w-full gap-6">
-        {/* Panel izquierdo - ocupa menos espacio */}
-      
           <UserProfileCard />
-        
-        {/* Panel derecho - ocupa más espacio */}
         <div className="w-full md:w-3/4">
           <TransportesContenido />
         </div>

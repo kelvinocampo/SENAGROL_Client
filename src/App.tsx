@@ -83,7 +83,6 @@ function App() {
             <Route path="/Register" element={<RegisterForm />} />
             <Route path="/perfil" element={<PerfilUsuarioUnico />} />
             <Route path="/miscompras" element={<MyPurchasesPage />} />
-            <Route path="/formulariotransportador" element={<FormularioTransporte />} />
             <Route path="/transporte" element={<Transporte />} />
             <Route path="/mistransportes" element={<MisTransportes />} />
             <Route path="/compra/:id_compra/qr" element={<QRCompras />} />
@@ -102,6 +101,15 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["vendedor"]}>
                   <ProductManagement />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/formulariotransportador"
+              element={
+                <ProtectedRoute allowedRoles={["vendedor","comprador","administrador"]}>
+                  <FormularioTransporte />  
                 </ProtectedRoute>
               }
             />
