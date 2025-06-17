@@ -44,7 +44,7 @@ export default function Buscador({
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <motion.div
-        className="relative w-full max-w-md"
+        className="relative w-full max-w-2xl"
         animate={{ scale: isFocused ? 1.05 : 1 }}
         transition={{ type: "spring", stiffness: 200 }}
       >

@@ -16,16 +16,13 @@ export const Chats = () => {
 
   return (
     <div className="min-h-screen font-[fredoka] bg-gray-50 relative">
-      {/* Fondo animado */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <FallingLeaves quantity={20} />
       </div>
 
-      {/* Header fijo arriba, ocupa todo el ancho */}
       <div className="sticky top-0 z-20 w-full bg-gray-50 shadow-md h-16 flex items-center justify-between px-4">
         <Header />
 
-        {/* Botón para abrir sidebar en móvil */}
         <button
           className="md:hidden p-2 rounded-md hover:bg-gray-200 transition"
           onClick={() => setSidebarOpen(true)}

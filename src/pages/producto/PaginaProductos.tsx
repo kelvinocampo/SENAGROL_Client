@@ -146,6 +146,7 @@ export default function PaginaProductos() {
             setBusqueda={setBusqueda}
             setPaginaActual={setPaginaActual}
             placeholderText="Buscar por nombre, vendedor o precio…"
+            
           />
         </div>
 
