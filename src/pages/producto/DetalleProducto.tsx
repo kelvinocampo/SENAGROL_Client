@@ -7,6 +7,11 @@ import { getUserRole } from "@/services/Perfil/authService";
 import Header from "@components/Header";
 import { motion } from "framer-motion";
 import Footer from "@components/footer";
+import FloatingIcon from "@/components/Inicio/FloatingIcon";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe('pk_test_51abc123...'); // Reemplaza con tu clave pública
 
 export default function DetalleProducto() {
   const { id } = useParams();
@@ -159,10 +164,10 @@ export default function DetalleProducto() {
             >
               <button
                 onClick={handleComprar}
-                className={`${
-                  !isComprador ? "bg-gray-400 cursor-not-allowed" : "bg-[#48BD28] hover:bg-green-600"
-                } w-full text-white font-medium px-6 py-2 rounded transition duration-300`}
-                disabled={!isComprador}
+                className={`${userRole !== "comprador" || userRole == null
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#48BD28] hover:bg-green-600"
+                  } w-full text-white font-medium px-6 py-2 rounded transition duration-300`}
               >
                 Comprar
               </button>
@@ -203,18 +208,17 @@ export default function DetalleProducto() {
       )}
 
       {/* Modal de compra */}
-     <CompraModal
-  isOpen={modalOpen}
-  onClose={() => setModalOpen(false)}
-  onConfirm={handleConfirmarCompra}
-  producto={{
-    id: producto.id,
-    nombre: producto.nombre,
-    cantidad_minima: producto.cantidad_minima_compra,
-    precio_unidad: producto.precio_unidad,
-    precio_transporte: producto.precio_transporte ?? 0, // o tu cálculo
-  }}
-  ></CompraModal>
+      <CompraModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirmarCompra}
+        producto={{
+          id: producto.id,
+          nombre: producto.nombre,
+          cantidad_minima: producto.cantidad_minima_compra || 1,
+        }}
+      />
+
       <Footer />
     </div>
   );

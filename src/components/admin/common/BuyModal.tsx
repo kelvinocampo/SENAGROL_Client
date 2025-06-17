@@ -2,6 +2,9 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LocationPicker } from "@components/ProductsManagement/LocationPicker";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
+import { CardElement, 
+  // useStripe, useElements 
+} from '@stripe/react-stripe-js';
 
 type Location = { lat: number; lng: number };
 
@@ -24,6 +27,8 @@ export default function CompraModal({
   onConfirm,
   producto,
 }: CompraModalProps) {
+  // const stripe = useStripe();
+  // const elements = useElements();
   const [cantidad, setCantidad] = useState(producto.cantidad_minima);
   const [ubicacion, setUbicacion] = useState<Location | null>(null);
   const [loading, setLoading] = useState(false);
@@ -62,6 +67,7 @@ export default function CompraModal({
         longitud: ubicacion.lng.toFixed(6),
       });
 
+     
       onConfirm(cantidad, ubicacionTexto);
       onClose();
     } catch (error) {
@@ -142,6 +148,16 @@ export default function CompraModal({
               className="mb-4 h-110 rounded overflow-hidden border"
             />
 
+            <CardElement className="p-3 
+              border border-gray-300 
+              rounded-lg 
+              shadow-sm 
+              hover:border-indigo-400 
+              transition-colors
+              focus:outline-none
+              focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+              bg-white" />
+
             {/* Botones */}
             <div className="flex justify-end gap-2 mt-4">
               <button
@@ -156,12 +172,36 @@ export default function CompraModal({
                 onClick={handleConfirm}
                 disabled={loading}
                 className={`px-4 py-2 text-white rounded transition ${
-                  loading
-                    ? "bg-green-300 cursor-wait"
-                    : "bg-green-600 hover:bg-green-700"
+                  loading ? "bg-green-300" : "bg-green-600 hover:bg-green-700"
                 }`}
               >
-                {loading ? "Procesando..." : "Confirmar compra"}
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      ></path>
+                    </svg>
+                    Procesando...
+                  </span>
+                ) : (
+                  "Confirmar compra"
+                )}
               </button>
             </div>
           </motion.div>
