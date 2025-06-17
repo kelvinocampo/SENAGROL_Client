@@ -25,7 +25,7 @@ export const Chat = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMessage, setConfirmMessage] = useState("");
-  const confirmAction = useRef<() => void>(() => {});
+  const confirmAction = useRef<() => void>(() => { });
 
   const openConfirmDialog = (
     title: string,
@@ -78,25 +78,25 @@ export const Chat = () => {
     setError(err instanceof Error ? err.message : msg);
   };
 
- const verifyBlockStatus = (userId: number, chat: any) => {
-  const isUser1 = chat.id_user1 === userId;
-  
-  // Verificar si yo he bloqueado el chat
-  const iBlockedThisChat = isUser1 
-    ? chat.bloqueado_user1 === 1 
-    : chat.bloqueado_user2 === 1;
-  
-  // Verificar si el otro usuario ha bloqueado el chat
-  const otherUserBlocked = isUser1
-    ? chat.bloqueado_user2 === 1
-    : chat.bloqueado_user1 === 1;
+  const verifyBlockStatus = (userId: number, chat: any) => {
+    const isUser1 = chat.id_user1 === userId;
 
-  // El chat está bloqueado si alguno de los dos lo bloqueó
-  const chatIsBlocked = iBlockedThisChat || otherUserBlocked;
-  
-  setIsBlocked(chatIsBlocked);
-  setBlockedUserId(chatIsBlocked ? (isUser1 ? chat.id_user2 : chat.id_user1) : null);
-};
+    // Verificar si yo he bloqueado el chat
+    const iBlockedThisChat = isUser1
+      ? chat.bloqueado_user1 === 1
+      : chat.bloqueado_user2 === 1;
+
+    // Verificar si el otro usuario ha bloqueado el chat
+    const otherUserBlocked = isUser1
+      ? chat.bloqueado_user2 === 1
+      : chat.bloqueado_user1 === 1;
+
+    // El chat está bloqueado si alguno de los dos lo bloqueó
+    const chatIsBlocked = iBlockedThisChat || otherUserBlocked;
+
+    setIsBlocked(chatIsBlocked);
+    setBlockedUserId(chatIsBlocked ? (isUser1 ? chat.id_user2 : chat.id_user1) : null);
+  };
   const getCurrentUserId = useCallback(async () => {
     try {
       const id = await AuthService.getIDUser();
@@ -155,105 +155,95 @@ export const Chat = () => {
   };
 
   /* ─── Mensajes: enviar imagen ──────────────────────────────────── */
-const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isBlocked) {
-        setError("No puedes enviar mensajes a usuarios bloqueados");
-        fileInputRef.current && (fileInputRef.current.value = "");
-        return;
+      setError("No puedes enviar mensajes a usuarios bloqueados");
+      fileInputRef.current && (fileInputRef.current.value = "");
+      return;
     }
 
     const file = e.target.files?.[0];
     if (!file || !file.type.match("image.*")) {
-        setError("Solo se permiten imágenes");
-        return;
+      setError("Solo se permiten imágenes");
+      return;
     }
 
     // Mostrar diálogo de confirmación
     openConfirmDialog(
-        "Enviar imagen",
-        "¿Estás seguro de que quieres enviar esta imagen?",
-        async () => {
-            const userId = currentUserId || (await getCurrentUserId());
-            if (!userId) return;
+      "Enviar imagen",
+      "¿Estás seguro de que quieres enviar esta imagen?",
+      async () => {
+        const userId = currentUserId || (await getCurrentUserId());
+        if (!userId) return;
 
-            const tempMsg = createTempMessage(URL.createObjectURL(file), "imagen");
-            setMessages((p) => [...p, tempMsg]);
+        const tempMsg = createTempMessage(URL.createObjectURL(file), "imagen");
+        setMessages((p) => [...p, tempMsg]);
 
-            try {
-                const res = await MessageService.sendImageMessage(file, parseInt(id_chat));
-                setMessages((p) => p.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? res : m)));
-            } catch (err) {
-                showError(err, "No se pudo enviar imagen");
-                setMessages((p) => p.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
-            }
-            fileInputRef.current && (fileInputRef.current.value = "");
+        try {
+          const res = await MessageService.sendImageMessage(file, parseInt(id_chat));
+          setMessages((p) => p.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? res : m)));
+        } catch (err) {
+          showError(err, "No se pudo enviar imagen");
+          setMessages((p) => p.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
         }
+        fileInputRef.current && (fileInputRef.current.value = "");
+      }
     );
-};
+  };
 
   /* ─── Grabación de audio ───────────────────────────────────────── */
   const toggleRecording = async () => {
-  // ────────── SI YA SE ESTÁ GRABANDO, SE DETIENE ──────────
-  if (recording) {
-    mediaRecorder?.stop();                        // Detiene MediaRecorder
-    mediaRecorder?.stream.getTracks().forEach(t => t.stop()); // Detiene micrófono
-    setRecording(false);
-    return;
-  }
+    /* 1. Si ya graba ➜ detener y ENVIAR */
+    if (recording) {
+      mediaRecorder?.stop();
+      mediaRecorder?.stream.getTracks().forEach(t => t.stop());
+      setRecording(false);
+      return;
+    }
 
-  // ────────── INICIAR NUEVA GRABACIÓN ──────────
-  try {
-    const stream   = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const recorder = new MediaRecorder(stream);
-    setMediaRecorder(recorder);        // Lo guardas por si quieres detener luego
-    setAudioChunks([]);                // Si tienes este estado, lo limpias
+    /* 2. Arrancar nueva grabación */
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    const chunks: Blob[] = [];         // Almacén local de datos
+      // MimeType seguro
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : "audio/webm";
 
-    recorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        chunks.push(e.data);
-        setAudioChunks?.((prev) => [...prev, e.data]); // opcional
-      }
-    };
+      const recorder = new MediaRecorder(stream, { mimeType });
+      setMediaRecorder(recorder);
 
-recorder.onstop = async () => {
-  const audioBlob = new Blob(chunks, { type: recorder.mimeType || "audio/webm" });
+      const chunks: Blob[] = [];
+      recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
 
-  // Detener tracks por si acaso
-  stream.getTracks().forEach(t => t.stop());
+      recorder.onstop = async () => {
+        /* ‑‑ Cancelación: si vacías `chunks` 👉 no se envía nada ‑‑ */
+        if (chunks.length === 0) return;
+        const blob = new Blob(chunks, { type: mimeType });
+        stream.getTracks().forEach(t => t.stop());
 
-  const userId = currentUserId || (await getCurrentUserId());
-  if (!userId) return;
+        const userId = currentUserId ?? (await getCurrentUserId());
+        if (!userId) return;
 
-  // Declarar tempMsg aquí, fuera del try
-  const tempMsg = createTempMessage(URL.createObjectURL(audioBlob), "audio");
-  setMessages((prev) => [...prev, tempMsg]);
+        const temp = createTempMessage(URL.createObjectURL(blob), "audio");
+        setMessages(p => [...p, temp]);
 
-  try {
-    const response = await MessageService.sendAudioMessage(
-      audioBlob,
-      parseInt(id_chat)
-    );
+        try {
+          const res = await MessageService.sendAudioMessage(blob, +id_chat);
+          setMessages(p => p.map(m => (m.id_mensaje === temp.id_mensaje ? res : m)));
+        } catch (err) {
+          showError(err, "No se pudo enviar audio");
+          setMessages(p => p.filter(m => m.id_mensaje !== temp.id_mensaje));
+        }
+      };
 
-    setMessages((prev) =>
-      prev.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? response : m))
-    );
-  } catch (err) {
-    showError(err, "No se pudo enviar audio");
-    setMessages((prev) =>
-      prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje)
-    );
-  }
-};
+      recorder.start(250);          // asegura chunks aunque sea corto
+      setRecording(true);
+    } catch (err) {
+      showError(err, "No se pudo acceder al micrófono");
+    }
+  };
 
-
-    recorder.start();
-    setRecording(true);
-  } catch (err) {
-    showError(err, "No se pudo acceder al micrófono");
-  }
-};
 
 
   const cancelRecording = () => {
@@ -402,78 +392,100 @@ recorder.onstop = async () => {
           <p className="text-center text-gray-400">No hay mensajes en este chat.</p>
         )}
 
-        {messages.map((msg) => {
-          const isMe = msg.id_user === currentUserId;
-          return (
-            <div key={msg.id_mensaje} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`relative max-w-[85%] sm:max-w-md px-4 sm:px-8 py-3 sm:py-4 rounded-2xl break-words shadow-lg ${
-                  isMe ? "bg-green-500 text-white ml-auto" : "bg-white text-gray-800 mr-auto"
-                }`}
+     {messages.map((msg) => {
+const isMe = String(msg.id_user) === String(currentUserId);
+const idNumber = Number(msg.id_mensaje);
+
+return (
+  <div
+    key={idNumber}
+    className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+  >
+    <div
+      className={`relative max-w-[85%] sm:max-w-md px-4 sm:px-8 py-3 sm:py-4 rounded-2xl break-words shadow-lg ${
+        isMe
+          ? "bg-green-500 text-white ml-auto"
+          : "bg-white text-gray-800 mr-auto"
+      }`}
+    >
+      {msg.tipo === "texto" && (
+        <p className="whitespace-pre-wrap">{msg.contenido}</p>
+      )}
+
+      {msg.tipo === "imagen" && (
+        <img
+          src={msg.contenido}
+          alt="Imagen enviada"
+          className="rounded-xl max-w-full h-auto mt-2 cursor-pointer"
+          onClick={() => window.open(msg.contenido, "_blank")}
+        />
+      )}
+
+      {msg.tipo === "audio" && (
+        <audio controls src={msg.contenido} className="mt-2 w-full" />
+      )}
+
+      {msg.editado === 1 && (
+        <span className="absolute bottom-1 right-3 text-xs italic opacity-70">
+          (editado)
+        </span>
+      )}
+
+      {isMe && (
+        <>
+          <button
+            data-menu-btn={idNumber}
+            className="absolute top-2 right-2 z-30" // Asegura visibilidad y prioridad
+            onClick={() =>
+              setOpenMenu(openMenu === idNumber ? null : idNumber)
+            }
+            aria-label="Abrir menú de opciones"
+          >
+            <FiMoreVertical className="text-black" size={20} />
+          </button>
+
+          {openMenu === idNumber && (
+            <div
+              data-menu={idNumber}
+              className="absolute top-10 right-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-40 text-black"
+            >
+              {msg.tipo === "texto" && (
+                <button
+                  onClick={() => {
+                    setEditing({
+                      id: msg.id_mensaje,
+                      content: msg.contenido,
+                    });
+                    setOpenMenu(null);
+                  }}
+                  className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-t-md"
+                >
+                  <FiEdit2 className="mr-2 text-black" /> Editar
+                </button>
+              )}
+
+              <button
+                onClick={() =>
+                  openConfirmDialog(
+                    "Eliminar mensaje",
+                    "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
+                    () => deleteMessage(msg.id_mensaje)
+                  )
+                }
+                className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
               >
-                {/* Contenido */}
-                {msg.tipo === "texto" && <p className="whitespace-pre-wrap">{msg.contenido}</p>}
-                {msg.tipo === "imagen" && (
-                  <img
-                    src={msg.contenido}
-                    alt="Imagen enviada"
-                    className="rounded-xl max-w-full h-auto mt-2 cursor-pointer"
-                    onClick={() => window.open(msg.contenido, "_blank")}
-                  />
-                )}
-                {msg.tipo === "audio" && <audio controls src={msg.contenido} className="mt-2 w-full" />}
-                {msg.editado === 1 && (
-                  <span className="absolute bottom-1 right-3 text-xs italic opacity-70">(editado)</span>
-                )}
-
-                {/* Menú de mi mensaje */}
-                {isMe && (
-                  <>
-                    <button
-                      data-menu-btn={msg.id_mensaje}
-                      className="absolute -top-4 right-[-20px] p-2 rounded-full bg-white/10 hover:bg-white/30 transition"
-                      onClick={() => setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)}
-                      aria-label="Abrir menú de opciones"
-                    >
-                      <FiMoreVertical  className=" text-black" size={20} />
-                    </button>
-
-                    {openMenu === msg.id_mensaje && (
-                      <div
-                        data-menu={msg.id_mensaje}
-                        className="absolute top-10 right-[-20px] w-40 bg-white border border-gray-200 rounded-md shadow-lg z-20 text-black"
-                      >
-                        {msg.tipo === "texto" && (
-                          <button
-                            onClick={() => {
-                              setEditing({ id: msg.id_mensaje, content: msg.contenido });
-                              setOpenMenu(null);
-                            }}
-                            className="flex items-center w-full px-3 py-2 text-sm  rounded-t-md"
-                          >
-                            <FiEdit2 className="mr-2 text-black" /> Editar
-                          </button>
-                        )}
-                        <button
-                          onClick={() =>
-                            openConfirmDialog(
-                              "Eliminar mensaje",
-                              "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
-                              () => deleteMessage(msg.id_mensaje)
-                            )
-                          }
-                          className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
-                        >
-                          <FiTrash2 className="mr-2" /> Eliminar
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+                <FiTrash2 className="mr-2" /> Eliminar
+              </button>
             </div>
-          );
-        })}
+          )}
+        </>
+      )}
+    </div>
+  </div>
+);
+
+})}
+
         <div ref={messagesEndRef} />
       </main>
 
@@ -505,105 +517,100 @@ recorder.onstop = async () => {
       )}
 
       {/* Entrada normal */}
-    
-{!editing && (
-  <form
-    onSubmit={sendTextMessage}
-    className={`p-3 sm:p-4 border-t border-gray-300 flex items-center gap-2 flex-wrap ${
-      isBlocked ? "bg-gray-100" : ""
-    }`}
-  >
-    
-    
-    <button
-      type="button"
-      onClick={() => !isBlocked && fileInputRef.current?.click()}
-      aria-label="Enviar imagen"
-      className={`p-2 rounded ${
-        isBlocked ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-200"
-      }`}
-      disabled={isBlocked}
-    >
-      <FiCamera size={20} />
-    </button>
 
-    <input
-      ref={fileInputRef}
-      type="file"
-      accept="image/*"
-      className="hidden"
-      onChange={!isBlocked ? sendImage : undefined}
-      disabled={isBlocked}
-    />
-
-    <input
-      type="text"
-      placeholder={isBlocked ? "Chat bloqueado" : "Escribe un mensaje"}
-      className={`flex-grow border border-gray-300 rounded px-3 py-2 min-w-[150px] ${
-        isBlocked ? "bg-gray-200 cursor-not-allowed" : "focus:ring focus:ring-green-400"
-      }`}
-      value={newMessage}
-      onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
-      disabled={isBlocked}
-    />
-
-    <button
-      type="submit"
-      disabled={isBlocked || !newMessage.trim()}
-      className={`p-2 rounded ${
-        isBlocked ? "bg-gray-300 text-gray-500" : "bg-green-500 text-white"
-      }`}
-      aria-label="Enviar mensaje"
-    >
-      <FiSend size={20} />
-    </button>
-
-    {/* Audio */}
-    <div className="flex items-center space-x-2">
-      <button
-        type="button"
-        onClick={!isBlocked ? toggleRecording : undefined}
-        aria-label={recording ? "Detener grabación" : "Grabar audio"}
-        className={`p-2 rounded ${
-          isBlocked 
-            ? "text-gray-400 cursor-not-allowed" 
-            : recording 
-              ? "bg-red-500 text-white" 
-              : "hover:bg-gray-200"
-        }`}
-        disabled={isBlocked}
-      >
-        <FiMic size={20} />
-      </button>
-
-      {recording && (
-        <button
-          type="button"
-          onClick={cancelRecording}
-          aria-label="Cancelar grabación"
-          className="p-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
+      {!editing && (
+        <form
+          onSubmit={sendTextMessage}
+          className={`p-3 sm:p-4 border-t border-gray-300 flex items-center gap-2 flex-wrap ${isBlocked ? "bg-gray-100" : ""
+            }`}
         >
-          Cancelar
-        </button>
+
+
+          <button
+            type="button"
+            onClick={() => !isBlocked && fileInputRef.current?.click()}
+            aria-label="Enviar imagen"
+            className={`p-2 rounded ${isBlocked ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-200"
+              }`}
+            disabled={isBlocked}
+          >
+            <FiCamera size={20} />
+          </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={!isBlocked ? sendImage : undefined}
+            disabled={isBlocked}
+          />
+
+          <input
+            type="text"
+            placeholder={isBlocked ? "Chat bloqueado" : "Escribe un mensaje"}
+            className={`flex-grow border border-gray-300 rounded px-3 py-2 min-w-[150px] ${isBlocked ? "bg-gray-200 cursor-not-allowed" : "focus:ring focus:ring-green-400"
+              }`}
+            value={newMessage}
+            onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
+            disabled={isBlocked}
+          />
+
+          <button
+            type="submit"
+            disabled={isBlocked || !newMessage.trim()}
+            className={`p-2 rounded ${isBlocked ? "bg-gray-300 text-gray-500" : "bg-green-500 text-white"
+              }`}
+            aria-label="Enviar mensaje"
+          >
+            <FiSend size={20} />
+          </button>
+
+          {/* Audio */}
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={!isBlocked ? toggleRecording : undefined}
+              aria-label={recording ? "Detener grabación" : "Grabar audio"}
+              className={`p-2 rounded ${isBlocked
+                ? "text-gray-400 cursor-not-allowed"
+                : recording
+                  ? "bg-red-500 text-white"
+                  : "hover:bg-gray-200"
+                }`}
+              disabled={isBlocked}
+            >
+              <FiMic size={20} />
+            </button>
+
+            {recording && (
+              <button
+                type="button"
+                onClick={cancelRecording}
+                aria-label="Cancelar grabación"
+                className="p-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+        </form>
       )}
-    </div>
-  </form>
-)}
 
       {/* ConfirmDialog */}
       <ConfirmDialog
-    isOpen={confirmOpen}
-    onClose={() => {
-        setConfirmOpen(false);
-        fileInputRef.current && (fileInputRef.current.value = "");
-    }}
-    onConfirm={() => {
-        confirmAction.current();
-        setConfirmOpen(false);
-    }}
-    title={confirmTitle}
-    message={confirmMessage}
-/>
+        isOpen={confirmOpen}
+        onClose={() => {
+          setConfirmOpen(false);
+          fileInputRef.current && (fileInputRef.current.value = "");
+        }}
+        onConfirm={() => {
+          confirmAction.current();
+          setConfirmOpen(false);
+        }}
+        title={confirmTitle}
+        message={confirmMessage}
+      />
     </div>
   );
 };
