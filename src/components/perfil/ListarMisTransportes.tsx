@@ -1,7 +1,3 @@
-/* -------------------------------------------------
-   src/pages/Perfil/TransportesContenido.tsx
-   Usa <ConfirmDialog /> para confirmar la cancelación
--------------------------------------------------- */
 
 import React, { useEffect, useState } from "react";
 import TransportService from "@/services/Perfil/ListarMisTransportes";

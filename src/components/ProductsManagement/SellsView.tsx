@@ -4,7 +4,7 @@ import { VentasService, Venta } from "../../services/VentasService";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Footer from "@components/footer";
-import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog"; // ajusta la ruta si es distinta
+import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog"; 
 
 type DialogTarget = { type: "qr" | "code"; id: string };
 
@@ -14,8 +14,7 @@ export const SellsView = () => {
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [dialogTarget, setDialogTarget] = useState<DialogTarget | null>(null); // 👉 nuevo
-  const navigate = useNavigate(); // 👉 nuevo
-
+  const navigate = useNavigate(); 
   useEffect(() => {
     const cargarVentas = async () => {
       try {
@@ -52,8 +51,6 @@ export const SellsView = () => {
       normalizar(v.fecha_entrega).includes(texto)
     );
   });
-
-  /* ───────── Función que se llama al confirmar ───────── */
   const handleConfirm = () => {
     if (!dialogTarget) return;
     const { type, id } = dialogTarget;
@@ -167,7 +164,6 @@ export const SellsView = () => {
                         <td className="px-3 py-2">
                           {c.estado === "Asignada" && (
                             <div className="flex items-center gap-1">
-                              {/* 👉 Botón para QR */}
                               <button
                                 onClick={() =>
                                   setDialogTarget({
@@ -180,7 +176,6 @@ export const SellsView = () => {
                                 <QrCode size={16} />
                               </button>
 
-                              {/* 👉 Botón para Código */}
                               <button
                                 onClick={() =>
                                   setDialogTarget({
