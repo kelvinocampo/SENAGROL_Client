@@ -193,32 +193,68 @@ const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   /* ─── Grabación de audio ───────────────────────────────────────── */
   const toggleRecording = async () => {
-    if (recording) {
-      mediaRecorder?.stop();
-      setRecording(false);
-    } else {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const recorder = new MediaRecorder(stream);
-        setMediaRecorder(recorder);
-        setAudioChunks([]);
+  // ────────── SI YA SE ESTÁ GRABANDO, SE DETIENE ──────────
+  if (recording) {
+    mediaRecorder?.stop();                        // Detiene MediaRecorder
+    mediaRecorder?.stream.getTracks().forEach(t => t.stop()); // Detiene micrófono
+    setRecording(false);
+    return;
+  }
 
-        recorder.ondataavailable = (e) => e.data.size > 0 && setAudioChunks((p) => [...p, e.data]);
+  // ────────── INICIAR NUEVA GRABACIÓN ──────────
+  try {
+    const stream   = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const recorder = new MediaRecorder(stream);
+    setMediaRecorder(recorder);        // Lo guardas por si quieres detener luego
+    setAudioChunks([]);                // Si tienes este estado, lo limpias
 
-        recorder.onstop = () => {
-          const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-          
-          console.log("Audio grabado:", audioBlob);
-          stream.getTracks().forEach((t) => t.stop());
-        };
+    const chunks: Blob[] = [];         // Almacén local de datos
 
-        recorder.start();
-        setRecording(true);
-      } catch (err) {
-        console.error("Error al acceder al micrófono:", err);
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        chunks.push(e.data);
+        setAudioChunks?.((prev) => [...prev, e.data]); // opcional
       }
-    }
-  };
+    };
+
+recorder.onstop = async () => {
+  const audioBlob = new Blob(chunks, { type: recorder.mimeType || "audio/webm" });
+
+  // Detener tracks por si acaso
+  stream.getTracks().forEach(t => t.stop());
+
+  const userId = currentUserId || (await getCurrentUserId());
+  if (!userId) return;
+
+  // Declarar tempMsg aquí, fuera del try
+  const tempMsg = createTempMessage(URL.createObjectURL(audioBlob), "audio");
+  setMessages((prev) => [...prev, tempMsg]);
+
+  try {
+    const response = await MessageService.sendAudioMessage(
+      audioBlob,
+      parseInt(id_chat)
+    );
+
+    setMessages((prev) =>
+      prev.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? response : m))
+    );
+  } catch (err) {
+    showError(err, "No se pudo enviar audio");
+    setMessages((prev) =>
+      prev.filter((m) => m.id_mensaje !== tempMsg.id_mensaje)
+    );
+  }
+};
+
+
+    recorder.start();
+    setRecording(true);
+  } catch (err) {
+    showError(err, "No se pudo acceder al micrófono");
+  }
+};
+
 
   const cancelRecording = () => {
     if (mediaRecorder && recording) {
