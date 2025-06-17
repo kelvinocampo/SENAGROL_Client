@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { LocationPicker } from "@components/ProductsManagement/LocationPicker";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { CardElement, 
-  // useStripe, useElements 
 } from '@stripe/react-stripe-js';
 
 type Location = { lat: number; lng: number };
@@ -17,7 +16,7 @@ interface CompraModalProps {
     nombre: string;
     cantidad_minima: number;
     precio_unidad: number;
-    precio_transporte: number; // 👈 nuevo (usa 0 si no hay)
+    precio_transporte?: number; // 👈 nuevo (usa 0 si no hay)
   };
 }
 

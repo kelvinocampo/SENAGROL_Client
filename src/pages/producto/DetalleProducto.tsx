@@ -1,23 +1,22 @@
-import { useParams, useNavigate} from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import CompraModal from "@components/admin/common/BuyModal";
-import { BackToHome } from "@/components/admin/common/BackToHome";
+import { BackToHome } from "@components/admin/common/BackToHome";
 import { getUserRole } from "@/services/Perfil/authService";
 import Header from "@components/Header";
 import { motion } from "framer-motion";
 import Footer from "@components/footer";
-import FloatingIcon from "@/components/Inicio/FloatingIcon";
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe('pk_test_51abc123...'); // Reemplaza con tu clave pública
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe("pk_test_51abc123..."); // 🔑 tu clave pública de Stripe
 
 export default function DetalleProducto() {
   const { id } = useParams();
   const context = useContext(DiscountedProductContext);
 
-  /* ---------- Estados ---------- */
   const [producto, setProducto] = useState<any | null>(null);
   const [cantidad, setCantidad] = useState(0);
   const [roles, setRoles] = useState<string[]>([]);
@@ -39,8 +38,6 @@ export default function DetalleProducto() {
 
   const handleConversarConVendedor = () => {
     if (!producto?.id_vendedor) return;
-    console.log("Conversando con el vendedor:", producto.id_vendedor);
-    
     navigate(`/Chats/${producto.id_vendedor}`);
   };
 
@@ -59,11 +56,11 @@ export default function DetalleProducto() {
     }
   }, [context, id]);
 
-  /* ---------- Cargar roles del usuario ---------- */
+  /* ---------- Cargar roles usuario ---------- */
   useEffect(() => {
     const fetchRole = async () => {
       try {
-        const rolesStr = await getUserRole(); // p. ej. "comprador vendedor"
+        const rolesStr = await getUserRole(); // p.ej. "comprador vendedor"
         const rolesArr = rolesStr ? rolesStr.split(/\s+/).filter(Boolean) : [];
         setRoles(rolesArr);
       } catch {
@@ -83,7 +80,9 @@ export default function DetalleProducto() {
   return (
     <div className="font-[Fredoka] min-h-screen bg-neutral-50 px-4 sm:px-6 md:px-8 py-6">
       <Header />
-        <BackToHome />
+      <BackToHome />
+
+      {/* ---------- Tarjeta producto ---------- */}
       <motion.div
         className="max-w-6xl mx-auto p-4 sm:p-6 mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6"
         initial={{ opacity: 0, y: 20 }}
@@ -115,6 +114,7 @@ export default function DetalleProducto() {
           <div>
             <h1 className="text-2xl font-bold text-gray-800">{producto.nombre}</h1>
 
+            {/* Precio */}
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               <p className="text-green-700 font-bold text-xl">
                 ${producto.precio_unidad}
@@ -130,18 +130,29 @@ export default function DetalleProducto() {
             <p className="text-sm text-gray-600 mt-3">{producto.descripcion}</p>
 
             <div className="mt-4 text-sm text-gray-700 space-y-1">
-              <p><span className="font-semibold">Vendedor:</span> {producto.nombre_vendedor}</p>
-              <p><span className="font-semibold">Compra mínima:</span> {producto.cantidad_minima_compra} unidades</p>
-              <p><span className="font-semibold">Cantidad disponible:</span> {producto.cantidad} unidades</p>
+              <p>
+                <span className="font-semibold">Vendedor:</span> {producto.nombre_vendedor}
+              </p>
+              <p>
+                <span className="font-semibold">Compra mínima:</span>{" "}
+                {producto.cantidad_minima_compra} unidades
+              </p>
+              <p>
+                <span className="font-semibold">Cantidad disponible:</span>{" "}
+                {producto.cantidad} unidades
+              </p>
             </div>
           </div>
 
+          {/* Controles */}
           <div className="flex flex-col gap-4">
-            {/* Selector de cantidad */}
+            {/* Selector cantidad */}
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium">Cantidad:</span>
               <button
-                onClick={() => setCantidad((prev) => Math.max(producto.cantidad_minima_compra, prev - 1))}
+                onClick={() =>
+                  setCantidad((prev) => Math.max(producto.cantidad_minima_compra, prev - 1))
+                }
                 className="w-8 h-8 bg-gray-200 rounded hover:bg-gray-300"
               >
                 –
@@ -155,7 +166,7 @@ export default function DetalleProducto() {
               </button>
             </div>
 
-            {/* Botones de acción */}
+            {/* Botones acción */}
             <motion.div
               className="flex flex-col sm:flex-row gap-4"
               initial={{ opacity: 0, y: 10 }}
@@ -164,10 +175,11 @@ export default function DetalleProducto() {
             >
               <button
                 onClick={handleComprar}
-                className={`${userRole !== "comprador" || userRole == null
+                className={`${
+                  !isComprador
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#48BD28] hover:bg-green-600"
-                  } w-full text-white font-medium px-6 py-2 rounded transition duration-300`}
+                } w-full text-white font-medium px-6 py-2 rounded transition duration-300`}
               >
                 Comprar
               </button>
@@ -183,7 +195,7 @@ export default function DetalleProducto() {
         </motion.div>
       </motion.div>
 
-      {/* Modal: No permitido */}
+      {/* ---------- Modal: acción no permitida ---------- */}
       {mensajeNoPermitido && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
           <motion.div
@@ -207,17 +219,21 @@ export default function DetalleProducto() {
         </div>
       )}
 
-      {/* Modal de compra */}
-      <CompraModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onConfirm={handleConfirmarCompra}
-        producto={{
-          id: producto.id,
-          nombre: producto.nombre,
-          cantidad_minima: producto.cantidad_minima_compra || 1,
-        }}
-      />
+      {/* ---------- Modal de compra (envuelto en Elements) ---------- */}
+      <Elements stripe={stripePromise}>
+        <CompraModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onConfirm={handleConfirmarCompra}
+          producto={{
+            id: producto.id,
+            nombre: producto.nombre,
+            cantidad_minima: producto.cantidad_minima_compra || 1,
+            precio_unidad: producto.precio_unidad,
+            precio_transporte: producto.precio_transporte,
+          }}
+        />
+      </Elements>
 
       <Footer />
     </div>

@@ -207,7 +207,7 @@ const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         recorder.onstop = () => {
           const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-          /* TODO: subir audioBlob */
+          
           console.log("Audio grabado:", audioBlob);
           stream.getTracks().forEach((t) => t.stop());
         };
