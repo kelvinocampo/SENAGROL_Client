@@ -2,8 +2,6 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-// Todas tus rutas importadas como ya las tienes
 import PaginaProductos from "@pages/producto/PaginaProductos";
 import DetalleProducto from "@pages/producto/DetalleProducto";
 import { InicioManual } from "@pages/Inicio";
@@ -29,17 +27,14 @@ import { Chats } from "@pages/Chats/Chats";
 import { ProductManagement } from "@pages/Perfil/ProductsManagement";
 import { AdminManagement } from "@pages/AdminManagement";
 import { RegisterForm } from "@components/Usuarioregister/RegisterForm";
-
-
 import { ProtectedRoute } from "@components/ProtectedRoute";
 import Error404 from "@pages/Error404";
 
-/* ---------------- Hook de inactividad (dentro del router) ---------------- */
 function AutoLogoutWrapper({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const INACTIVITY_MS = 60 * 60 * 1000; // 1 hora
+    const INACTIVITY_MS = 60 * 60 * 1000; 
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const cerrarSesion = () => {
@@ -65,7 +60,6 @@ function AutoLogoutWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-/* ---------------- App principal ---------------- */
 function App() {
   return (
     <BrowserRouter>
