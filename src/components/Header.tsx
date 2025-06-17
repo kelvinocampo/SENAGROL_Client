@@ -32,8 +32,7 @@ const Header = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        /* getUserRole() devuelve algo como "vendedor comprador" */
-        const rolesString = await getUserRole(); // string | undefined
+        const rolesString = await getUserRole();
 
         const rolesArray: SingleRole[] = rolesString
           ? (rolesString.split(/\s+/) as SingleRole[])
@@ -47,8 +46,6 @@ const Header = () => {
     };
     fetchRoles();
   }, []);
-console.log("Roles del usuario:", user.roles);
-
   /* ---------- Utilidades ---------- */
   const hasRole = (r: SingleRole) => user.roles.includes(r);
 
@@ -191,7 +188,7 @@ console.log("Roles del usuario:", user.roles);
   /* ---------- JSX ---------- */
   return (
     <>
-      <header className="font-[Fredoka] bg-white shadow-md mx-auto my-6 w-full px-4 sm:px-6 py-4 rounded-lg max-w-350">
+      <header className="font-[Fredoka] bg-white shadow-md mx-auto my-6 w-full px-4 sm:px-6 py-4 rounded-lg max-w-450">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">

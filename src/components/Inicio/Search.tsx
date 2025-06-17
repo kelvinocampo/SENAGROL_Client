@@ -60,7 +60,7 @@ export default function Buscador({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           whileFocus={{ boxShadow: "0 0 0 4px rgba(34,197,94,0.4)" }}
-          className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
+          className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 bg-white"
         />
       </motion.div>
     </motion.div>

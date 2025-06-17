@@ -66,7 +66,6 @@ function App() {
       <DiscountedProductProvider>
         <AutoLogoutWrapper>
           <Routes>
-            {/* 👇 tus rutas exactamente igual */}
             <Route path="/" element={<PaginaProductos />} />
             <Route path="/producto/:id" element={<DetalleProducto />} />
             <Route path="/Login" element={<InicioManual />} />

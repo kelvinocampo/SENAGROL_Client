@@ -94,7 +94,7 @@ export default function PaginaProductos() {
         <Header />
 
         {/* ---------------- Carrusel ---------------- */}
-      <div className="max-w-5xl mx-auto mt-6 mb-12 px-4 bg-[#d6f7d2] rounded-2xl shadow-inner">
+      <div className="max-w-5xl mx-auto mt-6 mb-12  rounded-2xl shadow-inner">
   <Carousel
     autoPlay
     infiniteLoop
