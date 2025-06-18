@@ -5,10 +5,12 @@ export const ChatsContext = createContext<{
   chats: any[];
   setChats: (chats: any[]) => void;
   fetchChats: () => Promise<void>;
+    loading: boolean; // ← ✅ Agregado aquí
 }>({
   chats: [],
   setChats: () => { },
   fetchChats: async () => { },
+    loading: false, // ← ✅ Valor por defecto
 });
 
 export interface Chat {
@@ -29,14 +31,16 @@ export interface Chat {
 
 export const ChatsProvider = ({ children }: { children: React.ReactNode }) => {
   const [chats, setChats] = useState<Chat[]>([]);
-
+    const [loading, setLoading] = useState<boolean>(false); // ← ✅ Estado de carga
   const fetchChats = useCallback(async () => {
     try {
       const chatsData = await ChatService.getChats();
       setChats(chatsData);
     } catch (err) {
       console.error("Error al cargar chats:", err);
-      throw err; // Re-lanzamos el error para que los componentes puedan manejarlo
+      throw err; 
+    } finally {
+      setLoading(false); // ← ✅ Después de cargar o si falla
     }
   }, []);
 
@@ -46,9 +50,7 @@ export const ChatsProvider = ({ children }: { children: React.ReactNode }) => {
   }, [fetchChats]);
 
   return (
-    <ChatsContext.Provider
-      value={{ chats, setChats, fetchChats }}
-    >
+  <ChatsContext.Provider value={{ chats, setChats, fetchChats, loading }}> {/* ← ✅ Pasar loading */}
       {children}
     </ChatsContext.Provider>
   );
