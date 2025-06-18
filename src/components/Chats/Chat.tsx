@@ -15,9 +15,21 @@ import {
 import { ChatsContext } from "@/contexts/Chats";
 import { useSocket } from "@/hooks/UseSocket";
 
+interface Chat {
+  id_chat: number;
+  id_user1: number;
+  id_user2: number;
+  nombre_user1: string;
+  nombre_user2: string;
+  rol_user1: string;
+  rol_user2: string;
+  bloqueado_user1: number;
+  bloqueado_user2: number;
+}
+
 export const Chat = () => {
   const { id_chat = "" } = useParams<{ id_chat: string }>();
-  const { chats, loading: chatsLoading }: any = useContext(ChatsContext);
+  const { chats, loading: chatsLoading } = useContext(ChatsContext);
   const navigate = useNavigate();
   const socket = useSocket("http://localhost:10101");
 
@@ -51,14 +63,14 @@ export const Chat = () => {
   );
   const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [isBlocked, setIsBlocked] = useState(false);
-  const [_, setBlockedUserId] = useState<number | null>(null);
+  const [blockedUserId, setBlockedUserId] = useState<number | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [chatExists, setChatExists] = useState<boolean | null>(null);
 
   /* ─── Chat y bloqueo ────────────────────────────────────────────── */
-  const currentChat =
+  const currentChat: Chat | null =
     chats.find((c: any) => c.id_chat === parseInt(id_chat)) || null;
 
   const title = (() => {
@@ -73,30 +85,28 @@ export const Chat = () => {
     return `${nombre} (${rol})`;
   })();
 
-  const showError = (err: any, msg: string) => {
+  const showError = (err: unknown, msg: string) => {
     console.error(err);
     setError(err instanceof Error ? err.message : msg);
   };
 
-  const verifyBlockStatus = (userId: number, chat: any) => {
+  const verifyBlockStatus = useCallback((userId: number, chat: Chat) => {
     const isUser1 = chat.id_user1 === userId;
-
-    // Verificar si yo he bloqueado el chat
-    const iBlockedThisChat = isUser1
-      ? chat.bloqueado_user1 === 1
+    
+    const iBlockedThisChat = isUser1 
+      ? chat.bloqueado_user1 === 1 
       : chat.bloqueado_user2 === 1;
-
-    // Verificar si el otro usuario ha bloqueado el chat
+    
     const otherUserBlocked = isUser1
       ? chat.bloqueado_user2 === 1
       : chat.bloqueado_user1 === 1;
 
-    // El chat está bloqueado si alguno de los dos lo bloqueó
     const chatIsBlocked = iBlockedThisChat || otherUserBlocked;
-
+    
     setIsBlocked(chatIsBlocked);
     setBlockedUserId(chatIsBlocked ? (isUser1 ? chat.id_user2 : chat.id_user1) : null);
-  };
+  }, []);
+
   const getCurrentUserId = useCallback(async () => {
     try {
       const id = await AuthService.getIDUser();
@@ -107,140 +117,176 @@ export const Chat = () => {
       showError(err, "Error al cargar usuario");
       return null;
     }
-  }, [currentChat]);
+  }, [currentChat, verifyBlockStatus]);
 
-  const checkIfBlocked = () => {
+  const checkIfBlocked = useCallback(() => {
     if (currentChat && currentUserId) verifyBlockStatus(currentUserId, currentChat);
-  };
+  }, [currentChat, currentUserId, verifyBlockStatus]);
 
-  /* ─── Mensajes: enviar texto ───────────────────────────────────── */
   const createTempMessage = (
     content: string,
     type: "texto" | "imagen" | "audio" = "texto"
-  ): Message => ({
-    id_mensaje: Date.now(),
-    contenido: content,
-    fecha_envio: new Date().toISOString(),
-    id_user: currentUserId!,
-    id_chat: parseInt(id_chat),
-    tipo: type,
-    editado: 0,
-  });
+  ): Message => {
+    const tempId = -Math.floor(Math.random() * 1000000) - Date.now();
+    return {
+      id_mensaje: tempId,
+      contenido: content,
+      fecha_envio: new Date().toISOString(),
+      id_user: currentUserId!,
+      id_chat: parseInt(id_chat),
+      tipo: type,
+      editado: 0,
+    };
+  };
 
   const sendTextMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isBlocked) {
-      setError("No puedes enviar mensajes a usuarios bloqueados");
-      return;
-    }
-    if (!newMessage.trim()) return;
-
-    const userId = currentUserId || (await getCurrentUserId());
-    if (!userId) return;
+    if (isBlocked || !newMessage.trim()) return;
 
     const tempMsg = createTempMessage(newMessage);
-    setMessages((p) => [...p, tempMsg]);
+    setMessages((prev) => [...prev, tempMsg]);
     setNewMessage("");
 
     try {
-      const res = await MessageService.sendTextMessage(
-        newMessage,
-        parseInt(id_chat)
+      const response = await MessageService.sendTextMessage(newMessage, parseInt(id_chat));
+      
+      if (!response || typeof response.id_mensaje !== 'number') {
+        throw new Error('La respuesta del servidor no tiene el formato esperado');
+      }
+
+      const realMessage: Message = {
+        id_mensaje: response.id_mensaje,
+        contenido: response.contenido,
+        fecha_envio: response.fecha_envio,
+        id_user: response.id_user,
+        id_chat: response.id_chat,
+        tipo: response.tipo,
+        editado: response.editado || 0
+      };
+
+      setMessages((prev) =>
+        prev.map((msg) => 
+          msg.id_mensaje === tempMsg.id_mensaje ? realMessage : msg
+        )
       );
-      setMessages((p) => p.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? res : m)));
+      
     } catch (err) {
-      showError(err, "No se pudo enviar mensaje");
-      setMessages((p) => p.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
+      setMessages((prev) => 
+        prev.filter((msg) => msg.id_mensaje !== tempMsg.id_mensaje)
+      );
+      showError(err, "Error al enviar el mensaje");
     }
   };
 
-  /* ─── Mensajes: enviar imagen ──────────────────────────────────── */
   const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isBlocked) {
       setError("No puedes enviar mensajes a usuarios bloqueados");
-      fileInputRef.current && (fileInputRef.current.value = "");
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
     const file = e.target.files?.[0];
     if (!file || !file.type.match("image.*")) {
       setError("Solo se permiten imágenes");
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    // Mostrar diálogo de confirmación
     openConfirmDialog(
       "Enviar imagen",
       "¿Estás seguro de que quieres enviar esta imagen?",
       async () => {
-        const userId = currentUserId || (await getCurrentUserId());
-        if (!userId) return;
-
-        const tempMsg = createTempMessage(URL.createObjectURL(file), "imagen");
-        setMessages((p) => [...p, tempMsg]);
-
+        let tempMsg: Message | null = null;
         try {
-          const res = await MessageService.sendImageMessage(file, parseInt(id_chat));
-          setMessages((p) => p.map((m) => (m.id_mensaje === tempMsg.id_mensaje ? res : m)));
+          const tempUrl = URL.createObjectURL(file);
+          tempMsg = createTempMessage(tempUrl, "imagen");
+          setMessages((p) => [...p, tempMsg]);
+
+          const response = await MessageService.sendImageMessage(file, parseInt(id_chat));
+          
+          setMessages((p) =>
+            p.map((m) =>
+              m.id_mensaje === tempMsg?.id_mensaje
+                ? {
+                    ...response,
+                    contenido: response.contenido
+                  }
+                : m
+            )
+          );
+
+          URL.revokeObjectURL(tempUrl);
         } catch (err) {
           showError(err, "No se pudo enviar imagen");
-          setMessages((p) => p.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
+          if (tempMsg) {
+            setMessages((p) => p.filter((m) => m.id_mensaje !== tempMsg?.id_mensaje));
+          }
+        } finally {
+          if (fileInputRef.current) fileInputRef.current.value = "";
         }
-        fileInputRef.current && (fileInputRef.current.value = "");
       }
     );
   };
 
-  /* ─── Grabación de audio ───────────────────────────────────────── */
   const toggleRecording = async () => {
     /* 1. Si ya graba ➜ detener y ENVIAR */
     if (recording) {
       mediaRecorder?.stop();
       mediaRecorder?.stream.getTracks().forEach(t => t.stop());
       setRecording(false);
-      return;
-    }
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+        setMediaRecorder(recorder);
+        setAudioChunks([]);
 
-    /* 2. Arrancar nueva grabación */
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            setAudioChunks((prev) => [...prev, e.data]);
+          }
+        };
 
-      // MimeType seguro
-      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-        ? "audio/webm;codecs=opus"
-        : "audio/webm";
+        recorder.onstop = async () => {
+          try {
+            if (audioChunks.length === 0) return;
+            
+            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+            const tempUrl = URL.createObjectURL(audioBlob);
+            const tempMsg = createTempMessage(tempUrl, "audio");
+            setMessages((p) => [...p, tempMsg]);
 
-      const recorder = new MediaRecorder(stream, { mimeType });
-      setMediaRecorder(recorder);
+            const response = await MessageService.sendAudioMessage(
+              audioBlob, 
+              parseInt(id_chat)
+            );
 
-      const chunks: Blob[] = [];
-      recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+            setMessages((p) =>
+              p.map((m) =>
+                m.id_mensaje === tempMsg.id_mensaje
+                  ? {
+                      ...response,
+                      contenido: response.contenido
+                    }
+                  : m
+              )
+            );
 
-      recorder.onstop = async () => {
-        /* ‑‑ Cancelación: si vacías `chunks` 👉 no se envía nada ‑‑ */
-        if (chunks.length === 0) return;
-        const blob = new Blob(chunks, { type: mimeType });
-        stream.getTracks().forEach(t => t.stop());
+            URL.revokeObjectURL(tempUrl);
+          } catch (err) {
+            showError(err, "Error al enviar audio");
+            setMessages((p) => p.filter((m) => m.id_mensaje !== tempMsg?.id_mensaje));
+          } finally {
+            stream.getTracks().forEach((t) => t.stop());
+          }
+        };
 
-        const userId = currentUserId ?? (await getCurrentUserId());
-        if (!userId) return;
-
-        const temp = createTempMessage(URL.createObjectURL(blob), "audio");
-        setMessages(p => [...p, temp]);
-
-        try {
-          const res = await MessageService.sendAudioMessage(blob, +id_chat);
-          setMessages(p => p.map(m => (m.id_mensaje === temp.id_mensaje ? res : m)));
-        } catch (err) {
-          showError(err, "No se pudo enviar audio");
-          setMessages(p => p.filter(m => m.id_mensaje !== temp.id_mensaje));
-        }
-      };
-
-      recorder.start(250);          // asegura chunks aunque sea corto
-      setRecording(true);
-    } catch (err) {
-      showError(err, "No se pudo acceder al micrófono");
+        recorder.start(1000);
+        setRecording(true);
+      } catch (err) {
+        console.error("Error al acceder al micrófono:", err);
+        setError("No se pudo acceder al micrófono");
+      }
     }
   };
 
@@ -251,11 +297,9 @@ export const Chat = () => {
       mediaRecorder.stop();
       setAudioChunks([]);
       setRecording(false);
-      console.log("Grabación cancelada.");
     }
   };
 
-  /* ─── Editar / eliminar mensaje ────────────────────────────────── */
   const editMessage = async () => {
     if (!editing || isBlocked) return;
     try {
@@ -281,7 +325,7 @@ export const Chat = () => {
     }
   };
 
-  /* ─── Carga inicial del chat ───────────────────────────────────── */
+  /* ─── Efectos ──────────────────────────────────────────────────── */
   useEffect(() => {
     if (chatsLoading) return;
 
@@ -307,14 +351,12 @@ export const Chat = () => {
         setLoading(false);
       }
     })();
-  }, [id_chat, chats, chatsLoading, navigate, getCurrentUserId]);
+  }, [id_chat, chats, chatsLoading, navigate, getCurrentUserId, checkIfBlocked]);
 
-  /* ─── Scroll al último mensaje ─────────────────────────────────── */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  /* ─── Cierre de menú al clic afuera ────────────────────────────── */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -331,18 +373,28 @@ export const Chat = () => {
     return () => document.removeEventListener("click", handler);
   }, [openMenu]);
 
-  /* ─── Sockets ──────────────────────────────────────────────────── */
   useEffect(() => {
     if (!socket || !id_chat || currentUserId === null || chatExists !== true) return;
 
     socket.emit("join_chat", { chatId: id_chat });
 
-    const onNew = (msg: any) => msg.usuario !== currentUserId && setMessages((p) => [...p, msg]);
+    const onNew = (msg: Message) => {
+      if (msg.id_user !== currentUserId) {
+        setMessages((p) => [...p, msg]);
+      }
+    };
+    
     const onUpd = (m: { id_mensaje: number; contenido: string }) =>
       setMessages((p) =>
-        p.map((msg) => (msg.id_mensaje === m.id_mensaje ? { ...msg, contenido: m.contenido, editado: 1 } : msg))
+        p.map((msg) => 
+          msg.id_mensaje === m.id_mensaje ? 
+            { ...msg, contenido: m.contenido, editado: 1 } : 
+            msg
+        )
       );
-    const onDel = (id: number) => setMessages((p) => p.filter((msg) => msg.id_mensaje !== id));
+      
+    const onDel = (id: number) => 
+      setMessages((p) => p.filter((msg) => msg.id_mensaje !== id));
 
     socket.on("new_message", onNew);
     socket.on("update_message", onUpd);
@@ -363,6 +415,7 @@ export const Chat = () => {
         <p className="text-gray-600">Cargando chat...</p>
       </div>
     );
+    
   if (chatExists === false)
     return (
       <div className="flex items-center justify-center h-full">
@@ -431,61 +484,54 @@ return (
         </span>
       )}
 
-      {isMe && (
-        <>
-          <button
-            data-menu-btn={idNumber}
-            className="absolute top-2 right-2 z-30" // Asegura visibilidad y prioridad
-            onClick={() =>
-              setOpenMenu(openMenu === idNumber ? null : idNumber)
-            }
-            aria-label="Abrir menú de opciones"
-          >
-            <FiMoreVertical className="text-black" size={20} />
-          </button>
+                {/* Menú de mi mensaje */}
+                {isMe && (
+                  <>
+                    <button
+                      data-menu-btn={msg.id_mensaje}
+                      className="absolute -top-4 right-[-20px] p-2 rounded-full bg-white/10 hover:bg-white/30 transition"
+                      onClick={() => setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)}
+                      aria-label="Abrir menú de opciones"
+                    >
+                      <FiMoreVertical className="text-black" size={20} />
+                    </button>
 
-          {openMenu === idNumber && (
-            <div
-              data-menu={idNumber}
-              className="absolute top-10 right-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-40 text-black"
-            >
-              {msg.tipo === "texto" && (
-                <button
-                  onClick={() => {
-                    setEditing({
-                      id: msg.id_mensaje,
-                      content: msg.contenido,
-                    });
-                    setOpenMenu(null);
-                  }}
-                  className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-t-md"
-                >
-                  <FiEdit2 className="mr-2 text-black" /> Editar
-                </button>
-              )}
-
-              <button
-                onClick={() =>
-                  openConfirmDialog(
-                    "Eliminar mensaje",
-                    "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
-                    () => deleteMessage(msg.id_mensaje)
-                  )
-                }
-                className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
-              >
-                <FiTrash2 className="mr-2" /> Eliminar
-              </button>
+                    {openMenu === msg.id_mensaje && (
+                      <div
+                        data-menu={msg.id_mensaje}
+                        className="absolute top-10 right-[-20px] w-40 bg-white border border-gray-200 rounded-md shadow-lg z-20 text-black"
+                      >
+                        {msg.tipo === "texto" && (
+                          <button
+                            onClick={() => {
+                              setEditing({ id: msg.id_mensaje, content: msg.contenido });
+                              setOpenMenu(null);
+                            }}
+                            className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-t-md"
+                          >
+                            <FiEdit2 className="mr-2" /> Editar
+                          </button>
+                        )}
+                        <button
+                          onClick={() =>
+                            openConfirmDialog(
+                              "Eliminar mensaje",
+                              "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
+                              () => deleteMessage(msg.id_mensaje)
+                            )
+                          }
+                          className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
+                        >
+                          <FiTrash2 className="mr-2" /> Eliminar
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-          )}
-        </>
-      )}
-    </div>
-  </div>
-);
-
-})}
-
+          );
+        })}
         <div ref={messagesEndRef} />
       </main>
 
@@ -509,7 +555,10 @@ return (
             >
               Guardar
             </button>
-            <button onClick={() => setEditing(null)} className="px-4 py-2 bg-gray-300 rounded">
+            <button 
+              onClick={() => setEditing(null)} 
+              className="px-4 py-2 bg-gray-300 rounded"
+            >
               Cancelar
             </button>
           </div>
@@ -517,21 +566,20 @@ return (
       )}
 
       {/* Entrada normal */}
-
       {!editing && (
         <form
           onSubmit={sendTextMessage}
-          className={`p-3 sm:p-4 border-t border-gray-300 flex items-center gap-2 flex-wrap ${isBlocked ? "bg-gray-100" : ""
-            }`}
+          className={`p-3 sm:p-4 border-t border-gray-300 flex items-center gap-2 flex-wrap ${
+            isBlocked ? "bg-gray-100" : ""
+          }`}
         >
-
-
           <button
             type="button"
             onClick={() => !isBlocked && fileInputRef.current?.click()}
             aria-label="Enviar imagen"
-            className={`p-2 rounded ${isBlocked ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-200"
-              }`}
+            className={`p-2 rounded ${
+              isBlocked ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-200"
+            }`}
             disabled={isBlocked}
           >
             <FiCamera size={20} />
@@ -549,8 +597,9 @@ return (
           <input
             type="text"
             placeholder={isBlocked ? "Chat bloqueado" : "Escribe un mensaje"}
-            className={`flex-grow border border-gray-300 rounded px-3 py-2 min-w-[150px] ${isBlocked ? "bg-gray-200 cursor-not-allowed" : "focus:ring focus:ring-green-400"
-              }`}
+            className={`flex-grow border border-gray-300 rounded px-3 py-2 min-w-[150px] ${
+              isBlocked ? "bg-gray-200 cursor-not-allowed" : "focus:ring focus:ring-green-400"
+            }`}
             value={newMessage}
             onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
             disabled={isBlocked}
@@ -559,8 +608,9 @@ return (
           <button
             type="submit"
             disabled={isBlocked || !newMessage.trim()}
-            className={`p-2 rounded ${isBlocked ? "bg-gray-300 text-gray-500" : "bg-green-500 text-white"
-              }`}
+            className={`p-2 rounded ${
+              isBlocked ? "bg-gray-300 text-gray-500" : "bg-green-500 text-white"
+            }`}
             aria-label="Enviar mensaje"
           >
             <FiSend size={20} />
@@ -572,12 +622,13 @@ return (
               type="button"
               onClick={!isBlocked ? toggleRecording : undefined}
               aria-label={recording ? "Detener grabación" : "Grabar audio"}
-              className={`p-2 rounded ${isBlocked
-                ? "text-gray-400 cursor-not-allowed"
-                : recording
-                  ? "bg-red-500 text-white"
-                  : "hover:bg-gray-200"
-                }`}
+              className={`p-2 rounded ${
+                isBlocked 
+                  ? "text-gray-400 cursor-not-allowed" 
+                  : recording 
+                    ? "bg-red-500 text-white" 
+                    : "hover:bg-gray-200"
+              }`}
               disabled={isBlocked}
             >
               <FiMic size={20} />
@@ -601,12 +652,12 @@ return (
       <ConfirmDialog
         isOpen={confirmOpen}
         onClose={() => {
-          setConfirmOpen(false);
-          fileInputRef.current && (fileInputRef.current.value = "");
+            setConfirmOpen(false);
+            fileInputRef.current && (fileInputRef.current.value = "");
         }}
         onConfirm={() => {
-          confirmAction.current();
-          setConfirmOpen(false);
+            confirmAction.current();
+            setConfirmOpen(false);
         }}
         title={confirmTitle}
         message={confirmMessage}
