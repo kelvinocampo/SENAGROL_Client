@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getCodigoCompra } from "@/services/QrServices";
 import { QRCodeCanvas } from "qrcode.react";
+import { BackToHome } from "@/components/admin/common/BackToHome";
 import Header from "../Header";
 import Footer from "@components/footer";
 import imagen from "../../assets/sin_foto.jpg";
@@ -33,13 +34,14 @@ const QrView = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-
+        <BackToHome/>
       <motion.main
         className="flex-grow flex flex-col items-center justify-start px-4 py-12 bg-gradient-to-br from-gray-100 to-white"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.2 }}
       >
+      
         <motion.div
           className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full text-center"
           initial={{ y: -40, opacity: 0 }}

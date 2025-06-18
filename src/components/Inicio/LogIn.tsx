@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
+import { BackToHome } from "@components/admin/common/BackToHome";
 import senagrol from "@assets/senagrol.png";
 import Image1 from "@assets/LoginImg.jpg";
 import Image2 from "@assets/Travel.jpg";
@@ -66,26 +67,7 @@ export const LoginForm = () => {
     <div className="h-screen w-full flex items-center bg-white">
       <div className="w-full h-full max-w-8xl shadow-lg flex flex-col md:flex-row overflow-hidden">
         <div className="absolute top-5 left-5 z-10">
-          <Link
-            to="/"
-            className="inline-flex items-center text-green-700 hover:text-green-900 font-medium transition-colors duration-300"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-5 h-5 mr-2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5L8.25 12l7.5-7.5"
-              />
-            </svg>
-            Volver al inicio
-          </Link>
+          <BackToHome />  
         </div>
 
         {/* Formulario */}

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { getUserRole } from "../services/Perfil/authService";
+import { getUserRole } from "@/services/Perfil/authService";
 
 interface ProtectedRouteProps {
-  allowedRoles: string[];
+  allowedRoles: string[];   // roles que pueden entrar (ej. ["vendedor"])
   children: React.ReactNode;
 }
 
@@ -11,16 +11,17 @@ export const ProtectedRoute = ({
   allowedRoles,
   children,
 }: ProtectedRouteProps) => {
-  const [role, setRole] = useState<string | null>(null);
+  const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRole = async () => {
       try {
-        const userRole = await getUserRole(); // Supone que devuelve un string
-        setRole(userRole);
-      } catch (error) {
-        setRole(null);
+        const roleStr = await getUserRole();           // "vendedor administrador"
+        const rolesArr = roleStr ? roleStr.split(/\s+/).filter(Boolean) : [];
+        setRoles(rolesArr);
+      } catch {
+        setRoles([]); // sin rol → no autorizado
       } finally {
         setLoading(false);
       }
@@ -29,9 +30,9 @@ export const ProtectedRoute = ({
   }, []);
 
   if (loading) return <div>Cargando...</div>;
-  if (!role || !allowedRoles.includes(role)) {
-    return <Navigate to="/Error404" />;
-  }
 
-  return <>{children}</>;
+  /* ¿Algún rol del usuario coincide con los permitidos? */
+  const autorizado = roles.some((r) => allowedRoles.includes(r));
+
+  return autorizado ? <>{children}</> : <Navigate to="/404" replace />;
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { BackToHome } from "./common/BackToHome";
 import {
   FaUsers,
   FaBox,
@@ -80,28 +80,7 @@ export const AdminMenu = ({
           >
             {/* Encabezado del menú */}
             <div className="flex flex-col items-center py-6 border-b border-white">
-              <div className="px-4 pt-6">
-                <Link
-                  to="/"
-                  className="inline-flex items-center text-white hover:text-green-900 font-medium"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-5 h-5 mr-2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 19.5L8.25 12l7.5-7.5"
-                    />
-                  </svg>
-                  Volver al inicio
-                </Link>
-              </div>
+            <BackToHome textColor="text-white" />
 
               <img
                 src={senagrol}

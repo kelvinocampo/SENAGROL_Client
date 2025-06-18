@@ -1,7 +1,14 @@
-// src/pages/RegisterForm.tsx
+/* -------------------------------------------------------------
+   src/pages/RegisterForm.tsx
+   - Logo fijo arriba del formulario (no se cruza con inputs)
+   - Sin bordes/fondos verdes extra
+   - 100 % responsive (xs → xl)
+------------------------------------------------------------- */
+
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { BackToHome } from "@components/admin/common/BackToHome";
 import { motion } from "framer-motion";
 import senagrol from "@assets/senagrol.png";
 import Image1 from "@assets/co.jpg";
@@ -10,25 +17,21 @@ import Image3 from "@assets/LoginImg.jpg";
 import { InicioService } from "@/services/Perfil/inicioServices";
 import { Input } from "@components/Input";
 
+/* ----------------- Slider ----------------- */
 const images = [Image1, Image2, Image3];
 
+/* ----------------- Animaciones ----------------- */
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      when: "beforeChildren",
-      staggerChildren: 0.15,
-    },
+    transition: { when: "beforeChildren", staggerChildren: 0.15 },
   },
 };
-
-const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-};
+const fadeInUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } };
 
 export function RegisterForm() {
+  /* ---------- Estados de formulario ---------- */
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -48,60 +51,48 @@ export function RegisterForm() {
     confirmPassword: "",
   });
 
+  /* ---------- Slider ---------- */
   const [currentImage, setCurrentImage] = useState(0);
   const navigate = useNavigate();
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % images.length);
-    }, 4000);
-    return () => clearInterval(interval);
+    const int = setInterval(() => setCurrentImage((i) => (i + 1) % images.length), 4000);
+    return () => clearInterval(int);
   }, []);
 
+  /* ---------- Password strength ---------- */
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const pwd = e.target.value;
     setPassword(pwd);
-
-    let score = 0;
-    if (pwd.length >= 8) score += 30;
-    if (/[A-Z]/.test(pwd)) score += 20;
-    if (/[0-9]/.test(pwd)) score += 20;
-    if (/[^A-Za-z0-9]/.test(pwd)) score += 30;
-
-    setStrength(Math.min(score, 100));
+    let sc = 0;
+    if (pwd.length >= 8) sc += 30;
+    if (/[A-Z]/.test(pwd)) sc += 20;
+    if (/[0-9]/.test(pwd)) sc += 20;
+    if (/[^A-Za-z0-9]/.test(pwd)) sc += 30;
+    setStrength(Math.min(sc, 100));
   };
 
-  const validateForm = () => {
-    const newErrors = {
-      name: "",
-      username: "",
-      email: "",
-      phone: "",
-      password: "",
-      confirmPassword: "",
-    } as typeof errors;
-
-    if (!name.trim()) newErrors.name = "El nombre completo es obligatorio.";
-    if (!username.trim()) newErrors.username = "El nombre de usuario es obligatorio.";
-    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) newErrors.email = "Correo inválido.";
-    if (!phone.trim()) newErrors.phone = "El número es obligatorio.";
-    if (password.length < 8)
-      newErrors.password = "Debe tener al menos 8 caracteres.";
-    if (password !== confirmPassword)
-      newErrors.confirmPassword = "Las contraseñas no coinciden.";
-
-    setErrors(newErrors);
-    return Object.values(newErrors).every((v) => v === "");
+  /* ---------- Validación ---------- */
+  const validate = () => {
+    const e = { ...errors };
+    e.name = !name.trim() ? "El nombre completo es obligatorio." : "";
+    e.username = !username.trim() ? "El nombre de usuario es obligatorio." : "";
+    e.email =
+      !email.trim() || !/\S+@\S+\.\S+/.test(email) ? "Correo inválido." : "";
+    e.phone = !phone.trim() ? "El número es obligatorio." : "";
+    e.password = password.length < 8 ? "Debe tener al menos 8 caracteres." : "";
+    e.confirmPassword =
+      password !== confirmPassword ? "Las contraseñas no coinciden." : "";
+    setErrors(e);
+    return Object.values(e).every((v) => v === "");
   };
 
+  /* ---------- Submit ---------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Flujo alterno 1: Datos incorrectos (se valida en frontend primero)
-    if (!validateForm()) {
+    if (!validate()) {
       setMessage("Error en los datos. Por favor, verifica e intenta nuevamente.");
       return;
     }
-
     try {
       await InicioService.register(
         name,
@@ -111,81 +102,48 @@ export function RegisterForm() {
         phone,
         confirmPassword
       );
-
-      // Flujo principal: cuenta creada
       setMessage("Cuenta creada exitosamente.");
-
-      // Redirige tras 2 segundos
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-   } catch (error: any) {
-  let errorMessage = "Error al registrar.";
-
-  const info = error?.errorInfo?.toString().toLowerCase() || "";
-
-  if (info.includes("duplicate") || info.includes("ya existe")) {
-    errorMessage = "Ya existe una cuenta con este correo o nombre de usuario.";
-  } else if (info.includes("invalid") || info.includes("inválido") || info.includes("tienes")) {
-    errorMessage = "Verifica que todos los datos estén correctos.";
-  } else {
-    errorMessage = error.errorInfo || error.message || errorMessage;
-  }
-
-  setMessage(errorMessage);
-}
-
+      setTimeout(() => navigate("/login"), 2000);
+    } catch (err: any) {
+      let msg = "Error al registrar.";
+      const txt = err?.errorInfo?.toString().toLowerCase() || "";
+      if (txt.includes("duplicate") || txt.includes("ya existe"))
+        msg = "Ya existe una cuenta con este correo o nombre de usuario.";
+      else if (txt.includes("invalid") || txt.includes("inválido"))
+        msg = "Verifica que todos los datos estén correctos.";
+      else msg = err.errorInfo || err.message || msg;
+      setMessage(msg);
+    }
   };
 
+  /* ---------- UI ---------- */
   return (
-    <div className="h-screen w-full flex items-center justify-center bg-[#48BD28]">
-      <div className="w-full max-w-8xl h-full flex flex-col md:flex-row bg-white overflow-hidden shadow-lg">
-        {/* Enlace de regreso */}
-        <div className="px-4 pt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center text-green-700 hover:text-green-900 font-medium"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-5 h-5 mr-2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5L8.25 12l7.5-7.5"
-              />
-            </svg>
-            Volver al inicio
-          </Link>
+    <div className="min-h-screen w-full flex items-center justify-center bg-white">
+      <div className="w-full flex flex-col md:flex-row">
+        <div className="fixed top-5 left-5 z-20">
+          <BackToHome />
         </div>
 
-        {/* Formulario */}
-        <div className="relative w-full md:w-1/2 flex items-center justify-center p-6 sm:p-10">
-          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-white border-4 border-[#48BD28] rounded-full p-1 shadow-md">
-            <img
-              src={senagrol}
-              className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover"
-            />
-          </div>
-
+        <div className="w-full md:w-1/2 flex items-center justify-center px-6 sm:px-10 py-12 bg-white">
           <motion.div
-            className="w-full max-w-[450px] mt-20 md:mt-0"
+            className="w-full max-w-[450px]"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            {/* Tabs */}
+            <div className="flex justify-center mb-8">
+              <img
+                src={senagrol}
+                alt="Senagrol"
+                className="w-16 h-16 md:w-20 md:h-20 rounded-full shadow-md"
+              />
+            </div>
+
             <div className="flex justify-between mb-6 border-b border-gray-300 pb-2 text-sm sm:text-base">
               <motion.span
                 onClick={() => navigate("/login")}
                 className="text-gray-400 cursor-pointer hover:text-black"
-                whileHover={{ scale: 1.1, color: "#000000" }}
-                transition={{ duration: 0.2 }}
+                whileHover={{ scale: 1.05 }}
               >
                 Login
               </motion.span>
@@ -194,11 +152,10 @@ export function RegisterForm() {
               </span>
             </div>
 
-            {/* Form */}
             <motion.form className="flex flex-col gap-4" onSubmit={handleSubmit}>
               <motion.div variants={fadeInUp}>
                 <Input
-                  name="name"
+                  name="username"
                   label="Nombre de usuario"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -219,7 +176,7 @@ export function RegisterForm() {
 
               <motion.div variants={fadeInUp}>
                 <Input
-                  name="nombre completo"
+                  name="name"
                   label="Nombre completo"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -237,7 +194,7 @@ export function RegisterForm() {
                 />
               </motion.div>
 
-              {/* Password */}
+              {/* Contraseña */}
               <motion.div variants={fadeInUp} className="relative">
                 <Input
                   name="password"
@@ -255,16 +212,18 @@ export function RegisterForm() {
                 </span>
                 <div className="w-full bg-gray-200 h-2 rounded mt-1">
                   <div
-                    className={`h-2 rounded ${strength < 50 ? "bg-red-500" : "bg-green-500"}`}
+                    className={`h-2 rounded ${
+                      strength < 50 ? "bg-red-500" : "bg-green-500"
+                    }`}
                     style={{ width: `${strength}%` }}
-                  ></div>
+                  />
                 </div>
                 <p className="text-xs text-green-600 mt-1">
                   Usa mínimo 8 caracteres, una mayúscula y un símbolo.
                 </p>
               </motion.div>
 
-              {/* Confirm password */}
+              {/* Confirmar contraseña */}
               <motion.div variants={fadeInUp} className="relative">
                 <Input
                   name="confirmPassword"
@@ -276,7 +235,7 @@ export function RegisterForm() {
                 />
                 <span
                   className="absolute right-3 top-[38px] cursor-pointer text-gray-400"
-                  onClick={() => setShowConfirmPassword(!setShowConfirmPassword)}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </span>
@@ -296,17 +255,16 @@ export function RegisterForm() {
                 </motion.p>
               )}
 
-              {/* Submit button */}
+              {/* Botón */}
               <motion.button
                 type="submit"
-                className="bg-[#48BD28] text-white font-bold py-2 px-4 rounded-md hover:bg-[#379E1B]"
                 variants={fadeInUp}
+                className="bg-[#48BD28] text-white font-bold py-2 px-4 rounded-md hover:bg-[#379E1B] transition"
                 whileHover={{
                   scale: 1.03,
-                  boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.2)",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
                 }}
                 whileTap={{ scale: 0.97 }}
-                transition={{ duration: 0.2 }}
               >
                 Registrarse
               </motion.button>
@@ -314,8 +272,8 @@ export function RegisterForm() {
           </motion.div>
         </div>
 
-        {/* Imagen del slider */}
-        <div className="hidden md:block md:w-1/2 h-full">
+  
+        <div className="hidden md:block md:w-1/2 h-screen">
           <img
             src={images[currentImage]}
             alt="slider"

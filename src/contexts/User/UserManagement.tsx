@@ -40,8 +40,8 @@ export const RecoverPasswordProvider = ({ children }: { children: React.ReactNod
     const response = await InicioService.updatePassword(token, newPassword, id_user); // ✅ llamada correcta
     setMessage(response.message);
   } catch (err: any) {
-    console.error('Error al actualizar la contraseña:', err);
-    setError(err.message || 'No se pudo actualizar la contraseña');
+    console.error('La nueva contraseña no cumple con los requisitos', err);
+    setError(err.message || 'La nueva contraseña no cumple con los requisitos');
   }
 };
 

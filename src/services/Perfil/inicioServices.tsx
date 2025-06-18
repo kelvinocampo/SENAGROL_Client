@@ -73,14 +73,14 @@ export class InicioService {
     body: JSON.stringify({
       id_user,
       password,
-      confirmPassword: password, // 👈 esto es lo que faltaba
+      confirmPassword: password, 
     }),
   });
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || data.error || 'No se pudo actualizar la contraseña');
+    throw new Error(data.message || data.error || 'La nueva contraseña no cumple con los requisitos');
   }
 
   return { message: data.message || 'Contraseña actualizada con éxito.' };

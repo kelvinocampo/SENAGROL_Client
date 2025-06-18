@@ -2,6 +2,7 @@ import { ChatService } from "@/services/Chats/ChatService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import Buscador from "@/components/Inicio/Search"; // ajusta la ruta si es distinta
 
 interface User {
   id_usuario: number;
@@ -57,7 +58,7 @@ export const UserList = () => {
   }, []);
 
   // Filtrar usuarios por searchTerm (case-insensitive)
-  const filteredUsers = users.filter(u =>
+  const filteredUsers = users.filter((u) =>
     u.nombre_usuario.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -89,16 +90,14 @@ export const UserList = () => {
       </div>
 
       {/* Buscador */}
-      <div className="p-4 border-b border-gray-200">
-        <input
-          type="text"
-          placeholder="Buscar por nombre..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+      <div className="px-4 mt-3 border-b border-gray-200">
+        <Buscador
+          busqueda={searchTerm}
+          setBusqueda={setSearchTerm}
+          setPaginaActual={() => {}}
+          placeholderText="Buscar por nombre..."
         />
       </div>
-
       {actionError && (
         <motion.div
           className="p-2 mt-2 text-red-500 text-sm bg-red-50 rounded text-center"
@@ -145,7 +144,7 @@ export const UserList = () => {
           </div>
           <ul className="overflow-y-auto flex-1 max-h-[60vh]">
             <AnimatePresence>
-              {filteredUsers.map(user => (
+              {filteredUsers.map((user) => (
                 <motion.li
                   key={user.id_usuario}
                   className="p-4 border-b border-gray-200 cursor-pointer"
