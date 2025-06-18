@@ -118,4 +118,6 @@ export interface Message {
   id_chat   : number;
   tipo      : 'texto' | 'imagen' | 'audio';
   editado   : number;
+  estado?: "enviando";
+   tempId?: string; // ✅ nuevo
 }

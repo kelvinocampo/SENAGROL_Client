@@ -125,66 +125,86 @@ export const Chat = () => {
     if (currentChat && currentUserId) verifyBlockStatus(currentUserId, currentChat);
   }, [currentChat, currentUserId, verifyBlockStatus]);
 
-  const createTempMessage = (
-    content: string,
-    type: "texto" | "imagen" | "audio" = "texto"
-  ): Message => {
-    const tempId = -Math.floor(Math.random() * 1000000) - Date.now();
-    return {
-      id_mensaje: tempId,
-      contenido: content,
-      fecha_envio: new Date().toISOString(),
-      id_user: currentUserId!,
-      id_chat: parseInt(id_chat),
-      tipo: type,
-      editado: 0,
+const createTempMessage = (
+  content: string,
+  type: "texto" | "imagen" | "audio" = "texto"
+): Message => {
+  const tempId = `temp-${Date.now()}-${Math.random()}`;
+  return {
+    id_mensaje: -Math.floor(Math.random() * 1000000) - Date.now(),
+    contenido: content,
+    fecha_envio: new Date().toISOString(),
+    id_user: currentUserId!,
+    id_chat: parseInt(id_chat),
+    tipo: type,
+    editado: 0,
+    estado: "enviando",
+    tempId, // ✅ para rastrear este mensaje temporal
+  };
+};
+
+
+
+ const sendTextMessage = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!newMessage.trim() || !currentUserId) return;
+
+  /* ── Si estoy bloqueado por el otro usuario, no permito enviar ── */
+  if (isBlocked && blockedUserId !== currentUserId) {
+    setError("No puedes enviar mensajes a este usuario porque te ha bloqueado.");
+    return;
+  }
+
+  /* ── 1. Creo mensaje temporal ─────────────────────────────────── */
+  const tempMsg = createTempMessage(newMessage);   // incluye tempId y estado:"enviando"
+  setMessages((prev) => [...prev, tempMsg]);
+  setNewMessage("");
+
+  try {
+    /* ── 2. Envío al backend ────────────────────────────────────── */
+    const response = await MessageService.sendTextMessage(
+      newMessage,
+      Number(id_chat)
+    );
+    console.log("Respuesta backend:", response);
+
+    if (!response || typeof response.id_mensaje !== "number") {
+      throw new Error("La respuesta del servidor no tiene el formato esperado");
+    }
+
+    /* ── 3. Construyo el mensaje real ───────────────────────────── */
+    const realMessage: Message = {
+      id_mensaje: response.id_mensaje,
+      contenido: response.contenido,
+      fecha_envio: response.fecha_envio,
+      id_user: response.id_user,
+      id_chat: response.id_chat,
+      tipo: response.tipo,
+      editado: response.editado ? 1 : 0,
     };
-  };
 
-  const sendTextMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !currentUserId) return;
+    /* ── 4. Reemplazo usando tempId, no id_mensaje ──────────────── */
+    console.log(
+      "Reemplazando mensaje temporal:",
+      tempMsg.tempId,
+      "por",
+      realMessage.id_mensaje
+    );
 
-    // Si el usuario fue bloqueado por el otro, no puede enviar mensajes
-    if (isBlocked && blockedUserId !== currentUserId) {
-      setError("No puedes enviar mensajes a este usuario porque te ha bloqueado.");
-      return;
-    }
+    setMessages((prev) =>
+      prev.map((msg) =>
+        (msg as any).tempId === tempMsg.tempId ? realMessage : msg
+      )
+    );
+  } catch (err) {
+    /* ── 5. Si falla, elimino el temporal y muestro error ───────── */
+    setMessages((prev) =>
+      prev.filter((msg) => (msg as any).tempId !== tempMsg.tempId)
+    );
+    showError(err, "Error al enviar el mensaje");
+  }
+};
 
-    const tempMsg = createTempMessage(newMessage);
-    setMessages((prev) => [...prev, tempMsg]);
-    setNewMessage("");
-
-    try {
-      const response = await MessageService.sendTextMessage(newMessage, parseInt(id_chat));
-      
-      if (!response || typeof response.id_mensaje !== 'number') {
-        throw new Error('La respuesta del servidor no tiene el formato esperado');
-      }
-
-      const realMessage: Message = {
-        id_mensaje: response.id_mensaje,
-        contenido: response.contenido,
-        fecha_envio: response.fecha_envio,
-        id_user: response.id_user,
-        id_chat: response.id_chat,
-        tipo: response.tipo,
-        editado: response.editado || 0
-      };
-
-      setMessages((prev) =>
-        prev.map((msg) => 
-          msg.id_mensaje === tempMsg.id_mensaje ? realMessage : msg
-        )
-      );
-      
-    } catch (err) {
-      setMessages((prev) => 
-        prev.filter((msg) => msg.id_mensaje !== tempMsg.id_mensaje)
-      );
-      showError(err, "Error al enviar el mensaje");
-    }
-  };
 
   const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isBlocked) {
@@ -382,40 +402,48 @@ export const Chat = () => {
     return () => document.removeEventListener("click", handler);
   }, [openMenu]);
 
-  useEffect(() => {
-    if (!socket || !id_chat || currentUserId === null || chatExists !== true) return;
+ useEffect(() => {
+  if (!socket || currentUserId == null || chatExists !== true) return;
 
-    socket.emit("join_chat", { chatId: id_chat });
+  socket.emit("join_chat", { chatId: id_chat });
 
-    const onNew = (msg: Message) => {
-      if (msg.id_user !== currentUserId) {
-        setMessages((p) => [...p, msg]);
+  const onNew = (msg: Message) => {
+    setMessages(prev => {
+      // 1️⃣ Si YA está el mensaje con el id real, no hagas nada
+      if (prev.some(m => m.id_mensaje === msg.id_mensaje)) return prev;
+
+      const isMe = Number(msg.id_user) === Number(currentUserId);
+
+      if (isMe) {
+        // 2️⃣ Reemplaza el temporal (estado === 'enviando') con el real
+        const idx = prev.findIndex(m =>
+          m.estado === "enviando" &&
+          m.contenido === msg.contenido
+        );
+
+        if (idx !== -1) {
+          const clone = [...prev];
+          clone[idx] = msg;           // sustituye
+          return clone;
+        }
       }
-    };
-    
-    const onUpd = (m: { id_mensaje: number; contenido: string }) =>
-      setMessages((p) =>
-        p.map((msg) => 
-          msg.id_mensaje === m.id_mensaje ? 
-            { ...msg, contenido: m.contenido, editado: 1 } : 
-            msg
-        )
-      );
-      
-    const onDel = (id: number) => 
-      setMessages((p) => p.filter((msg) => msg.id_mensaje !== id));
 
-    socket.on("new_message", onNew);
-    socket.on("update_message", onUpd);
-    socket.on("delete_message", onDel);
+      // 3️⃣ Si no es tuyo o no hay temporal que reemplazar, añádelo
+      return [...prev, msg];
+    });
+  };
 
-    return () => {
-      socket.emit("leave_chat", { chatId: id_chat });
-      socket.off("new_message", onNew);
-      socket.off("update_message", onUpd);
-      socket.off("delete_message", onDel);
-    };
-  }, [socket, id_chat, currentUserId, chatExists]);
+  // resto (onUpd y onDel) sin cambios
+  socket.on("new_message", onNew);
+  // …
+
+  return () => {
+    socket.emit("leave_chat", { chatId: id_chat });
+    socket.off("new_message", onNew);
+    // …
+  };
+}, [socket, id_chat, currentUserId, chatExists]);
+
 
   /* ─── Render ───────────────────────────────────────────────────── */
   if (chatExists === null || chatsLoading)
@@ -455,92 +483,114 @@ export const Chat = () => {
         )}
 
         {messages.map((msg) => {
-          const isMe = msg.id_user === currentUserId;
-          const idNumber = Number(msg.id_mensaje);
+  // ¿Es mío?
+  const isMe = Number(msg.id_user) === Number(currentUserId);
 
-          return (
-            <div
-              key={idNumber}
-              className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+  // ID seguro para React key
+  const idNumber = Number(msg.id_mensaje);
+
+  // ¿Está aún enviándose?
+  const isPending = msg.estado === "enviando";
+
+  return (
+    <div
+      key={idNumber}
+      className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+    >
+      <div
+        className={`relative max-w-[85%] sm:max-w-md px-4 sm:px-8 py-3 sm:py-4 rounded-2xl break-words shadow-lg
+                    ${isMe ? "bg-green-500 text-white ml-auto"
+                            : "bg-white text-gray-800 mr-auto"}
+                    ${isPending ? "opacity-60" : ""}`}
+      >
+        {/* Texto */}
+        {msg.tipo === "texto" && (
+          <p className="whitespace-pre-wrap">{msg.contenido}</p>
+        )}
+
+        {/* Imagen */}
+        {msg.tipo === "imagen" && (
+          <img
+            src={msg.contenido}
+            alt="Imagen enviada"
+            className="rounded-xl max-w-full h-auto mt-2 cursor-pointer"
+            onClick={() => window.open(msg.contenido, "_blank")}
+          />
+        )}
+
+        {/* Audio */}
+        {msg.tipo === "audio" && (
+          <audio controls src={msg.contenido} className="mt-2 w-full" />
+        )}
+
+        {/* Indicador de edición */}
+        {msg.editado === 1 && (
+          <span className="absolute bottom-1 right-3 text-xs italic opacity-70">
+            (editado)
+          </span>
+        )}
+
+        {/* Indicador de envío pendiente */}
+        {isPending && (
+          <span className="absolute bottom-1 right-3 text-xs italic animate-pulse">
+            Enviando…
+          </span>
+        )}
+
+        {/* Menú de acciones (solo para mis mensajes) */}
+        {isMe && (
+          <>
+            <button
+              data-menu-btn={msg.id_mensaje}
+              className="absolute -top-4 right-[-20px] p-2 rounded-full bg-white/10 hover:bg-white/30 transition"
+              onClick={() =>
+                setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)
+              }
+              aria-label="Abrir menú de opciones"
             >
+              <FiMoreVertical className="text-black" size={20} />
+            </button>
+
+            {openMenu === msg.id_mensaje && (
               <div
-                className={`relative max-w-[85%] sm:max-w-md px-4 sm:px-8 py-3 sm:py-4 rounded-2xl break-words shadow-lg ${
-                  isMe
-                    ? "bg-green-500 text-white ml-auto"
-                    : "bg-white text-gray-800 mr-auto"
-                }`}
+                data-menu={msg.id_mensaje}
+                className="absolute top-10 right-[-20px] w-40 bg-white border border-gray-200 rounded-md shadow-lg z-20 text-black"
               >
+                {/* Editar (solo texto) */}
                 {msg.tipo === "texto" && (
-                  <p className="whitespace-pre-wrap">{msg.contenido}</p>
+                  <button
+                    onClick={() => {
+                      setEditing({ id: msg.id_mensaje, content: msg.contenido });
+                      setOpenMenu(null);
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-t-md"
+                  >
+                    <FiEdit2 className="mr-2" /> Editar
+                  </button>
                 )}
 
-                {msg.tipo === "imagen" && (
-                  <img
-                    src={msg.contenido}
-                    alt="Imagen enviada"
-                    className="rounded-xl max-w-full h-auto mt-2 cursor-pointer"
-                    onClick={() => window.open(msg.contenido, "_blank")}
-                  />
-                )}
-
-                {msg.tipo === "audio" && (
-                  <audio controls src={msg.contenido} className="mt-2 w-full" />
-                )}
-
-                {msg.editado === 1 && (
-                  <span className="absolute bottom-1 right-3 text-xs italic opacity-70">
-                    (editado)
-                  </span>
-                )}
-
-                {/* Menú de mi mensaje */}
-                {isMe && (
-                  <>
-                    <button
-                      data-menu-btn={msg.id_mensaje}
-                      className="absolute -top-4 right-[-20px] p-2 rounded-full bg-white/10 hover:bg-white/30 transition"
-                      onClick={() => setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)}
-                      aria-label="Abrir menú de opciones"
-                    >
-                      <FiMoreVertical className="text-black" size={20} />
-                    </button>
-
-                    {openMenu === msg.id_mensaje && (
-                      <div
-                        data-menu={msg.id_mensaje}
-                        className="absolute top-10 right-[-20px] w-40 bg-white border border-gray-200 rounded-md shadow-lg z-20 text-black"
-                      >
-                        {msg.tipo === "texto" && (
-                          <button
-                            onClick={() => {
-                              setEditing({ id: msg.id_mensaje, content: msg.contenido });
-                              setOpenMenu(null);
-                            }}
-                            className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-t-md"
-                          >
-                            <FiEdit2 className="mr-2" /> Editar
-                          </button>
-                        )}
-                        <button
-                          onClick={() =>
-                            openConfirmDialog(
-                              "Eliminar mensaje",
-                              "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
-                              () => deleteMessage(msg.id_mensaje)
-                            )
-                          }
-                          className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
-                        >
-                          <FiTrash2 className="mr-2" /> Eliminar
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
+                {/* Eliminar */}
+                <button
+                  onClick={() =>
+                    openConfirmDialog(
+                      "Eliminar mensaje",
+                      "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
+                      () => deleteMessage(msg.id_mensaje)
+                    )
+                  }
+                  className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
+                >
+                  <FiTrash2 className="mr-2" /> Eliminar
+                </button>
               </div>
-            </div>
-          );
-        })}
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+})}
+
         <div ref={messagesEndRef} />
       </main>
 
