@@ -70,8 +70,9 @@ export const Chat = () => {
   const [chatExists, setChatExists] = useState<boolean | null>(null);
 
   /* ─── Chat y bloqueo ────────────────────────────────────────────── */
-  const currentChat: Chat | null =
-    chats.find((c: any) => c.id_chat === parseInt(id_chat)) || null;
+const chatIdParsed = parseInt(id_chat);
+const currentChat: Chat | null =
+  !isNaN(chatIdParsed) ? chats.find((c) => c.id_chat === chatIdParsed) || null : null;
 
   const title = (() => {
     if (chatExists === false) return "Chat no encontrado";
@@ -141,7 +142,13 @@ export const Chat = () => {
 
   const sendTextMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isBlocked || !newMessage.trim()) return;
+    if (!newMessage.trim()) return;
+
+// Si el usuario fue bloqueado por el otro, no puede enviar mensajes
+if (isBlocked && blockedUserId !== currentUserId) {
+  setError("No puedes enviar mensajes a este usuario porque te ha bloqueado.");
+  return;
+}
 
     const tempMsg = createTempMessage(newMessage);
     setMessages((prev) => [...prev, tempMsg]);
@@ -179,54 +186,56 @@ export const Chat = () => {
   };
 
   const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isBlocked) {
-      setError("No puedes enviar mensajes a usuarios bloqueados");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
+  if (isBlocked) {
+    setError("No puedes enviar mensajes a usuarios bloqueados");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    return;
+  }
 
-    const file = e.target.files?.[0];
-    if (!file || !file.type.match("image.*")) {
-      setError("Solo se permiten imágenes");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
+  const file = e.target.files?.[0];
+  if (!file || !file.type.match("image.*")) {
+    setError("Solo se permiten imágenes");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    return;
+  }
 
-    openConfirmDialog(
-      "Enviar imagen",
-      "¿Estás seguro de que quieres enviar esta imagen?",
-      async () => {
-        let tempMsg: Message | null = null;
-        try {
-          const tempUrl = URL.createObjectURL(file);
-          tempMsg = createTempMessage(tempUrl, "imagen");
-          setMessages((p) => [...p, tempMsg]);
+  openConfirmDialog(
+    "Enviar imagen",
+    "¿Estás seguro de que quieres enviar esta imagen?",
+    
+    async () => {
+              const tempUrl = URL.createObjectURL(file);
+        const tempMsg = createTempMessage(tempUrl, "imagen");
+      try {
 
-          const response = await MessageService.sendImageMessage(file, parseInt(id_chat));
-          
-          setMessages((p) =>
-            p.map((m) =>
-              m.id_mensaje === tempMsg?.id_mensaje
-                ? {
-                    ...response,
-                    contenido: response.contenido
-                  }
-                : m
-            )
-          );
+        setMessages((p) => [...p, tempMsg]);
 
-          URL.revokeObjectURL(tempUrl);
-        } catch (err) {
-          showError(err, "No se pudo enviar imagen");
-          if (tempMsg) {
-            setMessages((p) => p.filter((m) => m.id_mensaje !== tempMsg?.id_mensaje));
-          }
-        } finally {
-          if (fileInputRef.current) fileInputRef.current.value = "";
-        }
+        const response = await MessageService.sendImageMessage(file, parseInt(id_chat));
+
+        setMessages((p) =>
+          p.map((m) =>
+            m.id_mensaje === tempMsg.id_mensaje
+              ? {
+                  ...response,
+                  contenido: response.contenido
+                }
+              : m
+          )
+        );
+
+        URL.revokeObjectURL(tempUrl);
+      } catch (err) {
+        showError(err, "No se pudo enviar imagen");
+        // Eliminar el mensaje temporal si hubo error
+        setMessages((p) =>
+          p.filter((m) => m.id_mensaje !== tempMsg.id_mensaje)
+        );
+      } finally {
+        if (fileInputRef.current) fileInputRef.current.value = "";
       }
-    );
-  };
+    }
+  );
+};
 
   const toggleRecording = async () => {
     /* 1. Si ya graba ➜ detener y ENVIAR */
@@ -248,12 +257,15 @@ export const Chat = () => {
         };
 
         recorder.onstop = async () => {
+                      
+            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+                      const tempUrl = URL.createObjectURL(audioBlob);
+          const tempMsg = createTempMessage(tempUrl, "audio");
           try {
             if (audioChunks.length === 0) return;
+
+
             
-            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-            const tempUrl = URL.createObjectURL(audioBlob);
-            const tempMsg = createTempMessage(tempUrl, "audio");
             setMessages((p) => [...p, tempMsg]);
 
             const response = await MessageService.sendAudioMessage(

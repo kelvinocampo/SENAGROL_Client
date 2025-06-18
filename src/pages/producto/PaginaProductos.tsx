@@ -103,14 +103,22 @@ export default function PaginaProductos() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const comprar = (p: Producto) => {
-    if (!userRoles.includes("comprador")) {
-      setToastNo(true);
-      return;
-    }
-    setProductoSel(p);
-    setModalOpen(true);
+ const comprar = (p: any) => {
+  if (!userRoles.includes("comprador")) {
+    setToastNo(true);
+    return;
+  }
+
+  // Crear objeto compatible con tipo Producto
+  const productoCompleto: Producto = {
+    ...p,
+    precio_transporte: p.precio_transporte ?? 0, // valor por defecto si no existe
   };
+
+  setProductoSel(productoCompleto);
+  setModalOpen(true);
+};
+
 
   /* ==================================================== */
   return (
