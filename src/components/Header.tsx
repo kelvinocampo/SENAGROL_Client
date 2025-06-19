@@ -1,8 +1,5 @@
 /* -------------------------------------------------
-   Header.tsx  – compatible con getUserRole() que
-   devuelve `data.roles?.toLowerCase()` (ej:
-   "vendedor comprador")
-   Soporta uno o varios roles separados por espacio
+   Header.tsx  – cerrar sesión dentro de Perfil
 -------------------------------------------------- */
 
 import { useState, useRef, useEffect } from "react";
@@ -11,7 +8,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import senagrol from "@assets/senagrol.png";
-
+import misproductos from "@assets/icons/misproductos.png";
+/* ---------- Iconos ---------- */
+import { RxExit } from "react-icons/rx";
+import { PiUserLight } from "react-icons/pi";
+import { GrArchive } from "react-icons/gr";
+import { RiShoppingCartLine } from "react-icons/ri";
 /* ---------- Tipos ---------- */
 type SingleRole = "vendedor" | "comprador" | "transportador" | "administrador";
 type User = {
@@ -23,32 +25,29 @@ const Header = () => {
   const [user, setUser] = useState<User>({ isLoggedIn: false, roles: [] });
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isMobilePerfilOpen, setMobilePerfilOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
   /* ---------- Obtener roles ---------- */
   useEffect(() => {
-    const fetchRoles = async () => {
+    (async () => {
       try {
         const rolesString = await getUserRole();
-
         const rolesArray: SingleRole[] = rolesString
           ? (rolesString.split(/\s+/) as SingleRole[])
           : [];
-
         setUser({ isLoggedIn: true, roles: rolesArray });
       } catch (err) {
         console.error("No se pudo obtener el rol:", err);
         setUser({ isLoggedIn: false, roles: [] });
       }
-    };
-    fetchRoles();
+    })();
   }, []);
+
   /* ---------- Utilidades ---------- */
   const hasRole = (r: SingleRole) => user.roles.includes(r);
-
   const linkClass =
     "bg-[#48BD28] text-white px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ease-in-out hover:bg-[#379E1B] hover:scale-105";
 
@@ -61,7 +60,7 @@ const Header = () => {
     inicio: <Link to="/" className={linkClass}>Inicio</Link>,
     perfilBtn: (
       <button
-        onClick={() => setMobilePerfilOpen((p) => !p)}
+        onClick={() => setMobilePerfilOpen(p => !p)}
         aria-haspopup="true"
         aria-expanded={isMobilePerfilOpen}
         className={`${linkClass} flex items-center justify-between`}
@@ -79,106 +78,111 @@ const Header = () => {
     ),
   };
 
-  const logoutBtn = (
-    <button
-      onClick={() => setShowLogoutConfirm(true)}
-      className="bg-[#E53935] text-white px-4 py-2 rounded-full text-sm font-semibold transition-transform duration-300 ease-in-out hover:scale-105 hover:rotate-1 shadow-md"
-    >
-      🔓 Cerrar sesión
-    </button>
-  );
-
   /* ---------- Construir links visibles ---------- */
   const renderLinks = () => {
-    if (!user.isLoggedIn || user.roles.length === 0) {
-      return [common.chatIA, common.login, common.inicio];
-    }
+  if (!user.isLoggedIn || user.roles.length === 0) {
+    return [common.inicio, common.chatIA, common.login];
+  }
 
-    const links = [
-      common.perfilBtn,
-      common.chats,
-      common.chatIA,
-      common.inicio,
-    ];
+  const initialLinks = [ common.inicio, common.chatIA,,common.chats];
+  if (hasRole("administrador")) initialLinks.push(common.admin);
 
-    if (hasRole("administrador")) links.push(common.admin);
-    links.push(logoutBtn);
+  // Quitar duplicados
+  const seen = new Set<string>();
+  const filtered = initialLinks.filter((l) => {
+    const id = (l as any)?.props?.to ?? (l as any)?.props?.children?.toString();
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
 
-    /* Quitar duplicados por destino */
-    const seen = new Set<string>();
-    return links.filter((l) => {
-      const id =
-        (l as any)?.props?.to ?? (l as any)?.props?.children?.toString();
-      if (seen.has(id)) return false;
-      seen.add(id);
-      return true;
-    });
-  };
+  // Asegurar que "Perfil" esté al final
+  filtered.push(common.perfilBtn);
+  return filtered;
+};
+
 
   /* ---------- Dropdown Perfil ---------- */
-  const PerfilDropdown = ({ mobile = false }: { mobile?: boolean }) => (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className={
-        mobile
-          ? "pl-4 mt-2"
-          : "absolute right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-50 text-sm font-medium text-gray-700"
-      }
-      role="menu"
-      aria-label="Menú de perfil"
-    >
-      {hasRole("comprador") && (
-        <Link
-          to="/miscompras"
-          onClick={() => mobile && setMobileMenuOpen(false)}
-          className={`block px-4 py-2 hover:bg-[#E4FBDD] ${
-            mobile ? "" : "rounded-t-lg"
-          }`}
-          role="menuitem"
-        >
-          🛒 Mis compras
-        </Link>
-      )}
-      {hasRole("vendedor") && (
-        <Link
-          to="/MisProductos"
-          onClick={() => mobile && setMobileMenuOpen(false)}
-          className={`block px-4 py-2 hover:bg-[#E4FBDD] ${
-            mobile ? "" : !hasRole("comprador") ? "rounded-t-lg" : ""
-          }`}
-          role="menuitem"
-        >
-          Mis Productos
-        </Link>
-      )}
-      {hasRole("transportador") && (
-        <Link
-          to="/mistransportes"
-          onClick={() => mobile && setMobileMenuOpen(false)}
-          className="block px-4 py-2 hover:bg-[#E4FBDD]"
-          role="menuitem"
-        >
-          📦 Mis transportes
-        </Link>
-      )}
+  /* ---------- Dropdown Perfil (COMPLETO) ---------- */
+const PerfilDropdown = ({ mobile = false }: { mobile?: boolean }) => (
+  <motion.div
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -10 }}
+    className={
+      mobile
+        ? "pl-4 mt-2"
+        : "absolute right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-50 text-sm font-medium text-gray-700 w-52"
+    }
+    role="menu"
+    aria-label="Menú de perfil"
+  >
+    {/* -- 1. Mis Compras (comprador) -- */}
+    {hasRole("comprador") && (
       <Link
-        to="/perfil"
+        to="/miscompras"
         onClick={() => mobile && setMobileMenuOpen(false)}
-        className={`block px-4 py-2 hover:bg-[#E4FBDD] ${
-          mobile ? "" : "rounded-b-lg"
-        }`}
+        className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD] rounded-t-lg"
         role="menuitem"
       >
-        Perfil
+        <RiShoppingCartLine className="h-5 w-5 text-black" />
+        <span className="font-semibold">Mis Compras</span>
       </Link>
-    </motion.div>
-  );
+    )}
 
-  /* ---------- Handlers varios ---------- */
+    {/* -- 2. Mis Productos (vendedor) -- */}
+    {hasRole("vendedor") && (
+      <Link
+        to="/MisProductos"
+        onClick={() => mobile && setMobileMenuOpen(false)}
+        className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD]"
+        role="menuitem"
+      >
+        <img src={misproductos} alt="Mis productos" className="h-5 w-5" />
+        <span className="font-semibold">Mis Productos</span>
+      </Link>
+    )}
+
+    {/* -- 3. Mis Transportes (transportador) -- */}
+    {hasRole("transportador") && (
+      <Link
+        to="/mistransportes"
+        onClick={() => mobile && setMobileMenuOpen(false)}
+        className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD]"
+        role="menuitem"
+      >
+        <GrArchive className="h-5 w-5 text-black" />
+        <span className="font-semibold">Mis Transportes</span>
+      </Link>
+    )}
+
+    {/* -- 4. Perfil (todos) -- */}
+    <Link
+      to="/perfil"
+      onClick={() => mobile && setMobileMenuOpen(false)}
+      className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD]"
+      role="menuitem"
+    >
+      <PiUserLight className="h-5 w-5 text-[#379E1B]" />
+      <span className="font-semibold">Perfil</span>
+    </Link>
+
+    {/* -- 5. Cerrar Sesión (todos) -- */}
+    <button
+      onClick={() => setShowLogoutConfirm(true)}
+      className="flex items-center gap-3 w-full text-left px-4 py-2 hover:bg-red-100 rounded-b-lg"
+      role="menuitem"
+    >
+      <RxExit className="h-5 w-5 text-red-600" />
+      <span className="font-semibold text-red-600">Cerrar Sesión</span>
+    </button>
+  </motion.div>
+);
+
+
+  /* ---------- Hover handlers (desktop) ---------- */
   const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current && clearTimeout(timeoutRef.current);
     setDropdownOpen(true);
   };
   const handleMouseLeave = () => {
@@ -188,7 +192,7 @@ const Header = () => {
   /* ---------- JSX ---------- */
   return (
     <>
-      <header className="font-[Fredoka] bg-white shadow-md mx-auto my-6 w-full px-4 sm:px-6 py-4 rounded-lg max-w-450">
+      <header className="font-[Fredoka] bg-white shadow-md mx-auto my-6 w-full px-4 sm:px-6 py-4 rounded-lg max-w-350">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -199,16 +203,12 @@ const Header = () => {
           </div>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-3 text-sm font-semibold text-gray-800">
+          <nav className="hidden md:flex items-center gap-3">
             {renderLinks().map((el, i) => (
               <div
                 key={i}
-                onMouseEnter={
-                  el === common.perfilBtn ? handleMouseEnter : undefined
-                }
-                onMouseLeave={
-                  el === common.perfilBtn ? handleMouseLeave : undefined
-                }
+                onMouseEnter={el === common.perfilBtn ? handleMouseEnter : undefined}
+                onMouseLeave={el === common.perfilBtn ? handleMouseLeave : undefined}
                 className="relative"
               >
                 {el}
@@ -225,7 +225,7 @@ const Header = () => {
           <div className="md:hidden">
             <button
               onClick={() => {
-                setMobileMenuOpen((p) => !p);
+                setMobileMenuOpen(p => !p);
                 setMobilePerfilOpen(false);
               }}
               className="p-2 rounded-md border border-gray-300 hover:bg-[#48BD28] hover:text-white transition-colors"
@@ -268,7 +268,7 @@ const Header = () => {
         </AnimatePresence>
       </header>
 
-      {/* Modal cerrar sesión */}
+      {/* Modal de confirmación de logout */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 backdrop-blur-sm">
           <div className="bg-white p-6 sm:p-8 rounded-xl shadow-2xl max-w-sm w-[90%] text-center">

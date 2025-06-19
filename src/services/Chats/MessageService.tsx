@@ -37,8 +37,7 @@ export class MessageService {
   /* ───────── Mensajes con imagen ─────────────── */
   static async sendImageMessage(imageFile: File, id_chat: number): Promise<Message> {
     const form = new FormData();
-    form.append('image', imageFile);                 // Ajusta el nombre si tu backend usa otro
-
+   form.append('imagen', imageFile);     // Ajusta el nombre si tu backend usa otro
     const res = await fetch(`${this.API_URL}/chat/${id_chat}/message/image`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -118,4 +117,6 @@ export interface Message {
   id_chat   : number;
   tipo      : 'texto' | 'imagen' | 'audio';
   editado   : number;
+  estado?: "enviando";
+   tempId?: string; // ✅ nuevo
 }
