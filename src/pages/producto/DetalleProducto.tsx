@@ -10,7 +10,7 @@ import Footer from "@components/footer";
 
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { ProductCard } from "@/components/ProductsManagement/ProductCard";
+// import { ProductCard } from "@/components/ProductsManagement/ProductCard";
 
 const stripePromise = loadStripe("pk_test_51abc123..."); // 🔑 tu clave pública de Stripe
 

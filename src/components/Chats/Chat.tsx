@@ -318,13 +318,13 @@ const createTempMessage = (
     }
   };
 
-  const addOrReplaceMessage = useCallback((incoming: Message) => {
-    setMessages((prev) => {
-      // Eliminar cualquier mensaje existente con el mismo ID
-      const filtered = prev.filter(m => m.id_mensaje !== incoming.id_mensaje);
-      return [...filtered, incoming];
-    });
-  }, []);
+  // const addOrReplaceMessage = useCallback((incoming: Message) => {
+  //   setMessages((prev) => {
+  //     // Eliminar cualquier mensaje existente con el mismo ID
+  //     const filtered = prev.filter(m => m.id_mensaje !== incoming.id_mensaje);
+  //     return [...filtered, incoming];
+  //   });
+  // }, []);
 
   /* ─── Efectos ──────────────────────────────────────────────────── */
   useEffect(() => {
