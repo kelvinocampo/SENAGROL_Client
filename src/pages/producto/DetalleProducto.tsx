@@ -7,7 +7,6 @@ import { getUserRole } from "@/services/Perfil/authService";
 import Header from "@components/Header";
 import { motion } from "framer-motion";
 import Footer from "@components/footer";
-
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { ProductCard } from "@/components/ProductsManagement/ProductCard";
@@ -83,9 +82,14 @@ export default function DetalleProducto() {
       <Header />
       <BackToHome />
 
-      {/* ---------- Tarjeta producto ---------- */}
+      {/* Mostrar el ProductCard en vista móvil */}
+      <div className="lg:hidden p-4">
+        <ProductCard product={producto} isDetailView />
+      </div>
+
+      {/* ---------- Tarjeta producto (vista desktop) ---------- */}
       <motion.div
-        className="max-w-6xl mx-auto p-4 sm:p-6 mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6"
+        className="max-w-6xl mx-auto p-4 sm:p-6 mt-6 hidden lg:grid grid-cols-1 lg:grid-cols-2 gap-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -122,14 +126,7 @@ export default function DetalleProducto() {
                 ${producto.precio_unidad}
                 <span className="text-sm font-normal text-gray-500"> / unidad</span>
               </p>
-              {producto.descuento > 0 && (
-                <span className="text-xs bg-green-100 text-green-700 font-semibold px-2 py-1 rounded-full">
-                  {producto.descuento * 100}% OFF
-                </span>
-              )}
             </div>
-
-      
 
             <div className="mt-4 text-sm text-gray-700 space-y-1">
               <p>
