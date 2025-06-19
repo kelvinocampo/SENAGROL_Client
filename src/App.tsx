@@ -3,6 +3,7 @@ import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PaginaProductos from "@pages/producto/PaginaProductos";
+import Pago from "./pages/producto/pago";
 import DetalleProducto from "@pages/producto/DetalleProducto";
 import { InicioManual } from "@pages/Inicio";
 import ActulizarContraseña from "@pages/inicio/UpdatePassword";
@@ -88,6 +89,7 @@ function App() {
             <Route path="/transporte/:id_compra" element={<Transportadores />} />
             <Route path="/chats/*" element={<Chats />} />
             <Route path="/ubicacion/:id" element={<UbicacionCompra />} />
+          <Route path="/pago/:id" element={<Pago />} />
             
 
             <Route

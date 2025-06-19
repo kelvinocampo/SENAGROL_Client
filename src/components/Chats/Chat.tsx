@@ -27,10 +27,19 @@ interface Chat {
   bloqueado_user2: number;
 }
 
+// Helper function para manejar localStorage de forma segura
+const safeSetLocalStorage = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    console.error("Error al acceder a localStorage:", e);
+  }
+};
+
 export const Chat = () => {
   /* ─── Hooks / Context ─────────────────────────────────────────── */
   const { id_chat = "" } = useParams<{ id_chat: string }>();
-  const { chats, loading: chatsLoading } = useContext(ChatsContext);
+const { chats, loading: chatsLoading} = useContext(ChatsContext);
   const navigate = useNavigate();
   const socket = useSocket("http://localhost:10101");
 
@@ -38,7 +47,7 @@ export const Chat = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMessage, setConfirmMessage] = useState("");
-  const confirmAction = useRef<() => void>(() => { });
+  const confirmAction = useRef<() => void>(() => {});
 
   const openConfirmDialog = (
     title: string,
@@ -50,6 +59,7 @@ export const Chat = () => {
     confirmAction.current = action;
     setConfirmOpen(true);
   };
+
   const getSupportedMimeType = (): string => {
     const types = [
       "audio/webm;codecs=opus",
@@ -67,6 +77,7 @@ export const Chat = () => {
 
     return ""; // fallback
   };
+
   /* ─── Estados generales ───────────────────────────────────────── */
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
@@ -203,7 +214,6 @@ export const Chat = () => {
       return;
     }
 
-
     openConfirmDialog("Enviar imagen", "¿Estás seguro de enviar esta imagen?", async () => {
       try {
         await MessageService.sendImageMessage(file, chatIdParsed);
@@ -227,7 +237,7 @@ export const Chat = () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
       const mimeType = getSupportedMimeType();
-      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined); // <-- aquí
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
 
       const chunks: Blob[] = [];
 
@@ -263,7 +273,6 @@ export const Chat = () => {
       setRecording(false);
     }
   };
-
 
   const cancelRecording = () => {
     if (mediaRecorder && recording) {
@@ -325,16 +334,26 @@ export const Chat = () => {
 
   /* ─── Carga inicial y actualizaciones ─────────────────────────── */
   useEffect(() => {
+    // Cargar último chat visitado al inicio
+    try {
+      const lastChatId = localStorage.getItem("lastChatId");
+      if (lastChatId && !id_chat) {
+        navigate(`chat/${lastChatId}`);
+      }
+    } catch (e) {
+      console.error("Error al leer localStorage:", e);
+    }
+  }, [id_chat, navigate]);
+
+  useEffect(() => {
     if (chatsLoading) return; // Espera a que termine de cargar
 
     const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
 
-    if (!chat) {
-      // No redirige inmediatamente al 404 — primero deja que se monte todo
-      setChatExists(false);
-      navigate("/404");
-      return;
-    }
+   if (!chat) {
+  setChatExists(false);
+  return; 
+}
 
     setChatExists(true);
 
@@ -361,16 +380,18 @@ export const Chat = () => {
     loadData();
   }, [id_chat, chats, chatsLoading, navigate, getCurrentUserId, checkIfBlocked]);
 
+  // Guardar el último chat visitado
+useEffect(() => {
+  if (chatExists === true && chatIdParsed && !isNaN(chatIdParsed)) {
+    safeSetLocalStorage("lastChatId", String(chatIdParsed));
+  }
+}, [chatExists, chatIdParsed]);
 
   /* ─── Scroll al final ─────────────────────────────────────────── */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-  useEffect(() => {
-    if (chatIdParsed && !isNaN(chatIdParsed)) {
-      localStorage.setItem("lastChatId", String(chatIdParsed));
-    }
-  }, [chatIdParsed]);
+
   /* ─── Cierre menú fuera de click ─────────────────────────────── */
   useEffect(() => {
     const handler = (e: MouseEvent) => {

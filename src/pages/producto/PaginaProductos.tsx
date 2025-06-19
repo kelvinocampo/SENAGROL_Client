@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
 import Header from "@components/Header";
 import Footer from "@components/footer";
 import Buscador from "@components/Inicio/Search";
-import CompraModal from "@components/admin/common/BuyModal";
+import CompraModal from "@/pages/producto/pago";
 import FallingLeaves from "@/components/FallingLeaf";
 
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";

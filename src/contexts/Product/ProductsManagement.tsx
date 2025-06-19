@@ -19,6 +19,7 @@ export interface Product {
   nombre_vendedor: string;
   fecha_publicacion: string;
   eliminado?: boolean; 
+  precio_transporte?: number; // ← agrega esta línea
 }
 
 interface DiscountedProductContextType {
