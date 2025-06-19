@@ -268,14 +268,14 @@ const sendTextMessage = async (e: React.FormEvent) => {
 
   /* ─── Efectos ──────────────────────────────────────────────────── */
   useEffect(() => {
-    if (chatsLoading) return;
+  if (chatsLoading) return; // Espera a que termine la carga
 
-    const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
-    if (!chat) {
-      setChatExists(false);
-      navigate("/404");
-      return;
-    }
+   const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
+  if (!chat && !chatsLoading) {
+    setChatExists(false);
+    navigate("/404");
+    return;
+  }
 
     setChatExists(true);
    

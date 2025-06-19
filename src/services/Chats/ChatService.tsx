@@ -26,6 +26,25 @@ export class ChatService {
             throw error;
         }
     }
+static async getChatById(id_chat: number) {
+    try {
+        const res = await fetch(`${this.API_URL}/chat/id/${id_chat}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (!res.ok) return null;
+
+        const result = await res.json();
+        return result.chat; // Asegúrate que el backend responda con { chat: { ... } }
+    } catch (error) {
+        console.error('Error fetching chat by ID:', error);
+        return null;
+    }
+}
 
     static async getChat(id_user2: number) {
         try {
