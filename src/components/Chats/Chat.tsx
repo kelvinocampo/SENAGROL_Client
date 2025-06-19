@@ -57,10 +57,13 @@ export const Chat = () => {
   const [error, setError] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [recording, setRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [editing, setEditing] = useState<{ id: number; content: string } | null>(
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
     null
   );
+  const [editing, setEditing] = useState<{
+    id: number;
+    content: string;
+  } | null>(null);
   const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [isBlocked, setIsBlocked] = useState(false);
   const [blockedUserId, setBlockedUserId] = useState<number | null>(null);
@@ -71,8 +74,9 @@ export const Chat = () => {
 
   /* ─── Chat y bloqueo ────────────────────────────────────────────── */
   const chatIdParsed = parseInt(id_chat);
-  const currentChat: Chat | null =
-    !isNaN(chatIdParsed) ? chats.find((c) => c.id_chat === chatIdParsed) || null : null;
+  const currentChat: Chat | null = !isNaN(chatIdParsed)
+    ? chats.find((c) => c.id_chat === chatIdParsed) || null
+    : null;
 
   const title = (() => {
     if (chatExists === false) return "Chat no encontrado";
@@ -93,20 +97,22 @@ export const Chat = () => {
 
   const verifyBlockStatus = useCallback((userId: number, chat: Chat) => {
     if (!chat) return;
-    
+
     const isUser1 = chat.id_user1 === userId;
-    const iBlockedThisChat = isUser1 
-      ? chat.bloqueado_user1 === 1 
+    const iBlockedThisChat = isUser1
+      ? chat.bloqueado_user1 === 1
       : chat.bloqueado_user2 === 1;
-    
+
     const otherUserBlocked = isUser1
       ? chat.bloqueado_user2 === 1
       : chat.bloqueado_user1 === 1;
 
     const chatIsBlocked = iBlockedThisChat || otherUserBlocked;
-    
+
     setIsBlocked(chatIsBlocked);
-    setBlockedUserId(chatIsBlocked ? (isUser1 ? chat.id_user2 : chat.id_user1) : null);
+    setBlockedUserId(
+      chatIsBlocked ? (isUser1 ? chat.id_user2 : chat.id_user1) : null
+    );
   }, []);
 
   const getCurrentUserId = useCallback(async () => {
@@ -122,7 +128,8 @@ export const Chat = () => {
   }, [currentChat, verifyBlockStatus]);
 
   const checkIfBlocked = useCallback(() => {
-    if (currentChat && currentUserId) verifyBlockStatus(currentUserId, currentChat);
+    if (currentChat && currentUserId)
+      verifyBlockStatus(currentUserId, currentChat);
   }, [currentChat, currentUserId, verifyBlockStatus]);
 
 const createTempMessage = (
@@ -207,56 +214,34 @@ const createTempMessage = (
 
 
   const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isBlocked) {
-      setError("No puedes enviar mensajes a usuarios bloqueados");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
+  if (isBlocked) {
+    setError("No puedes enviar mensajes a usuarios bloqueados");
+    fileInputRef.current && (fileInputRef.current.value = "");
+    return;
+  }
+
+  const file = e.target.files?.[0];
+  if (!file || !file.type.match("image.*")) {
+    setError("Solo se permiten imágenes");
+    fileInputRef.current && (fileInputRef.current.value = "");
+    return;
+  }
+
+  openConfirmDialog("Enviar imagen", "¿Estás seguro de que quieres enviar esta imagen?", async () => {
+    try {
+      await MessageService.sendImageMessage(file, parseInt(id_chat));
+      // Esperamos a que el socket reciba el mensaje y lo agregue automáticamente
+    } catch (err) {
+      showError(err, "No se pudo enviar imagen");
+    } finally {
+      fileInputRef.current && (fileInputRef.current.value = "");
     }
+  });
+};
 
-    const file = e.target.files?.[0];
-    if (!file || !file.type.match("image.*")) {
-      setError("Solo se permiten imágenes");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
-
-    openConfirmDialog(
-      "Enviar imagen",
-      "¿Estás seguro de que quieres enviar esta imagen?",
-      async () => {
-        const tempUrl = URL.createObjectURL(file);
-        const tempMsg = createTempMessage(tempUrl, "imagen");
-        
-        try {
-          setMessages((p) => [...p, tempMsg]);
-
-          const response = await MessageService.sendImageMessage(file, parseInt(id_chat));
-
-          setMessages((p) =>
-            p.map((m) =>
-              m.id_mensaje === tempMsg.id_mensaje
-                ? {
-                    ...response,
-                    contenido: response.contenido
-                  }
-                : m
-            )
-          );
-
-          URL.revokeObjectURL(tempUrl);
-        } catch (err) {
-          showError(err, "No se pudo enviar imagen");
-          setMessages((p) => p.filter((m) => m.id_mensaje !== tempMsg.id_mensaje));
-        } finally {
-          if (fileInputRef.current) fileInputRef.current.value = "";
-        }
-      }
-    );
-  };
 
   const toggleRecording = async () => {
     if (recording) {
-      // Detener grabación
       mediaRecorder?.stop();
       setRecording(false);
       return;
@@ -265,7 +250,7 @@ const createTempMessage = (
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
-      
+
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
           setAudioChunks((prev) => [...prev, e.data]);
@@ -273,39 +258,22 @@ const createTempMessage = (
       };
 
       recorder.onstop = async () => {
-        try {
-          if (audioChunks.length === 0) return;
-          
-          const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-          const tempUrl = URL.createObjectURL(audioBlob);
-          const tempMsg = createTempMessage(tempUrl, "audio");
-          
-          setMessages((p) => [...p, tempMsg]);
+  try {
+    if (audioChunks.length === 0) return;
 
-          const response = await MessageService.sendAudioMessage(
-            audioBlob, 
-            parseInt(id_chat)
-          );
+    const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
 
-          setMessages((p) =>
-            p.map((m) =>
-              m.id_mensaje === tempMsg.id_mensaje
-                ? {
-                    ...response,
-                    contenido: response.contenido
-                  }
-                : m
-            )
-          );
+    await MessageService.sendAudioMessage(audioBlob, parseInt(id_chat));
+    // Esperamos a que el socket lo maneje
 
-          URL.revokeObjectURL(tempUrl);
-        } catch (err) {
-          showError(err, "Error al enviar audio");
-        } finally {
-          setAudioChunks([]);
-          stream.getTracks().forEach((t) => t.stop());
-        }
-      };
+  } catch (err) {
+    showError(err, "Error al enviar audio");
+  } finally {
+    setAudioChunks([]);
+    stream.getTracks().forEach((t) => t.stop());
+  }
+};
+
 
       recorder.start(1000);
       setMediaRecorder(recorder);
@@ -350,28 +318,39 @@ const createTempMessage = (
     }
   };
 
+  const addOrReplaceMessage = useCallback((incoming: Message) => {
+    setMessages((prev) => {
+      // Eliminar cualquier mensaje existente con el mismo ID
+      const filtered = prev.filter(m => m.id_mensaje !== incoming.id_mensaje);
+      return [...filtered, incoming];
+    });
+  }, []);
+
   /* ─── Efectos ──────────────────────────────────────────────────── */
   useEffect(() => {
-    if (chatsLoading) return;
+  if (chatsLoading) return; // Espera a que termine la carga
 
-    const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
-    if (!chat) {
-      setChatExists(false);
-      navigate("/404");
-      return;
-    }
+   const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
+  if (!chat && !chatsLoading) {
+    setChatExists(false);
+    navigate("/404");
+    return;
+  }
 
     setChatExists(true);
-
+   
     const loadData = async () => {
       try {
         setLoading(true);
         const userId = await getCurrentUserId();
         if (!userId) return;
-        
+
         checkIfBlocked();
         const msgs = await MessageService.getMessages(parseInt(id_chat));
-        setMessages(msgs);
+        const uniqueMessages = Array.from(
+          new Map(msgs.map((m) => [m.id_mensaje, m])).values()
+        );
+        setMessages(uniqueMessages);
       } catch (err) {
         showError(err, "Error al cargar mensajes");
       } finally {
@@ -380,7 +359,14 @@ const createTempMessage = (
     };
 
     loadData();
-  }, [id_chat, chats, chatsLoading, navigate, getCurrentUserId, checkIfBlocked]);
+  }, [
+    id_chat,
+    chats,
+    chatsLoading,
+    navigate,
+    getCurrentUserId,
+    checkIfBlocked,
+  ]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -452,7 +438,7 @@ const createTempMessage = (
         <p className="text-gray-600">Cargando chat...</p>
       </div>
     );
-    
+
   if (chatExists === false)
     return (
       <div className="flex items-center justify-center h-full">
@@ -476,10 +462,14 @@ const createTempMessage = (
 
       {/* Mensajes */}
       <main className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 bg-gray-50">
-        {loading && <p className="text-center text-gray-500">Cargando mensajes…</p>}
+        {loading && (
+          <p className="text-center text-gray-500">Cargando mensajes…</p>
+        )}
         {error && <p className="text-center text-red-500">{error}</p>}
         {!loading && messages.length === 0 && (
-          <p className="text-center text-gray-400">No hay mensajes en este chat.</p>
+          <p className="text-center text-gray-400">
+            No hay mensajes en este chat.
+          </p>
         )}
 
         {messages.map((msg) => {
@@ -614,8 +604,8 @@ const createTempMessage = (
             >
               Guardar
             </button>
-            <button 
-              onClick={() => setEditing(null)} 
+            <button
+              onClick={() => setEditing(null)}
               className="px-4 py-2 bg-gray-300 rounded"
             >
               Cancelar
@@ -637,7 +627,9 @@ const createTempMessage = (
             onClick={() => !isBlocked && fileInputRef.current?.click()}
             aria-label="Enviar imagen"
             className={`p-2 rounded ${
-              isBlocked ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-200"
+              isBlocked
+                ? "text-gray-400 cursor-not-allowed"
+                : "hover:bg-gray-200"
             }`}
             disabled={isBlocked}
           >
@@ -657,7 +649,9 @@ const createTempMessage = (
             type="text"
             placeholder={isBlocked ? "Chat bloqueado" : "Escribe un mensaje"}
             className={`flex-grow border border-gray-300 rounded px-3 py-2 min-w-[150px] ${
-              isBlocked ? "bg-gray-200 cursor-not-allowed" : "focus:ring focus:ring-green-400"
+              isBlocked
+                ? "bg-gray-200 cursor-not-allowed"
+                : "focus:ring focus:ring-green-400"
             }`}
             value={newMessage}
             onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
@@ -668,25 +662,26 @@ const createTempMessage = (
             type="submit"
             disabled={isBlocked || !newMessage.trim()}
             className={`p-2 rounded ${
-              isBlocked ? "bg-gray-300 text-gray-500" : "bg-green-500 text-white"
+              isBlocked
+                ? "bg-gray-300 text-gray-500"
+                : "bg-green-500 text-white"
             }`}
             aria-label="Enviar mensaje"
           >
             <FiSend size={20} />
           </button>
 
-          {/* Audio */}
           <div className="flex items-center space-x-2">
             <button
               type="button"
               onClick={!isBlocked ? toggleRecording : undefined}
               aria-label={recording ? "Detener grabación" : "Grabar audio"}
               className={`p-2 rounded ${
-                isBlocked 
-                  ? "text-gray-400 cursor-not-allowed" 
-                  : recording 
-                    ? "bg-red-500 text-white" 
-                    : "hover:bg-gray-200"
+                isBlocked
+                  ? "text-gray-400 cursor-not-allowed"
+                  : recording
+                  ? "bg-red-500 text-white"
+                  : "hover:bg-gray-200"
               }`}
               disabled={isBlocked}
             >
@@ -707,20 +702,19 @@ const createTempMessage = (
         </form>
       )}
 
-      {/* ConfirmDialog */}
       <ConfirmDialog
         isOpen={confirmOpen}
         onClose={() => {
-            setConfirmOpen(false);
-            fileInputRef.current && (fileInputRef.current.value = "");
+          setConfirmOpen(false);
+          fileInputRef.current && (fileInputRef.current.value = "");
         }}
         onConfirm={() => {
-            confirmAction.current();
-            setConfirmOpen(false);
+          confirmAction.current();
+          setConfirmOpen(false);
         }}
         title={confirmTitle}
         message={confirmMessage}
       />
     </div>
   );
-};
+};  

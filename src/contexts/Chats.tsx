@@ -1,17 +1,7 @@
+// src/contexts/Chats.tsx
+
 import { createContext, useState, useEffect, useCallback } from 'react';
 import { ChatService } from '@/services/Chats/ChatService';
-
-export const ChatsContext = createContext<{
-  chats: any[];
-  setChats: (chats: any[]) => void;
-  fetchChats: () => Promise<void>;
-    loading: boolean; // ← ✅ Agregado aquí
-}>({
-  chats: [],
-  setChats: () => { },
-  fetchChats: async () => { },
-    loading: false, // ← ✅ Valor por defecto
-});
 
 export interface Chat {
   id_chat: number;
@@ -22,35 +12,48 @@ export interface Chat {
   rol_user1: string;
   rol_user2: string;
   fecha_reciente: string;
-  bloqueado_user1: boolean;
-  bloqueado_user2: boolean;
-  eliminado_user1: boolean;
-  eliminado_user2: boolean;
+  bloqueado_user1: number;   // ← number en vez de boolean
+  bloqueado_user2: number;   // ← number
+  eliminado_user1: number;   // ← number
+  eliminado_user2: number;   // ← number
   estado: "Activo" | "Bloqueado";
 }
 
+export const ChatsContext = createContext<{
+  chats: Chat[];
+  setChats: (chats: Chat[]) => void;
+  fetchChats: () => Promise<void>;
+  loading: boolean;
+}>({
+  chats: [],
+  setChats: () => {},
+  fetchChats: async () => {},
+  loading: false,
+});
+
 export const ChatsProvider = ({ children }: { children: React.ReactNode }) => {
   const [chats, setChats] = useState<Chat[]>([]);
-    const [loading, setLoading] = useState<boolean>(false); // ← ✅ Estado de carga
+  const [loading, setLoading] = useState<boolean>(false);
+
   const fetchChats = useCallback(async () => {
     try {
+      setLoading(true); // Inicia carga
       const chatsData = await ChatService.getChats();
       setChats(chatsData);
     } catch (err) {
       console.error("Error al cargar chats:", err);
-      throw err; 
+      throw err;
     } finally {
-      setLoading(false); // ← ✅ Después de cargar o si falla
+      setLoading(false); // Finaliza carga, sea éxito o error
     }
   }, []);
 
-  // Cargar chats al montar el provider
   useEffect(() => {
     fetchChats();
   }, [fetchChats]);
 
   return (
-  <ChatsContext.Provider value={{ chats, setChats, fetchChats, loading }}> {/* ← ✅ Pasar loading */}
+    <ChatsContext.Provider value={{ chats, setChats, fetchChats, loading }}>
       {children}
     </ChatsContext.Provider>
   );

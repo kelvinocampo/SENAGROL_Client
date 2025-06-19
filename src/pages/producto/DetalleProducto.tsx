@@ -10,6 +10,7 @@ import Footer from "@components/footer";
 
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { ProductCard } from "@/components/ProductsManagement/ProductCard";
 
 const stripePromise = loadStripe("pk_test_51abc123..."); // 🔑 tu clave pública de Stripe
 
@@ -76,9 +77,9 @@ export default function DetalleProducto() {
 
   const isComprador = roles.includes("comprador");
 
-  /* ---------- Render ---------- */
+  /* ---------- Render ---------- */  
   return (
-    <div className="font-[Fredoka] min-h-screen bg-neutral-50 px-4 sm:px-6 md:px-8 py-6">
+    <div className="font-[Fredoka] bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] min-h-screen flex flex-col flex-grow">
       <Header />
       <BackToHome />
 
@@ -113,9 +114,10 @@ export default function DetalleProducto() {
         >
           <div>
             <h1 className="text-2xl font-bold text-gray-800">{producto.nombre}</h1>
-
-            {/* Precio */}
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <p className="text-sm text-gray-600 mt-3">{producto.descripcion}</p>
+            
+            <div className="flex items-center gap-1 mt-2 flex-wrap">
+              <p className="text-white bg-[#FF2B2B] rounded-full font-semibold shadow transition px-2">{producto.descuento*100}% OFF</p>
               <p className="text-green-700 font-bold text-xl">
                 ${producto.precio_unidad}
                 <span className="text-sm font-normal text-gray-500"> / unidad</span>
@@ -127,7 +129,7 @@ export default function DetalleProducto() {
               )}
             </div>
 
-            <p className="text-sm text-gray-600 mt-3">{producto.descripcion}</p>
+      
 
             <div className="mt-4 text-sm text-gray-700 space-y-1">
               <p>
