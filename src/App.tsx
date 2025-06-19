@@ -88,6 +88,7 @@ function App() {
             <Route path="/transporte/:id_compra" element={<Transportadores />} />
             <Route path="/chats/*" element={<Chats />} />
             <Route path="/ubicacion/:id" element={<UbicacionCompra />} />
+            
 
             <Route
               path="/MisProductos/*"

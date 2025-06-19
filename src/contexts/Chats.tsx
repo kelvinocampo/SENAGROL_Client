@@ -26,8 +26,8 @@ export const ChatsContext = createContext<{
   loading: boolean;
 }>({
   chats: [],
-  setChats: () => {},
-  fetchChats: async () => {},
+  setChats: () => { },
+  fetchChats: async () => { },
   loading: false,
 });
 

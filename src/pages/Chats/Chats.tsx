@@ -9,7 +9,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import { AnimatePresence } from "framer-motion";
 import FallingLeaves from "@/components/FallingLeaf";
-
+import { Navigate } from "react-router-dom";
 export const Chats = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -70,7 +70,7 @@ export const Chats = () => {
               </svg>
             </button>
           </div>
-         <NavBarChats isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          <NavBarChats isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         </div>
 
         {/* Contenido principal */}
@@ -86,9 +86,14 @@ export const Chats = () => {
               <Route
                 path=""
                 element={
-                  <AnimatePresence mode="wait">
-                    <ChatsList />
-                  </AnimatePresence>
+                  (() => {
+                    const lastId = localStorage.getItem("lastChatId");
+                    return lastId ? <Navigate to={lastId} replace /> : (
+                      <AnimatePresence mode="wait">
+                        <ChatsList />
+                      </AnimatePresence>
+                    );
+                  })()
                 }
               />
               <Route
@@ -109,8 +114,9 @@ export const Chats = () => {
               />
             </Routes>
           </ChatsProvider>
+
         </div>
-        
+
       </div>
       <Footer></Footer>
     </div>
