@@ -1,4 +1,4 @@
-/*  src/pages/DetalleProducto.tsx  */
+// src/pages/producto/DetalleProducto.tsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
@@ -14,13 +14,11 @@ export default function DetalleProducto() {
   const context = useContext(DiscountedProductContext);
   const navigate = useNavigate();
 
-  /* --- state --- */
   const [producto, setProducto] = useState<any | null>(null);
   const [cantidad, setCantidad] = useState(0);
   const [roles, setRoles] = useState<string[]>([]);
   const [noBuyer, setNoBuyer] = useState(false);
 
-  /* --- effects --- */
   useEffect(() => {
     if (context && id) {
       const found = context.allProducts.find(p => String(p.id) === id);
@@ -38,13 +36,11 @@ export default function DetalleProducto() {
     })();
   }, []);
 
-  /* --- handlers --- */
   const handleComprar = () => {
     if (!roles.includes("comprador")) {
       setNoBuyer(true);
       return;
     }
-    // ➜ Redirigimos al flujo de pago
     navigate(`/pago/${producto.id}`);
   };
 
@@ -52,7 +48,6 @@ export default function DetalleProducto() {
     if (producto?.id_vendedor) navigate(`/Chats/${producto.id_vendedor}`);
   };
 
-  /* --- render --- */
   if (!context || !producto) return <div className="p-6">Cargando producto…</div>;
   const isBuyer = roles.includes("comprador");
 
@@ -61,21 +56,17 @@ export default function DetalleProducto() {
       <Header />
       <BackToHome />
 
-      {/* ---------- Contenido ---------- */}
       <div className="flex-grow">
-        {/* Vista móvil */}
         <section className="lg:hidden p-4">
           <ProductCard product={producto} isDetailView />
         </section>
 
-        {/* Vista escritorio */}
         <motion.section
           className="hidden lg:grid w-[92%] max-w-7xl mx-auto mt-6 grid-cols-[490px_1fr] gap-10 p-10"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          {/* Imagen */}
           <motion.div
             className="flex items-center justify-center"
             initial={{ scale: 0.9, opacity: 0 }}
@@ -90,7 +81,6 @@ export default function DetalleProducto() {
             />
           </motion.div>
 
-          {/* Info + acciones */}
           <motion.div
             className="flex flex-col justify-between"
             initial={{ opacity: 0, x: 40 }}
@@ -119,7 +109,6 @@ export default function DetalleProducto() {
               </ul>
             </div>
 
-            {/* Botones */}
             <div className="flex flex-col gap-6 mt-6">
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium">Cantidad:</span>
@@ -157,7 +146,6 @@ export default function DetalleProducto() {
         </motion.section>
       </div>
 
-      {/* ---------- Modal rol no permitido ---------- */}
       {noBuyer && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
           <motion.div
