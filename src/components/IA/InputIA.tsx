@@ -2,6 +2,7 @@ import { FaMicrophone } from "react-icons/fa";
 import { IAContext } from "@/contexts/IA";
 import { useContext, useState, useRef } from "react";
 import { IAService } from "@services/IAServices";
+import { IoMdSend } from "react-icons/io";
 
 // Compatibilidad con navegadores
 const SpeechRecognition: any =
@@ -101,31 +102,33 @@ return (
 
     {/* Caja de input + botones */}
     <form
-      onSubmit={handleSendMessage}
-      className="flex sm:flex-row flex-col items-center bg-[#E4FBDD] rounded-xl p-2 gap-2 shadow-md"
-    >
-      <input
-        type="text"
-        className="py-2 px-3 outline-none sm:flex-1 w-full rounded-lg border border-[#a0eb8a] focus:ring-2 focus:ring-[#6dd850]"
-        placeholder="Escribe tu mensaje aquí..."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-      />
+  onSubmit={handleSendMessage}
+  className="flex items-center w-full bg-white rounded-full p-2 gap-2 shadow-md border border-[#48BD28]"
+>
+  <input
+    type="text"
+    className="flex-1 bg-transparent text-sm text-black placeholder-gray-500 outline-none px-4 py-2 rounded-full focus:ring-2 focus:ring-[#6dd850]"
+    placeholder="Pregunta al Asistente de Senagrol..."
+    value={message}
+    onChange={(e) => setMessage(e.target.value)}
+  />
 
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          className="bg-[#48BD28] hover:bg-[#379E1B] transition-colors text-white font-semibold px-4 py-2 rounded-lg shadow"
-        >
-          Enviar
-        </button>
-        <FaMicrophone
-          className={`text-2xl cursor-pointer transition-all duration-200 ${isRecording ? "text-red-600 animate-pulse" : "text-[#379E1B] hover:scale-110"}`}
-          title="Grabar mensaje"
-          onClick={handleRecording}
-        />
-      </div>
-    </form>
+  <button
+    type="submit"
+    className=" transition-colors text-[#379E1B] font-semibold px-4 py-2 "
+  >
+ <IoMdSend />
+  </button>
+
+  <FaMicrophone
+    className={`text-xl cursor-pointer transition-all duration-200 ${
+      isRecording ? "text-red-600 animate-pulse" : "text-[#379E1B] hover:scale-110"
+    }`}
+    title="Grabar mensaje"
+    onClick={handleRecording}
+  />
+</form>
+
   </div>
 );
 
