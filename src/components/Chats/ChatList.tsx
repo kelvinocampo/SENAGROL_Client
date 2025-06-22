@@ -1,4 +1,3 @@
-// src/components/Chats/ChatList.tsx – versión para sidebar
 import { useEffect, useState, useContext, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiMoreVertical, FiX } from "react-icons/fi";
@@ -20,7 +19,6 @@ export const ChatsList = () => {
   const confirmAction = useRef<() => void>(() => {});
   const menuRef = useRef<HTMLDivElement>(null);
 
-  /* ─── cargar usuario y chats ─── */
   useEffect(() => {
     (async () => {
       const uid = await AuthService.getIDUser();
@@ -29,12 +27,12 @@ export const ChatsList = () => {
     })();
   }, [fetchChats]);
 
-  /* ─── helpers ─── */
   const getOtherUser = (chat: any) => {
     const isUser1 = chat.id_user1 === currentUserId;
     return {
       name: isUser1 ? chat.nombre_user2 : chat.nombre_user1,
       blocked: chat.estado === "Bloqueado",
+      role: "Vendedor", // Se muestra siempre como Vendedor
     };
   };
 
@@ -45,7 +43,6 @@ export const ChatsList = () => {
     setConfirmOpen(true);
   };
 
-  /* ─── acciones ─── */
   const performBlockUnblock = useCallback(
     async (cid: number, blocked: boolean) => {
       blocked ? await ChatService.unblockChat(cid) : await ChatService.blockChat(cid);
@@ -64,7 +61,6 @@ export const ChatsList = () => {
     [fetchChats]
   );
 
-  /* ─── cerrar menú al hacer click afuera ─── */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (!menuRef.current) return;
@@ -74,7 +70,6 @@ export const ChatsList = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  /* ─── estilos ─── */
   const wrapperCls = "flex flex-col gap-1 overflow-y-auto max-h-[300px] pb-2";
   const itemBase =
     "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors";
@@ -97,22 +92,36 @@ export const ChatsList = () => {
                 className={`${itemBase} ${isActive ? activeStyle : inactiveStyle}`}
                 onClick={() => navigate(`/chats/chat/${chat.id_chat}`)}
               >
-                {/* nombre */}
-                <span className="truncate flex-1">{other.name}</span>
+                {/* Nombre y rol */}
+                <div className="flex flex-col flex-1 min-w-0">
+                  <span className="font-semibold text-sm truncate">
+                    {other.name}
+                  </span>
+                  <span className="text-xs text-gray-500">{other.role}</span>
+                </div>
 
-                {/* menú botón */}
+                {/* Etiqueta "Bloqueado" */}
+                {other.blocked && (
+                  <span className="text-[10px] text-white bg-red-500 px-2 py-[2px] rounded-full mx-2 whitespace-nowrap">
+                    Bloqueado
+                  </span>
+                )}
+
+                {/* Botón menú */}
                 <button
                   className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-black/10"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setOpenMenuId((prev) => (prev === chat.id_chat ? null : chat.id_chat));
+                    setOpenMenuId((prev) =>
+                      prev === chat.id_chat ? null : chat.id_chat
+                    );
                   }}
                 >
                   {isMenuOpen ? <FiX /> : <FiMoreVertical />}
                 </button>
               </div>
 
-              {/* menú desplegable */}
+              {/* Menú desplegable */}
               {isMenuOpen && (
                 <div
                   ref={menuRef}
@@ -123,7 +132,9 @@ export const ChatsList = () => {
                     onClick={() =>
                       openConfirm(
                         other.blocked ? "Desbloquear chat" : "Bloquear chat",
-                        `¿Seguro que deseas ${other.blocked ? "desbloquear" : "bloquear"} este chat?`,
+                        `¿Seguro que deseas ${
+                          other.blocked ? "desbloquear" : "bloquear"
+                        } este chat?`,
                         () => performBlockUnblock(chat.id_chat, other.blocked)
                       )
                     }
@@ -149,7 +160,7 @@ export const ChatsList = () => {
         })
       )}
 
-      {/* Dialogo de confirmación */}
+      {/* Diálogo de confirmación */}
       <ConfirmDialog
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}

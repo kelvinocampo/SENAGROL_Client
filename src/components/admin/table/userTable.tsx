@@ -146,7 +146,7 @@ export const UserTable = () => {
            <Buscador
         busqueda={searchTerm}
         setBusqueda={setSearchTerm}
-        setPaginaActual={() => {}} // no hay paginación aquí
+        setPaginaActual={() => {}}
         placeholderText="Buscar por nombre, correo o rol..."
       />
 

@@ -4,3 +4,7 @@
 /* *{
     outline: 1px red solid;
 } */
+ @keyframes bounce {
+  0%,100% { transform: scaleY(0.3); }
+  50%     { transform: scaleY(1);   }
+}

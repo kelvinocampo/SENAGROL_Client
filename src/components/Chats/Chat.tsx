@@ -3,15 +3,8 @@ import { MessageService, Message } from "@/services/Chats/MessageService";
 import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  FiMoreVertical,
-  FiEdit2,
-  FiTrash2,
-  FiSend,
-  FiCamera,
-  FiMic,
-  FiUserX,
-} from "react-icons/fi";
+import { FiEdit2, FiMic, FiSend, FiCamera, FiTrash2, FiUserX, FiMoreVertical, FiX } from "react-icons/fi";
+
 import { ChatsContext } from "@/contexts/Chats";
 import { useSocket } from "@/hooks/UseSocket";
 
@@ -27,7 +20,6 @@ interface Chat {
   bloqueado_user2: number;
 }
 
-// Helper function para manejar localStorage de forma segura
 const safeSetLocalStorage = (key: string, value: string) => {
   try {
     localStorage.setItem(key, value);
@@ -35,7 +27,6 @@ const safeSetLocalStorage = (key: string, value: string) => {
     console.error("Error al acceder a localStorage:", e);
   }
 };
-
 export const Chat = () => {
   /* ─── Hooks / Context ─────────────────────────────────────────── */
   const { id_chat = "" } = useParams<{ id_chat: string }>();
@@ -417,215 +408,264 @@ useEffect(() => {
     );
   }
 
-  return (
-    <div className="flex flex-col h-screen w-full max-w-4xl mx-auto bg-white shadow rounded">
-      {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div className="flex items-center">
-          <h2 className="text-lg sm:text-xl font-semibold truncate">{title}</h2>
-          {isBlocked && (
-            <span className="ml-2 px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full flex items-center">
-              <FiUserX className="mr-1" /> Bloqueado
-            </span>
-          )}
-        </div>
-      </header>
+  /* ------------------------- RETURN ------------------------ */
+return (
+  <div className="flex flex-col h-screen w-full bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] font-[Fredoka]">
+    {/* ╭─ Header ────────────────────────────────────────────╮ */}
+    <header className="flex items-center justify-between px-4 py-3 border-b border-black/10">
+      <h2 className="font-semibold text-sm sm:text-base truncate">{title}</h2>
 
-      {/* Mensajes */}
-      <main className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 bg-gray-50">
-        {loading && <p className="text-center text-gray-500">Cargando mensajes…</p>}
-        {error && <p className="text-center text-red-500">{error}</p>}
-        {!loading && messages.length === 0 && (
-          <p className="text-center text-gray-400">No hay mensajes en este chat.</p>
-        )}
+      {isBlocked && (
+        <span className="inline-flex items-center gap-1 text-[10px] bg-red-500/10 text-red-600 px-2 py-[2px] rounded-full">
+          <FiUserX /> Bloqueado
+        </span>
+      )}
+    </header>
 
-        {messages.map((msg) => {
-          const isMe = msg.id_user === currentUserId;
-          const isPending = msg.estado === "enviando";
+    {/* ╭─ Lista de mensajes ────────────────────────────────╮ */}
+    <main className="flex-1 overflow-y-auto px-4 py-5 space-y-6">
+      {loading && <p className="text-center text-gray-500">Cargando…</p>}
+      {error && <p className="text-center text-red-600">{error}</p>}
+      {!loading && messages.length === 0 && (
+        <p className="text-center text-gray-500">No hay mensajes.</p>
+      )}
 
-          return (
-            <div key={msg.id_mensaje} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+      {messages.map((msg) => {
+        const isMe = msg.id_user === currentUserId;
+        const bubble = isMe
+          ? "bg-[#48BD28] text-white"
+          : "bg-[#F3F4F6] text-black";
+        const align = isMe ? "justify-end" : "justify-start";
+        const pending = msg.estado === "enviando";
+
+        return (
+          <div key={msg.id_mensaje} className={`flex ${align} gap-2`}>
+            {/* Avatar */}
+            {!isMe && (
+              <FiUserX size={28} className="text-black shrink-0" />
+            )}
+
+            {/* Burbuja + menú */}
+            <div className="relative group max-w-[70%]">
+              {isMe && (
+                <button
+                  data-menu-btn={msg.id_mensaje}
+                  onClick={() =>
+                    setOpenMenu(
+                      openMenu === msg.id_mensaje ? null : msg.id_mensaje,
+                    )
+                  }
+                  className="absolute -right-6 top-1 p-1 hidden group-hover:block text-black/60 hover:text-black"
+                >
+                  {openMenu === msg.id_mensaje ? <FiX /> : <FiMoreVertical />}
+                </button>
+              )}
+
               <div
-                className={`relative max-w-[85%] sm:max-w-md px-4 sm:px-8 py-3 sm:py-4 rounded-2xl break-words shadow-lg ${isMe ? "bg-green-500 text-white ml-auto" : "bg-white text-gray-800 mr-auto"
-                  } ${isPending ? "opacity-60" : ""}`}
+                className={`rounded-2xl px-4 py-2 shadow ${bubble} ${
+                  pending && "opacity-60"
+                }`}
               >
-                {/* Texto */}
-                {msg.tipo === "texto" && <p className="whitespace-pre-wrap">{msg.contenido}</p>}
+                {/* Contenidos por tipo */}
+                {msg.tipo === "texto" && (
+                  <p className="whitespace-pre-wrap">{msg.contenido}</p>
+                )}
 
-                {/* Imagen */}
                 {msg.tipo === "imagen" && (
                   <img
                     src={msg.contenido}
-                    alt="Imagen enviada"
-                    className="rounded-xl max-w-full h-auto mt-2 cursor-pointer"
+                    alt="img"
+                    className="rounded-xl max-w-xs cursor-pointer"
                     onClick={() => window.open(msg.contenido, "_blank")}
                   />
                 )}
 
-                {/* Audio */}
                 {msg.tipo === "audio" && (
-                  <div className="mt-2">
-                    <audio key={msg.id_mensaje} controls preload="metadata" src={msg.contenido} className="w-full max-w-xs" />
-                    {msg.estado === "enviando" && (
-                      <div className="text-xs italic text-gray-500 mt-1">Procesando audio...</div>
-                    )}
-                  </div>
+                  <audio controls src={msg.contenido} className="w-48" />
                 )}
 
-                {/* Indicadores */}
-                {msg.editado === 1 && (
-                  <span className="absolute bottom-1 right-3 text-xs italic opacity-70">(editado)</span>
-                )}
-                {isPending && (
-                  <span className="absolute bottom-1 right-3 text-xs italic animate-pulse">Enviando…</span>
-                )}
-
-                {/* Menú (solo mis mensajes) */}
-                {isMe && (
-                  <>
-                    <button
-                      data-menu-btn={msg.id_mensaje}
-                      className="absolute -top-4 right-[-20px] p-2 rounded-full bg-white/10 hover:bg-white/30 transition"
-                      onClick={() => setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)}
-                      aria-label="Abrir menú"
-                    >
-                      <FiMoreVertical className="text-black" size={20} />
-                    </button>
-
-                    {openMenu === msg.id_mensaje && (
-                      <div
-                        data-menu={msg.id_mensaje}
-                        className="absolute top-10 right-[-20px] w-40 bg-white border border-gray-200 rounded-md shadow-lg z-20 text-black"
-                      >
-                        {msg.tipo === "texto" && (
-                          <button
-                            onClick={() => {
-                              setEditing({ id: msg.id_mensaje, content: msg.contenido });
-                              setOpenMenu(null);
-                            }}
-                            className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-t-md"
-                          >
-                            <FiEdit2 className="mr-2" /> Editar
-                          </button>
-                        )}
-                        <button
-                          onClick={() =>
-                            openConfirmDialog("Eliminar mensaje", "¿Seguro que deseas eliminar este mensaje?", () => deleteMessage(msg.id_mensaje))
-                          }
-                          className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-md"
-                        >
-                          <FiTrash2 className="mr-2" /> Eliminar
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
+                {/* Etiquetas */}
+                <div className="flex justify-end text-[10px] gap-2 mt-1">
+                  {msg.editado === 1 && (
+                    <span className="italic opacity-70">(editado)</span>
+                  )}
+                  {pending && <span className="animate-pulse">Enviando…</span>}
+                </div>
               </div>
+
+              {/* Menú desplegable */}
+              {openMenu === msg.id_mensaje && isMe && (
+                <div
+                  data-menu={msg.id_mensaje}
+                  className="absolute right-0 top-8 w-40 bg-white border border-gray-200 rounded shadow-lg z-20 overflow-hidden"
+                >
+                  {msg.tipo === "texto" && (
+                    <button
+                      onClick={() => {
+                        setEditing({
+                          id: msg.id_mensaje,
+                          content: msg.contenido,
+                        });
+                        setOpenMenu(null);
+                      }}
+                      className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100"
+                    >
+                      <FiEdit2 className="mr-2" /> Editar
+                    </button>
+                  )}
+                  <button
+                    onClick={() =>
+                      openConfirmDialog(
+                        "Eliminar mensaje",
+                        "¿Seguro que deseas eliminar este mensaje?",
+                        () => deleteMessage(msg.id_mensaje),
+                      )
+                    }
+                    className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  >
+                    <FiTrash2 className="mr-2" /> Eliminar
+                  </button>
+                </div>
+              )}
             </div>
-          );
-        })}
 
-        <div ref={messagesEndRef} />
-      </main>
+            {/* Avatar propio */}
+            {isMe && <FiUserX size={28} className="text-[#48BD28] shrink-0" />}
+          </div>
+        );
+      })}
 
-      {/* Edición de mensaje */}
-      {editing && (
-        <div className="p-3 sm:p-4 border-t border-gray-300 bg-gray-100 flex flex-col sm:flex-row gap-2">
-          <input
-            className="flex-grow p-2 border border-gray-300 rounded"
-            type="text"
-            value={editing.content}
-            onChange={(e) => setEditing((p) => (p ? { ...p, content: e.target.value } : null))}
+      <div ref={messagesEndRef} />
+    </main>
+
+    {/* ╭─ Modo edición ──────────────────────────────────────╮ */}
+    {editing && (
+      <div className="border-t border-black/10 bg-gray-100 px-4 py-3 flex gap-2">
+        <input
+          className="flex-grow border border-gray-300 rounded px-3 py-2 text-sm"
+          value={editing.content}
+          onChange={(e) =>
+            setEditing({ ...editing, content: e.target.value })
+          }
+        />
+        <button
+          onClick={editMessage}
+          className="bg-[#48BD28] text-white px-4 py-2 rounded"
+        >
+          Guardar
+        </button>
+        <button
+          onClick={() => setEditing(null)}
+          className="bg-gray-300 px-4 py-2 rounded"
+        >
+          Cancelar
+        </button>
+      </div>
+    )}
+
+    {/* ╭─ Input de mensaje ──────────────────────────────────╮ */}
+    {!editing && (
+      <form
+        onSubmit={sendTextMessage}
+        className="flex items-center gap-3 border-t border-black/10 px-4 py-3 bg-white"
+      >
+        {/* Imagen */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={sendImage}
+        />
+        <button
+          type="button"
+          onClick={() => !isBlocked && fileInputRef.current?.click()}
+          className={`${
+            isBlocked ? "text-gray-300" : "text-[#48BD28] hover:text-[#2e7c19]"
+          }`}
+          disabled={isBlocked}
+        >
+          <FiCamera size={24} />
+        </button>
+
+        {/* Texto */}
+        <input
+          type="text"
+          placeholder="Escribe tu mensaje…"
+          className="flex-grow border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28]"
+          value={newMessage}
+          onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
+          disabled={isBlocked}
+        />
+
+        {/* Enviar */}
+        <button
+          type="submit"
+          disabled={isBlocked || !newMessage.trim()}
+          className={`${
+            isBlocked ? "text-gray-300" : "text-[#48BD28] hover:text-[#2e7c19]"
+          }`}
+        >
+          <FiSend size={24} />
+        </button>
+
+        {/* Grabación de audio */}
+        {!recording ? (
+          <button
+            type="button"
+            onClick={!isBlocked ? toggleRecording : undefined}
+            className={`${
+              isBlocked
+                ? "text-gray-300"
+                : "text-[#48BD28] hover:text-[#2e7c19]"
+            }`}
             disabled={isBlocked}
-          />
-          <div className="flex gap-2">
+          >
+            <FiMic size={24} />
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 px-3 py-2 bg-green-100 rounded-full border border-green-400 shadow-sm">
+            {/* Ondas */}
+            <div className="flex gap-[2px] items-end h-6">
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="w-[2px] bg-green-600"
+                  style={{
+                    height: `${Math.random() * 100}%`,
+                    animation: `bounce ${
+                      0.8 + Math.random()
+                    }s infinite ease-in-out`,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Cancelar */}
             <button
-              onClick={editMessage}
-              disabled={!editing.content.trim() || isBlocked}
-              className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
+              type="button"
+              onClick={cancelRecording}
+              className="ml-2 px-2 py-1 text-[11px] bg-red-500 text-white rounded hover:bg-red-600"
             >
-              Guardar
-            </button>
-            <button onClick={() => setEditing(null)} className="px-4 py-2 bg-gray-300 rounded">
               Cancelar
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </form>
+    )}
 
-      {/* Entrada normal */}
-      {!editing && (
-        <form
-          onSubmit={sendTextMessage}
-          className={`p-3 sm:p-4 border-t border-gray-300 flex items-center gap-2 flex-wrap ${isBlocked ? "bg-gray-100" : ""
-            }`}
-        >
-          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={!isBlocked ? sendImage : undefined} disabled={isBlocked} />
-          <button
-            type="button"
-            onClick={() => !isBlocked && fileInputRef.current?.click()}
-            className={`p-2 rounded ${isBlocked ? "text-gray-400" : "hover:bg-gray-200"}`}
-            aria-label="Enviar imagen"
-            disabled={isBlocked}
-          >
-            <FiCamera size={20} />
-          </button>
+    {/* ╭─ ConfirmDialog global ─────────────────────────────╮ */}
+    <ConfirmDialog
+      isOpen={confirmOpen}
+      onClose={() => setConfirmOpen(false)}
+      onConfirm={() => {
+        confirmAction.current();
+        setConfirmOpen(false);
+      }}
+      title={confirmTitle}
+      message={confirmMessage}
+    />
+  </div>
+);
 
-          <input
-            type="text"
-            placeholder={isBlocked ? "Chat bloqueado" : "Escribe un mensaje"}
-            className={`flex-grow border border-gray-300 rounded px-3 py-2 min-w-[150px] ${isBlocked ? "bg-gray-200" : "focus:ring focus:ring-green-400"
-              }`}
-            value={newMessage}
-            onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
-            disabled={isBlocked}
-          />
-
-          <button type="submit" disabled={isBlocked || !newMessage.trim()} className={`
-              p-2 rounded ${isBlocked ? "bg-gray-300 text-gray-500" : "bg-green-500 text-white"}`}
-            aria-label="Enviar mensaje"
-          >
-            <FiSend size={20} />
-          </button>
-
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={!isBlocked ? toggleRecording : undefined}
-              aria-label={recording ? "Detener grabación" : "Grabar audio"}
-              className={`p-2 rounded ${isBlocked ? "text-gray-400" : recording ? "bg-red-500 text-white" : "hover:bg-gray-200"
-                }`}
-              disabled={isBlocked}
-            >
-              <FiMic size={20} />
-            </button>
-            {recording && (
-              <button
-                type="button"
-                onClick={cancelRecording}
-                className="p-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
-              >
-                Cancelar
-              </button>
-            )}
-          </div>
-        </form>
-      )}
-
-      {/* Confirm dialog */}
-      <ConfirmDialog
-        isOpen={confirmOpen}
-        onClose={() => {
-          setConfirmOpen(false);
-          fileInputRef.current && (fileInputRef.current.value = "");
-        }}
-        onConfirm={() => {
-          confirmAction.current();
-          setConfirmOpen(false);
-        }}
-        title={confirmTitle}
-        message={confirmMessage}
-      />
-    </div>
-  );
 };
