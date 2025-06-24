@@ -101,15 +101,7 @@ export const Chat = () => {
     ? chats.find((c) => c.id_chat === chatIdParsed) || null
     : null;
 
-  const title = (() => {
-    if (chatExists === false) return "Chat no encontrado";
-    if (!currentChat || !currentUserId) return "Cargando chat…";
 
-    const isUser1 = currentChat.id_user1 === currentUserId;
-    const nombre = isUser1 ? currentChat.nombre_user2 : currentChat.nombre_user1;
-    const rol = isUser1 ? currentChat.rol_user2 : currentChat.rol_user1;
-    return `${nombre} (${rol})`;
-  })();
 
   const showError = (err: unknown, fallback: string) => {
     console.error(err);
@@ -326,7 +318,20 @@ export const Chat = () => {
       showError(err, "No se pudo eliminar mensaje");
     }
   };
+const isUser1 = currentChat?.id_user1 === currentUserId;
 
+const nombreUsuario = currentChat
+  ? isUser1
+    ? currentChat.nombre_user2
+    : currentChat.nombre_user1
+  : "";
+
+const rolUsuario = currentChat
+  ? (isUser1
+      ? currentChat.rol_user2
+      : currentChat.rol_user1
+    ).split(",").map(r => r.trim())
+  : [];
   /* ─── Socket listeners ────────────────────────────────────────── */
   useEffect(() => {
     if (!socket || currentUserId == null || chatExists !== true) return;
@@ -453,15 +458,30 @@ export const Chat = () => {
   return (
     <div className="flex flex-col h-screen w-full bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] font-[Fredoka]">
       {/* ╭─ Header ────────────────────────────────────────────╮ */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-black/10">
-        <h2 className="font-semibold text-sm sm:text-base truncate">{title}</h2>
+     <header className="px-4 py-3 border-b border-black/10">
+  <div className="flex items-center justify-between">
+    <div>
+      {/* Nombre */}
+      <h2 className="font-semibold text-sm sm:text-base truncate">
+        {nombreUsuario}
+      </h2>
 
-        {isBlocked && (
-          <span className="inline-flex items-center gap-1 text-[10px] bg-red-500/10 text-red-600 px-2 py-[2px] rounded-full">
-            <FiUserX /> Bloqueado
-          </span>
-        )}
-      </header>
+      {/* Roles */}
+      <div className="text-xs text-gray-600 mt-0.5">
+        {rolUsuario.join(", ")}
+      </div>
+    </div>
+
+    {/* Estado bloqueado */}
+    {isBlocked && (
+      <span className="inline-flex items-center gap-1 text-[10px] bg-red-500/10 text-red-600 px-2 py-[2px] rounded-full">
+        <FiUserX /> Bloqueado
+      </span>
+    )}
+  </div>
+</header>
+
+
 
       {/* ╭─ Lista de mensajes ────────────────────────────────╮ */}
       <main className="flex-1 overflow-y-auto px-4 py-5 space-y-6">
@@ -471,110 +491,119 @@ export const Chat = () => {
           <p className="text-center text-gray-500">No hay mensajes.</p>
         )}
 
-        {messages.map((msg) => {
-          const isMe = msg.id_user === currentUserId;
-          const bubble = isMe
-            ? "bg-[#D9D9D9] text-black"
-            : "bg-[#D9D9D9] text-black";
-          const align = isMe ? "justify-end" : "justify-start";
-          const pending = msg.estado === "enviando";
+       {messages.map((msg) => {
+  const isMe = msg.id_user === currentUserId;
+  const bubble = isMe
+    ? "bg-[#D9D9D9] text-black"
+    : "bg-[#D9D9D9] text-black";
+  const align = isMe ? "justify-end" : "justify-start";
+  const pending = msg.estado === "enviando";
 
-          return (
-            <div key={msg.id_mensaje} className={`flex ${align} gap-2`}>
-              {/* Avatar */}
-              {!isMe && (
-                <FaCircleUser size={28} className="text-[#48BD28] bg-black" />
+  return (
+    <div key={msg.id_mensaje} className={`flex ${align} gap-2`}>
+      {/* Avatar del otro usuario */}
+      {!isMe && (
+        <div className="flex items-center justify-center w-7 h-7 rounded-full bg-black mt-[4px]">
+          <FaCircleUser size={60} className="text-[#48BD28]" />
+        </div>
+      )}
+
+      {/* Contenedor del mensaje + menú */}
+      <div className="relative group max-w-[70%]">
+        {/* Botón del menú (3 puntos) */}
+        {isMe && (
+          <button
+            data-menu-btn={msg.id_mensaje}
+            onClick={() =>
+              setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)
+            }
+            className={`absolute -left-10 ${
+              msg.tipo === "imagen" ? "top-1/2 -translate-y-1/2" : "top-3"
+            } p-1.5 text-black`}
+          >
+            <IoIosMore />
+          </button>
+        )}
+
+        {/* Burbuja o contenido directamente */}
+        {msg.tipo === "imagen" ? (
+          <img
+            src={msg.contenido}
+            alt="img"
+            className="rounded-xl max-w-xs cursor-pointer shadow-none bg-transparent"
+            onClick={() => window.open(msg.contenido, "_blank")}
+          />
+        ) : (
+          <div
+            className={`rounded-2xl px-4 py-2 shadow ${bubble} ${
+              pending ? "opacity-60" : ""
+            }`}
+          >
+            {/* Contenido de texto o audio */}
+            {msg.tipo === "texto" && (
+              <p className="whitespace-pre-wrap">{msg.contenido}</p>
+            )}
+
+            {msg.tipo === "audio" && (
+              <audio controls src={msg.contenido} className="w-48" />
+            )}
+
+            {/* Etiquetas */}
+            <div className="flex justify-end text-[10px] gap-2 mt-1">
+              {msg.editado === 1 && (
+                <span className="italic opacity-70">(editado)</span>
               )}
-
-              {/* Burbuja + menú */}
-              <div className="relative group max-w-[70%]">
-                {isMe && (
-                  <button
-                    data-menu-btn={msg.id_mensaje}
-                    onClick={() =>
-                      setOpenMenu(
-                        openMenu === msg.id_mensaje ? null : msg.id_mensaje,
-                      )
-                    }
-                    className="absolute -left-10  text-black top-3 p-1.5  "
-                  >
-                    {openMenu === msg.id_mensaje ? <IoIosMore  /> : <IoIosMore />}
-                  </button>
-                )}
-
-                <div
-                  className={`rounded-2xl px-4 py-2 shadow ${bubble} ${
-                    pending && "opacity-60"
-                  }`}
-                >
-                  {/* Contenidos por tipo */}
-                  {msg.tipo === "texto" && (
-                    <p className="whitespace-pre-wrap">{msg.contenido}</p>
-                  )}
-
-                  {msg.tipo === "imagen" && (
-                    <img
-                      src={msg.contenido}
-                      alt="img"
-                      className="rounded-xl max-w-xs cursor-pointer"
-                      onClick={() => window.open(msg.contenido, "_blank")}
-                    />
-                  )}
-
-                  {msg.tipo === "audio" && (
-                    <audio controls src={msg.contenido} className="w-48" />
-                  )}
-
-                  {/* Etiquetas */}
-                  <div className="flex justify-end text-[10px] gap-2 mt-1">
-                    {msg.editado === 1 && (
-                      <span className="italic opacity-70">(editado)</span>
-                    )}
-                    {pending && <span className="animate-pulse">Enviando…</span>}
-                  </div>
-                </div>
-
-                {/* Menú desplegable */}
-                {openMenu === msg.id_mensaje && isMe && (
-                  <div
-                    data-menu={msg.id_mensaje}
-                    className="absolute right-30 top-5 w-40 bg-[#48BD28] borde-none rounded z-20 overflow-hidden"
-                  >
-                    {msg.tipo === "texto" && (
-                      <button
-                        onClick={() => {
-                          setEditing({
-                            id: msg.id_mensaje,
-                            content: msg.contenido,
-                          });
-                          setOpenMenu(null);
-                        }}
-                        className="flex items-center w-38 m-1 bg-white rounded  px-1 py-1 text-sm hover:bg-gray-100"
-                      >
-                        Editar
-                      </button>
-                    )}
-                    <button
-                      onClick={() =>
-                        openConfirmDialog(
-                          "Eliminar mensaje",
-                          "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
-                          () => deleteMessage(msg.id_mensaje),
-                        )
-                      }
-                      className="flex items-center w-full px-3 py-2 text-sm text-white hover:bg-green-700"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Avatar propio */}
-              {isMe && <FaCircleUser size={28} className="text-[#1B7D00] shrink-0" />}
+              {pending && <span className="animate-pulse">Enviando…</span>}
             </div>
-          );
-        })}
+          </div>
+        )}
+
+        {/* Menú desplegable */}
+        {openMenu === msg.id_mensaje && isMe && (
+          <div
+            data-menu={msg.id_mensaje}
+            className="absolute right-30 top-5 w-40 bg-[#48BD28] rounded z-20 overflow-hidden"
+          >
+            {msg.tipo === "texto" && (
+              <button
+                onClick={() => {
+                  setEditing({
+                    id: msg.id_mensaje,
+                    content: msg.contenido,
+                  });
+                  setOpenMenu(null);
+                }}
+                className="flex items-center w-full px-3 py-2 bg-white text-sm hover:bg-gray-100"
+              >
+                Editar
+              </button>
+            )}
+            <button
+              onClick={() =>
+                openConfirmDialog(
+                  "Eliminar mensaje",
+                  "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
+                  () => deleteMessage(msg.id_mensaje),
+                )
+              }
+              className="flex items-center w-full px-3 py-2 text-white hover:bg-green-700"
+            >
+              Eliminar
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Avatar propio */}
+      {isMe && (
+        <div className="flex items-center justify-center w-7 h-7 mt-[4px]">
+          <FaCircleUser size={60} className="text-[#1B7D00]" />
+        </div>
+      )}
+    </div>
+  );
+})}
+
 
         <div ref={messagesEndRef} />
       </main>
@@ -650,7 +679,7 @@ export const Chat = () => {
     onSubmit={(e) => {
       e.preventDefault();
       if (recording) {
-        mediaRecorder?.stop(); // <- finaliza grabación
+        mediaRecorder?.stop(); 
         setRecording(false);
       } else {
         sendTextMessage(e);
