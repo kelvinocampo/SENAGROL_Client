@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { ChatsList } from "@/components/Chats/ChatList";
 
+
 interface NavBarChatsProps {
   isOpen: boolean;
   onClose: () => void;
@@ -23,7 +24,7 @@ export const NavBarChats = ({ isOpen, onClose }: NavBarChatsProps) => {
       />
 
      <aside
-    className={`fixed top-10 left-10 z-50 w-[22rem] h-[24rem] ml-20 mt-10 bg-white shadow-3xl rounded-r-3xl p-6 flex flex-col gap-4 font-medium
+    className={`fixed top-10 left-10 z-50 w-[26rem] h-[20rem] ml-20 mt-10 bg-white shadow-3xl rounded-r-3xl p-6 flex flex-col gap-4 font-medium
   transform transition-transform duration-300 ease-in-out
   ${isOpen ? "translate-x-0" : "-translate-x-full"}
   md:relative md:ml-0 md:mt-0 md:w-64 md:h-auto md:translate-x-0 md:shadow-none md:rounded-none`}

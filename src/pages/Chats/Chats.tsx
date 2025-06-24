@@ -8,7 +8,6 @@ import { ChatsProvider, ChatsContext } from "@/contexts/Chats";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import { AnimatePresence } from "framer-motion";
-import FallingLeaves from "@/components/FallingLeaf";
 
 export const Chats = () => {
   const location = useLocation();
@@ -24,9 +23,6 @@ export const Chats = () => {
     <ChatsProvider>
       <div className="min-h-screen font-[Fredoka] bg-[#F4FCF1] relative">
         {/* Fondo decorativo */}
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <FallingLeaves quantity={20} />
-        </div>
 
         {/* Encabezado */}
         <header className="sticky top-0 z-20 w-full h-20 flex items-center justify-between px-4 bg-[#F4FCF1] shadow-md">
