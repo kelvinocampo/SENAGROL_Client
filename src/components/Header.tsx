@@ -192,7 +192,7 @@ const PerfilDropdown = ({ mobile = false }: { mobile?: boolean }) => (
   /* ---------- JSX ---------- */
   return (
     <>
-      <header className="font-[Fredoka] bg-white shadow-md mx-auto my-6 w-full px-4 sm:px-6 py-4 rounded-lg max-w-350">
+      <header className="font-[Fredoka] bg-white shadow-md mx-auto my-6 w-full px-4 sm:px-6 py-4 rounded-lg max-w-456">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">

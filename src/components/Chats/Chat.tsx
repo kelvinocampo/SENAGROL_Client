@@ -456,7 +456,7 @@ const rolUsuario = currentChat
   }
 
   return (
-    <div className="flex flex-col h-screen w-full bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] font-[Fredoka]">
+    <div className=" flex flex-col h-full w-full font-[Fredoka]">
       {/* ╭─ Header ────────────────────────────────────────────╮ */}
      <header className="px-4 py-3 border-b border-black/10">
   <div className="flex items-center justify-between">
@@ -480,9 +480,6 @@ const rolUsuario = currentChat
     )}
   </div>
 </header>
-
-
-
       {/* ╭─ Lista de mensajes ────────────────────────────────╮ */}
       <main className="flex-1 overflow-y-auto px-4 py-5 space-y-6">
         {loading && <p className="text-center text-gray-500">Cargando…</p>}
