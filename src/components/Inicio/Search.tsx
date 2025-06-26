@@ -7,6 +7,8 @@ interface BuscadorProps {
   setBusqueda: (value: string) => void;
   setPaginaActual: (page: number) => void;
   placeholderText: string;
+  inputClassName?: string;
+  containerClassName?: string; // ✅
 }
 
 export default function Buscador({
@@ -14,18 +16,18 @@ export default function Buscador({
   setBusqueda,
   setPaginaActual,
   placeholderText,
+  inputClassName = "",
+  containerClassName = "", // ✅
 }: BuscadorProps) {
   const [placeholder, setPlaceholder] = useState("");
   const [index, setIndex] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
 
-  // Reiniciar placeholder cuando cambia el texto base
   useEffect(() => {
     setPlaceholder("");
     setIndex(0);
   }, [placeholderText]);
 
-  // Efecto de escritura automática
   useEffect(() => {
     if (index < placeholderText.length) {
       const timeout = setTimeout(() => {
@@ -38,13 +40,13 @@ export default function Buscador({
 
   return (
     <motion.div
-      className="flex justify-center mb-6 px-4"
+      className={`flex mb-0 px-0 ${containerClassName}`} // ✅ Permite control externo del ancho
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <motion.div
-        className="relative w-full max-w-2xl"
+        className="relative w-full"
         animate={{ scale: isFocused ? 1.05 : 1 }}
         transition={{ type: "spring", stiffness: 200 }}
       >
@@ -60,7 +62,7 @@ export default function Buscador({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           whileFocus={{ boxShadow: "0 0 0 4px rgba(34,197,94,0.4)" }}
-          className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 bg-white"
+          className={`w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 bg-white ${inputClassName}`}
         />
       </motion.div>
     </motion.div>

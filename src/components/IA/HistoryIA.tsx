@@ -1,106 +1,82 @@
-import { IAContext } from '@/contexts/IA';
-import { useContext } from 'react';
-import { NavLink } from 'react-router-dom';
+import { IAContext } from "@/contexts/IA";
+import { useContext } from "react";
+import { NavLink } from "react-router-dom";
+import senagrol from "@assets/senagrol.png";
+import { FaCircleUser } from "react-icons/fa6";
 
 export const HistoryIA = () => {
   const { history }: any = useContext(IAContext);
 
   const renderMarkdownWithLinks = (message: string) => {
-    // Procesamos saltos de línea primero
-    const paragraphs = message.split('\n').map((paragraph, pIndex) => {
-      
-      // Procesamos negritas y rutas en cada párrafo
-      const elements = [];
-      let remainingText = paragraph;
-      
-      // Expresión regular combinada para negritas y rutas
+    return message.split("\n").map((paragraph, idx) => {
       const combinedRegex = /(\*\*.*?\*\*|__.*?__|\/[a-zA-Z0-9-_\/]+)/g;
-      let match;
-      let lastIndex = 0;
-      
-      while ((match = combinedRegex.exec(remainingText)) !== null) {
-        // Texto normal antes del match
-        if (match.index > lastIndex) {
-          elements.push(
-            <span key={`text-${pIndex}-${lastIndex}`}>
-              {remainingText.substring(lastIndex, match.index)}
-            </span>
-          );
-        }
-        
-        // Procesamos el match
-        const content = match[0];
-        
-        // Negritas (** o __)
-        if (content.startsWith('**') || content.startsWith('__')) {
-          const boldText = content.substring(2, content.length - 2);
-          elements.push(
-            <strong key={`bold-${pIndex}-${match.index}`}>
-              {boldText}
-            </strong>
-          );
-        } 
-        // Rutas (/algo)
-        else if (content.startsWith('/')) {
-          elements.push(
+      const parts = [];
+      let last = 0;
+      let m: RegExpExecArray | null;
+
+      while ((m = combinedRegex.exec(paragraph)) !== null) {
+        if (m.index > last) parts.push(<span key={last}>{paragraph.slice(last, m.index)}</span>);
+        const token = m[0];
+        if (token.startsWith("**") || token.startsWith("__")) {
+          parts.push(<strong key={m.index}>{token.slice(2, -2)}</strong>);
+        } else if (token.startsWith("/")) {
+          parts.push(
             <NavLink
-              key={`link-${pIndex}-${match.index}`}
-              to={content}
-              className={({ isActive }) =>
-                isActive
-                  ? "px-2 py-1 rounded bg-blue-600 text-white"
-                  : "px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
-              }
+              key={m.index}
+              to={token}
+              className="px-1 rounded text-blue-600 hover:underline"
             >
-              {content}
+              {token}
             </NavLink>
           );
         }
-        
-        lastIndex = match.index + content.length;
+        last = m.index + token.length;
       }
-      
-      // Texto restante después del último match
-      if (lastIndex < remainingText.length) {
-        elements.push(
-          <span key={`text-end-${pIndex}`}>
-            {remainingText.substring(lastIndex)}
-          </span>
-        );
-      }
-      
+      if (last < paragraph.length) parts.push(<span key="end">{paragraph.slice(last)}</span>);
       return (
-        <p key={`p-${pIndex}`} className="">
-          {elements}
+        <p key={idx} className="whitespace-pre-wrap leading-snug">
+          {parts}
         </p>
       );
     });
-    
-    return paragraphs;
   };
 
-return (
-  <div className="w-full flex flex-col gap-4 bg-white p-4 rounded-xl shadow-md max-h-[500px] overflow-y-auto">
-    {history.map((item: any, index: number) => (
-      <div key={index}>
-        {item.type === 'user' ? (
-          <div className="flex flex-col items-end text-right">
-            <p className="text-xs text-gray-500 pr-2">Usuario</p>
-            <div className="bg-[#48BD28] text-white px-4 py-2 rounded-xl max-w-[80%] shadow">
-              {item.message}
+  return (
+    <div className="w-full flex flex-col gap-6 max-h-[500px] overflow-y-auto pr-2">
+      {history.map((item: any, idx: number) => {
+        const isUser = item.type === "user";
+        return (
+          <div
+            key={idx}
+            className={`flex ${isUser ? "flex-row-reverse" : "flex-row"} items-start gap-3`}
+          >
+            {/* Avatar */}
+            <div className="w-7 h-7">
+              {isUser ? (
+                <FaCircleUser className="w-7 h-7 text-[#1B7D00]" />
+              ) : (
+                <img
+                  src={senagrol}
+                  alt="IA"
+                  className="w-7 h-7 rounded-full object-cover"
+                />
+              )}
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-start text-left">
-            <p className="text-xs text-gray-500 pl-1">IA</p>
-            <div className="bg-[#E4FBDD] text-black px-4 py-2 rounded-xl max-w-[80%] shadow whitespace-pre-wrap">
-              {renderMarkdownWithLinks(item.message)}
-            </div>
-          </div>
-        )}
-      </div>
-    ))}
-  </div>
-);
 
+            {/* Burbuja */}
+            <div
+              className={`max-w-[75%] rounded-xl px-4 py-2 shadow
+                ${isUser ? "bg-[#EDEDED] text-black" : "bg-[#EDEDED] text-black"}`}
+            >
+              {isUser ? (
+                <span className="whitespace-pre-wrap">{item.message}</span>
+              ) : (
+                renderMarkdownWithLinks(item.message)
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 };

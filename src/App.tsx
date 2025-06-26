@@ -29,6 +29,7 @@ import { AdminManagement } from "@pages/AdminManagement";
 import { RegisterForm } from "@components/Usuarioregister/RegisterForm";
 import { ProtectedRoute } from "@components/ProtectedRoute";
 import Error404 from "@pages/Error404";
+import PagoWrapper from "./pages/producto/PagoWrapper";
 
 function AutoLogoutWrapper({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -88,6 +89,8 @@ function App() {
             <Route path="/transporte/:id_compra" element={<Transportadores />} />
             <Route path="/chats/*" element={<Chats />} />
             <Route path="/ubicacion/:id" element={<UbicacionCompra />} />
+            <Route path="/pago/:id" element={<PagoWrapper />} />
+            
 
             <Route
               path="/MisProductos/*"
