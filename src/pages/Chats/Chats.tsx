@@ -32,15 +32,13 @@ export const Chats = () => {
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-
-        {/* Contenido principal que crece */}
        <div className="flex flex-1 md:flex-row px-4 md:px-10 pt-4 gap-1 mb-2 ">
   <div className="">
     <NavBarChats isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
   </div>
 
   {/* Contenido principal */}
-  <main className="flex-1 transition-all duration-300 rounded-xl">
+  <main className="flex-1 min-h-0 transition-all duration-300 rounded-xl overflow-hidden">
     <Routes location={location} key={location.pathname}>
       <Route
         path=""

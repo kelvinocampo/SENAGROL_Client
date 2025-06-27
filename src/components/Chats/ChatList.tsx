@@ -130,7 +130,7 @@ export const ChatsList = () => {
                     {/* Menú */}
                     <div className="w-44 bg-[#E2E2E2] border border-gray-200 rounded-lg shadow-xl overflow-visible">
                       <button
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-[#B4B4B4]"
+                        className="w-42 text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
                         onClick={() =>
                           openConfirm(
                             other.blocked ? "Desbloquear chat" : "Bloquear chat",
@@ -144,7 +144,7 @@ export const ChatsList = () => {
                         {other.blocked ? "Desbloquear chat" : "Bloquear chat"}
                       </button>
                       <button
-                        className="w-full  text-left px-4 py-2 text-sm  hover:bg-[#B4B4B4]"
+                        className="w-42 text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
                         onClick={() =>
                           openConfirm(
                             "Eliminar chat",
