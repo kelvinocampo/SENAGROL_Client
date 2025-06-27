@@ -8,6 +8,7 @@ import { ChatsProvider, ChatsContext } from "@/contexts/Chats";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import { AnimatePresence } from "framer-motion";
+import FallingLeaves from "@/components/FallingLeaf";
 
 export const Chats = () => {
   const location = useLocation();
@@ -21,71 +22,82 @@ export const Chats = () => {
 
   return (
     <ChatsProvider>
+
       <div className="min-h-screen flex flex-col bg-[#F4FCF1] font-[Fredoka]">
+        <div className="fixed inset-0 pointer-events-none z-0">
+          <FallingLeaves quantity={20} />
+        </div>
+        {/* Header */}
         <Header />
-        <button
-          className="md:hidden p-2 rounded-md hover:bg-gray-200"
-          onClick={() => setSidebarOpen(true)}
-          aria-label="Abrir menú"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-       <div className="flex flex-1 md:flex-row px-4 md:px-10 pt-4 gap-1 mb-2 ">
-  <div className="">
-    <NavBarChats isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-  </div>
 
-  {/* Contenido principal */}
-  <main className="flex-1 min-h-0 transition-all duration-300 rounded-xl overflow-hidden">
-    <Routes location={location} key={location.pathname}>
-      <Route
-        path=""
-        element={(() => {
-          const { chats } = useContext(ChatsContext);
-          const lastId = localStorage.getItem("lastChatId");
-          const chatExists = chats.some(c => c.id_chat === Number(lastId));
+        {/* Botón para abrir el menú en móvil */}
+        <div className="md:hidden px-4 pt-2">
+          <button
+            className="p-2 rounded-md hover:bg-gray-200"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menú"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
 
-          return chatExists && lastId ? (
-            <Navigate to={`chat/${lastId}`} replace />
-          ) : (
-            <AnimatePresence mode="wait">
-              <UserList />
-            </AnimatePresence>
-          );
-        })()}
-      />
-      <Route
-        path="chats"
-        element={
-          <AnimatePresence mode="wait">
-            <ChatsList />
-          </AnimatePresence>
-        }
-      />
-      <Route
-        path="usuarios"
-        element={
-          <AnimatePresence mode="wait">
-            <UserList />
-          </AnimatePresence>
-        }
-      />
-      <Route
-        path="chat/:id_chat"
-        element={
-          <AnimatePresence mode="wait">
-            <Chat />
-          </AnimatePresence>
-        }
-      />
-    </Routes>
-  </main>
-</div>
+        {/* Contenido principal con flex y responsividad */}
+        <div className="flex flex-1 flex-col md:flex-row px-4 md:px-10 pt-4 gap-4 pb-2">
+          {/* Sidebar */}
+          <div className="w-full md:w-[280px] lg:w-[300px]">
+            <NavBarChats isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          </div>
 
+          {/* Main content area */}
+          <main className="flex-1 min-h-0 overflow-hidden rounded-xl transition-all duration-300">
+            <Routes location={location} key={location.pathname}>
+              <Route
+                path=""
+                element={(() => {
+                  const { chats } = useContext(ChatsContext);
+                  const lastId = localStorage.getItem("lastChatId");
+                  const chatExists = chats.some(c => c.id_chat === Number(lastId));
 
-        {/* Footer siempre abajo */}
+                  return chatExists && lastId ? (
+                    <Navigate to={`chat/${lastId}`} replace />
+                  ) : (
+                    <AnimatePresence mode="wait">
+                      <UserList />
+                    </AnimatePresence>
+                  );
+                })()}
+              />
+              <Route
+                path="chats"
+                element={
+                  <AnimatePresence mode="wait">
+                    <ChatsList />
+                  </AnimatePresence>
+                }
+              />
+              <Route
+                path="usuarios"
+                element={
+                  <AnimatePresence mode="wait">
+                    <UserList />
+                  </AnimatePresence>
+                }
+              />
+              <Route
+                path="chat/:id_chat"
+                element={
+                  <AnimatePresence mode="wait">
+                    <Chat />
+                  </AnimatePresence>
+                }
+              />
+            </Routes>
+          </main>
+        </div>
+
+        {/* Footer */}
         <footer className="mt-auto w-full border-t border-black/10 bg-white">
           <Footer />
         </footer>
@@ -93,4 +105,3 @@ export const Chats = () => {
     </ChatsProvider>
   );
 };
-

@@ -29,7 +29,6 @@ export const BarChartRoles = () => {
     rol: role,
     cantidad: count
   }));
-
   return (
     <ResponsiveContainer width="100%" height={500}>
       <BarChart data={data}>

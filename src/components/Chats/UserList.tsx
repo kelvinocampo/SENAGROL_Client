@@ -79,7 +79,7 @@ export const UserList = () => {
       transition={{ duration: 0.4 }}
       className="w-full px-2 md:px-4 pt-2 pb-1"
     >
-      <div className=" w-full">
+      <div className=" w-ful relative">
         {/* Título */}
         <h2 className="text-2xl font-bold text-[#000000] mb-4">Usuarios</h2>
 
@@ -104,7 +104,7 @@ export const UserList = () => {
         ) : error ? (
           <p className="text-center text-red-600 py-4">{error}</p>
         ) : filtered.length === 0 ? (
-          <p className="text-center text-gray-600 py-4">Sin resultados</p>
+          <p className="text-center text-gray-600 py-4">No se encontraron Usuarios con esos datos.</p>
         ) : (
           <ul className="max-h-[55vh] overflow-y-auto rounded-lg border border-[#48BD28]">
             <AnimatePresence>

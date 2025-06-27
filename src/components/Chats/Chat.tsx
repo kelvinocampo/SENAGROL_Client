@@ -455,7 +455,7 @@ export const Chat = () => {
   }
 
   return (
-    <div className=" flex flex-col h-150 w-full font-[Fredoka]">
+    <div className=" flex flex-col h-screen sm:h-150 w-full font-[Fredoka]">
       {/* ╭─ Header ────────────────────────────────────────────╮ */}
       <header className="px-4 py-3 border-b border-black/10">
         <div className="flex items-center justify-between">
@@ -480,7 +480,7 @@ export const Chat = () => {
         </div>
       </header>
       {/* ╭─ Lista de mensajes ────────────────────────────────╮ */}
-      <main className="flex-1 min-h-0 overflow-auto px-4 py-5 space-y-6">
+      <main className="flex-1 min-h-0 overflow-auto px-3 sm:px-4 py-2 sm:py-5 space-y-4 sm:space-y-6">
         {loading && <p className="text-center text-gray-500">Cargando…</p>}
         {error && <p className="text-center text-red-600">{error}</p>}
         {!loading && messages.length === 0 && (
@@ -670,7 +670,7 @@ export const Chat = () => {
               sendTextMessage(e);
             }
           }}
-          className="flex items-center gap-3 border-t border-black/10 px-4 py-3 bg-white"
+          className=" relative flex items-center gap-3 border-t border-black/10 px-4 py-3 bg-white"
         >
           <input
             ref={fileInputRef}

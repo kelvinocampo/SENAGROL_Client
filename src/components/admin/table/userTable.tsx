@@ -11,11 +11,12 @@ import  Buscador  from "@/components/Inicio/Search";
 import { TransporterDetailModal } from "@/components/admin/common/TransporterDetailModal";
 
 export const UserTable = () => {
+  
   const context = useContext(UserManagementContext);
+  
   if (!context) return <div>Error: contexto no disponible.</div>;
 
   const { users, deleteUser, disableUser, activateUserRole, fetchUsers } = context;
-
   const [searchTerm, setSearchTerm] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
