@@ -15,7 +15,6 @@ export const ActionButton = ({
     <button
       title={title}
       className={`
-        bg-[#d6d6d6ee]
         px-3 py-1
         rounded-full
         hover:opacity-80
