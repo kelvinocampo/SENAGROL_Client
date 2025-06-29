@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaTruckMoving } from "react-icons/fa";
 
 interface TransporterDetailModalProps {
   user: {
@@ -21,12 +22,8 @@ interface TransporterData {
   tipo_vehiculo: string;
   peso_vehiculo: string;
   estado_transportador: string;
-  estado_rol?: string;
   nombre?: string;
-  email?: string;
-  telefono?: string;
-  direccion?: string;
-  fotos_vehiculo?: string; // CAMBIO: de "imagenes" a "fotos_vehiculo"
+  fotos_vehiculo?: string;
 }
 
 export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
@@ -34,8 +31,7 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
   onClose,
   isOpen,
 }) => {
-  const [transporterData, setTransporterData] =
-    useState<TransporterData | null>(null);
+  const [transporterData, setTransporterData] = useState<TransporterData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,15 +40,9 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
     const fetchTransporterData = async () => {
       try {
         const token = localStorage.getItem("token");
-
-        const res = await fetch(
-          `http://localhost:10101/admin/transporters/${user.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await fetch(`http://localhost:10101/admin/transporters/${user.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const data = await res.json();
         if (data.success && data.transporter.length > 0) {
@@ -80,20 +70,21 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50"
+        className="fixed inset-0 bg-white opacity-30 flex items-center justify-center"
       >
         <motion.div
           key="modal"
-          initial={{ opacity: 0, scale: 0.8, y: 50 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.8, y: 50 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ duration: 0.3 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg text-gray-900 font-sans select-none"
+          className="bg-white border-4  rounded-xl max-w-lg w-full p-6 shadow-lg text-black"
         >
-          <h2 className="text-2xl font-bold mb-6 text-green-700 text-center">
-            Detalles del Transportador
-          </h2>
+          <div className="flex flex-col items-center text-center">
+            <FaTruckMoving size={50} className="text-green-600 mb-2" />
+            <h2 className="text-2xl font-bold text-green-700 mb-4">Detalles del transportador</h2>
+          </div>
 
           {loading ? (
             <p className="text-center text-gray-500">Cargando detalles...</p>
@@ -102,65 +93,51 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
               No se encontraron datos del transportador.
             </p>
           ) : (
-            <>
+            <div className="space-y-1 text-sm">
               <p>
                 <strong>Nombre:</strong>{" "}
-                {transporterData.nombre || "No disponible"}
+                <span className="text-red-600 font-medium">
+                  {transporterData.nombre || "No disponible"}
+                </span>
               </p>
               <p>
-                <strong>Licencia de conducción:</strong>{" "}
-                {transporterData.licencia_conduccion || "No disponible"}
+                <strong>Licencia de conducción:</strong> {transporterData.licencia_conduccion}
               </p>
               <p>
-                <strong>SOAT vigente:</strong>{" "}
-                {transporterData.soat || "No disponible"}
+                <strong>SOAT vigente:</strong> {transporterData.soat}
               </p>
               <p>
-                <strong>Tarjeta de propiedad del vehículo:</strong>{" "}
-                {transporterData.tarjeta_propiedad_vehiculo || "No disponible"}
+                <strong>Tarjeta de propiedad de vehículo:</strong>{" "}
+                {transporterData.tarjeta_propiedad_vehiculo}
               </p>
               <p>
-                <strong>Tipo de vehículo:</strong>{" "}
-                {transporterData.tipo_vehiculo || "No disponible"}
+                <strong>Tipo de vehículo:</strong> {transporterData.tipo_vehiculo}
               </p>
               <p>
-                <strong>Peso del vehículo:</strong>{" "}
-                {transporterData.peso_vehiculo || "No disponible"}
+                <strong>Peso de vehículo:</strong> {transporterData.peso_vehiculo}
               </p>
               <p>
                 <strong>Estado del transportador:</strong>{" "}
-                <span
-                  className={
-                    transporterData.estado_transportador === "Pendiente"
-                      ? "text-red-600 font-semibold"
-                      : "text-green-600 font-semibold"
-                  }
-                >
+                <span className="text-red-600 font-medium">
                   {transporterData.estado_transportador || "No disponible"}
                 </span>
               </p>
 
-              {transporterData.fotos_vehiculo ? (
+              {transporterData.fotos_vehiculo && (
                 <div className="mt-4">
-                  <p className="font-semibold">Imagen del vehículo:</p>
                   <img
                     src={transporterData.fotos_vehiculo}
-                    alt="Imagen del vehículo"
-                    className="w-full h-64 object-cover rounded-lg border mt-2"
+                    alt="Vehículo"
+                    className="w-full h-48 object-contain rounded-md"
                   />
                 </div>
-              ) : (
-                <p className="mt-4 text-gray-500">
-                  No hay imagen del vehículo disponible.
-                </p>
               )}
-            </>
+            </div>
           )}
 
           <button
             onClick={onClose}
-            className="mt-8 w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg transition-colors duration-300"
-            aria-label="Cerrar detalles del transportador"
+            className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg transition"
           >
             Cerrar
           </button>
