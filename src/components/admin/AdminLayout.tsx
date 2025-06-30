@@ -112,12 +112,10 @@ export const AdminLayout = () => {
             <motion.h1 {...fadeUp} className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
               Dashboard Productos
             </motion.h1>
-            <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
-              <h2 className="text-xl font-semibold mb-2 text-center md:text-left">Gráfica de Barras de Productos</h2>
+            <motion.div {...fadeUp} className="overflow-x-auto w-full h-full col-span-1 lg:col-span-2">
               <BarChartProductsByMonth />
             </motion.div>
-            <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
-              <h2 className="text-xl font-semibold mb-2 text-center md:text-left">Gráfica Circular de Productos</h2>
+            <motion.div {...fadeUp} className="overflow-x-autow-full h-full col-span-1 lg:col-span-2">
               <PieChartProductsByMonth />
             </motion.div>
             <motion.div {...fadeUp} className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
@@ -134,16 +132,13 @@ export const AdminLayout = () => {
           <motion.h1 {...fadeUp} className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
             Dashboard Ventas
           </motion.h1>
-          <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
-            <h2 className="text-xl font-semibold mb-2 text-center md:text-left">Gráfica de Barras de Ventas</h2>
+          <motion.div {...fadeUp} className="overflow-x-auto w-full h-full col-span-1 lg:col-span-2">
             <BarChartSalesByMonth />
           </motion.div>
-          <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
-            <h2 className="text-xl font-semibold mb-2 text-center md:text-left">Gráfica Circular de Ventas</h2>
+          <motion.div {...fadeUp} className="overflow-x-auto w-full h-full col-span-1 lg:col-span-2">
             <PieChartSalesByMonth />
           </motion.div>
-          <motion.div {...fadeUp} className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
-            <h2 className="text-2xl font-bold mb-4 text-center md:text-left">Gráfica combinada</h2>
+          <motion.div {...fadeUp} className="col-span-full overflow-x-auto  w-full h-full">
             <LineChartSalesByMonth />
           </motion.div>
           <motion.div {...fadeUp} className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">

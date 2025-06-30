@@ -1,5 +1,4 @@
 import { useContext, useState } from "react";
-import { FaTrash } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { TableHeader } from "@/components/admin/table/TableHeader";
 import { ActionButton } from "@/components/admin/table/ActionButton";

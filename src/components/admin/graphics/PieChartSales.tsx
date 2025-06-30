@@ -22,7 +22,7 @@ export const PieChartSalesByMonth = () => {
 
   const { sales } = context;
 
-  // Contar productos por mes
+  // Contar ventas por mes
   const monthCounts: Record<string, number> = {};
 
   sales.forEach((sale) => {
@@ -36,18 +36,19 @@ export const PieChartSalesByMonth = () => {
   }));
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4 text-center">Ventas por mes</h2>
-      <ResponsiveContainer width="100%" height={500}>
+    <div className="w-full max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+      <ResponsiveContainer width="100%" height={350}>
         <PieChart>
           <Pie
             data={data}
             dataKey="value"
             nameKey="name"
             cx="50%"
-            cy="45%"
-            outerRadius={150}
-            label
+            cy="50%"
+            outerRadius={100}
+            innerRadius={60}
+            paddingAngle={3}
+            label={({ name }) => name.charAt(0).toUpperCase() + name.slice(1)}
           >
             {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -55,8 +56,9 @@ export const PieChartSalesByMonth = () => {
           </Pie>
           <Tooltip />
           <Legend
-            verticalAlign="bottom"
-            height={36}
+            verticalAlign="middle"
+            align="right"
+            layout="vertical"
             iconType="circle"
             formatter={(value) => (
               <span className="capitalize text-sm text-gray-700">{value}</span>

@@ -24,19 +24,38 @@ export const BarChartSalesByMonth = () => {
   }));
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4 text-center">Ventas por mes</h2>
-     <ResponsiveContainer width="100%" height={500}>
-  <BarChart data={data}>
-    <CartesianGrid strokeDasharray="3 3" />
-    <XAxis dataKey="mes" />  {/* ← aquí va "mes" */}
-    <YAxis />
-    <Tooltip />
-    <Legend />
-    <Bar dataKey="cantidad" fill="#48bd28" radius={[10, 10, 0, 0]} />
-  </BarChart>
-</ResponsiveContainer>
-
+    <div className="w-full max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={data} barSize={50}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <XAxis
+            dataKey="mes"
+            tick={{ fill: "#333", fontSize: 14, fontWeight: 500 }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis
+            tick={{ fill: "#333", fontSize: 14, fontWeight: 500 }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Tooltip />
+          <Legend
+            verticalAlign="top"
+            height={36}
+            iconType="circle"
+            formatter={(value) => (
+              <span className="capitalize text-sm text-gray-700">{value}</span>
+            )}
+          />
+          <Bar
+            dataKey="cantidad"
+            fill="#48bd28"
+            radius={[10, 10, 0, 0]}
+            label={{ position: "top", fill: "#000", fontSize: 12 }}
+          />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 };
