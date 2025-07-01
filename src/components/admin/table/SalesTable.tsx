@@ -88,7 +88,7 @@ export const SalesTable = () => {
       </div>
 
       {/* Tabla */}
-      <table className="min-w-full table-auto rounded-xl border border-[#E5E8EB] bg-white shadow">
+      <table className="min-w-full table-auto rounded-xl ">
         <thead className="bg-[#E4FBDD] text-black">
           <tr>
             <TableHeader>Estado</TableHeader>

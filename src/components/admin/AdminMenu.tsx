@@ -71,7 +71,7 @@ export const AdminMenu = ({
             exit={{ x: "-100%" }}
             transition={{ duration: 0.3 }}
             className={`
-              bg-[#f4fcf1] text-black
+              bg-white text-black
               w-full md:w-64
               fixed md:static top-0 left-0 z-40
               flex flex-col

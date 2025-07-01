@@ -128,9 +128,10 @@ export const AdminLayout = () => {
     ),
     ventas: (
       <SalesManagementProvider>
-        <motion.section {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.h1 {...fadeUp} className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
-            Dashboard Ventas
+        <motion.section {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 p-5 lg:grid-cols-4 gap-4">
+          <motion.h1 {...fadeUp} className="text-3xl font-semibold mb-2 col-span-full text-center text-[#0D141C] md:text-left">
+            Dashboard 
+            <p className="text-xl text-[#666666] font-normal">Ventas</p>
           </motion.h1>
           <motion.div {...fadeUp} className="overflow-x-auto w-full h-full col-span-1 lg:col-span-2">
             <BarChartSalesByMonth />
@@ -141,8 +142,7 @@ export const AdminLayout = () => {
           <motion.div {...fadeUp} className="col-span-full overflow-x-auto  w-full h-full">
             <LineChartSalesByMonth />
           </motion.div>
-          <motion.div {...fadeUp} className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
-            <h2 className="text-2xl font-bold mb-4 text-center md:text-left">Ventas</h2>
+          <motion.div {...fadeUp} className="col-span-full overflow-x-auto p-10 w-full h-full">
             <SalesTable />
           </motion.div>
         </motion.section>

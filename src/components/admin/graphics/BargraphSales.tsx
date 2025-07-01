@@ -24,7 +24,7 @@ export const BarChartSalesByMonth = () => {
   }));
 
   return (
-    <div className="w-full max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <div className="w-full max-w-3xl mx-auto bg-white p-12 rounded-2xl shadow-lg">
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data} barSize={50}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />

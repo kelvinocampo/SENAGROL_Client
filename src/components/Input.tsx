@@ -19,7 +19,7 @@ type InputProps = {
   inputClassName?: string;
   accept?: string;
   multiple?: boolean;
-  showPreview?: boolean; // si quieres mostrar vista previa para imágenes
+  showPreview?: boolean;
 };
 
 export const Input = ({
@@ -43,7 +43,7 @@ export const Input = ({
   showPreview = false,
 }: InputProps) => {
   const baseInputClasses =
-    "w-full mt-1 p-2 border rounded-xl focus:outline-none focus:border-[#48BD28]";
+    "w-full mt-1 p-2 bg-white shadow-[3px_3px_6px_rgba(0,0,0,0.1)] border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#48BD28]";
   const errorClasses = error ? "border-red-500" : "border-gray-300";
   const combinedInputClasses = twMerge(baseInputClasses, errorClasses, inputClassName);
   const combinedContainerClasses = `w-full ${className}`;
@@ -51,7 +51,6 @@ export const Input = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    // Limpia la URL del objeto al desmontar o al cambiar de archivo
     return () => {
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
@@ -75,9 +74,9 @@ export const Input = ({
   return (
     <div className={combinedContainerClasses}>
       {showLabel && (
-        <label htmlFor={name} className="block text-sm font-medium">
+        <label htmlFor={name} className="block text-sm font-semibold text-[#2E7D32]">
           {label}
-          {required && <span className="text-red-500">*</span>}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
 
