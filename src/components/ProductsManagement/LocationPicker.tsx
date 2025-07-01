@@ -37,7 +37,7 @@ async function reverseGeocode(lat: number, lon: number): Promise<string | null> 
     }
     return null;
   } catch (error) {
-    console.error("❌ Error al obtener la dirección desde el backend:", error);
+    console.error("Error al obtener la dirección desde el backend:", error);
     return null;
   }
 }
