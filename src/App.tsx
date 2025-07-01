@@ -16,8 +16,6 @@ import Transporte from "@/pages/Perfil/ListaTransportadores";
 import MisTransportes from "@/pages/Perfil/ListarMisTransportes";
 import QRCompras from "@/pages/Perfil/Qrcompras";
 import CodigoCompras from "@/pages/Perfil/CodigoCompras";
-import EscanearQr from "@/pages/Perfil/EscanearQr";
-import CodigoManual from "@/pages/Perfil/CodigoTransportador";
 import QrView from "@components/ProductsManagement/codigoqr";
 import CodeGenerator from "@components/ProductsManagement/codigounico";
 import { IA } from "@pages/IA";
@@ -81,8 +79,6 @@ function App() {
             <Route path="/mistransportes" element={<MisTransportes />} />
             <Route path="/compra/:id_compra/qr" element={<QRCompras />} />
             <Route path="/compra/:id_compra/codigo" element={<CodigoCompras />} />
-            <Route path="/escanear/:id_compra" element={<EscanearQr />} />
-            <Route path="/codigo/:id_compra" element={<CodigoManual />} />
             <Route path="/venta/qr/:id_compra" element={<QrView />} />
             <Route path="/venta/codigo/:id_compra" element={<CodeGenerator />} />
             <Route path="/IA" element={<IA />} />

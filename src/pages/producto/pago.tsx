@@ -2,7 +2,13 @@ import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { LocationPicker } from "@components/ProductsManagement/LocationPicker";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
-import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import {
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
 import type { Product } from "@/contexts/Product/ProductsManagement";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import Header from "@components/Header";
@@ -25,8 +31,7 @@ export default function Pago() {
   const [loading, setLoading] = useState(false);
 
   const [cardholderName, setCardholderName] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
+  const [cardError, setCardError] = useState<string | null>(null);
 
   /* Obtener producto */
   useEffect(() => {
@@ -47,14 +52,17 @@ export default function Pago() {
     if (!stripe || !elements) return alert("Stripe aún no está listo.");
     if (!producto) return;
     if (!ubicacion) return alert("Selecciona una ubicación.");
-    if (!cardholderName || !expiry || !cvv) return alert("Completa todos los datos de la tarjeta.");
+    if (!cardholderName) return alert("Completa el nombre del titular de la tarjeta.");
+    if (cardError) return alert("Corrige los errores en la tarjeta.");
 
-    const cardElement = elements.getElement(CardElement);
+    const cardElement = elements.getElement(CardNumberElement);
     if (!cardElement) return alert("Error con el campo de tarjeta.");
 
     try {
       setLoading(true);
       const id_user = Number(localStorage.getItem("user_id"));
+
+      // Simulación de compra (aquí iría lógica real de Stripe si se quisiera procesar el pago)
       await ProductManagementService.buyProduct(producto.id, {
         id_user,
         cantidad,
@@ -84,11 +92,6 @@ export default function Pago() {
 
           <div className="border-2 border-[#48BD28] rounded-xl p-6 space-y-5 backdrop-blur-sm text-sm">
             <div>
-              <label className="block mb-1">Número de tarjeta</label>
-              <CardElement className="w-full border border-[#48BD28] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#48BD28]" />
-            </div>
-
-            <div>
               <label className="block mb-1">Nombre impreso en la tarjeta</label>
               <input
                 value={cardholderName}
@@ -98,31 +101,39 @@ export default function Pago() {
               />
             </div>
 
+            <div>
+              <label className="block mb-1">Número de tarjeta</label>
+              <CardNumberElement
+                className="w-full border border-[#48BD28] rounded-lg p-3"
+                onChange={(event) => setCardError(event.error?.message || null)}
+              />
+            </div>
+
             <div className="flex gap-4">
               <div className="w-1/2">
                 <label className="block mb-1">Vencimiento</label>
-                <input
-                  value={expiry}
-                  onChange={(e) => setExpiry(e.target.value)}
-                  placeholder="MM/AA"
-                  className="w-full border border-[#48BD28] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#48BD28]"
+                <CardExpiryElement
+                  className="w-full border border-[#48BD28] rounded-lg p-3"
+                  onChange={(event) => setCardError(event.error?.message || null)}
                 />
               </div>
               <div className="w-1/2">
                 <label className="block mb-1">CVV</label>
-                <input
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value)}
-                  placeholder="CVV"
-                  className="w-full border border-[#48BD28] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#48BD28]"
+                <CardCvcElement
+                  className="w-full border border-[#48BD28] rounded-lg p-3"
+                  onChange={(event) => setCardError(event.error?.message || null)}
                 />
               </div>
             </div>
+
+            {cardError && (
+              <p className="text-red-500 text-sm mt-1">{cardError}</p>
+            )}
           </div>
         </section>
 
         {/* Columna derecha: Resumen */}
-        <section className="flex-1 border border-green-200 rounded-xl p-4 shadow-sm bg-white">
+        <section className="flex-1 border border-green-700 rounded-xl p-4 ">
           <div className="flex items-center gap-4 mb-4">
             <img
               src={producto.imagen || "/placeholder.jpg"}
@@ -141,11 +152,12 @@ export default function Pago() {
             </div>
           </div>
 
-          {/* Cantidad */}
           <div className="flex items-center gap-2 mb-4">
             <span className="text-sm">Cantidad:</span>
             <button
-              onClick={() => setCantidad((c) => Math.max(producto.cantidad_minima_compra, c - 1))}
+              onClick={() =>
+                setCantidad((c) => Math.max(producto.cantidad_minima_compra, c - 1))
+              }
               className="w-8 h-8 bg-[#48BD28] text-white rounded hover:bg-green-600"
             >
               –
@@ -159,8 +171,7 @@ export default function Pago() {
             </button>
           </div>
 
-          {/* Mapa */}
-          <div className="h-32 w-full mb-4 border rounded overflow-hidden">
+          <div className="h-40 w-full mb-4 border rounded overflow-hidden">
             <LocationPicker
               setLocation={setUbicacion}
               initialLocation={ubicacion}
@@ -168,7 +179,6 @@ export default function Pago() {
             />
           </div>
 
-          {/* Resumen */}
           <div className="text-sm text-gray-800 space-y-1 mb-4">
             <p className="font-semibold text-black">Resumen del pedido</p>
             <p>

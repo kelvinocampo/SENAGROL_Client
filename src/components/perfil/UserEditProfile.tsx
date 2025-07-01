@@ -157,7 +157,7 @@ function PerfilUsuarioUnico() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f4fcf1] to-[#caf5bd]  font-[Fredoka] text-[#111]">
       <Header />
-      <main className="flex flex-col h-full lg:flex-row pt-10 py-10 px-10 gap-10 ">
+      <main className="flex flex-col h-150 lg:flex-row pt-10 py-10 px-10 gap-10 ">
         <UserProfileCard />
 
         <motion.section className="lg:w-2/3 w-full h-full" initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 0.2 }}>

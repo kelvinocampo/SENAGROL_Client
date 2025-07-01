@@ -194,7 +194,7 @@ const handleAsignacionFinal = async () => {
                   ) : (
                     <tr>
                       <td colSpan={5} className="p-6 text-center text-[#F10E0E]">
-                        No hay transportadores disponibles.
+                        No hay transportadores disponibles en este momento.
                       </td>
                     </tr>
                   )}

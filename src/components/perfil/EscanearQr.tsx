@@ -3,7 +3,11 @@ import jsQR from "jsqr";
 import { receiveBuyCode } from "@/services/Perfil/EscanearQr&codigo";
 import { motion, AnimatePresence } from "framer-motion";
 
-const QrScanner: React.FC = () => {
+type Props = {
+  compraId?: number;
+};
+
+const QrScanner: React.FC<Props> = ({ compraId }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [qrData, setQrData] = useState<string | null>(null);
@@ -59,7 +63,7 @@ const QrScanner: React.FC = () => {
 
     const handleSendToBackend = async (codigo: string) => {
       try {
-        const res = await receiveBuyCode(codigo, token);
+        const res = await receiveBuyCode(codigo, token, compraId);
         setMessage(`Compra actualizada correctamente: ${res.message || "OK"}`);
       } catch (err: any) {
         setMessage(`Error al actualizar: ${err.message}`);
@@ -75,7 +79,7 @@ const QrScanner: React.FC = () => {
         tracks.forEach((track) => track.stop());
       }
     };
-  }, [token]);
+  }, [token, compraId]);
 
   return (
     <motion.div
@@ -83,7 +87,7 @@ const QrScanner: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
-      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br  p-6"
+      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br p-6"
     >
       <motion.h1
         initial={{ opacity: 0, scale: 0.9 }}
@@ -100,12 +104,7 @@ const QrScanner: React.FC = () => {
         transition={{ delay: 0.4 }}
         className="rounded-xl shadow-lg overflow-hidden w-full max-w-md border border-gray-300"
       >
-        <video
-          ref={videoRef}
-          className="w-full h-auto"
-          autoPlay
-          muted
-        />
+        <video ref={videoRef} className="w-full h-auto" autoPlay muted />
       </motion.div>
 
       <canvas ref={canvasRef} className="hidden" />

@@ -96,11 +96,7 @@ export function LocationPicker({
     setAddress(addr);
   };
 
-  const handleClearLocation = () => {
-    setCurrentLocation(null);
-    setLocation(null);
-    setAddress(null);
-  };
+
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
@@ -120,38 +116,7 @@ export function LocationPicker({
         />
       </MapContainer>
 
-      {currentLocation ? (
-        <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-          <h4 className="font-medium text-gray-800">Ubicación seleccionada:</h4>
-          <div className="grid grid-cols-2 gap-2 mt-1">
-            <div>
-              <span className="text-sm text-gray-600">Latitud:</span>
-              <p className="font-mono">{currentLocation.lat.toFixed(6)}</p>
-            </div>
-            <div>
-              <span className="text-sm text-gray-600">Longitud:</span>
-              <p className="font-mono">{currentLocation.lng.toFixed(6)}</p>
-            </div>
-            {address && (
-              <div className="col-span-2">
-                <span className="text-sm text-gray-600">Dirección:</span>
-                <p className="text-sm italic">{address}</p>
-              </div>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={handleClearLocation}
-            className="mt-2 text-sm text-red-500 hover:text-red-700"
-          >
-            Limpiar ubicación
-          </button>
-        </div>
-      ) : (
-        <p className="text-sm text-gray-500 italic">
-          Haz clic en el mapa para seleccionar una ubicación
-        </p>
-      )}
+     
     </div>
   );
 }

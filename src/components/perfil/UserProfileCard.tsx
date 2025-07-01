@@ -93,7 +93,7 @@ const UserProfileCard: React.FC = () => {
 
   return (
     <motion.aside
-      className="lg:w-110 w-full bg-white h-full rounded-xl p-8 shadow-lg flex flex-col items-center text-center border-2 border-[#48BD28]"
+      className="lg:w-110 w-full bg-white h-full rounded-xl p-8 shadow-xg flex flex-col items-center text-center "
       initial={{ x: -50, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -104,8 +104,7 @@ const UserProfileCard: React.FC = () => {
         className="rounded-full w-24 h-24 object-cover"
       />
       <h2 className="text-xl font-semibold mt-2">{profileData.username}</h2>
-
-      {/* Info básica */}
+      
       <div className="w-full mt-4 space-y-1 text-sm text-left">
         <div className="flex justify-between text-[#2E7C19] font-medium">
           <span>Nombre</span>
@@ -169,7 +168,7 @@ const UserProfileCard: React.FC = () => {
         {!lowerRole.includes("transportador") && (
           <button
             onClick={() => navigate("/formulariotransportador")}
-            className="w-full bg-[#28A745] text-white py-2 rounded-xl font-semibold hover:bg-[#379e1b] transition-colors"
+            className="w-60 bg-[#28A745] text-white py-2 rounded-xl font-semibold hover:bg-[#379e1b] transition-colors"
           >
             Formulario para transportador
           </button>

@@ -1,47 +1,49 @@
-import Header from '@components/Header';
-import Footer from "@components/footer";
-import QrScanner from '@components/perfil/EscanearQr';
-import { Link } from "react-router-dom";
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import QrScanner from "@components/perfil/EscanearQr";
 
-const EscanearQr = () => {
+type Props = {
+  isOpen: boolean;
+  onClose: () => void;
+  compraId?: number; // ✅ agregar esto
+};
+
+const ModalEscanearQr: React.FC<Props> = ({ isOpen, onClose, compraId }) => {
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <Header />
-      
-      <div className="flex-1 px-4 sm:px-10 lg:px-24 py-6">
-        <div className="mb-6">
-          <Link
-            to="/mistransportes"
-            className="inline-flex items-center text-green-700 hover:text-green-900 text-lg font-medium"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="w-full max-w-3xl bg-white rounded-lg shadow-lg p-6 relative mx-4"
+            initial={{ scale: 0.95, y: 50 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 50 }}
+            transition={{ duration: 0.3 }}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6 mr-3"
+            <button
+              onClick={onClose}
+              className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5L8.25 12l7.5-7.5"
-              />
-            </svg>
-            Volver a Mis Transportes
-          </Link>
-        </div>
+              &times;
+            </button>
 
-        <div className="flex justify-center items-center">
-          <div className="w-full max-w-2xl bg-gray-50 p-6 rounded-lg shadow-lg">
-            <QrScanner />
-          </div>
-        </div>
-      </div>
+            <h2 className="text-2xl font-semibold text-center mb-4 text-[#205116]">
+              Escanear Código QR
+            </h2>
 
-      <Footer />
-    </div>
+            <div className="bg-gray-50 p-4 rounded-lg shadow-inner">
+              <QrScanner compraId={compraId} /> {/* ✅ props pasado aquí */}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
-export default EscanearQr;
+export default ModalEscanearQr;
