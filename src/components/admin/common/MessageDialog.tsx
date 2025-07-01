@@ -32,7 +32,7 @@ export const MessageDialog = ({ isOpen, onClose, message }: MessageDialogProps) 
   return (
     <div
       onClick={handleOverlayClick}
-      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-white/60 flex items-center justify-center z-50"
     >
       <div className="bg-white rounded p-8 shadow-lg max-w-sm mx-4 text-center">
         <h3 className="mb-6 text-lg font-bold">¡{message}</h3>

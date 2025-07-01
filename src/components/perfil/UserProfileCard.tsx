@@ -1,5 +1,3 @@
-// src/components/perfil/UserProfileCard.tsx
-
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -95,7 +93,7 @@ const UserProfileCard: React.FC = () => {
 
   return (
     <motion.aside
-      className="lg:w-110 w-full bg-white h-full rounded-xl p-15 shadow-lg flex flex-col items-center text-center"
+      className="lg:w-110 w-full bg-white h-full rounded-xl p-8 shadow-lg flex flex-col items-center text-center border-2 border-[#48BD28]"
       initial={{ x: -50, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -103,46 +101,119 @@ const UserProfileCard: React.FC = () => {
       <img
         src={perfilImg}
         alt="Foto de perfil"
-        className="rounded-full w-28 h-28 object-cover text-shadow "
+        className="rounded-full w-24 h-24 object-cover"
       />
+      <h2 className="text-xl font-semibold mt-2">{profileData.username}</h2>
 
-      <h2 className="text-xl font-bold mt-3 mb-4 text-[#101010]">{profileData.username}</h2>
-
-      <div className="w-full space-y-1 text-sm text-left">
-        <div className="flex justify-between text-[#2E7D32] font-medium">
+      {/* Info básica */}
+      <div className="w-full mt-4 space-y-1 text-sm text-left">
+        <div className="flex justify-between text-[#2E7C19] font-medium">
           <span>Nombre</span>
-          <span className="text-[#101010]">{profileData.name || "—"}</span>
+          <span className="text-black">{profileData.name || "—"}</span>
         </div>
-        <div className="flex justify-between text-[#2E7D32] font-medium">
+        <div className="flex justify-between text-[#2E7C19] font-medium">
           <span>Correo</span>
-          <span className="text-[#101010]">{profileData.email || "—"}</span>
+          <span className="text-black">{profileData.email || "—"}</span>
         </div>
-        <div className="flex justify-between text-[#2E7D32] font-medium">
+        <div className="flex justify-between text-[#2E7C19] font-medium">
           <span>Teléfono</span>
-          <span className="text-[#101010]">{profileData.phone || "—"}</span>
+          <span className="text-black">{profileData.phone || "—"}</span>
         </div>
-        <div className="flex justify-between text-[#2E7D32] font-medium">
+        <div className="flex justify-between text-[#2E7C19] font-medium">
           <span>Rol</span>
-          <span className="text-[#101010]">{profileData.roles || "—"}</span>
+          <span className="text-black">{profileData.roles || "—"}</span>
         </div>
       </div>
 
+      {/* Si es transportador, mostrar detalles del vehículo */}
+      {lowerRole.includes("transportador") && (
+        <>
+          <hr className="my-4 w-full border-gray-300" />
+          <div className="w-full space-y-1 text-sm text-left">
+            <div className="flex justify-between text-[#2E7C19] font-medium">
+              <span>Tipo de Vehículo</span>
+              <span className="text-black">{profileData.tipoVehiculo || "—"}</span>
+            </div>
+            <div className="flex justify-between text-[#2E7C19] font-medium">
+              <span>Placa</span>
+              <span className="text-black">{profileData.tarjetaPropiedad || "—"}</span>
+            </div>
+            <div className="flex justify-between text-[#2E7C19] font-medium">
+              <span>Licencia de Conducción</span>
+              <span className="text-black">{profileData.licenciaConduccion || "—"}</span>
+            </div>
+            <div className="flex justify-between text-[#2E7C19] font-medium">
+              <span>SOAT</span>
+              <span className="text-black">{profileData.soat || "—"}</span>
+            </div>
+            <div className="flex justify-between text-[#2E7C19] font-medium">
+              <span>Peso del vehículo</span>
+              <span className="text-black">{profileData.pesoVehiculo || "—"}</span>
+            </div>
+          </div>
+
+          {/* Carrusel simple de imagen */}
+          {profileData.fotosVehiculo && (
+            <div className="mt-4">
+              <Slider
+                fotos={profileData.fotosVehiculo.split(",").map((f) => f.trim())}
+                nombre={profileData.name}
+              />
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Botones si no es transportador o vendedor */}
       <div className="w-full mt-4 space-y-2">
         {!lowerRole.includes("transportador") && (
           <button
             onClick={() => navigate("/formulariotransportador")}
-            className="w-60 bg-[#28A745] text-white py-2 rounded-xl font-semibold hover:bg-[#379e1b] transition-colors"
+            className="w-full bg-[#28A745] text-white py-2 rounded-xl font-semibold hover:bg-[#379e1b] transition-colors"
           >
             Formulario para transportador
           </button>
         )}
 
-        {!lowerRole.includes("vendedor") && (
-          <PeticionVendedor />
-        )}
+        {!lowerRole.includes("vendedor") && <PeticionVendedor />}
       </div>
     </motion.aside>
   );
 };
 
 export default UserProfileCard;
+
+// Carrusel de fotos del vehículo
+function Slider({ fotos, nombre }: { fotos: string[]; nombre: string }) {
+  const [index, setIndex] = useState(0);
+
+  const siguiente = () => setIndex((prev) => (prev + 1) % fotos.length);
+  const anterior = () => setIndex((prev) => (prev - 1 + fotos.length) % fotos.length);
+
+  return (
+    <div className="relative w-44 h-28 rounded overflow-hidden shadow bg-white mx-auto">
+      <img
+        src={fotos[index]}
+        alt={`Foto ${index + 1} de ${nombre}`}
+        className="w-full h-full object-cover"
+        onError={(e) => (e.currentTarget.src = "/img/default-car.png")}
+      />
+      {fotos.length > 1 && (
+        <>
+          <button
+            onClick={anterior}
+            className="absolute left-1 top-1/2 transform -translate-y-1/2 text-white text-xs bg-black/50 px-2 rounded"
+          >
+            ‹
+          </button>
+          <button
+            onClick={siguiente}
+            className="absolute right-1 top-1/2 transform -translate-y-1/2 text-white text-xs bg-black/50 px-2 rounded"
+          >
+            ›
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
