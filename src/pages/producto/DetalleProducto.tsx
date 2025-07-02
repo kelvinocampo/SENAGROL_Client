@@ -8,6 +8,7 @@ import Header from "@components/Header";
 import Footer from "@components/footer";
 import { motion } from "framer-motion";
 import { ProductCard } from "@/components/ProductsManagement/ProductCard";
+import FallingLeaves from "@/components/FallingLeaf";
 
 export default function DetalleProducto() {
   const { id } = useParams();
@@ -53,16 +54,18 @@ export default function DetalleProducto() {
 
   return (
     <div className="font-[Fredoka] min-h-screen flex flex-col bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3]">
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <FallingLeaves quantity={20} />
+      </div>
       <Header />
       <BackToHome />
-
-      <div className="flex-grow">
+      <div className="flex-grow relative">
         <section className="lg:hidden p-4">
           <ProductCard product={producto} isDetailView />
         </section>
 
         <motion.section
-          className="hidden lg:grid w-[92%] max-w-7xl mx-auto mt-6 grid-cols-[490px_1fr] gap-10 p-10"
+          className="hidden lg:grid w-[92%] max-w-7xl mx-auto mt-6 grid-cols-[490px_1fr] gap-10 p-10 "
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}

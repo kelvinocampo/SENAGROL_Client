@@ -1,6 +1,6 @@
 // src/pages/producto/PaginaProductos.tsx
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -59,10 +59,13 @@ export default function PaginaProductos() {
 
   const productos = productosFiltrados.slice(0, limiteProductos);
 
-  const carrusel = [...discountedProducts]
-    .filter((p) => !p.eliminado && !p.despublicado)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 8);
+  // 🔒 Carrusel memorizado para que no se regenere en cada render
+  const carrusel = useMemo(() => {
+    return [...discountedProducts]
+      .filter((p) => !p.eliminado && !p.despublicado)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 8);
+  }, [discountedProducts]);
 
   return (
     <>
