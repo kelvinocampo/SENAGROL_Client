@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import TransportService from "@/services/Perfil/ListarMisTransportes";
-import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@components/admin/common/ConfirmDialog";
 import ManualCodeForm from "@components/perfil/CodigoTransportador";
 import ModalEscanearQr from "@components/perfil/EscanearQr";
+import ModalUbicacionCompra from "@pages/Perfil/UbicacionCompra";
 
 type Compra = {
   id_compra: number;
@@ -23,13 +23,17 @@ const estadoColor: Record<Compra["estado"], string> = {
 
 const TransportesContenido: React.FC = () => {
   const [compras, setCompras] = useState<Compra[]>([]);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [compraPendiente, setCompraPendiente] = useState<Compra | null>(null);
   const [toast, setToast] = useState<{ mensaje: string; tipo: "success" | "error" } | null>(null);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [accionPendiente, setAccionPendiente] = useState<{
+    tipo: "codigo" | "qr" | "ubicacion" | "cancelar";
+    compra: Compra;
+  } | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalQrOpen, setModalQrOpen] = useState(false);
-  const [selectedCompraId, setSelectedCompraId] = useState<number | null>(null);
+  const [modalUbicacionOpen, setModalUbicacionOpen] = useState(false);
 
   const cargarTransportes = async () => {
     try {
@@ -45,15 +49,33 @@ const TransportesContenido: React.FC = () => {
     cargarTransportes();
   }, []);
 
-  const cancelar = async () => {
-    if (!compraPendiente) return;
-    try {
-      await TransportService.cancelarCompra(compraPendiente.id_compra);
-      setToast({ mensaje: "Compra cancelada correctamente", tipo: "success" });
-      cargarTransportes();
-    } catch {
-      setToast({ mensaje: "Error al cancelar la compra", tipo: "error" });
+  const ejecutarAccion = async () => {
+    if (!accionPendiente) return;
+    const { tipo, compra } = accionPendiente;
+
+    switch (tipo) {
+      case "cancelar":
+        try {
+          await TransportService.cancelarCompra(compra.id_compra);
+          setToast({ mensaje: "Compra cancelada correctamente", tipo: "success" });
+          cargarTransportes();
+        } catch {
+          setToast({ mensaje: "Error al cancelar la compra", tipo: "error" });
+        }
+        break;
+      case "codigo":
+        setModalOpen(true);
+        break;
+      case "qr":
+        setModalQrOpen(true);
+        break;
+      case "ubicacion":
+        setModalUbicacionOpen(true);
+        break;
     }
+
+    setAccionPendiente(null);
+    setConfirmOpen(false);
   };
 
   const countByEstado = {
@@ -99,106 +121,113 @@ const TransportesContenido: React.FC = () => {
       </div>
 
       {/* Tabla */}
-      <div className="overflow-x-auto border rounded-xl shadow bg-white">
-        <table className="w-full table-auto text-sm text-center">
-          <thead className="bg-white text-black font-bold">
-            <tr>
-              <th className="px-4 py-2 whitespace-nowrap">Estado</th>
-              <th className="px-4 py-2 whitespace-nowrap">Fecha Entrega</th>
-              <th className="px-4 py-2 whitespace-nowrap">Vendedor</th>
-              <th className="px-4 py-2 whitespace-nowrap">Producto</th>
-              <th className="px-4 py-2 whitespace-nowrap">Cantidad</th>
-              <th className="px-4 py-2 whitespace-nowrap">Precio Transporte</th>
-              <th className="px-4 py-2 whitespace-nowrap">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {compras.map((compra, index) => (
-              <tr key={compra.id_compra} className="border-b hover:bg-[#f4fcf1]">
-                <td className="px-2 py-2 whitespace-nowrap">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${estadoColor[compra.estado]}`}
-                    style={{
-                      backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#DCFCE7",
-                    }}
-                  >
-                    {compra.estado}
-                  </span>
-                </td>
-                <td>{new Date(compra.fecha_entrega).toLocaleDateString()}</td>
-                <td>{compra.vendedor_nombre}</td>
-                <td>{compra.producto_nombre}</td>
-                <td>{compra.cantidad}</td>
-                <td className="text-green-700 font-semibold">${compra.precio_transporte}</td>
-                <td className="whitespace-nowrap space-y-1 sm:space-y-0 sm:space-x-1 flex flex-col sm:flex-row items-center justify-center">
-                  <button
-                    onClick={() => {
-                      setSelectedCompraId(compra.id_compra);
-                      setModalOpen(true);
-                    }}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 text-xs rounded"
-                  >
-                    Código
-                  </button>
+    <div className="overflow-x-auto rounded-xl border border-[#48bd28] shadow bg-white">
+  <table className="w-full table-auto text-sm text-center rounded-xl overflow-hidden">
+    <thead className="bg-white text-black font-bold">
+      <tr>
+        <th className="px-4 py-2">Estado</th>
+        <th className="px-4 py-2">Fecha Entrega</th>
+        <th className="px-4 py-2">Vendedor</th>
+        <th className="px-4 py-2">Producto</th>
+        <th className="px-4 py-2">Cantidad</th>
+        <th className="px-4 py-2">Precio transporte</th>
+        <th className="px-4 py-2">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {compras.map((compra, index) => (
+        <tr
+          key={compra.id_compra}
+          className={`${index % 2 === 0 ? "bg-[#f4fcf1]" : "bg-white"}`}
+        >
+          <td className="px-2 py-2">
+            <span
+              className={`px-2 py-1 rounded text-xs font-medium ${estadoColor[compra.estado]}`}
+            >
+              {compra.estado}
+            </span>
+          </td>
+          <td>{new Date(compra.fecha_entrega).toLocaleString()}</td>
+          <td>{compra.vendedor_nombre}</td>
+          <td>{compra.producto_nombre}</td>
+          <td>{compra.cantidad}</td>
+          <td className="text-green-700 font-semibold">
+            ${compra.precio_transporte.toLocaleString()}
+          </td>
+          <td className="flex flex-wrap sm:flex-nowrap justify-center gap-1 px-2 py-1">
+            <button
+              onClick={() => {
+                setAccionPendiente({ tipo: "codigo", compra });
+                setConfirmOpen(true);
+              }}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 text-xs rounded"
+            >
+              Código
+            </button>
 
-                  <button
-                    onClick={() => {
-                      setSelectedCompraId(compra.id_compra);
-                      setModalQrOpen(true);
-                    }}
-                    className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 text-xs rounded"
-                  >
-                    QR
-                  </button>
+            <button
+              onClick={() => {
+                setAccionPendiente({ tipo: "qr", compra });
+                setConfirmOpen(true);
+              }}
+              className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 text-xs rounded"
+            >
+              QR
+            </button>
 
-                  <Link to={`/ubicacion/${compra.id_compra}`} className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 text-xs rounded">
-                    Ubicación
-                  </Link>
+            <button
+              onClick={() => {
+                setAccionPendiente({ tipo: "ubicacion", compra });
+                setConfirmOpen(true);
+              }}
+              className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 text-xs rounded"
+            >
+              Ubicación
+            </button>
 
-                  {compra.estado === "Asignada" && (
-                    <button
-                      onClick={() => {
-                        setCompraPendiente(compra);
-                        setConfirmOpen(true);
-                      }}
-                      className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 text-xs rounded"
-                    >
-                      Cancelar
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            {compra.estado === "Asignada" && (
+              <button
+                onClick={() => {
+                  setAccionPendiente({ tipo: "cancelar", compra });
+                  setConfirmOpen(true);
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 text-xs rounded"
+              >
+                Cancelar
+              </button>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
-      {/* Confirmación de cancelación */}
+
+
+      {/* Confirmación genérica para todas las acciones */}
       <ConfirmDialog
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
-        onConfirm={cancelar}
-        title="Cancelar transporte"
-        message="¿Está seguro de cancelar el transporte?"
+        onConfirm={ejecutarAccion}
+        title="Confirmar acción"
+        message={`¿Está seguro que desea continuar con la acción "${
+          accionPendiente?.tipo || ""
+        }"?`}
       />
 
-      {/* Modal Código Manual */}
-      {modalOpen && (
-        <ManualCodeForm
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-          compraId={selectedCompraId}
-        />
+      {/* Modales */}
+      {modalOpen && accionPendiente?.compra && (
+        <ManualCodeForm isOpen={modalOpen} onClose={() => setModalOpen(false)} compraId={accionPendiente.compra.id_compra} />
       )}
 
-      {/* Modal Escanear QR */}
-    {modalQrOpen && (
-<ModalEscanearQr
-  isOpen={modalQrOpen}
-  onClose={() => setModalQrOpen(false)}
-  compraId={selectedCompraId ?? undefined} // <- Aquí
-/>
-)}
+      {modalQrOpen && accionPendiente?.compra && (
+        <ModalEscanearQr isOpen={modalQrOpen} onClose={() => setModalQrOpen(false)} compraId={accionPendiente.compra.id_compra} />
+      )}
+
+      {modalUbicacionOpen && accionPendiente?.compra && (
+        <ModalUbicacionCompra id={accionPendiente.compra.id_compra} onClose={() => setModalUbicacionOpen(false)} />
+      )}
     </div>
   );
 };

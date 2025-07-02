@@ -109,7 +109,7 @@ const QrScanner: React.FC<Props> = ({ isOpen, onClose, compraId }) => {
         exit={{ scale: 0.95 }}
         className="bg-white rounded-xl p-6 shadow-xl w-full max-w-md text-center"
       >
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">Escáner QR</h1>
+        <h1 className="text-2xl font-bold mb-4 text-gray-800">Código QR</h1>
 
         <div className="rounded-lg overflow-hidden border border-gray-300">
           <video ref={videoRef} className="w-full h-auto" autoPlay muted />
@@ -118,39 +118,36 @@ const QrScanner: React.FC<Props> = ({ isOpen, onClose, compraId }) => {
 
         <div className="mt-4">
           <AnimatePresence mode="wait">
-            {qrData ? (
-              <motion.p
-                key="code"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-green-600 font-semibold"
-              >
-                Código: {qrData}
-              </motion.p>
-            ) : (
-              <motion.p
-                key="scanning"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-gray-500"
-              >
-                Escaneando...
-              </motion.p>
-            )}
+            qrData ? (
+            <motion.p
+              key="code"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-green-600 font-semibold"
+            >
+              Código: {qrData}
+            </motion.p>
+            )
           </AnimatePresence>
 
           {message && (
-            <p className="mt-2 text-sm text-black font-medium">{message}</p>
+            <p className="mt-2 text-sm text-[#6B7280] font-medium">{message}</p>
           )}
-
-          <button
-            onClick={onClose}
-            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-          >
-            Cerrar
-          </button>
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={onClose}
+              className="mt-4 bg-[#D9D9D9] text-black px-4 py-2 rounded-xl hover:bg-gray-700"
+            >
+              Cerrar
+            </button>
+            <button
+              onClick={onClose}
+              className="mt-4 bg-[#48BD28] text-white px-3 py-2 rounded-xl hover:bg-green-700"
+            >
+              confirmar
+            </button>
+          </div>
         </div>
       </motion.div>
     </motion.div>

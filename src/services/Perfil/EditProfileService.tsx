@@ -1,39 +1,41 @@
-export const updateUserProfile = async (formData: {
-  name: string;
-  username: string;
-  email: string;
-  phone: string;
-  password?: string;
-  license?: string;
-  soat?: string;
-  vehicleCard?: string;
-  vehicleType?: string;
-  vehicleWeight?: number;
-  roles: string[];
-}) => {
+// services/Perfil/EditProfileService.ts
+
+export const updateUserProfile = async (formData: any, vehicleFiles: File[]) => {
   try {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("No se encontró el token de autenticación.");
 
-    const cleanedData = Object.fromEntries(
-      Object.entries(formData).filter(([_, v]) => v !== undefined && v !== "")
-    );
+    const form = new FormData();
+
+    // Asegúrate de enviar los campos EXACTOS que espera el backend
+    form.append("id_user", formData.id_user);
+    form.append("name", formData.name);
+    form.append("username", formData.username);
+    form.append("email", formData.email);
+    form.append("phone", formData.phone);
+    if (formData.password) form.append("password", formData.password);
+
+    form.append("license", formData.license || "");
+    form.append("soat", formData.soat || "");
+    form.append("vehicleCard", formData.vehicleCard || "");
+    form.append("vehicleType", formData.vehicleType || "");
+    form.append("vehicleWeight", formData.vehicleWeight?.toString() || "0");
+
+    // Agrega imágenes
+    for (const file of vehicleFiles) {
+      form.append("imagen", file); // este campo debe llamarse igual que en el backend
+    }
 
     const response = await fetch("https://senagrol.up.railway.app/usuario/edit", {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        // ⚠️ NO pongas Content-Type si estás usando FormData
       },
-      body: JSON.stringify(cleanedData),
+      body: form,
     });
 
     const data = await response.json();
-
-    if (process.env.NODE_ENV === "development") {
-      console.log("Datos enviados a backend:", cleanedData);
-      console.log("Respuesta del servidor:", response, data);
-    }
 
     if (!response.ok) {
       throw new Error(`${response.status} - ${data.message || data.error || "Error al actualizar el perfil."}`);

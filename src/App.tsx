@@ -20,7 +20,6 @@ import QrView from "@components/ProductsManagement/codigoqr";
 import CodeGenerator from "@components/ProductsManagement/codigounico";
 import { IA } from "@pages/IA";
 import Transportadores from "@/pages/Perfil/ListaTransportadores";
-import UbicacionCompra from "@/pages/Perfil/UbicacionCompra";
 import { Chats } from "@pages/Chats/Chats";
 import { ProductManagement } from "@pages/Perfil/ProductsManagement";
 import { AdminManagement } from "@pages/AdminManagement";
@@ -84,7 +83,6 @@ function App() {
             <Route path="/IA" element={<IA />} />
             <Route path="/transporte/:id_compra" element={<Transportadores />} />
             <Route path="/chats/*" element={<Chats />} />
-            <Route path="/ubicacion/:id" element={<UbicacionCompra />} />
             <Route path="/pago/:id" element={<PagoWrapper />} />
             
 
