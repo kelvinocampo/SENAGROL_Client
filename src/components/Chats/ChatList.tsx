@@ -32,7 +32,7 @@ export const ChatsList = () => {
     return {
       name: isUser1 ? chat.nombre_user2 : chat.nombre_user1,
       blocked: chat.estado === "Bloqueado",
-      role: "Vendedor", // Se muestra siempre como Vendedor
+      role: "Vendedor",
     };
   };
 
@@ -70,95 +70,99 @@ export const ChatsList = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const wrapperCls = "flex flex-col gap-1 overflow-y-auto max-h-[300px] pb-2";
   const itemBase =
     "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors";
   const activeStyle = "bg-[#48BD28] text-white";
   const inactiveStyle = "bg-white text-black hover:bg-[#d9f7c6]";
 
   return (
-    <div className={wrapperCls}>
-      {chats.length === 0 ? (
-        <p className="text-center text-gray-500 py-4 text-sm">No hay chats</p>
-      ) : (
-        chats.map((chat: any) => {
-          const other = getOtherUser(chat);
-          const isActive = String(chat.id_chat) === currentChatId;
-          const isMenuOpen = openMenuId === chat.id_chat;
+    <div className="relative overflow-visible">
+      <div className="flex flex-col gap-1 max-h-[300px] pb-2 pr-1 overflow-visible">
+        {chats.length === 0 ? (
+          <p className="text-center text-gray-500 py-4 text-sm">No hay chats</p>
+        ) : (
+          chats.map((chat: any) => {
+            const other = getOtherUser(chat);
+            const isActive = String(chat.id_chat) === currentChatId;
+            const isMenuOpen = openMenuId === chat.id_chat;
 
-          return (
-            <div key={chat.id_chat} className="relative">
-              <div
-                className={`${itemBase} ${isActive ? activeStyle : inactiveStyle}`}
-                onClick={() => navigate(`/chats/chat/${chat.id_chat}`)}
-              >
-                {/* Nombre y rol */}
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="font-semibold text-sm truncate">
-                    {other.name}
-                  </span>
-                  <span className="text-xs text-gray-500">{other.role}</span>
-                </div>
-
-                {/* Etiqueta "Bloqueado" */}
-                {other.blocked && (
-                  <span className="text-[10px] text-white bg-red-500 px-2 py-[2px] rounded-full mx-2 whitespace-nowrap">
-                    Bloqueado
-                  </span>
-                )}
-
-                {/* Botón menú */}
-                <button
-                  className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-black/10"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenMenuId((prev) =>
-                      prev === chat.id_chat ? null : chat.id_chat
-                    );
-                  }}
-                >
-                  {isMenuOpen ? <FiX /> : <FiMoreVertical />}
-                </button>
-              </div>
-
-              {/* Menú desplegable */}
-              {isMenuOpen && (
+            return (
+              <div key={chat.id_chat} className="relative overflow-visible">
                 <div
-                  ref={menuRef}
-                  className="absolute right-0 top-10 bg-white border border-gray-200 rounded shadow-lg z-20 overflow-hidden"
+                  className={`${itemBase} ${isActive ? activeStyle : inactiveStyle}`}
+                  onClick={() => navigate(`/chats/chat/${chat.id_chat}`)}
                 >
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="font-semibold text-sm truncate">
+                      {other.name}
+                    </span>
+                    <span className="text-xs text-gray-500">{other.role}</span>
+                  </div>
+
+                  {other.blocked && (
+                    <span className="text-[10px] text-white bg-red-500 px-2 py-[2px] rounded-full mx-2 whitespace-nowrap">
+                      Bloqueado
+                    </span>
+                  )}
+
                   <button
-                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      openConfirm(
-                        other.blocked ? "Desbloquear chat" : "Bloquear chat",
-                        `¿Seguro que deseas ${
-                          other.blocked ? "desbloquear" : "bloquear"
-                        } este chat?`,
-                        () => performBlockUnblock(chat.id_chat, other.blocked)
-                      )
-                    }
+                    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-black/10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenMenuId((prev) =>
+                        prev === chat.id_chat ? null : chat.id_chat
+                      );
+                    }}
                   >
-                    {other.blocked ? "Desbloquear" : "Bloquear"}
-                  </button>
-                  <button
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                    onClick={() =>
-                      openConfirm(
-                        "Eliminar chat",
-                        "¿Seguro que deseas eliminar este chat? Esta acción es irreversible.",
-                        () => performDelete(chat.id_chat)
-                      )
-                    }
-                  >
-                    Eliminar
+                    {isMenuOpen ? <FiX /> : <FiMoreVertical />}
                   </button>
                 </div>
-              )}
-            </div>
-          );
-        })
-      )}
+
+                {/* Menú desplegable */}
+                {isMenuOpen && (
+                  <div
+                    ref={menuRef}
+                    className="absolute z-50 left-64 top-13 -translate-y-1/2 ml-2"
+                  >
+                    {/* Flecha */}
+                    <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-r-8 border-r-white shadow-md"></div>
+
+                    {/* Menú */}
+                    <div className="w-44 bg-[#E2E2E2] border border-gray-200 rounded-lg shadow-xl overflow-visible">
+                      <button
+                        className="w-42 text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
+                        onClick={() =>
+                          openConfirm(
+                            other.blocked ? "Desbloquear chat" : "Bloquear chat",
+                            `¿Seguro que deseas ${
+                              other.blocked ? "desbloquear" : "bloquear"
+                            } este chat?`,
+                            () => performBlockUnblock(chat.id_chat, other.blocked)
+                          )
+                        }
+                      >
+                        {other.blocked ? "Desbloquear chat" : "Bloquear chat"}
+                      </button>
+                      <button
+                        className="w-42 text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
+                        onClick={() =>
+                          openConfirm(
+                            "Eliminar chat",
+                            "¿Seguro que deseas eliminar este chat? Esta acción es irreversible.",
+                            () => performDelete(chat.id_chat)
+                          )
+                        }
+                      >
+                        Eliminar chat
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
 
       {/* Diálogo de confirmación */}
       <ConfirmDialog

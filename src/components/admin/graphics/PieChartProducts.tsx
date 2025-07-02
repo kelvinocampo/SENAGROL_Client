@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from "react";
 import {
   ResponsiveContainer,
   PieChart,
@@ -6,14 +6,17 @@ import {
   Tooltip,
   Cell,
   Legend,
-} from 'recharts';
-import { ProductManagementContext } from '@/contexts/admin/ProductsManagement';
+} from "recharts";
+import { ProductManagementContext } from "@/contexts/admin/ProductsManagement";
 
-const COLORS = ['#48bd28', '#a0eb8a', '#caf5bd', '#205116', '#6dd850', '#e4fbdd', '#f4fcf1', '#379e1b'];
+const COLORS = [
+  "#48bd28", "#6dd850", "#a0eb8a", "#caf5bd",
+  "#e4fbdd", "#f4fcf1", "#379e1b", "#205116"
+];
 
 const getMonthName = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleString('default', { month: 'long' });
+  return date.toLocaleString("default", { month: "long" });
 };
 
 export const PieChartProductsByMonth = () => {
@@ -25,7 +28,7 @@ export const PieChartProductsByMonth = () => {
   useEffect(() => {
     try {
       if (!context || !context.products) {
-        setNoData(true); // Flujo Interno 2
+        setNoData(true);
         return;
       }
 
@@ -41,14 +44,13 @@ export const PieChartProductsByMonth = () => {
       }));
 
       if (formattedData.length === 0) {
-        setNoData(true); // Flujo Interno 2
+        setNoData(true);
       } else {
         setData(formattedData);
         setNoData(false);
       }
-
     } catch (err) {
-      setError(true); // Flujo Interno 1
+      setError(true);
       setTimeout(() => {
         window.location.reload();
       }, 3000);
@@ -72,31 +74,38 @@ export const PieChartProductsByMonth = () => {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4 text-center">Productos creados por mes</h2>
-      <ResponsiveContainer width="100%" height={500}>
+    <div className="bg-white rounded-2xl shadow-md p-6 w-full max-w-xl mx-auto">
+
+      <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
             data={data}
             dataKey="value"
             nameKey="name"
             cx="50%"
-            cy="45%"
-            outerRadius={150}
-            label
+            cy="50%"
+            outerRadius={100}
+            label={({ name, percent }) =>
+              `${name} (${(percent * 100).toFixed(0)}%)`
+            }
           >
             {data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
             ))}
           </Pie>
           <Tooltip />
           <Legend
-            verticalAlign="bottom"
-            height={36}
+            align="right"
+            layout="vertical"
             iconType="circle"
-            formatter={(value) => (
-              <span className="capitalize text-sm text-gray-700">{value}</span>
-            )}
+            wrapperStyle={{
+              paddingLeft: "20px",
+              fontSize: "14px",
+              color: "#205116",
+            }}
           />
         </PieChart>
       </ResponsiveContainer>

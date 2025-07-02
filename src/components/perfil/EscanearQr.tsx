@@ -3,13 +3,22 @@ import jsQR from "jsqr";
 import { receiveBuyCode } from "@/services/Perfil/EscanearQr&codigo";
 import { motion, AnimatePresence } from "framer-motion";
 
-const QrScanner: React.FC = () => {
+type Props = {
+  isOpen: boolean;
+  onClose: () => void;
+  compraId?: number;
+};
+
+const QrScanner: React.FC<Props> = ({ isOpen, onClose, compraId }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [qrData, setQrData] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [scanned, setScanned] = useState(false);
 
   const token = localStorage.getItem("token") || "";
+
+  if (!isOpen) return null;
 
   useEffect(() => {
     const startCamera = async () => {
@@ -27,10 +36,13 @@ const QrScanner: React.FC = () => {
         requestAnimationFrame(scan);
       } catch (err) {
         console.error("Error al acceder a la cámara", err);
+        setMessage("No se pudo acceder a la cámara.");
       }
     };
 
     const scan = () => {
+      if (scanned) return;
+
       const video = videoRef.current;
       const canvas = canvasRef.current;
 
@@ -48,6 +60,7 @@ const QrScanner: React.FC = () => {
         if (code) {
           const codigo = code.data;
           setQrData(codigo);
+          setScanned(true);
           handleSendToBackend(codigo);
         } else {
           requestAnimationFrame(scan);
@@ -59,10 +72,16 @@ const QrScanner: React.FC = () => {
 
     const handleSendToBackend = async (codigo: string) => {
       try {
-        const res = await receiveBuyCode(codigo, token);
+        const res = await receiveBuyCode(codigo, token, compraId);
         setMessage(`Compra actualizada correctamente: ${res.message || "OK"}`);
+
+        setTimeout(() => {
+          onClose(); // cerrar modal después de éxito
+        }, 2000);
       } catch (err: any) {
         setMessage(`Error al actualizar: ${err.message}`);
+        setScanned(false); // permitir reintento
+        requestAnimationFrame(scan);
       }
     };
 
@@ -75,85 +94,64 @@ const QrScanner: React.FC = () => {
         tracks.forEach((track) => track.stop());
       }
     };
-  }, [token]);
+  }, [token, compraId]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.6 }}
-      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br  p-6"
+      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
     >
-      <motion.h1
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2 }}
-        className="text-3xl font-bold text-gray-800 mb-6"
-      >
-        Escáner QR
-      </motion.h1>
-
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="rounded-xl shadow-lg overflow-hidden w-full max-w-md border border-gray-300"
+        initial={{ scale: 0.95 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0.95 }}
+        className="bg-white rounded-xl p-6 shadow-xl w-full max-w-md text-center"
       >
-        <video
-          ref={videoRef}
-          className="w-full h-auto"
-          autoPlay
-          muted
-        />
-      </motion.div>
+        <h1 className="text-2xl font-bold mb-4 text-gray-800">Escáner QR</h1>
 
-      <canvas ref={canvasRef} className="hidden" />
+        <div className="rounded-lg overflow-hidden border border-gray-300">
+          <video ref={videoRef} className="w-full h-auto" autoPlay muted />
+        </div>
+        <canvas ref={canvasRef} className="hidden" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="mt-6 p-4 bg-white rounded-xl shadow w-full max-w-md text-center"
-      >
-        <AnimatePresence mode="wait">
-          {qrData ? (
-            <motion.p
-              key="code"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 5 }}
-              className="text-green-600 font-semibold text-lg"
-            >
-              Código: {qrData}
-            </motion.p>
-          ) : (
-            <motion.p
-              key="scanning"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 5 }}
-              className="text-gray-500 text-base"
-            >
-              Escaneando...
-            </motion.p>
-          )}
-        </AnimatePresence>
+        <div className="mt-4">
+          <AnimatePresence mode="wait">
+            {qrData ? (
+              <motion.p
+                key="code"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-green-600 font-semibold"
+              >
+                Código: {qrData}
+              </motion.p>
+            ) : (
+              <motion.p
+                key="scanning"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-gray-500"
+              >
+                Escaneando...
+              </motion.p>
+            )}
+          </AnimatePresence>
 
-        <AnimatePresence>
           {message && (
-            <motion.p
-              key="message"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ delay: 0.2 }}
-              className="mt-2 text-sm text-black font-medium"
-            >
-              {message}
-            </motion.p>
+            <p className="mt-2 text-sm text-black font-medium">{message}</p>
           )}
-        </AnimatePresence>
+
+          <button
+            onClick={onClose}
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          >
+            Cerrar
+          </button>
+        </div>
       </motion.div>
     </motion.div>
   );

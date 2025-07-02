@@ -1,12 +1,8 @@
-/* -------------------------------------------------
-   src/components/Footer.tsx
-   – Footer al estilo maqueta
--------------------------------------------------- */
 import { motion } from "framer-motion";
 import {
   FaInstagram,
   FaFacebook,
-  FaWhatsapp, // cambié Google por WhatsApp para coincidir con la imagen
+  FaWhatsapp,
 } from "react-icons/fa";
 import senagrolLogo from "@assets/senagrol.png";
 
@@ -19,16 +15,16 @@ const socialIcons = [
 const Footer = () => {
   return (
     <motion.footer
-      className="bg-[#f4fcf1] border-t-[1px] border-[#c7f6c3] font-[Fredoka] text-[#205116] relative overflow-hidden"
+      className="bg-white border-t-[1px]  border-[#c7f6c3] font-[Fredoka] text-[#205116] relative bottom-0 overflow-hidden"
       initial={{ y: 80, opacity: 0 }}
       whileInView={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       viewport={{ once: true }}
     >
-      {/* --- Contenido principal --- */}
-      <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-10">
-        {/* Columna izquierda – Servicio de contacto + Social */}
-        <div className="flex flex-col sm:flex-row gap-14 md:gap-20">
+      {/* Contenido principal */}
+      <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
+        {/* Contacto y Social en una misma columna */}
+        <div className="flex flex-col md:flex-row gap-16 md:gap-24">
           {/* Servicio de contacto */}
           <div>
             <h4 className="uppercase text-xs font-bold tracking-wider mb-3">
@@ -105,7 +101,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Columna derecha – Logo */}
+        {/* Logo */}
         <motion.div
           className="flex flex-col items-center md:items-end"
           initial={{ x: 80, opacity: 0 }}
@@ -122,7 +118,7 @@ const Footer = () => {
         </motion.div>
       </div>
 
-      {/* --- Línea divisoria y copyright --- */}
+      {/* Línea y Copyright */}
       <hr className="border-t border-[#c7f6c3]" />
       <p className="text-center text-xs py-4 text-[#205116]">
         Copyright © Senagrol

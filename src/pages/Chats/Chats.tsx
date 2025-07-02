@@ -8,6 +8,7 @@ import { ChatsProvider, ChatsContext } from "@/contexts/Chats";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import { AnimatePresence } from "framer-motion";
+import FallingLeaves from "@/components/FallingLeaf";
 
 export const Chats = () => {
   const location = useLocation();
@@ -21,14 +22,18 @@ export const Chats = () => {
 
   return (
     <ChatsProvider>
-      <div className="min-h-screen font-[Fredoka] bg-[#F4FCF1] relative">
-        {/* Fondo decorativo */}
 
-        {/* Encabezado */}
-        <header className="sticky top-0 z-20 w-full h-20 flex items-center justify-between px-4 bg-[#F4FCF1] shadow-md">
-          <Header />
+      <div className="min-h-screen flex flex-col bg-[#F4FCF1] font-[Fredoka]">
+        <div className="fixed inset-0 pointer-events-none z-0">
+          <FallingLeaves quantity={20} />
+        </div>
+        {/* Header */}
+        <Header />
+
+        {/* Botón para abrir el menú en móvil */}
+        <div className="md:hidden px-4 pt-2">
           <button
-            className="md:hidden p-2 rounded-md hover:bg-gray-200"
+            className="p-2 rounded-md hover:bg-gray-200"
             onClick={() => setSidebarOpen(true)}
             aria-label="Abrir menú"
           >
@@ -36,21 +41,18 @@ export const Chats = () => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-        </header>
+        </div>
 
-        <div className="flex flex-col md:flex-row">
+        {/* Contenido principal con flex y responsividad */}
+        <div className="flex flex-1 flex-col md:flex-row px-4 md:px-10 pt-4 gap-4 pb-2">
           {/* Sidebar */}
-          
+          <div className="w-full md:w-[280px] lg:w-[300px]">
             <NavBarChats isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          </div>
 
-
-          {/* Contenido principal */}
-          <main
-            className={`flex-1 p-4 md:p-6 transition-all duration-300 ${sidebarOpen ? "blur-sm pointer-events-none" : ""}`}
-            onClick={() => sidebarOpen && setSidebarOpen(false)}
-          >
+          {/* Main content area */}
+          <main className="flex-1 min-h-0 overflow-hidden rounded-xl transition-all duration-300">
             <Routes location={location} key={location.pathname}>
-              {/* Inicio */}
               <Route
                 path=""
                 element={(() => {
@@ -67,8 +69,6 @@ export const Chats = () => {
                   );
                 })()}
               />
-
-              {/* Lista de chats */}
               <Route
                 path="chats"
                 element={
@@ -77,8 +77,6 @@ export const Chats = () => {
                   </AnimatePresence>
                 }
               />
-
-              {/* Lista de usuarios */}
               <Route
                 path="usuarios"
                 element={
@@ -87,8 +85,6 @@ export const Chats = () => {
                   </AnimatePresence>
                 }
               />
-
-              {/* Conversación individual */}
               <Route
                 path="chat/:id_chat"
                 element={
@@ -101,7 +97,10 @@ export const Chats = () => {
           </main>
         </div>
 
-        <Footer />
+        {/* Footer */}
+        <footer className="mt-auto w-full border-t border-black/10 bg-white">
+          <Footer />
+        </footer>
       </div>
     </ChatsProvider>
   );

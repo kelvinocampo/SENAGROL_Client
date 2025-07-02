@@ -19,7 +19,7 @@ type InputProps = {
   inputClassName?: string;
   accept?: string;
   multiple?: boolean;
-  showPreview?: boolean; // si quieres mostrar vista previa para imágenes
+  showPreview?: boolean;
 };
 
 export const Input = ({
@@ -42,8 +42,10 @@ export const Input = ({
   multiple = false,
   showPreview = false,
 }: InputProps) => {
-  const baseInputClasses =
-    "w-full mt-1 p-2 border rounded-xl focus:outline-none focus:border-[#48BD28]";
+  const baseInputClasses = `
+    w-full mt-1 p-2 rounded-xl bg-white border shadow-md
+    focus:outline-none focus:border-[#48BD28]
+  `;
   const errorClasses = error ? "border-red-500" : "border-gray-300";
   const combinedInputClasses = twMerge(baseInputClasses, errorClasses, inputClassName);
   const combinedContainerClasses = `w-full ${className}`;
@@ -51,23 +53,18 @@ export const Input = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    // Limpia la URL del objeto al desmontar o al cambiar de archivo
     return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (type === "file" && showPreview) {
       const file = e.target.files?.[0];
-      if (file && file.type.startsWith("image/")) {
+      if (file?.type.startsWith("image/")) {
         const url = URL.createObjectURL(file);
         setPreviewUrl(url);
-      } else {
-        setPreviewUrl(null);
-      }
+      } else setPreviewUrl(null);
     }
     onChange(e);
   };
@@ -75,7 +72,7 @@ export const Input = ({
   return (
     <div className={combinedContainerClasses}>
       {showLabel && (
-        <label htmlFor={name} className="block text-sm font-medium">
+        <label htmlFor={name} className="block text-sm font-medium text-[#205116]">
           {label}
           {required && <span className="text-red-500">*</span>}
         </label>
@@ -102,11 +99,7 @@ export const Input = ({
 
       {showPreview && previewUrl && (
         <div className="mt-2">
-          <img
-            src={previewUrl}
-            alt="Vista previa"
-            className="max-w-xs max-h-40 rounded-lg border"
-          />
+          <img src={previewUrl} alt="Vista previa" className="max-w-xs max-h-40 rounded-lg border" />
         </div>
       )}
 
@@ -118,3 +111,4 @@ export const Input = ({
     </div>
   );
 };
+

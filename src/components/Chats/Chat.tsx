@@ -43,7 +43,7 @@ export const Chat = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMessage, setConfirmMessage] = useState("");
-  const confirmAction = useRef<() => void>(() => {});
+  const confirmAction = useRef<() => void>(() => { });
 
   const openConfirmDialog = (
     title: string,
@@ -100,8 +100,6 @@ export const Chat = () => {
   const currentChat: Chat | null = !isNaN(chatIdParsed)
     ? chats.find((c) => c.id_chat === chatIdParsed) || null
     : null;
-
-
 
   const showError = (err: unknown, fallback: string) => {
     console.error(err);
@@ -191,7 +189,7 @@ export const Chat = () => {
   };
 
   /* ─── Envío de imagen ─────────────────────────────────────────── */
-   const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const sendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isBlocked) {
       setError("No puedes enviar mensajes a usuarios bloqueados");
       fileInputRef.current && (fileInputRef.current.value = "");
@@ -254,7 +252,7 @@ export const Chat = () => {
       setMediaRecorder(recorder);
       setRecording(true);
       setRecordingSeconds(0);
-      
+
       // Start timer
       recordingIntervalRef.current = setInterval(() => {
         setRecordingSeconds(prev => prev + 1);
@@ -318,20 +316,21 @@ export const Chat = () => {
       showError(err, "No se pudo eliminar mensaje");
     }
   };
-const isUser1 = currentChat?.id_user1 === currentUserId;
+  
+  const isUser1 = currentChat?.id_user1 === currentUserId;
+  const nombreUsuario = currentChat
+    ? isUser1
+      ? currentChat.nombre_user2
+      : currentChat.nombre_user1
+    : "";
 
-const nombreUsuario = currentChat
-  ? isUser1
-    ? currentChat.nombre_user2
-    : currentChat.nombre_user1
-  : "";
-
-const rolUsuario = currentChat
-  ? (isUser1
+  const rolUsuario = currentChat
+    ? (isUser1
       ? currentChat.rol_user2
       : currentChat.rol_user1
     ).split(",").map(r => r.trim())
-  : [];
+    : [];
+
   /* ─── Socket listeners ────────────────────────────────────────── */
   useEffect(() => {
     if (!socket || currentUserId == null || chatExists !== true) return;
@@ -390,7 +389,7 @@ const rolUsuario = currentChat
 
     if (!chat) {
       setChatExists(false);
-      return; 
+      return;
     }
 
     setChatExists(true);
@@ -456,340 +455,310 @@ const rolUsuario = currentChat
   }
 
   return (
-    <div className="flex flex-col h-screen w-full bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] font-[Fredoka]">
+    <div className=" flex flex-col h-screen sm:h-150 w-full font-[Fredoka]">
       {/* ╭─ Header ────────────────────────────────────────────╮ */}
-     <header className="px-4 py-3 border-b border-black/10">
-  <div className="flex items-center justify-between">
-    <div>
-      {/* Nombre */}
-      <h2 className="font-semibold text-sm sm:text-base truncate">
-        {nombreUsuario}
-      </h2>
+      <header className="px-4 py-3 border-b border-black/10">
+        <div className="flex items-center justify-between">
+          <div>
+            {/* Nombre */}
+            <h2 className="font-semibold text-sm sm:text-base truncate">
+              {nombreUsuario}
+            </h2>
 
-      {/* Roles */}
-      <div className="text-xs text-gray-600 mt-0.5">
-        {rolUsuario.join(", ")}
-      </div>
-    </div>
+            {/* Roles */}
+            <div className="text-xs text-gray-600 mt-0.5">
+              {rolUsuario.join(", ")}
+            </div>
+          </div>
 
-    {/* Estado bloqueado */}
-    {isBlocked && (
-      <span className="inline-flex items-center gap-1 text-[10px] bg-red-500/10 text-red-600 px-2 py-[2px] rounded-full">
-        <FiUserX /> Bloqueado
-      </span>
-    )}
-  </div>
-</header>
-
-
-
+          {/* Estado bloqueado */}
+          {isBlocked && (
+            <span className="inline-flex items-center gap-1 text-[10px] bg-red-500/10 text-red-600 px-2 py-[2px] rounded-full">
+              <FiUserX /> Bloqueado
+            </span>
+          )}
+        </div>
+      </header>
       {/* ╭─ Lista de mensajes ────────────────────────────────╮ */}
-      <main className="flex-1 overflow-y-auto px-4 py-5 space-y-6">
+      <main className="flex-1 min-h-0 overflow-auto px-3 sm:px-4 py-2 sm:py-5 space-y-4 sm:space-y-6">
         {loading && <p className="text-center text-gray-500">Cargando…</p>}
         {error && <p className="text-center text-red-600">{error}</p>}
         {!loading && messages.length === 0 && (
           <p className="text-center text-gray-500">No hay mensajes.</p>
         )}
 
-       {messages.map((msg) => {
-  const isMe = msg.id_user === currentUserId;
-  const bubble = isMe
-    ? "bg-[#D9D9D9] text-black"
-    : "bg-[#D9D9D9] text-black";
-  const align = isMe ? "justify-end" : "justify-start";
-  const pending = msg.estado === "enviando";
+        {messages.map((msg) => {
+          const isMe = msg.id_user === currentUserId;
+          const bubble = isMe
+            ? "bg-[#D9D9D9] text-black"
+            : "bg-[#D9D9D9] text-black";
+          const align = isMe ? "justify-end" : "justify-start";
+          const pending = msg.estado === "enviando";
 
-  return (
-    <div key={msg.id_mensaje} className={`flex ${align} gap-2`}>
-      {/* Avatar del otro usuario */}
-      {!isMe && (
-        <div className="flex items-center justify-center w-7 h-7 rounded-full bg-black mt-[4px]">
-          <FaCircleUser size={60} className="text-[#48BD28]" />
-        </div>
-      )}
+          // Si estamos editando este mensaje, mostramos el formulario de edición
+          if (editing?.id === msg.id_mensaje) {
+            return (
+              <div key={`edit-${msg.id_mensaje}`} className={`flex ${align} gap-2`}>
+                {!isMe && (
+                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-black mt-[4px]">
+                    <FaCircleUser size={60} className="text-[#48BD28]" />
+                  </div>
+                )}
 
-      {/* Contenedor del mensaje + menú */}
-      <div className="relative group max-w-[70%]">
-        {/* Botón del menú (3 puntos) */}
-        {isMe && (
-          <button
-            data-menu-btn={msg.id_mensaje}
-            onClick={() =>
-              setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)
-            }
-            className={`absolute -left-10 ${
-              msg.tipo === "imagen" ? "top-1/2 -translate-y-1/2" : "top-3"
-            } p-1.5 text-black`}
-          >
-            <IoIosMore />
-          </button>
-        )}
+                <div className="relative group max-w-[70%]">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      editMessage();
+                    }}
+                    className="bg-[#D9D9D9] rounded-2xl px-4 py-2 shadow"
+                  >
+                    <div className="flex items-center">
+                      <button
+                        type="button"
+                        onClick={() => setEditing(null)}
+                        title="Cancelar edición"
+                        className="text-black hover:text-red-800 mr-2"
+                      >
+                        <IoClose size={18} />
+                      </button>
+                      
+                      <input
+                        type="text"
+                        className="flex-grow bg-transparent text-sm outline-none"
+                        value={editing.content}
+                        onChange={(e) =>
+                          setEditing({ ...editing, content: e.target.value })
+                        }
+                        autoFocus
+                      />
+                      
+                      <button
+                        type="submit"
+                        title="Guardar cambios"
+                        className="text-green-800 hover:text-green-900 ml-2"
+                      >
+                        <IoMdSend size={20} />
+                      </button>
+                    </div>
+                  </form>
+                </div>
 
-        {/* Burbuja o contenido directamente */}
-        {msg.tipo === "imagen" ? (
-          <img
-            src={msg.contenido}
-            alt="img"
-            className="rounded-xl max-w-xs cursor-pointer shadow-none bg-transparent"
-            onClick={() => window.open(msg.contenido, "_blank")}
-          />
-        ) : (
-          <div
-            className={`rounded-2xl px-4 py-2 shadow ${bubble} ${
-              pending ? "opacity-60" : ""
-            }`}
-          >
-            {/* Contenido de texto o audio */}
-            {msg.tipo === "texto" && (
-              <p className="whitespace-pre-wrap">{msg.contenido}</p>
-            )}
+                {isMe && (
+                  <div className="flex items-center justify-center w-7 h-7 mt-[4px]">
+                    <FaCircleUser size={60} className="text-[#1B7D00]" />
+                  </div>
+                )}
+              </div>
+            );
+          }
 
-            {msg.tipo === "audio" && (
-              <audio controls src={msg.contenido} className="w-48" />
-            )}
-
-            {/* Etiquetas */}
-            <div className="flex justify-end text-[10px] gap-2 mt-1">
-              {msg.editado === 1 && (
-                <span className="italic opacity-70">(editado)</span>
+          // Mensaje normal (no en edición)
+          return (
+            <div key={msg.id_mensaje} className={`flex ${align} gap-2`}>
+              {!isMe && (
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-black mt-[4px]">
+                  <FaCircleUser size={60} className="text-[#48BD28]" />
+                </div>
               )}
-              {pending && <span className="animate-pulse">Enviando…</span>}
+
+              {/* Contenedor del mensaje + menú */}
+              <div className="relative group max-w-[70%]">
+                {/* Botón del menú (3 puntos) */}
+                {isMe && (
+                  <button
+                    data-menu-btn={msg.id_mensaje}
+                    onClick={() =>
+                      setOpenMenu(openMenu === msg.id_mensaje ? null : msg.id_mensaje)
+                    }
+                    className={`absolute -left-10 ${msg.tipo === "imagen" ? "top-1/2 -translate-y-1/2" : "top-3"
+                      } p-1.5 text-black`}
+                  >
+                    <IoIosMore />
+                  </button>
+                )}
+
+                {/* Burbuja o contenido directamente */}
+                {msg.tipo === "imagen" ? (
+                  <img
+                    src={msg.contenido}
+                    alt="img"
+                    className="rounded-xl max-w-xs cursor-pointer shadow-none bg-transparent"
+                    onClick={() => window.open(msg.contenido, "_blank")}
+                  />
+                ) : (
+                  <div
+                    className={`rounded-2xl px-4 py-2 shadow ${bubble} ${pending ? "opacity-60" : ""
+                      }`}
+                  >
+                    {/* Contenido de texto o audio */}
+                    {msg.tipo === "texto" && (
+                      <p className="whitespace-pre-wrap">{msg.contenido}</p>
+                    )}
+
+                    {msg.tipo === "audio" && (
+                      <audio controls src={msg.contenido} className="w-48" />
+                    )}
+
+                    {/* Etiquetas */}
+                    <div className="flex justify-end text-[10px] gap-2 mt-1">
+                      {msg.editado === 1 && (
+                        <span className="italic opacity-70">(editado)</span>
+                      )}
+                      {pending && <span className="animate-pulse">Enviando…</span>}
+                    </div>
+                  </div>
+                )}
+
+                {/* Menú desplegable */}
+                {openMenu === msg.id_mensaje && isMe && (
+                  <div
+                    data-menu={msg.id_mensaje}
+                    className="absolute right-30 top-5 w-40 bg-[#48BD28] rounded z-20 overflow-hidden"
+                  >
+                    {msg.tipo === "texto" && (
+                      <button
+                        onClick={() => {
+                          setEditing({
+                            id: msg.id_mensaje,
+                            content: msg.contenido,
+                          });
+                          setOpenMenu(null);
+                        }}
+                        className="flex items-center w-38 m-1 rounded-lg px-3 py-2 text-white hover:bg-white hover:text-black"
+                      >
+                        Editar
+                      </button>
+                    )}
+                    <button
+                      onClick={() =>
+                        openConfirmDialog(
+                          "Eliminar mensaje",
+                          "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
+                          () => deleteMessage(msg.id_mensaje),
+                        )
+                      }
+                      className="flex items-center w-38 m-1 rounded-lg px-3 py-2 text-white hover:bg-white hover:text-black"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Avatar propio */}
+              {isMe && (
+                <div className="flex items-center justify-center w-7 h-7 mt-[4px]">
+                  <FaCircleUser size={60} className="text-[#1B7D00]" />
+                </div>
+              )}
             </div>
-          </div>
-        )}
-
-        {/* Menú desplegable */}
-        {openMenu === msg.id_mensaje && isMe && (
-          <div
-            data-menu={msg.id_mensaje}
-            className="absolute right-30 top-5 w-40 bg-[#48BD28] rounded z-20 overflow-hidden"
-          >
-            {msg.tipo === "texto" && (
-              <button
-                onClick={() => {
-                  setEditing({
-                    id: msg.id_mensaje,
-                    content: msg.contenido,
-                  });
-                  setOpenMenu(null);
-                }}
-                className="flex items-center w-full px-3 py-2 bg-white text-sm hover:bg-gray-100"
-              >
-                Editar
-              </button>
-            )}
-            <button
-              onClick={() =>
-                openConfirmDialog(
-                  "Eliminar mensaje",
-                  "¿Seguro que deseas eliminar este mensaje? Esta acción no se puede deshacer.",
-                  () => deleteMessage(msg.id_mensaje),
-                )
-              }
-              className="flex items-center w-full px-3 py-2 text-white hover:bg-green-700"
-            >
-              Eliminar
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Avatar propio */}
-      {isMe && (
-        <div className="flex items-center justify-center w-7 h-7 mt-[4px]">
-          <FaCircleUser size={60} className="text-[#1B7D00]" />
-        </div>
-      )}
-    </div>
-  );
-})}
-
-
+          );
+        })}
         <div ref={messagesEndRef} />
       </main>
 
-      {/* ╭─ Modo edición ──────────────────────────────────────╮ */}
-      {editing && (
-        <div className="border-t border-black/10 bg-gray-100 px-4 py-3 flex gap-2">
-          <input
-            className="flex-grow border border-gray-300 rounded px-3 py-2 text-sm"
-            value={editing.content}
-            onChange={(e) =>
-              setEditing({ ...editing, content: e.target.value })
+      {/* ╭─ Formulario de envío de mensajes ────────────────────────╮ */}
+      
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (recording) {
+              mediaRecorder?.stop();
+              setRecording(false);
+            } else {
+              sendTextMessage(e);
             }
+          }}
+          className=" relative flex items-center gap-3 border-t border-black/10 px-4 py-3 bg-white"
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={sendImage}
           />
           <button
-            onClick={editMessage}
-            className="bg-[#48BD28] text-white px-4 py-2 rounded"
+            type="button"
+            onClick={() => !isBlocked && fileInputRef.current?.click()}
+            className={`${isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
+              }`}
+            disabled={isBlocked}
           >
-            Guardar
+            <MdPhotoSizeSelectActual size={24} />
           </button>
-          <button
-            onClick={() => setEditing(null)}
-            className="bg-gray-300 px-4 py-2 rounded"
-          >
-            Cancelar
-          </button>
-        </div>
-      )}
 
-      {/* ╭─ Input de mensaje ──────────────────────────────────╮ */}
-    {editing ? (
-  <form
-    onSubmit={(e) => {
-      e.preventDefault();
-      editMessage(); // tu función para guardar el mensaje editado
-    }}
-    className="flex items-center gap-2 border-t border-black/10 px-4 py-3 bg-white"
-  >
-    <div className="flex items-center w-full bg-gray-300 text-black rounded-full px-3 py-2 shadow-sm">
-      {/* Botón cancelar edición */}
-      <button
-        type="button"
-        onClick={() => setEditing(null)}
-        title="Cancelar edición"
-        className="text-green-800 hover:text-red-600 mr-2"
-      >
-        <IoClose size={18} />
-      </button>
+          {recording ? (
+            <div className="flex-grow w-full bg-green-100 border border-black rounded-lg px-4 py-2 shadow-sm flex items-center gap-3">
+              {/* Tiempo */}
+              <span className="text-xs font-semibold w-10">
+                00:{recordingSeconds < 10 ? `0${recordingSeconds}` : recordingSeconds}
+              </span>
+              <div className="flex flex-grow gap-[3px] items-end h-6 overflow-hidden">
+                {Array.from({ length: 40 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-[19px] bg-green-700 rounded-sm"
+                    style={{
+                      height: `${30 + Math.random() * 50}%`,
+                      animation: `bounce 1s ease-in-out infinite`,
+                      animationDelay: `${i * 0.04}s`,
+                    }}
+                  />
+                ))}
+              </div>
 
-      {/* Input edición tipo burbuja */}
-      <input
-        type="text"
-        className="flex-grow bg-transparent text-sm outline-none"
-        value={editing.content}
-        onChange={(e) =>
-          setEditing({ ...editing, content: e.target.value })
-        }
-        autoFocus
-      />
+              <button
+                type="submit"
+                title="Enviar audio"
+                className="text-[#1B7D00] hover:text-[#2e7c19] p-2 rounded-full"
+              >
+                <IoMdSend size={22} />
+              </button>
+              <button
+                type="button"
+                title="Cancelar grabación"
+                onClick={cancelRecording}
+                className="text-[#1B7D00] p-2 rounded-full"
+              >
+                <IoClose size={22} />
+              </button>
+            </div>
+          ) : (
+            <>
+              <input
+                type="text"
+                placeholder="Escribe tu mensaje…"
+                className="flex-grow border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28]"
+                value={newMessage}
+                onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
+                disabled={isBlocked}
+              />
 
-      {/* Botón confirmar edición */}
-      <button
-        type="submit"
-        title="Guardar cambios"
-        className="text-green-800 hover:text-green-900 ml-2"
-      >
-        <IoMdSend size={20} />
-      </button>
-    </div>
-  </form>
-) : (
-  <form
-    onSubmit={(e) => {
-      e.preventDefault();
-      if (recording) {
-        mediaRecorder?.stop(); 
-        setRecording(false);
-      } else {
-        sendTextMessage(e);
-      }
-    }}
-    className="flex items-center gap-3 border-t border-black/10 px-4 py-3 bg-white"
-  >
-    {/* Imagen */}
-    <input
-      ref={fileInputRef}
-      type="file"
-      accept="image/*"
-      hidden
-      onChange={sendImage}
-    />
-    <button
-      type="button"
-      onClick={() => !isBlocked && fileInputRef.current?.click()}
-      className={`${
-        isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
-      }`}
-      disabled={isBlocked}
-    >
-      <MdPhotoSizeSelectActual size={24} />
-    </button>
+              <button
+                type="submit"
+                disabled={isBlocked || !newMessage.trim()}
+                className={`${isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
+                  }`}
+              >
+                <IoMdSend size={24} />
+              </button>
 
-    {/* Grabando audio */}
-    {recording ? (
-      <div className="flex-grow w-full bg-green-100 border border-black rounded-lg px-4 py-2 shadow-sm flex items-center gap-3">
-        {/* Tiempo */}
-        <span className="text-xs font-semibold w-10">
-          00:{recordingSeconds < 10 ? `0${recordingSeconds}` : recordingSeconds}
-        </span>
+              <button
+                type="button"
+                onClick={!isBlocked ? toggleRecording : undefined}
+                className={`${isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
+                  }`}
+                disabled={isBlocked}
+              >
+                <FaMicrophone size={24} />
+              </button>
+            </>
+          )}
+        </form>
+      
 
-        {/* Ondas tipo WhatsApp */}
-        <div className="flex flex-grow gap-[3px] items-end h-6 overflow-hidden">
-          {Array.from({ length: 40 }).map((_, i) => (
-            <div
-              key={i}
-              className="w-[19px] bg-green-700 rounded-sm"
-              style={{
-                height: `${30 + Math.random() * 50}%`,
-                animation: `bounce 1s ease-in-out infinite`,
-                animationDelay: `${i * 0.04}s`,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Botón Enviar Audio */}
-        <button
-          type="submit"
-          title="Enviar audio"
-          className="text-[#1B7D00] hover:text-[#2e7c19] p-2 rounded-full"
-        >
-          <IoMdSend size={22} />
-        </button>
-
-        {/* Botón Cancelar */}
-        <button
-          type="button"
-          title="Cancelar grabación"
-          onClick={cancelRecording}
-          className="text-[#1B7D00]  p-2 rounded-full"
-        >
-          <IoClose size={22} />
-        </button>
-      </div>
-    ) : (
-      <>
-        {/* Texto */}
-        <input
-          type="text"
-          placeholder="Escribe tu mensaje…"
-          className="flex-grow border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28]"
-          value={newMessage}
-          onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
-          disabled={isBlocked}
-        />
-
-        {/* Enviar texto */}
-        <button
-          type="submit"
-          disabled={isBlocked || !newMessage.trim()}
-          className={`${
-            isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
-          }`}
-        >
-          <IoMdSend size={24} />
-        </button>
-
-        {/* Grabar */}
-        <button
-          type="button"
-          onClick={!isBlocked ? toggleRecording : undefined}
-          className={`${
-            isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
-          }`}
-          disabled={isBlocked}
-        >
-          <FaMicrophone size={24} />
-        </button>
-      </>
-    )}
-  </form>
-)}
-
-
-
-      {/* ╭─ ConfirmDialog global ─────────────────────────────╮ */}
       <ConfirmDialog
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}

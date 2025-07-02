@@ -22,7 +22,6 @@ export const ProductTable = () => {
   const [onConfirm, setOnConfirm] = useState<() => Promise<void>>(
     () => async () => {}
   );
-
   const [messageOpen, setMessageOpen] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -62,15 +61,14 @@ export const ProductTable = () => {
   if (!products || products.length === 0) {
     return (
       <div className="text-yellow-600 font-semibold text-center mt-4">
-        No hay productos disponibles en este momento. Por favor, intente más
-        tarde.
+        No hay productos disponibles en este momento. Por favor, intente más tarde.
       </div>
     );
   }
 
   return (
-    <div>
-      <table className="min-w-full table-auto border-2 border-[#F5F0E5] rounded-xl">
+    <div className="bg-white rounded-2xl shadow-md p-4">
+      <table className="min-w-full table-auto overflow-hidden rounded-2xl border border-[#48bd28]">
         <thead className="bg-[#E4FBDD] text-black">
           <tr>
             <TableHeader>Imagen</TableHeader>
@@ -80,13 +78,13 @@ export const ProductTable = () => {
             <TableHeader>Cantidad Mínima</TableHeader>
             <TableHeader>Ubicación</TableHeader>
             <TableHeader>Precio</TableHeader>
-            <TableHeader>Despublicar</TableHeader>
+            <TableHeader>Publicar</TableHeader>
             <TableHeader>Eliminar</TableHeader>
           </tr>
         </thead>
         <tbody>
           <AnimatePresence>
-            {products.map((product) => (
+            {products.map((product, index) => (
               <motion.tr
                 key={product.id}
                 variants={rowVariants}
@@ -94,110 +92,70 @@ export const ProductTable = () => {
                 animate="visible"
                 exit="exit"
                 transition={{ duration: 0.3 }}
-                className="text-center hover:bg-gray-50 border-b border-[#E5E8EB]"
+                className={`text-center text-black font-semibold ${
+                  index % 2 === 0 ? "bg-white" : "bg-[#E4FBDD]"
+                }`}
               >
-                <td className="p-2">
+                <td className="p-3">
                   <img
                     src={product.imagen}
                     alt={product.nombre}
-                    className="w-10 h-10 object-contain mx-auto rounded-full"
+                    className="w-12 h-12 object-contain mx-auto rounded-full"
                   />
                 </td>
-                <td className="p-2 text-black whitespace-normal max-w-xs">
-                  {product.nombre}
-                </td>
-                <td className="p-2 text-black whitespace-normal max-w-xs">
-                  {product.descripcion}
-                </td>
-                <td className="p-2 text-black">{product.cantidad}</td>
-                <td className="p-2 text-black">
-                  {product.cantidad_minima_compra}
-                </td>
-                <td className="p-2">
+                <td className="p-3">{product.nombre}</td>
+                <td className="p-3">{product.descripcion}</td>
+                <td className="p-3">{product.cantidad}</td>
+                <td className="p-3">{product.cantidad_minima_compra}</td>
+                <td className="p-3">
                   <MiniMap lat={product.latitud} lng={product.longitud} />
                 </td>
-                <td className="p-2 text-black">${product.precio_unidad}</td>
-                <td className="p-2">
+                <td className="p-3">${product.precio_unidad}</td>
+                <td className="p-3">
                   <ActionButton
-                    title="Cambiar publicación"
+                    className={`${
+                      product.despublicado === 1
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-300 text-black"
+                    } rounded-full px-4 py-1 text-sm font-semibold`}
                     onClick={() =>
                       handleConfirm(
                         `¿Estás seguro de que deseas ${
-                          product.despublicado === 1
-                            ? "publicar"
-                            : "despublicar"
+                          product.despublicado === 1 ? "publicar" : "despublicar"
                         } el producto ${product.nombre}?`,
                         async () => {
                           if (product.despublicado === 1) {
                             await publish(product.id);
                             setConfirmOpen(false);
-                            setTimeout(
-                              () =>
-                                showMessage(
-                                  "Producto ha sido publicado exitosamente."
-                                ),
-                              200
-                            );
+                            setTimeout(() => showMessage("Producto publicado."), 200);
                           } else {
                             await unpublishProduct(product.id);
                             setConfirmOpen(false);
-                            setTimeout(
-                              () =>
-                                showMessage(  
-                                  "Producto ha sido despublicado exitosamente."
-                                ),
-                              200
-                            );
+                            setTimeout(() => showMessage("Producto despublicado."), 200);
                           }
                         }
                       )
                     }
                   >
-                    {product.despublicado === 1 ? "Publicar" : "Despublicar"}
+                    {product.despublicado === 1 ? "Publicar" : "Ocultar"}
                   </ActionButton>
                 </td>
-                <td className="p-2">
+                <td className="p-3">
                   <ActionButton
-                    title={
-                      product.eliminado === 1
-                        ? "Este producto ya ha sido eliminado"
-                        : "Eliminar producto"
-                    }
+                    className="bg-red-600 text-white rounded-full px-3 py-1"
                     onClick={() => {
                       if (product.eliminado === 1) return;
                       handleConfirm(
-                        `¿Estás seguro de que deseas eliminar el producto ${product.nombre}?`,
+                        `¿Eliminar el producto ${product.nombre}?`,
                         async () => {
                           const result = await deleteProduct(product.id);
-
-                          if (
-                            !result ||
-                            typeof result.success !== "boolean" ||
-                            typeof result.message !== "string"
-                          ) {
-                            setConfirmOpen(false);
-                            setTimeout(
-                              () =>
-                                showMessage("Respuesta inválida del servidor."),
-                              200
-                            );
-                            return;
+                          if (!result?.success) {
+                            setTimeout(() => showMessage("Error al eliminar."), 200);
+                          } else {
+                            setTimeout(() => showMessage("Producto eliminado."), 200);
                           }
-
-                          if (result.success) {
-                            setConfirmOpen(false);
-                            setTimeout(
-                              () =>
-                                showMessage(
-                                  "Se eliminó el producto exitosamente."
-                                ),
-                              200
-                            );
-                            return;
-                          }
-
-                          setConfirmOpen(false);
                           await fetchProducts();
+                          setConfirmOpen(false);
                         }
                       );
                     }}
@@ -212,6 +170,7 @@ export const ProductTable = () => {
         </tbody>
       </table>
 
+      {/* Confirmación y mensajes */}
       <AnimatePresence>
         {confirmOpen && (
           <motion.div

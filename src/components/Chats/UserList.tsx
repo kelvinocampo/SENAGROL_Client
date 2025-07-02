@@ -1,4 +1,3 @@
-// UserList – alterna colores, lista pegada, buscador full-width
 import { ChatService } from "@/services/Chats/ChatService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +27,6 @@ export const UserList = () => {
     }
   })();
 
-  /* ---------- peticiones ---------- */
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
@@ -45,7 +43,9 @@ export const UserList = () => {
     }
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleClickUser = async (id_user2: number) => {
     try {
@@ -57,86 +57,85 @@ export const UserList = () => {
     }
   };
 
-  /* ---------- filtro ---------- */
   const filtered = users.filter((u) =>
     u.nombre_usuario.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  /* ---------- skeleton ---------- */
   const Skeleton = () => (
-    <ul>
+    <ul className="space-y-2">
       {[...Array(6)].map((_, i) => (
         <li
           key={i}
-          className={`h-12 w-full bg-gray-200/70 animate-pulse border border-dashed border-[#48BD28]
-            ${i === 0 ? "rounded-t-lg" : ""} ${i === 5 ? "rounded-b-lg" : ""}`}
+          className="h-12 w-full bg-gray-200/70 animate-pulse rounded border border-[#48BD28]"
         />
       ))}
     </ul>
   );
 
-  /* ---------- render ---------- */
   return (
     <motion.section
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="w-full max-w-5xl mx-auto px-2"
+      className="w-full px-2 md:px-4 pt-2 pb-1"
     >
-      {/* título */}
-      <h2 className="text-xl font-bold text-[#2e7c19] mb-3">Usuarios</h2>
+      <div className=" w-ful relative">
+        {/* Título */}
+        <h2 className="text-2xl font-bold text-[#000000] mb-4">Usuarios</h2>
 
-      {/* buscador ancho completo */}
-      <Buscador
-        busqueda={searchTerm}
-        setBusqueda={setSearchTerm}
-        setPaginaActual={() => {}}
-        placeholderText="Buscar usuario…"
-          containerClassName="w-full mb-4"
-        inputClassName="w-full"
-      />
+        {/* Buscador */}
+        <Buscador
+          busqueda={searchTerm}
+          setBusqueda={setSearchTerm}
+          setPaginaActual={() => {}}
+          placeholderText="Buscar usuario…"
+          containerClassName="w-full mb-6"
+          inputClassName="w-full px-4 py-2 rounded-full border border-[#48BD28] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6dd850]"
+        />
 
-      {actionError && (
-        <p className="text-red-600 text-center mb-3 text-sm">{actionError}</p>
-      )}
+        {/* Error acción */}
+        {actionError && (
+          <p className="text-red-600 text-center mb-3 text-sm">{actionError}</p>
+        )}
 
-      {isLoading ? (
-        <Skeleton />
-      ) : error ? (
-        <p className="text-center text-red-600 py-4">{error}</p>
-      ) : filtered.length === 0 ? (
-        <p className="text-center text-gray-600 py-4">Sin resultados</p>
-      ) : (
-        <ul className="max-h-[55vh] overflow-y-auto border border-[#48BD28] rounded-lg">
-          <AnimatePresence>
-            {filtered.map((u, idx) => (
-              <motion.li
-                key={u.id_usuario}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                /* --- alternar fondo --- */
-                className={`flex justify-between items-center px-4 py-3 cursor-pointer
-                  ${idx % 2 === 0 ? "bg-white" : "bg-[#f4fcf1]"}
-                  ${idx === 0 ? "rounded-t-lg" : ""}
-                  ${idx === filtered.length - 1 ? "rounded-b-lg" : ""}
-                `}
-                onClick={() => handleClickUser(u.id_usuario)}
-              >
-                <span className="font-medium truncate">
-                  {u.nombre_usuario}
-                </span>
-                <span className="text-xs font-semibold px-3 py-1 text-[#676767]">
-                  {u.roles}
-                </span>
-              </motion.li>
-            ))}
-          </AnimatePresence>
-        </ul>
-      )}
+        {/* Lista */}
+        {isLoading ? (
+          <Skeleton />
+        ) : error ? (
+          <p className="text-center text-red-600 py-4">{error}</p>
+        ) : filtered.length === 0 ? (
+          <p className="text-center text-gray-600 py-4">No se encontraron Usuarios con esos datos.</p>
+        ) : (
+          <ul className="max-h-[55vh] overflow-y-auto rounded-lg border border-[#48BD28]">
+            <AnimatePresence>
+              {filtered.map((u, idx) => (
+                <motion.li
+                  key={u.id_usuario}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  className={`flex justify-between items-center px-4 py-3 cursor-pointer ${
+                    idx % 2 === 0 ? "bg-white" : "bg-[#f4fcf1]"
+                  } ${idx === 0 ? "rounded-t-lg" : ""} ${
+                    idx === filtered.length - 1 ? "rounded-b-lg" : ""
+                  } border-b border-[#48BD28]/40`}
+                  onClick={() => handleClickUser(u.id_usuario)}
+                >
+                  <span className="font-medium truncate text-[#000000]">
+                    {u.nombre_usuario}
+                  </span>
+                  <span className="text-xs  text-[#676767]">
+                    {u.roles}
+                  </span>
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </ul>
+        )}
+      </div>
     </motion.section>
   );
 };

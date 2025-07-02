@@ -48,8 +48,6 @@ export default function FormularioTransportador() {
   const [imagenes, setImagenes] = useState<File[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
   const [mensaje, setMensaje] = useState<string>("");
-
-  // Nueva bandera para detectar si ya envió
   const [yaEnviado, setYaEnviado] = useState<boolean>(() => {
     return localStorage.getItem("transportadorEnviado") === "true";
   });
@@ -60,12 +58,15 @@ export default function FormularioTransportador() {
       case "soat":
       case "vehicleCard":
         if (!value.trim()) return "Este campo es obligatorio.";
-        if (value.length < 5 || value.length > 30) return "Debe tener entre 5 y 30 caracteres.";
-        if (!/^[a-zA-Z0-9-]+$/.test(value)) return "Solo letras, números y guiones.";
+        if (value.length < 5 || value.length > 30)
+          return "Debe tener entre 5 y 30 caracteres.";
+        if (!/^[a-zA-Z0-9-]+$/.test(value))
+          return "Solo letras, números y guiones.";
         return "";
       case "vehicleType":
         if (!value.trim()) return "Este campo es obligatorio.";
-        if (value.length < 3 || value.length > 50) return "Debe tener entre 3 y 50 caracteres.";
+        if (value.length < 3 || value.length > 50)
+          return "Debe tener entre 3 y 50 caracteres.";
         if (!/^[a-zA-Z\s]+$/.test(value)) return "Solo letras y espacios.";
         return "";
       case "vehicleWeight":
@@ -92,7 +93,10 @@ export default function FormularioTransportador() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: validateField(name as keyof FormDataState, value) }));
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name as keyof FormDataState, value),
+    }));
   };
 
   const handleImagenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +108,9 @@ export default function FormularioTransportador() {
     setMensaje("");
 
     if (yaEnviado) {
-      setMensaje("⚠️ Ya has enviado tu solicitud de transportador. No puedes enviarla nuevamente.");
+      setMensaje(
+        "⚠️ Ya has enviado tu solicitud de transportador. No puedes enviarla nuevamente."
+      );
       return;
     }
 
@@ -123,7 +129,13 @@ export default function FormularioTransportador() {
       const token = localStorage.getItem("token") || "";
       await requestTransporter(formData, imagenes, token);
       setMensaje("✅ Petición de transportador enviada correctamente.");
-      setFormData({ license: "", soat: "", vehicleCard: "", vehicleType: "", vehicleWeight: "" });
+      setFormData({
+        license: "",
+        soat: "",
+        vehicleCard: "",
+        vehicleType: "",
+        vehicleWeight: "",
+      });
       setImagenes([]);
       setErrors({});
       setYaEnviado(true);
@@ -140,7 +152,7 @@ export default function FormularioTransportador() {
       case "soat":
         return "SOAT vigente";
       case "vehicleCard":
-        return "Tarjeta propiedad vehículo";
+        return "Tarjeta de propiedad de vehículo";
       case "vehicleType":
         return "Tipo de vehículo";
       case "vehicleWeight":
@@ -151,9 +163,9 @@ export default function FormularioTransportador() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-[Fredoka] text-[#111]">
+    <div className="min-h-screen font-[Fredoka] text-[#111]">
       <Header />
-      <main className="flex flex-col lg:flex-row pt-32 px-10 gap-10">
+      <main className="flex flex-col lg:flex-row pt-10 py-10 px-10 gap-10 bg-gradient-to-br from-[#f4fcf1] to-[#caf5bd]">
         <UserProfileCard />
 
         <motion.section
@@ -162,40 +174,74 @@ export default function FormularioTransportador() {
           animate="visible"
           variants={fadeInUp}
         >
-          <form className="bg-white p-8 rounded-2xl shadow-md space-y-6" onSubmit={handleSubmit}>
-            <h2 className="text-2xl font-bold mb-4 text-[#205116]">Formulario Transportador</h2>
+          <form className="p-5 rounded-2xl space-y-6" onSubmit={handleSubmit}>
+            <h2 className="text-3xl font-bolder mb-4 text-[#0D141C]">
+              Transportador
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {(Object.keys(formData) as (keyof FormDataState)[]).map((name, idx) => (
-                <motion.div variants={fadeInUp} custom={idx} key={name} className="relative">
-                  <Input
-                    name={name}
-                    type={name === "vehicleWeight" ? "number" : "text"}
-                    label={getLabel(name)}
-                    value={formData[name]}
-                    onChange={handleChange}
-                    error={errors[name]}
-                  />
-                </motion.div>
-              ))}
+              {(Object.keys(formData) as (keyof FormDataState)[]).map(
+                (name, idx) => (
+                  <motion.div
+                    variants={fadeInUp}
+                    custom={idx}
+                    key={name}
+                    className="relative"
+                  >
+                    <Input
+                      name={name}
+                      type={name === "vehicleWeight" ? "number" : "text"}
+                      label={getLabel(name)}
+                      value={formData[name]}
+                      onChange={handleChange}
+                      error={errors[name]}
+                    />
+                  </motion.div>
+                )
+              )}
             </div>
 
             <motion.div variants={fadeInUp} custom={6}>
-              <label className="block font-medium mb-1">Subir Imágenes (2–5)</label>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImagenChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-green-100 file:text-green-700 hover:file:bg-green-200"
-              />
+              <label className="block font-medium text-[#2E7D32] mb-1">
+                Imágenes del vehículo (2-5 imágenes)
+              </label>
+
+              {/* Botón personalizado para seleccionar archivos */}
+              <div
+                className="p-10  text-center border-none  w-full mt-1 rounded-xl bg-white border shadow-md
+    focus:outline-none focus:border-[#48BD28]"
+              >
+                <label
+                  htmlFor="imagenes"
+                  className="inline-block px-15 bg-[#48BD28] hover:bg-[#379E1B] text-white font-medium py-2  rounded-xl cursor-pointer transition"
+                >
+                  Elegir archivos
+                </label>
+                <input
+                  id="imagenes"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImagenChange}
+                  className="hidden"
+                />
+                <p className="text-sm mt-2 text-gray-700">
+                  {imagenes.length > 0
+                    ? `${imagenes.length} archivo${
+                        imagenes.length > 1 ? "s" : ""
+                      } seleccionado${imagenes.length > 1 ? "s" : ""}`
+                    : "Sin archivos seleccionados"}
+                </p>
+              </div>
+
+              {/* Mostrar texto de cantidad de archivos seleccionados */}
             </motion.div>
 
             <div className="pt-6 text-right flex gap-4 justify-end">
               <button
                 type="button"
                 onClick={() => navigate("/perfil")}
-                className="bg-[#F5F0E5] text-black py-2 px-6 rounded-xl hover:bg-gray-300 transition"
+                className="bg-[#D9D9D9] text-black py-2 px-6 rounded-xl hover:bg-gray-300 transition"
               >
                 Cancelar
               </button>
@@ -205,7 +251,7 @@ export default function FormularioTransportador() {
                 className={`py-2 px-6 rounded-xl shadow-md transition ${
                   yaEnviado
                     ? "bg-gray-400 cursor-not-allowed text-white"
-                    : "bg-[#48bd28] hover:bg-[#379e1b] text-white"
+                    : "bg-[#5ABA41] hover:bg-[#379e1b] text-white"
                 }`}
               >
                 {yaEnviado ? "Ya enviado" : "Enviar petición"}
@@ -213,7 +259,9 @@ export default function FormularioTransportador() {
             </div>
 
             {mensaje && (
-              <p className="mt-4 font-semibold text-center text-red-600">{mensaje}</p>
+              <p className="mt-4 font-semibold text-center text-red-600">
+                {mensaje}
+              </p>
             )}
           </form>
         </motion.section>

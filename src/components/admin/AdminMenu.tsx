@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BackToHome } from "./common/BackToHome";
+import { PiUsersThreeLight } from "react-icons/pi";
+import { TbWorld } from "react-icons/tb";
+import { BsBox } from "react-icons/bs";
 import {
-  FaUsers,
-  FaBox,
-  FaShoppingCart,
   FaBars,
   FaTimes,
 } from "react-icons/fa";
@@ -17,7 +17,7 @@ interface AdminMenuProps {
 }
 
 const menuItemClass =
-  "flex items-center gap-2 py-2 px-4 hover:bg-[#379e1b] rounded cursor-pointer";
+  "flex items-center gap-2 py-2 px-4 rounded cursor-pointer hover:bg-[#caf5bd]  text-black font-medium";
 
 const menuItemVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -45,9 +45,9 @@ export const AdminMenu = ({
   };
 
   const menuItems = [
-    { key: "usuarios", icon: <FaUsers />, label: "Usuarios" },
-    { key: "productos", icon: <FaBox />, label: "Productos" },
-    { key: "ventas", icon: <FaShoppingCart />, label: "Ventas" },
+    { key: "usuarios", icon: <PiUsersThreeLight color="#00A650" size={24}/>, label: "Usuarios" },
+    { key: "productos", icon: <BsBox color="#00A650"size={24}/> , label: "Productos" },
+    { key: "ventas", icon: <TbWorld color="#00A650" size={24}/>, label: "Ventas" },
   ];
 
   return (
@@ -71,23 +71,23 @@ export const AdminMenu = ({
             exit={{ x: "-100%" }}
             transition={{ duration: 0.3 }}
             className={`
-              bg-[#48bd28] text-white
+              bg-white text-black
               w-full md:w-64
               fixed md:static top-0 left-0 z-40
               flex flex-col
-               min-h-screen
+              min-h-screen
+              border-r border-[#48bd28]
             `}
           >
             {/* Encabezado del menú */}
-            <div className="flex flex-col items-center py-6 border-b border-white">
-            <BackToHome textColor="text-white" />
-
+            <div className="flex flex-col items-center py-6 border-b border-[#caf5bd]">
+              <BackToHome textColor="text-[#205116]" />
               <img
                 src={senagrol}
                 alt="Senagrol"
-                className="w-20 h-20 rounded-full mb-2"
+                className="w-24 h-24 rounded-full mb-2 border-4 border-[#caf5bd]"
               />
-              <h2 className="text-xl font-bold">Admin</h2>
+              <h2 className="text-lg font-bold text-[#1B7D00]">Administrador</h2>
             </div>
 
             {/* Opciones del menú */}
