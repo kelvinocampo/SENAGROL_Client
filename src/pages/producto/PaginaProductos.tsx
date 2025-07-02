@@ -1,9 +1,4 @@
-/* -------------------------------------------------------------
-   src/pages/producto/PaginaProductos.tsx
-   – UI alineada con la maqueta:
-     · Grid continuo (5 col XL, 4 col LG, 3 col MD, 2 col SM)
-     · Botón “Ver más” → carga 10 productos adicionales
----------------------------------------------------------------- */
+// src/pages/producto/PaginaProductos.tsx
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useContext, useEffect, useState } from "react";
 import { Carousel } from "react-responsive-carousel";
@@ -18,7 +13,6 @@ import FallingLeaves from "@/components/FallingLeaf";
 
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import { getUserRole } from "@/services/Perfil/authService";
-
 
 export default function PaginaProductos() {
   const [busqueda, setBusqueda] = useState("");
@@ -156,73 +150,79 @@ export default function PaginaProductos() {
         </div>
 
         <section className="max-w-7xl mx-auto px-4 mb-12 relative">
-          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {productos.map((p) => (
-              <motion.div
-                key={p.id}
-                className="border-2 border-none bg-white rounded-xl p-4 flex flex-col text-center"
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <img
-                  src={p.imagen}
-                  alt={p.nombre}
-                  onError={(e) => ((e.target as HTMLImageElement).src = "")}
-                  className="h-36 w-full object-contain rounded-lg mb-2 cursor-pointer"
-                  onClick={() => navigate(`/producto/${p.id}`)}
-                />
-
-                <h3 className="font-bold text-[15px]">{p.nombre}</h3>
-                <p className="text-sm text-gray-500 mt-1 truncate">
-                  {p.descripcion}
-                </p>
-
-                {p.descuento > 0 ? (
-                  <div className="mt-2 text-sm font-semibold">
-                    <p className="text-red-600">
-                      Antes: {p.precio_unidad.toLocaleString()}{" "}
-                      <span className="text-red ">
-                        Ahora:{" "}
-                        {(
-                          p.precio_unidad -
-                          p.precio_unidad * p.descuento
-                        ).toLocaleString()}
-                      </span>
-                    </p>
-                  </div>
-                ) : (
-                  <div className="mt-2 text-base text-[#676767] font-semibold">
-                    ${p.precio_unidad}
-                  </div>
-                )}
-
-                <p className="text-[13px] text-gray-500 mt-1">
-                  Vendedor: {p.nombre_vendedor}
-                </p>
-
-                <button
-                  onClick={() => comprar(p)}
-                  disabled={!userRoles.includes("comprador")}
-                  className={`mt-4 w-full py-[6px] rounded-full text-white text-sm font-semibold transition
-                  ${
-                    userRoles.includes("comprador")
-                      ? "bg-[#48BD28] hover:bg-[#379e1b]"
-                      : "bg-gray-400 cursor-not-allowed"
-                  }`}
+          {productos.length === 0 ? (
+            <p className="text-center text-[#2e7c19] text-lg font-medium py-10">
+              No se encontraron resultados para tu búsqueda.
+            </p>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {productos.map((p) => (
+                <motion.div
+                  key={p.id}
+                  className="border-2 border-none bg-white rounded-xl p-4 flex flex-col text-center"
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  Comprar
-                </button>
+                  <img
+                    src={p.imagen}
+                    alt={p.nombre}
+                    onError={(e) => ((e.target as HTMLImageElement).src = "")}
+                    className="h-36 w-full object-contain rounded-lg mb-2 cursor-pointer"
+                    onClick={() => navigate(`/producto/${p.id}`)}
+                  />
 
-                <Link
-                  to={`/producto/${p.id}`}
-                  className="mt-2 text-[14px] text-green-600 hover:text-green-800"
-                >
-                  Ver más
-                </Link>
-              </motion.div>
-            ))}
-          </div>
+                  <h3 className="font-bold text-[15px]">{p.nombre}</h3>
+                  <p className="text-sm text-gray-500 mt-1 truncate">
+                    {p.descripcion}
+                  </p>
+
+                  {p.descuento > 0 ? (
+                    <div className="mt-2 text-sm font-semibold">
+                      <p className="text-red-600">
+                        Antes: {p.precio_unidad.toLocaleString()}{" "}
+                        <span className="text-red ">
+                          Ahora:{" "}
+                          {(
+                            p.precio_unidad -
+                            p.precio_unidad * p.descuento
+                          ).toLocaleString()}
+                        </span>
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-base text-[#676767] font-semibold">
+                      ${p.precio_unidad}
+                    </div>
+                  )}
+
+                  <p className="text-[13px] text-gray-500 mt-1">
+                    Vendedor: {p.nombre_vendedor}
+                  </p>
+
+                  <button
+                    onClick={() => comprar(p)}
+                    disabled={!userRoles.includes("comprador")}
+                    className={`mt-4 w-full py-[6px] rounded-full text-white text-sm font-semibold transition
+                      ${
+                        userRoles.includes("comprador")
+                          ? "bg-[#48BD28] hover:bg-[#379e1b]"
+                          : "bg-gray-400 cursor-not-allowed"
+                      }`}
+                  >
+                    Comprar
+                  </button>
+
+                  <Link
+                    to={`/producto/${p.id}`}
+                    className="mt-2 text-[14px] text-green-600 hover:text-green-800"
+                  >
+                    Ver más
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </section>
 
         {productosFiltrados.length > productos.length && (
