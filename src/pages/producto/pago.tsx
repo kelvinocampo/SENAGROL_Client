@@ -14,7 +14,6 @@ import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement"
 import Header from "@components/Header";
 import Footer from "@components/footer";
 
-/* ---------- Tipos ---------- */
 type Location = { lat: number; lng: number };
 
 export default function Pago() {
@@ -33,7 +32,6 @@ export default function Pago() {
   const [cardholderName, setCardholderName] = useState("");
   const [cardError, setCardError] = useState<string | null>(null);
 
-  /* Obtener producto */
   useEffect(() => {
     if (!ctx || !id) return;
     const found = ctx.allProducts.find((p) => String(p.id) === id);
@@ -44,6 +42,12 @@ export default function Pago() {
     setProducto(found);
     setCantidad(found.cantidad_minima_compra);
   }, [ctx, id, navigate]);
+
+  // Establecer ubicación de prueba si es necesario
+  useEffect(() => {
+    // Elimínalo si quieres que el usuario elija manualmente.
+    setUbicacion({ lat: 4.65, lng: -74.05 }); // Bogotá
+  }, []);
 
   const subtotal = (producto?.precio_unidad ?? 0) * cantidad;
   const total = subtotal + (producto?.precio_transporte ?? 0);
@@ -62,7 +66,6 @@ export default function Pago() {
       setLoading(true);
       const id_user = Number(localStorage.getItem("user_id"));
 
-      // Simulación de compra (aquí iría lógica real de Stripe si se quisiera procesar el pago)
       await ProductManagementService.buyProduct(producto.id, {
         id_user,
         cantidad,
@@ -78,6 +81,26 @@ export default function Pago() {
       setLoading(false);
     }
   };
+
+  const isFormValid =
+    !!cardholderName &&
+    !cardError &&
+    !!ubicacion &&
+    !!stripe &&
+    !!elements &&
+    !!producto;
+
+  useEffect(() => {
+    console.log({
+      cardholderName,
+      cardError,
+      ubicacion,
+      stripeReady: !!stripe,
+      elementsReady: !!elements,
+      productoCargado: !!producto,
+      isFormValid,
+    });
+  }, [cardholderName, cardError, ubicacion, stripe, elements, producto]);
 
   if (!producto) return null;
 
@@ -191,9 +214,11 @@ export default function Pago() {
 
           <button
             onClick={handlePagar}
-            disabled={loading}
+            disabled={loading || !isFormValid}
             className={`w-full py-3 rounded-lg text-white font-semibold transition ${
-              loading ? "bg-green-300" : "bg-[#48BD28] hover:bg-green-600"
+              loading || !isFormValid
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-[#48BD28] hover:bg-green-600"
             }`}
           >
             {loading ? "Procesando..." : "Pagar"}

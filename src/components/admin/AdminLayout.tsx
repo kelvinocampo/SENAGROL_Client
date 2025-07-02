@@ -49,7 +49,9 @@ const getValidActiveView = (): string => {
   const storedView = localStorage.getItem("adminActiveView");
   return validViews.includes(storedView || "") ? (storedView as string) : "usuarios";
 };
-
+const SimulatedCrash = () => {
+  throw new Error("Simulando error global en AdminLayout");
+};
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
@@ -65,7 +67,9 @@ export const AdminLayout = () => {
   }, [activeView]);
 
   const views: Record<string, React.ReactElement> = {
+
     dashboard: (
+
       <ErrorBoundary
         fallback={
           <div className="text-red-600 text-center mt-10">
@@ -76,16 +80,25 @@ export const AdminLayout = () => {
           setTimeout(() => window.location.reload(), 3000);
         }}
       >
-        <motion.section {...fadeUp} className="text-center mt-10">
-          <h2 className="text-xl font-semibold">Dashboard principal</h2>
-          <p className="mt-4">Contenido aún no disponible.</p>
-        </motion.section>
+        <motion.div
+          key={activeView}
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* ⚠️ LÍNEA QUE PROVOCA EL ERROR */}
+          <SimulatedCrash />
+
+          {/* Puedes dejar comentado esto mientras pruebas */}
+          {/* {views[activeView] || <div className="text-center mt-10">Seleccione una opción del menú</div>} */}
+        </motion.div>
       </ErrorBoundary>
+
     ),
     usuarios: (
       <motion.section {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.h1 {...fadeUp} className="text-3xl font-semibold mb-2 col-span-full text-center md:text-left">
-          Dashboard 
+          Dashboard
           <p className="text-xl text-[#666666] font-normal">Usuarios</p>
         </motion.h1>
         <motion.div {...fadeUp} className="overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full col-span-1 lg:col-span-2">
@@ -130,7 +143,7 @@ export const AdminLayout = () => {
       <SalesManagementProvider>
         <motion.section {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 p-5 lg:grid-cols-4 gap-4">
           <motion.h1 {...fadeUp} className="text-3xl font-semibold mb-2 col-span-full text-center text-[#0D141C] md:text-left">
-            Dashboard 
+            Dashboard
             <p className="text-xl text-[#666666] font-normal">Ventas</p>
           </motion.h1>
           <motion.div {...fadeUp} className="overflow-x-auto w-full h-full col-span-1 lg:col-span-2">
@@ -150,26 +163,26 @@ export const AdminLayout = () => {
     )
   };
 
- return (
-  <div className="flex flex-col font-[Fredoka] bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] md:flex-row min-h-screen">
-    <AdminMenu setActiveView={setActiveView} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-    <main className={`flex-1 p-4 w-full min-h-screen overflow-auto ${menuOpen ? "md:ml-64" : ""}`}>
-      <ErrorBoundary
-        fallback={
-          <div className="text-red-600 text-center mt-10">
-            Ocurrió un error al cargar el dashboard. Recargando en unos segundos...
-          </div>
-        }
-        onError={() => {
-          setTimeout(() => window.location.reload(), 3000);
-        }}
-      >
-        <motion.div key={activeView} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-          {views[activeView] || <div className="text-center mt-10">Seleccione una opción del menú</div>}
-        </motion.div>
-      </ErrorBoundary>
-    </main>
-  </div>
-);
+  return (
+    <div className="flex flex-col font-[Fredoka] bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] md:flex-row min-h-screen">
+      <AdminMenu setActiveView={setActiveView} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      <main className={`flex-1 p-4 w-full min-h-screen overflow-auto ${menuOpen ? "md:ml-64" : ""}`}>
+        <ErrorBoundary
+          fallback={
+            <div className="text-red-600 text-center mt-10">
+              no se pueden visualizar los datos en ese momento y sugiere intentar más tarde.
+            </div>
+          }
+          onError={() => {
+            setTimeout(() => window.location.reload(), 3000);
+          }}
+        >
+          <motion.div key={activeView} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+            {views[activeView] || <div className="text-center mt-10">Seleccione una opción del menú</div>}
+          </motion.div>
+        </ErrorBoundary>
+      </main>
+    </div>
+  );
 
 };

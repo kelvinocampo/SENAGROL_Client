@@ -13,17 +13,15 @@ export const UserTable = () => {
   const context = useContext(UserManagementContext);
   if (!context) return <div>Error: contexto no disponible.</div>;
 
-  const { users, deleteUser, disableUser, activateUserRole, fetchUsers } =
-    context;
+  const { users, deleteUser, disableUser, activateUserRole, fetchUsers } = context;
+
   const [searchTerm, setSearchTerm] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
   const [onConfirm, setOnConfirm] = useState<() => void>(() => () => {});
   const [messageOpen, setMessageOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [selectedTransporter, setSelectedTransporter] = useState<any | null>(
-    null
-  );
+  const [selectedTransporter, setSelectedTransporter] = useState<any | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const handleConfirm = (message: string, action: () => void) => {
@@ -56,11 +54,7 @@ export const UserTable = () => {
             statusColor.Activo || statusColor.default
           }`}
         >
-          {status === "Activo"
-            ? "Activo"
-            : status === "Inactivo"
-            ? "Inactivo"
-            : "No disponible"}
+          {status === "Activo" ? "Activo" : status === "Inactivo" ? "Inactivo" : "No disponible"}
         </motion.span>
       );
     }
@@ -74,7 +68,10 @@ export const UserTable = () => {
             onClick={() =>
               handleConfirm(
                 `¿Estás seguro de que deseas desactivar el rol ${role} para ${user.name}?`,
-                () => disableUser(user.id, role)
+                async () => {
+                  await disableUser(user.id, role);
+                  showMessage(`El rol ${role} ha sido desactivado para ${user.name}`);
+                }
               )
             }
           >
@@ -98,7 +95,10 @@ export const UserTable = () => {
             onClick={() =>
               handleConfirm(
                 `¿Estás seguro de que deseas activar el rol ${role} para ${user.name}?`,
-                () => activateUserRole(user.id, role)
+                async () => {
+                  await activateUserRole(user.id, role);
+                  showMessage(`El usuario ${user.name} ha sido asignado como ${role}`);
+                }
               )
             }
           >
@@ -142,11 +142,7 @@ export const UserTable = () => {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
       <div className="px-4 py-4">
         <Buscador
           busqueda={searchTerm}
@@ -173,19 +169,14 @@ export const UserTable = () => {
           <tbody>
             <AnimatePresence>
               {filteredUsers.length === 0 ? (
-                <motion.tr
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
+                <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <td colSpan={7} className="text-center py-4 text-gray-500">
                     No se encontraron Usuarios con esos datos.
                   </td>
                 </motion.tr>
               ) : (
                 filteredUsers.map((user, index) => {
-                  const rowClass =
-                    index % 2 === 0 ? "bg-[#E4FBDD]" : "bg-white";
+                  const rowClass = index % 2 === 0 ? "bg-[#E4FBDD]" : "bg-white";
 
                   return (
                     <motion.tr
@@ -197,15 +188,10 @@ export const UserTable = () => {
                       transition={{ duration: 0.3 }}
                       className={`text-center border-b border-green-300 hover:bg-green-50 ${rowClass}`}
                     >
-                      <td className="p-2 text-left font-semibold text-black">
-                        {user.name}
-                      </td>
+                      <td className="p-2 text-left font-semibold text-black">{user.name}</td>
+                      <td className="p-2">{renderRoleCell(user, "transportador")}</td>
                       <td className="p-2">
-                        {renderRoleCell(user, "transportador")}
-                      </td>
-                      <td className="p-2">
-                        {(user.transportador === "Activo" ||
-                          user.transportador === "Inactivo") && (
+                        {(user.transportador === "Activo" || user.transportador === "Inactivo") && (
                           <ActionButton
                             className="bg-blue-500 text-white rounded-full px-4 py-1 text-sm font-semibold"
                             title="Detalles"
@@ -218,13 +204,8 @@ export const UserTable = () => {
                           </ActionButton>
                         )}
                       </td>
-
-                      <td className="p-2">
-                        {renderRoleCell(user, "vendedor")}
-                      </td>
-                      <td className="p-2">
-                        {renderRoleCell(user, "comprador")}
-                      </td>
+                      <td className="p-2">{renderRoleCell(user, "vendedor")}</td>
+                      <td className="p-2">{renderRoleCell(user, "comprador")}</td>
                       <td className="p-2">
                         {user.administrador === "Activo" ? (
                           <ActionButton
@@ -233,7 +214,10 @@ export const UserTable = () => {
                             onClick={() =>
                               handleConfirm(
                                 `¿Estás seguro de que deseas desactivar el rol administrador para ${user.name}?`,
-                                () => disableUser(user.id, "administrador")
+                                async () => {
+                                  await disableUser(user.id, "administrador");
+                                  showMessage(`El rol administrador ha sido desactivado para ${user.name}`);
+                                }
                               )
                             }
                           >
@@ -246,7 +230,10 @@ export const UserTable = () => {
                             onClick={() =>
                               handleConfirm(
                                 `¿Deseas designar a ${user.name} como administrador?`,
-                                () => activateUserRole(user.id, "administrador")
+                                async () => {
+                                  await activateUserRole(user.id, "administrador");
+                                  showMessage(`El usuario ${user.name} ha sido designado con el rol de administrador`);
+                                }
                               )
                             }
                           >
@@ -270,21 +257,12 @@ export const UserTable = () => {
                                   typeof result.success !== "boolean" ||
                                   typeof result.message !== "string"
                                 ) {
-                                  setTimeout(
-                                    () =>
-                                      showMessage(
-                                        "Respuesta inválida del servidor."
-                                      ),
-                                    200
-                                  );
+                                  setTimeout(() => showMessage("Respuesta inválida del servidor."), 200);
                                   return;
                                 }
 
                                 if (result.success) {
-                                  setTimeout(
-                                    () => showMessage(result.message),
-                                    200
-                                  );
+                                  setTimeout(() => showMessage(`El usuario ${user.name} ha sido eliminado`), 200);
                                 }
 
                                 await fetchUsers();
@@ -292,7 +270,7 @@ export const UserTable = () => {
                             )
                           }
                         >
-                        Eliminar
+                          Eliminar
                         </ActionButton>
                       </td>
                     </motion.tr>

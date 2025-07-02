@@ -89,10 +89,11 @@ function PerfilUsuarioUnico() {
     setLoading(true);
     try {
       const payload: any = { ...formData, ...(password && { password }) };
-      await updateUserProfile(payload);
+      await updateUserProfile(payload, vehicleFiles); // ✅ Aquí se pasan los archivos
       setDialog({ open: true, type: "success", message: "Perfil actualizado correctamente." });
       setPassword("");
       setConfirmPassword("");
+      setVehicleFiles([]); // ✅ Limpia los archivos después de guardar
     } catch (err: any) {
       console.error("Error al actualizar perfil:", err);
       setDialog({ open: true, type: "error", message: err.message || "Hubo un error al actualizar el perfil." });
@@ -245,7 +246,6 @@ function PerfilUsuarioUnico() {
 
       <Footer />
     </div>
-    
   );
 }
 
