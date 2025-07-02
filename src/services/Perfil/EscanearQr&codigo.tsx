@@ -2,7 +2,8 @@ const API_URL = "http://localhost:10101";
 
 export async function receiveBuyCode(
   codigo: string,
-  token: string
+  token: string,
+  compraId?: number // ✅ Este tercer parámetro debe estar aquí
 ): Promise<any> {
   try {
     const res = await fetch(`${API_URL}/compra/state/${codigo}`, {
@@ -11,7 +12,7 @@ export async function receiveBuyCode(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-
+      body: JSON.stringify({ compraId }), // ✅ Enviar el ID de la compra en el body
     });
 
     const data = await res.json();

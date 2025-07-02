@@ -36,14 +36,19 @@ export const Form = () => {
     return products.find((p: any) => p.id_producto == id_edit_product);
   }, [id_edit_product, products]);
 
-  const checkForDuplicateProduct = async (nombre: string, idToExclude?: number) => {
+  const checkForDuplicateProduct = async (
+    nombre: string,
+    idToExclude?: number
+  ) => {
     try {
       const allProducts: any[] = await ProductManagementService.getBySeller();
       return allProducts.some(
-        (p: any) => p.nombre.toLowerCase() === nombre.toLowerCase() && p.id_producto !== idToExclude
+        (p: any) =>
+          p.nombre.toLowerCase() === nombre.toLowerCase() &&
+          p.id_producto !== idToExclude
       );
     } catch (error) {
-      console.error('Error verificando productos duplicados:', error);
+      console.error("Error verificando productos duplicados:", error);
       return false;
     }
   };
@@ -51,50 +56,56 @@ export const Form = () => {
   const handleCancel = () => {
     const hasChanges = isEditMode
       ? product.nombre !== productEdit?.nombre ||
-      product.descripcion !== productEdit?.descripcion ||
-      product.cantidad !== Number(productEdit?.cantidad) ||
-      product.cantidad_minima_compra !== Number(productEdit?.cantidad_minima_compra) ||
-      product.precio_unidad !== Number(productEdit?.precio_unidad) ||
-      product.descuento !== (productEdit?.descuento ? Number(productEdit.descuento) : undefined) ||
-      (location?.lat !== Number(productEdit?.latitud)) ||
-      (location?.lng !== Number(productEdit?.longitud)) ||
-      imageFile !== undefined
-      : product.nombre !== '' ||
-      product.descripcion !== '' ||
-      product.cantidad !== 0 ||
-      product.cantidad_minima_compra !== 0 ||
-      product.precio_unidad !== 0 ||
-      product.descuento !== undefined ||
-      location !== null ||
-      imageFile !== undefined;
+        product.descripcion !== productEdit?.descripcion ||
+        product.cantidad !== Number(productEdit?.cantidad) ||
+        product.cantidad_minima_compra !==
+          Number(productEdit?.cantidad_minima_compra) ||
+        product.precio_unidad !== Number(productEdit?.precio_unidad) ||
+        product.descuento !==
+          (productEdit?.descuento
+            ? Number(productEdit.descuento)
+            : undefined) ||
+        location?.lat !== Number(productEdit?.latitud) ||
+        location?.lng !== Number(productEdit?.longitud) ||
+        imageFile !== undefined
+      : product.nombre !== "" ||
+        product.descripcion !== "" ||
+        product.cantidad !== 0 ||
+        product.cantidad_minima_compra !== 0 ||
+        product.precio_unidad !== 0 ||
+        product.descuento !== undefined ||
+        location !== null ||
+        imageFile !== undefined;
 
     if (hasChanges) {
       setShowCancelConfirm(true);
     } else {
-      navigate('/MisProductos');
+      navigate("/MisProductos");
     }
   };
 
   const confirmCancel = () => {
     setShowCancelConfirm(false);
-    navigate('/MisProductos');
+    navigate("/MisProductos");
   };
 
   useEffect(() => {
     if (isEditMode && !productEdit && products.length > 0) {
-      navigate('/MisProductos/Crear', { replace: true });
+      navigate("/MisProductos/Crear", { replace: true });
     }
   }, [isEditMode, productEdit, products, navigate]);
 
   const [product, setProduct] = useState<ProductFormData>({
-    nombre: '',
-    descripcion: '',
+    nombre: "",
+    descripcion: "",
     cantidad: 0,
     cantidad_minima_compra: 0,
     precio_unidad: 0,
   });
 
-  const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null);
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -104,21 +115,24 @@ export const Form = () => {
     }
 
     if (productEdit) {
-      const initialLocation = productEdit.latitud && productEdit.longitud
-        ? {
-          lat: Number(productEdit.latitud),
-          lng: Number(productEdit.longitud)
-        }
-        : null;
+      const initialLocation =
+        productEdit.latitud && productEdit.longitud
+          ? {
+              lat: Number(productEdit.latitud),
+              lng: Number(productEdit.longitud),
+            }
+          : null;
 
       setProduct({
-        nombre: productEdit.nombre || '',
-        descripcion: productEdit.descripcion || '',
+        nombre: productEdit.nombre || "",
+        descripcion: productEdit.descripcion || "",
         cantidad: Number(productEdit.cantidad) || 0,
         cantidad_minima_compra: Number(productEdit.cantidad_minima_compra) || 0,
         precio_unidad: Number(productEdit.precio_unidad) || 0,
-        descuento: productEdit.descuento ? Number(productEdit.descuento) : undefined,
-        imagen: productEdit.imagen || ''
+        descuento: productEdit.descuento
+          ? Number(productEdit.descuento)
+          : undefined,
+        imagen: productEdit.imagen || "",
       });
 
       if (productEdit.imagen) {
@@ -133,34 +147,51 @@ export const Form = () => {
   // Validación en tiempo real
   useEffect(() => {
     if (product.nombre && product.nombre.length > 100) {
-      setErrors(prev => ({ ...prev, nombre: 'Nombre no puede exceder 100 caracteres' }));
-    } else if (errors.nombre === 'Nombre no puede exceder 100 caracteres') {
-      setErrors(prev => ({ ...prev, nombre: '' }));
+      setErrors((prev) => ({
+        ...prev,
+        nombre: "Nombre no puede exceder 100 caracteres",
+      }));
+    } else if (errors.nombre === "Nombre no puede exceder 100 caracteres") {
+      setErrors((prev) => ({ ...prev, nombre: "" }));
     }
   }, [product.nombre]);
 
   useEffect(() => {
     if (product.descripcion && product.descripcion.length > 500) {
-      setErrors(prev => ({ ...prev, descripcion: 'Descripción no puede exceder 500 caracteres' }));
-    } else if (errors.descripcion === 'Descripción no puede exceder 500 caracteres') {
-      setErrors(prev => ({ ...prev, descripcion: '' }));
+      setErrors((prev) => ({
+        ...prev,
+        descripcion: "Descripción no puede exceder 500 caracteres",
+      }));
+    } else if (
+      errors.descripcion === "Descripción no puede exceder 500 caracteres"
+    ) {
+      setErrors((prev) => ({ ...prev, descripcion: "" }));
     }
   }, [product.descripcion]);
 
   useEffect(() => {
     if (product.cantidad_minima_compra > product.cantidad) {
-      setErrors(prev => ({ ...prev, cantidad_minima_compra: 'No puede ser mayor que la cantidad total' }));
-    } else if (errors.cantidad_minima_compra === 'No puede ser mayor que la cantidad total') {
-      setErrors(prev => ({ ...prev, cantidad_minima_compra: '' }));
+      setErrors((prev) => ({
+        ...prev,
+        cantidad_minima_compra: "No puede ser mayor que la cantidad total",
+      }));
+    } else if (
+      errors.cantidad_minima_compra ===
+      "No puede ser mayor que la cantidad total"
+    ) {
+      setErrors((prev) => ({ ...prev, cantidad_minima_compra: "" }));
     }
   }, [product.cantidad_minima_compra, product.cantidad]);
 
-  const handleIntegerChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof ProductFormData) => {
+  const handleIntegerChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof ProductFormData
+  ) => {
     const value = e.target.value;
-    if (value === '' || /^\d+$/.test(value)) {
+    if (value === "" || /^\d+$/.test(value)) {
       setProduct({
         ...product,
-        [field]: value === '' ? 0 : parseInt(value, 10)
+        [field]: value === "" ? 0 : parseInt(value, 10),
       });
     }
   };
@@ -176,24 +207,33 @@ export const Form = () => {
       };
       reader.readAsDataURL(file);
 
-      setProduct(prev => ({ ...prev, imagen: URL.createObjectURL(file) }));
+      setProduct((prev) => ({ ...prev, imagen: URL.createObjectURL(file) }));
     }
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!product.nombre.trim()) newErrors.nombre = 'Nombre es requerido';
-    if (product.nombre.length > 100) newErrors.nombre = 'Nombre no puede exceder 100 caracteres';
-    if (!product.descripcion.trim()) newErrors.descripcion = 'Descripción es requerida';
-    if (product.descripcion.length > 500) newErrors.descripcion = 'Descripción no puede exceder 500 caracteres';
-    if (product.cantidad <= 0) newErrors.cantidad = 'Cantidad debe ser mayor a 0';
-    if (product.cantidad_minima_compra <= 0) newErrors.cantidad_minima_compra = 'Cantidad mínima inválida';
-    if (product.cantidad_minima_compra > product.cantidad) newErrors.cantidad_minima_compra = 'No puede ser mayor que la cantidad total';
-    if (product.precio_unidad <= 0) newErrors.precio_unidad = 'Precio debe ser mayor a 0';
-    if (product.descuento && (product.descuento < 0 || product.descuento > 100)) newErrors.descuento = 'Descuento debe ser entre 0 y 100';
-    if (!location) newErrors.location = 'Debes seleccionar una ubicación';
-    if (!isEditMode && !imageFile) newErrors.imagen = 'La imagen es requerida';
+    if (!product.nombre.trim()) newErrors.nombre = "Nombre es requerido";
+    if (product.nombre.length > 100)
+      newErrors.nombre = "Nombre no puede exceder 100 caracteres";
+    if (!product.descripcion.trim())
+      newErrors.descripcion = "Descripción es requerida";
+    if (product.descripcion.length > 500)
+      newErrors.descripcion = "Descripción no puede exceder 500 caracteres";
+    if (product.cantidad <= 0)
+      newErrors.cantidad = "Cantidad debe ser mayor a 0";
+    if (product.cantidad_minima_compra <= 0)
+      newErrors.cantidad_minima_compra = "Cantidad mínima inválida";
+    if (product.cantidad_minima_compra > product.cantidad)
+      newErrors.cantidad_minima_compra =
+        "No puede ser mayor que la cantidad total";
+    if (product.precio_unidad <= 0)
+      newErrors.precio_unidad = "Precio debe ser mayor a 0";
+    if (product.descuento && (product.descuento < 0 || product.descuento > 100))
+      newErrors.descuento = "Descuento debe ser entre 0 y 100";
+    if (!location) newErrors.location = "Debes seleccionar una ubicación";
+    if (!isEditMode && !imageFile) newErrors.imagen = "La imagen es requerida";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -212,7 +252,10 @@ export const Form = () => {
       );
 
       if (isDuplicate) {
-        setErrors({ ...errors, nombre: 'Ya existe un producto con este nombre' });
+        setErrors({
+          ...errors,
+          nombre: "Ya existe un producto con este nombre",
+        });
         return;
       }
 
@@ -230,19 +273,19 @@ export const Form = () => {
         );
       } else {
         if (!imageFile) {
-          throw new Error('La imagen es requerida para crear un producto');
+          throw new Error("La imagen es requerida para crear un producto");
         }
-        await ProductManagementService.createProduct(
-          productData,
-          imageFile
-        );
+        await ProductManagementService.createProduct(productData, imageFile);
       }
       setShowSuccess(true);
 
-      setTimeout(() => navigate('/MisProductos'), 1500);
+      setTimeout(() => navigate("/MisProductos"), 1500);
     } catch (error) {
-      console.error('Error al guardar producto:', error);
-      setErrors({ ...errors, general: 'Error al guardar el producto. Por favor intente nuevamente.' });
+      console.error("Error al guardar producto:", error);
+      setErrors({
+        ...errors,
+        general: "Error al guardar el producto. Por favor intente nuevamente.",
+      });
     }
   };
 
@@ -266,7 +309,7 @@ export const Form = () => {
     visible: (i: number) => ({
       opacity: 1,
       x: 0,
-      transition: { delay: i * 0.1, duration: 0.3 }
+      transition: { delay: i * 0.1, duration: 0.3 },
     }),
   };
 
@@ -282,7 +325,7 @@ export const Form = () => {
         variants={inputVariants}
         custom={0}
       >
-        {isEditMode ? 'Editar' : 'Crear'} Producto
+        {isEditMode ? "Editar" : "Crear"} Producto
       </motion.h2>
 
       {errors.general && (
@@ -303,7 +346,7 @@ export const Form = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
         >
-          Producto {isEditMode ? 'actualizado' : 'creado'} exitosamente
+          Producto {isEditMode ? "actualizado" : "creado"} exitosamente
         </motion.div>
       )}
 
@@ -330,10 +373,13 @@ export const Form = () => {
           <label className="block text-sm font-medium">Descripción*</label>
           <textarea
             name="description"
-            className={`w-full mt-1 p-2 border rounded-xl focus:border-[#48BD28] focus:outline-none ${errors.descripcion ? 'border-red-500' : 'border-gray-300'
-              }`}
+            className={`w-full mt-1 p-2 border rounded-xl focus:border-[#48BD28] focus:outline-none ${
+              errors.descripcion ? "border-red-500" : "border-gray-300"
+            }`}
             value={product.descripcion}
-            onChange={(e) => setProduct({ ...product, descripcion: e.target.value })}
+            onChange={(e) =>
+              setProduct({ ...product, descripcion: e.target.value })
+            }
           />
           {errors.descripcion && (
             <p className="text-red-500 text-sm mt-1">{errors.descripcion}</p>
@@ -351,7 +397,7 @@ export const Form = () => {
             name="quantity"
             placeholder="Ingrese la cantidad del producto"
             value={product.cantidad.toString()}
-            onChange={(e) => handleIntegerChange(e, 'cantidad')}
+            onChange={(e) => handleIntegerChange(e, "cantidad")}
             error={errors.cantidad}
           />
 
@@ -361,17 +407,20 @@ export const Form = () => {
             name="minimun_quantity"
             placeholder="Ingrese la cantidad mínima de compra"
             value={product.cantidad_minima_compra.toString()}
-            onChange={(e) => handleIntegerChange(e, 'cantidad_minima_compra')}
+            onChange={(e) => handleIntegerChange(e, "cantidad_minima_compra")}
             error={errors.cantidad_minima_compra}
           />
         </motion.div>
 
-        <motion.div variants={inputVariants} custom={5} className="flex flex-col gap-2">
+        <motion.div
+          variants={inputVariants}
+          custom={5}
+          className="flex flex-col gap-2"
+        >
           <label className="block text-sm font-medium">Ubicación*</label>
           <LocationPicker
             setLocation={setLocation}
             initialLocation={location}
-            required
           />
           {errors.location && (
             <p className="text-red-500 text-sm mt-1">{errors.location}</p>
@@ -389,7 +438,7 @@ export const Form = () => {
             name="price"
             placeholder="Ingrese el precio por unidad"
             value={product.precio_unidad.toString()}
-            onChange={(e) => handleIntegerChange(e, 'precio_unidad')}
+            onChange={(e) => handleIntegerChange(e, "precio_unidad")}
             error={errors.precio_unidad}
           />
 
@@ -398,11 +447,14 @@ export const Form = () => {
             type="text"
             name="discount"
             placeholder="Ingrese descuento"
-            value={product.descuento?.toString() || ''}
+            value={product.descuento?.toString() || ""}
             onChange={(e) => {
               const val = e.target.value;
-              if (val === '' || /^\d+$/.test(val)) {
-                setProduct({ ...product, descuento: val === '' ? undefined : parseInt(val, 10) });
+              if (val === "" || /^\d+$/.test(val)) {
+                setProduct({
+                  ...product,
+                  descuento: val === "" ? undefined : parseInt(val, 10),
+                });
               }
             }}
             error={errors.descuento}
@@ -439,7 +491,7 @@ export const Form = () => {
             type="submit"
             className="rounded-xl bg-[#48BD28] px-6 py-3 text-white hover:bg-[#379e1b] transition"
           >
-            {isEditMode ? 'Guardar cambios' : 'Crear producto'}
+            {isEditMode ? "Guardar cambios" : "Crear producto"}
           </button>
 
           <button
@@ -468,7 +520,9 @@ export const Form = () => {
             initial={{ scale: 0.9, y: 20 }}
             animate={{ scale: 1, y: 0 }}
           >
-            <h3 className="text-lg font-bold mb-4">¿Estás seguro que quieres cancelar?</h3>
+            <h3 className="text-lg font-bold mb-4">
+              ¿Estás seguro que quieres cancelar?
+            </h3>
             <p className="mb-6">Tienes cambios sin guardar que se perderán.</p>
             <div className="flex justify-end gap-3">
               <button

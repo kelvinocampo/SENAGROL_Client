@@ -193,11 +193,11 @@ const TransportesContenido: React.FC = () => {
 
       {/* Modal Escanear QR */}
     {modalQrOpen && (
-  <ModalEscanearQr
-    isOpen={modalQrOpen}
-    onClose={() => setModalQrOpen(false)}
-    compraId={selectedCompraId} // ✅ se pasa el id
-  />
+<ModalEscanearQr
+  isOpen={modalQrOpen}
+  onClose={() => setModalQrOpen(false)}
+  compraId={selectedCompraId ?? undefined} // <- Aquí
+/>
 )}
     </div>
   );

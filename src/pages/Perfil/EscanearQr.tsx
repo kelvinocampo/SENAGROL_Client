@@ -37,7 +37,11 @@ const ModalEscanearQr: React.FC<Props> = ({ isOpen, onClose, compraId }) => {
             </h2>
 
             <div className="bg-gray-50 p-4 rounded-lg shadow-inner">
-              <QrScanner compraId={compraId} /> {/* ✅ props pasado aquí */}
+             <QrScanner
+  isOpen={isOpen}
+  onClose={onClose}
+  compraId={compraId}
+/>
             </div>
           </motion.div>
         </motion.div>
