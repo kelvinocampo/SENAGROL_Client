@@ -1,6 +1,7 @@
+// PerfilUsuarioUnico.tsx
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, UploadCloud } from "lucide-react";
 
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
@@ -43,19 +44,10 @@ function PerfilUsuarioUnico() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [vehicleFiles, setVehicleFiles] = useState<File[]>([]);
 
-  const [dialog, setDialog] = useState<{ open: boolean; type: "success" | "error"; message: string }>({
-    open: false,
-    type: "success",
-    message: "",
-  });
-
-  const [confirmDialog, setConfirmDialog] = useState({
-    open: false,
-    title: "",
-    message: "",
-    onConfirm: () => {},
-  });
+  const [dialog, setDialog] = useState({ open: false, type: "success", message: "" });
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: "", message: "", onConfirm: () => {} });
 
   useEffect(() => {
     const fetchPerfil = async () => {
@@ -97,9 +89,6 @@ function PerfilUsuarioUnico() {
     setLoading(true);
     try {
       const payload: any = { ...formData, ...(password && { password }) };
-      if (!formData.vehicleWeight || formData.vehicleWeight === 0) {
-        delete payload.vehicleWeight;
-      }
       await updateUserProfile(payload);
       setDialog({ open: true, type: "success", message: "Perfil actualizado correctamente." });
       setPassword("");
@@ -145,6 +134,17 @@ function PerfilUsuarioUnico() {
     });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const fileArray = Array.from(files);
+    if (fileArray.length > 3) {
+      alert("Solo puedes subir hasta 3 imágenes.");
+      return;
+    }
+    setVehicleFiles(fileArray);
+  };
+
   if (loading || !formData) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
@@ -155,23 +155,24 @@ function PerfilUsuarioUnico() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f4fcf1] to-[#caf5bd]  font-[Fredoka] text-[#111]">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#f4fcf1] to-[#caf5bd] font-[Fredoka] text-[#111]">
       <Header />
-      <main className="flex flex-col h-150 lg:flex-row pt-10 py-10 px-10 gap-10 ">
+      <main className="flex-1 flex flex-col lg:flex-row pt-10 pb-20 px-10 gap-10">
         <UserProfileCard />
 
         <motion.section className="lg:w-2/3 w-full h-full" initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 0.2 }}>
-          <div className=" p-8 rounded-2xl  space-y-6">
+          <div className="p-8 rounded-2xl space-y-6">
             <h2 className="text-3xl font-bolder mb-4 text-[#0D141C]">Perfil</h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {["username", "email", "name", "phone"].map((key, idx) => (
+              {['username', 'email', 'name', 'phone'].map((key, idx) => (
                 <motion.div variants={fadeInUp} custom={idx} key={key}>
                   <Input
                     name={key}
                     label={
-                      key === "username" ? "Nombre de usuario" :
-                      key === "email" ? "Correo" :
-                      key === "name" ? "Nombre completo" : "Teléfono"
+                      key === 'username' ? 'Nombre de usuario' :
+                      key === 'email' ? 'Correo' :
+                      key === 'name' ? 'Nombre completo' : 'Teléfono'
                     }
                     type="text"
                     value={(formData as any)[key]}
@@ -181,7 +182,7 @@ function PerfilUsuarioUnico() {
               ))}
 
               <motion.div variants={fadeInUp} custom={4} className="relative">
-                <Input label="Contraseña" type={showPassword ? "text" : "password"} name="password" placeholder="Ingresa tu nueva contraseña" value={password} onChange={(e) => setPassword(e.target.value)}  />
+                <Input label="Contraseña" type={showPassword ? "text" : "password"} name="password" placeholder="Ingresa tu nueva contraseña" value={password} onChange={(e) => setPassword(e.target.value)} />
                 <span className="absolute right-3 top-[38px] cursor-pointer text-gray-400 hover:text-black transition" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </span>
@@ -193,6 +194,28 @@ function PerfilUsuarioUnico() {
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </span>
               </motion.div>
+
+              {formData.roles?.toLowerCase().includes("transportador") && (
+                <>
+                  <Input name="license" label="Licencia de conducción" type="text" value={formData.license || ""} onChange={handleChange} />
+                  <Input name="soat" label="SOAT vigente" type="text" value={formData.soat || ""} onChange={handleChange} />
+                  <Input name="vehicleCard" label="Tarjeta de propiedad del vehículo" type="text" value={formData.vehicleCard || ""} onChange={handleChange} />
+                  <Input name="vehicleType" label="Tipo de vehículo" type="text" value={formData.vehicleType || ""} onChange={handleChange} />
+                  <Input name="vehicleWeight" label="Peso del vehículo (kg)" type="number" value={formData.vehicleWeight || 0} onChange={handleChange} />
+                  <div className="col-span-2">
+                    <label className="block mb-2 text-sm font-medium">Imágenes del vehículo (2-3 imágenes)</label>
+                    <label className="flex items-center justify-center w-full px-4 py-6 tracking-wide text-green-700 uppercase border border-green-300 rounded-lg cursor-pointer bg-white hover:bg-green-50">
+                      <UploadCloud className="mr-2" /> Elegir archivos
+                      <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
+                    </label>
+                    <div className="mt-2 grid grid-cols-3 gap-4">
+                      {vehicleFiles.map((file, idx) => (
+                        <img key={idx} src={URL.createObjectURL(file)} alt={`img-${idx}`} className="h-24 w-full object-cover rounded-lg border border-gray-300" />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="pt-6 text-right">
@@ -222,6 +245,7 @@ function PerfilUsuarioUnico() {
 
       <Footer />
     </div>
+    
   );
 }
 

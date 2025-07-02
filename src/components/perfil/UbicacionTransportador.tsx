@@ -12,7 +12,10 @@ import {
   obtenerUbicacionCompra,
   Ubicacion,
 } from "@/services/Perfil/UbicacionTRansportador";
+import { PiMapPinSimpleFill } from "react-icons/pi";
+import { renderToStaticMarkup } from "react-dom/server";
 
+// Configurar los íconos por defecto de Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -20,6 +23,18 @@ L.Icon.Default.mergeOptions({
   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
   shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
 });
+
+// Función para crear íconos personalizados usando react-icons
+const createCustomIcon = (color: string) =>
+  L.divIcon({
+    html: renderToStaticMarkup(
+      <PiMapPinSimpleFill size={30} color={color} />
+    ),
+    className: "",
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  });
 
 interface Props {
   id_compra: number;
@@ -193,14 +208,14 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
 
   return (
     <div className="p-4 bg-white rounded-xl shadow-lg">
-      <h2 className="text-2xl font-bold text-green-700 mb-4 text-center flex items-center justify-center gap-2">
-        🗺️ Ruta de entrega
+      <h2 className="text-2xl font-bold text-black mb-4 text-center flex items-center justify-center gap-2">
+        Ruta de entrega
       </h2>
       <div className="h-[500px] w-full rounded-xl overflow-hidden border border-gray-200">
         <MapContainer center={centro} zoom={13} className="h-full w-full">
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-          <Marker position={comprador}>
+          <Marker position={comprador} icon={createCustomIcon("#3D8C00")}>
             <Popup>
               <strong>🏠 Comprador</strong>
               <br />
@@ -208,7 +223,7 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
             </Popup>
           </Marker>
 
-          <Marker position={vendedor}>
+          <Marker position={vendedor} icon={createCustomIcon("#0033FF")}>
             <Popup>
               <strong>📦 Vendedor</strong>
               <br />
@@ -218,7 +233,7 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
 
           {ubicacionUsuario && (
             <>
-              <Marker position={ubicacionUsuario}>
+              <Marker position={ubicacionUsuario} icon={createCustomIcon("#FF0000")}>
                 <Popup>🧍‍♂️ Tú</Popup>
               </Marker>
               {rutaAVendedor.length > 0 && (

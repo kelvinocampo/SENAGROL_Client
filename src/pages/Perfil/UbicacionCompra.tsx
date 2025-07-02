@@ -1,66 +1,69 @@
-import { useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import MapaUbicacion from "@/components/perfil/UbicacionTransportador";
-import Header from "@/components/Header";
-import Footer from "@/components/footer";
-import UserProfileCard from "@/components/perfil/UserProfileCard";
-import { Link } from "react-router-dom";
+import { PiMapPinSimpleFill } from "react-icons/pi";
+type Props = {
+  id: number;
+  onClose: () => void;
+};
 
-const UbicacionCompra = () => {
-  const { id } = useParams<{ id: string }>();
-
-  if (!id) {
-    return <p className="text-center text-red-500 mt-6">⚠️ Compra no especificada</p>;
-  }
-
+const ModalUbicacionCompra = ({ id, onClose }: Props) => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-white/30 bg-opacity-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.div
+          className="w-full max-w-5xl  bg-white rounded-lg shadow-2xl p-4 relative mx-4"
+          initial={{ scale: 0.95, y: 50 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.95, y: 50 }}
+          transition={{ duration: 0.3 }}
+        >
+         
+          {/* Mapa */}
+          <div className="bg-gray-100 rounded-xl h-80 overflow-hidden shadow-inner">
+            <MapaUbicacion id_compra={id} />
+          </div>
 
-      <main className="flex-grow p-4 bg-white">
-        <div className="px-4 pt-6 self-start">
-          <Link
-            to="/mistransportes"
-            className="inline-flex items-center text-green-700 hover:text-green-900 font-medium"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-5 h-5 mr-2"
+          {/* Leyenda */}
+          <div className="mt-4 flex text-left gap-6">
+            <div className="flex items-center gap-2 px-3 py-3 bg-white shadow-xl rounded-lg border-none">
+              <PiMapPinSimpleFill size={30} className="text-[#FF0000] "/>
+              
+              <span className="text-sm font-medium">Yo</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-3 bg-white shadow-xl rounded-lg border-none">
+               <PiMapPinSimpleFill size={30} className="text-[#0033FF] "/>
+              <span className="text-sm font-medium">Vendedor</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-3 bg-white shadow-xl rounded-lg border-none">
+               <PiMapPinSimpleFill size={30} className="text-[#3D8C00] "/>
+              <span className="text-sm font-medium">Comprador</span>
+            </div>
+          </div>
+
+          {/* Botones de acción */}
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              onClick={onClose}
+              className="px-3 py-2 bg-[#D9D9D9] text-black rounded-xl hover:bg-gray-300 transition"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5L8.25 12l7.5-7.5"
-              />
-            </svg>
-            Volver a Mis Transportes
-          </Link>
-        </div>
-
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          Ubicación de la Compra #{id}
-        </h1>
-
-        {/* Diseño en dos columnas */}
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Columna izquierda - Tarjeta de perfil */}
-          <div className="w-full lg:w-1/3">
-            <UserProfileCard />
+              Cancelar
+            </button>
+            <button
+              onClick={onClose}
+              className="px-3 py-2 bg-[#48BD28] text-white rounded-xl hover:bg-green-600 transition"
+            >
+              Confirmar
+            </button>
           </div>
-
-          {/* Columna derecha - Mapa */}
-          <div className="w-full lg:w-2/3">
-            <MapaUbicacion id_compra={parseInt(id)} />
-          </div>
-        </div>
-      </main>
-
-      <Footer />
-    </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
-export default UbicacionCompra;
+export default ModalUbicacionCompra;
