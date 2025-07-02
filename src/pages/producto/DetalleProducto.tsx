@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import { BackToHome } from "@components/admin/common/BackToHome";
 import { getUserRole } from "@/services/Perfil/authService";
+import { ChatService } from "@/services/Chats/ChatService"; 
 import Header from "@components/Header";
 import Footer from "@components/footer";
 import { motion } from "framer-motion";
@@ -22,7 +23,7 @@ export default function DetalleProducto() {
 
   useEffect(() => {
     if (context && id) {
-      const found = context.allProducts.find(p => String(p.id) === id);
+      const found = context.allProducts.find((p) => String(p.id) === id);
       setProducto(found ?? null);
       if (found) setCantidad(found.cantidad_minima_compra || 1);
     }
@@ -33,24 +34,44 @@ export default function DetalleProducto() {
       try {
         const r = (await getUserRole()).split(/\s+/).filter(Boolean);
         setRoles(r);
-      } catch { setRoles([]); }
+      } catch {
+        setRoles([]);
+      }
     })();
   }, []);
 
+  const isBuyer = roles.includes("comprador");
+
   const handleComprar = () => {
-    if (!roles.includes("comprador")) {
+    if (!isBuyer) {
       setNoBuyer(true);
       return;
     }
-    navigate(`/pago/${producto.id}`);
+    if (producto?.id) {
+      navigate(`/pago/${producto.id}`);
+    }
   };
 
-  const handleChat = () => {
-    if (producto?.id_vendedor) navigate(`/Chats/${producto.id_vendedor}`);
+  const handleChat = async () => {
+    try {
+      if (!producto?.id_vendedor) return;
+
+      const chat = await ChatService.createOrGetChatWithUser(producto.id_vendedor);
+
+      if (chat?.id_chat) {
+        navigate(`/Chats/${chat.id_chat}`);
+      } else {
+        alert("No se pudo obtener o crear el chat.");
+      }
+    } catch (err) {
+      console.error("Error al crear o recuperar el chat:", err);
+      alert("Ocurrió un error al intentar conversar con el vendedor.");
+    }
   };
 
   if (!context || !producto) return <div className="p-6">Cargando producto…</div>;
-  const isBuyer = roles.includes("comprador");
+
+  const precioConDescuento = producto.precio_unidad - producto.precio_unidad * producto.descuento;
 
   return (
     <div className="font-[Fredoka] min-h-screen flex flex-col bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3]">
@@ -65,7 +86,7 @@ export default function DetalleProducto() {
         </section>
 
         <motion.section
-          className="hidden lg:grid w-[92%] max-w-7xl mx-auto mt-6 grid-cols-[490px_1fr] gap-10 p-10 "
+          className="hidden lg:grid w-[92%] max-w-7xl mx-auto mt-6 grid-cols-[490px_1fr] gap-10 p-10"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -77,10 +98,10 @@ export default function DetalleProducto() {
             transition={{ duration: 0.6 }}
           >
             <img
-              src={producto.imagen}
+              src={producto.imagen || "/placeholder.jpg"}
               alt={producto.nombre}
               className="w-full h-full object-cover rounded-xl shadow-lg"
-              onError={e => ((e.target as HTMLImageElement).src = "")}
+              onError={(e) => ((e.target as HTMLImageElement).src = "/placeholder.jpg")}
             />
           </motion.div>
 
@@ -94,13 +115,13 @@ export default function DetalleProducto() {
               <h1 className="text-2xl font-bold text-black">{producto.nombre}</h1>
               <p className="text-sm text-[#676767] mt-2">{producto.descripcion}</p>
 
-              <div className="flex flex-col gap-2 mt-3 flex-wrap">
-                <span className="px-1 py-0.5 text-xs w-14 font-bold bg-[#FF2B2B] text-white rounded-full">
+              <div className="flex flex-col gap-2 mt-3">
+                <span className="px-2 py-1 text-xs font-bold bg-[#FF2B2B] text-white rounded-full w-fit">
                   {producto.descuento * 100}% OFF
                 </span>
                 <span className="text-green-700 font-bold">
-                  Antes: ${producto.precio_unidad} Ahora: $
-                  {producto.precio_unidad - producto.precio_unidad * producto.descuento}
+                  Antes: ${producto.precio_unidad.toLocaleString()} <br />
+                  Ahora: ${precioConDescuento.toLocaleString()}
                   <span className="text-sm text-[#676767]"> / unidad</span>
                 </span>
               </div>
@@ -116,27 +137,34 @@ export default function DetalleProducto() {
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium">Cantidad:</span>
                 <button
-                  onClick={() => setCantidad(c => Math.max(producto.cantidad_minima_compra, c - 1))}
-                  className="w-8 h-8 rounded-full bg-[#48BD28] hover:bg-gray-300"
-                >–</button>
+                  onClick={() =>
+                    setCantidad((c) => Math.max(producto.cantidad_minima_compra, c - 1))
+                  }
+                  className="w-8 h-8 rounded-full bg-[#48BD28] hover:bg-green-500 text-white"
+                >
+                  –
+                </button>
                 <span className="px-3 py-0.5 font-semibold">{cantidad}</span>
                 <button
-                  onClick={() => setCantidad(c => c + 1)}
-                  className="w-8 h-8 rounded-full bg-[#48BD28] hover:bg-gray-300"
-                >+</button>
+                  onClick={() => setCantidad((c) => c + 1)}
+                  className="w-8 h-8 rounded-full bg-[#48BD28] hover:bg-green-500 text-white"
+                >
+                  +
+                </button>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleComprar}
-                  disabled={!isBuyer}
+                  disabled={!isBuyer || cantidad < producto.cantidad_minima_compra}
                   className={`w-48 py-2 rounded-lg shadow font-semibold transition
-                    ${isBuyer
+                    ${isBuyer && cantidad >= producto.cantidad_minima_compra
                       ? "bg-[#48BD28] text-white hover:bg-green-600"
                       : "bg-gray-300 text-gray-600 cursor-not-allowed"}`}
                 >
                   Comprar
                 </button>
+
                 <button
                   onClick={handleChat}
                   className="w-60 py-2 rounded-lg shadow font-semibold bg-[#676767] text-white hover:bg-gray-500 transition"
@@ -153,7 +181,7 @@ export default function DetalleProducto() {
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
           <motion.div
             className="max-w-md mx-4 bg-white/90 p-8 rounded-2xl shadow-2xl border border-red-300 text-center"
-            initial={{ scale: .8, opacity: 0 }}
+            initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
           >
             <h3 className="text-xl font-semibold text-red-700 mb-4">Acción no permitida</h3>

@@ -153,4 +153,23 @@ static async getChatById(id_chat: number) {
             throw error;
         }
     }
+    static async createOrGetChatWithUser(id_user2: number) {
+    try {
+      const response = await fetch(`${this.API_URL}/chat/${id_user2}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Error al crear o recuperar el chat');
+
+      const result = await response.json();
+      return result.chat; 
+    } catch (error) {
+      console.error('Error en createOrGetChatWithUser:', error);
+      throw error;
+    }
+  }
 }
