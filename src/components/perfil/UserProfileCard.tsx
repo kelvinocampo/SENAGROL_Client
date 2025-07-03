@@ -104,7 +104,7 @@ const UserProfileCard: React.FC = () => {
         className="rounded-full w-24 h-24 object-cover"
       />
       <h2 className="text-xl font-semibold mt-2">{profileData.username}</h2>
-      
+
       <div className="w-full mt-4 space-y-1 text-sm text-left">
         <div className="flex justify-between text-[#2E7C19] font-medium">
           <span>Nombre</span>
@@ -124,7 +124,6 @@ const UserProfileCard: React.FC = () => {
         </div>
       </div>
 
-      {/* Si es transportador, mostrar detalles del vehículo */}
       {lowerRole.includes("transportador") && (
         <>
           <hr className="my-4 w-full border-gray-300" />
@@ -134,7 +133,7 @@ const UserProfileCard: React.FC = () => {
               <span className="text-black">{profileData.tipoVehiculo || "—"}</span>
             </div>
             <div className="flex justify-between text-[#2E7C19] font-medium">
-              <span>Placa</span>
+              <span>Tarjeta Propiedad</span>
               <span className="text-black">{profileData.tarjetaPropiedad || "—"}</span>
             </div>
             <div className="flex justify-between text-[#2E7C19] font-medium">
@@ -151,7 +150,6 @@ const UserProfileCard: React.FC = () => {
             </div>
           </div>
 
-          {/* Carrusel simple de imagen */}
           {profileData.fotosVehiculo && (
             <div className="mt-4">
               <Slider
@@ -163,8 +161,7 @@ const UserProfileCard: React.FC = () => {
         </>
       )}
 
-      {/* Botones si no es transportador o vendedor */}
-      <div className="w-full mt-4 space-y-2">
+      <div className="w-full mt-4 space-y-2 flex flex-col items-center">
         {!lowerRole.includes("transportador") && (
           <button
             onClick={() => navigate("/formulariotransportador")}
@@ -175,6 +172,16 @@ const UserProfileCard: React.FC = () => {
         )}
 
         {!lowerRole.includes("vendedor") && <PeticionVendedor />}
+
+        <button
+          onClick={() => {
+            localStorage.removeItem("token");
+            navigate("/login");
+          }}
+          className="w-60 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl font-semibold transition-colors"
+        >
+          Cerrar sesión
+        </button>
       </div>
     </motion.aside>
   );

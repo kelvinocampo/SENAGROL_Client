@@ -1,7 +1,7 @@
 // src/contexts/Chats.tsx
 
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { ChatService } from '@/services/Chats/ChatService';
+import { ChatService } from '@/services/Chats/ChatService'; 
 
 export interface Chat {
   id_chat: number;

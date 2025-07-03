@@ -30,7 +30,16 @@ export default function Pago() {
   const [loading, setLoading] = useState(false);
 
   const [cardholderName, setCardholderName] = useState("");
-  const [cardError, setCardError] = useState<string | null>(null);
+  const [cardErrors, setCardErrors] = useState({
+    number: null as string | null,
+    expiry: null as string | null,
+    cvc: null as string | null,
+  });
+  const [cardStatus, setCardStatus] = useState({
+    number: false,
+    expiry: false,
+    cvc: false,
+  });
 
   useEffect(() => {
     if (!ctx || !id) return;
@@ -43,21 +52,36 @@ export default function Pago() {
     setCantidad(found.cantidad_minima_compra);
   }, [ctx, id, navigate]);
 
-  // Establecer ubicación de prueba si es necesario
   useEffect(() => {
-    // Elimínalo si quieres que el usuario elija manualmente.
     setUbicacion({ lat: 4.65, lng: -74.05 }); // Bogotá
   }, []);
 
   const subtotal = (producto?.precio_unidad ?? 0) * cantidad;
   const total = subtotal + (producto?.precio_transporte ?? 0);
 
+  const hasCardErrors =
+    !!cardErrors.number || !!cardErrors.expiry || !!cardErrors.cvc;
+
+  const isFormValid = () => {
+    return (
+      !!cardholderName &&
+      !hasCardErrors &&
+      cardStatus.number &&
+      cardStatus.expiry &&
+      cardStatus.cvc &&
+      !!ubicacion &&
+      !!stripe &&
+      !!elements &&
+      !!producto
+    );
+  };
+
   const handlePagar = async () => {
     if (!stripe || !elements) return alert("Stripe aún no está listo.");
     if (!producto) return;
     if (!ubicacion) return alert("Selecciona una ubicación.");
     if (!cardholderName) return alert("Completa el nombre del titular de la tarjeta.");
-    if (cardError) return alert("Corrige los errores en la tarjeta.");
+    if (hasCardErrors) return alert("Corrige los errores en la tarjeta.");
 
     const cardElement = elements.getElement(CardNumberElement);
     if (!cardElement) return alert("Error con el campo de tarjeta.");
@@ -81,26 +105,6 @@ export default function Pago() {
       setLoading(false);
     }
   };
-
-  const isFormValid =
-    !!cardholderName &&
-    !cardError &&
-    !!ubicacion &&
-    !!stripe &&
-    !!elements &&
-    !!producto;
-
-  useEffect(() => {
-    console.log({
-      cardholderName,
-      cardError,
-      ubicacion,
-      stripeReady: !!stripe,
-      elementsReady: !!elements,
-      productoCargado: !!producto,
-      isFormValid,
-    });
-  }, [cardholderName, cardError, ubicacion, stripe, elements, producto]);
 
   if (!producto) return null;
 
@@ -128,7 +132,16 @@ export default function Pago() {
               <label className="block mb-1">Número de tarjeta</label>
               <CardNumberElement
                 className="w-full border border-[#48BD28] rounded-lg p-3"
-                onChange={(event) => setCardError(event.error?.message || null)}
+                onChange={(e) => {
+                  setCardErrors((prev) => ({
+                    ...prev,
+                    number: e.error?.message || null,
+                  }));
+                  setCardStatus((prev) => ({
+                    ...prev,
+                    number: e.complete,
+                  }));
+                }}
               />
             </div>
 
@@ -137,20 +150,40 @@ export default function Pago() {
                 <label className="block mb-1">Vencimiento</label>
                 <CardExpiryElement
                   className="w-full border border-[#48BD28] rounded-lg p-3"
-                  onChange={(event) => setCardError(event.error?.message || null)}
+                  onChange={(e) => {
+                    setCardErrors((prev) => ({
+                      ...prev,
+                      expiry: e.error?.message || null,
+                    }));
+                    setCardStatus((prev) => ({
+                      ...prev,
+                      expiry: e.complete,
+                    }));
+                  }}
                 />
               </div>
               <div className="w-1/2">
                 <label className="block mb-1">CVV</label>
                 <CardCvcElement
                   className="w-full border border-[#48BD28] rounded-lg p-3"
-                  onChange={(event) => setCardError(event.error?.message || null)}
+                  onChange={(e) => {
+                    setCardErrors((prev) => ({
+                      ...prev,
+                      cvc: e.error?.message || null,
+                    }));
+                    setCardStatus((prev) => ({
+                      ...prev,
+                      cvc: e.complete,
+                    }));
+                  }}
                 />
               </div>
             </div>
 
-            {cardError && (
-              <p className="text-red-500 text-sm mt-1">{cardError}</p>
+            {hasCardErrors && (
+              <p className="text-red-500 text-sm mt-1">
+                {cardErrors.number || cardErrors.expiry || cardErrors.cvc}
+              </p>
             )}
           </div>
         </section>
@@ -214,9 +247,9 @@ export default function Pago() {
 
           <button
             onClick={handlePagar}
-            disabled={loading || !isFormValid}
+            disabled={loading || !isFormValid()}
             className={`w-full py-3 rounded-lg text-white font-semibold transition ${
-              loading || !isFormValid
+              loading || !isFormValid()
                 ? "bg-green-300 cursor-not-allowed"
                 : "bg-[#48BD28] hover:bg-green-600"
             }`}
