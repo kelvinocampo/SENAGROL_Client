@@ -1,33 +1,43 @@
-export const updateUserProfile = async (formData: any) => {
+export const updateUserProfile = async (formData: any, vehicleFiles: File[] = []) => {
   try {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("No se encontró el token de autenticación.");
 
-    const body: any = {
-      id_user: formData.id_user,
-      name: formData.name,
-      username: formData.username,
-      email: formData.email,
-      phone: formData.phone,
-      license: formData.license || "",
-      soat: formData.soat || "",
-      vehicleCard: formData.vehicleCard || "",
-      vehicleType: formData.vehicleType || "",
-      vehicleWeight: formData.vehicleWeight || 0,
-    };
+    const form = new FormData();
 
-    // ✅ Solo incluir la contraseña si fue escrita
+    form.append("id_user", formData.id_user.toString());
+    form.append("name", formData.name);
+    form.append("username", formData.username);
+    form.append("email", formData.email);
+    form.append("phone", formData.phone);
+
+    // Solo añade la contraseña si se ingresó
     if (formData.password && formData.password.trim() !== "") {
-      body.password = formData.password;
+      form.append("password", formData.password);
     }
+
+    // Datos de transportador
+    form.append("license", formData.license || "");
+    form.append("soat", formData.soat || "");
+    form.append("vehicleCard", formData.vehicleCard || "");
+    form.append("vehicleType", formData.vehicleType || "");
+  form.append("vehicleWeight", String(Number(formData.vehicleWeight) || 0));
+
+    // ⚠️ Este nombre debe coincidir con req.files.imagen
+    for (const file of vehicleFiles) {
+      form.append("imagen", file);
+    }
+for (const pair of form.entries()) {
+  console.log(`${pair[0]}: ${pair[1]}`);
+}
 
     const response = await fetch("http://localhost:10101/usuario/edit", {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        // ❌ No pongas Content-Type cuando usas FormData
       },
-      body: JSON.stringify(body),
+      body: form,
     });
 
     const data = await response.json();
