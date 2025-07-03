@@ -1,38 +1,33 @@
-// services/Perfil/EditProfileService.ts
-
-export const updateUserProfile = async (formData: any, vehicleFiles: File[]) => {
+export const updateUserProfile = async (formData: any) => {
   try {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("No se encontró el token de autenticación.");
 
-    const form = new FormData();
+    const body: any = {
+      id_user: formData.id_user,
+      name: formData.name,
+      username: formData.username,
+      email: formData.email,
+      phone: formData.phone,
+      license: formData.license || "",
+      soat: formData.soat || "",
+      vehicleCard: formData.vehicleCard || "",
+      vehicleType: formData.vehicleType || "",
+      vehicleWeight: formData.vehicleWeight || 0,
+    };
 
-    // Asegúrate de enviar los campos EXACTOS que espera el backend
-    form.append("id_user", formData.id_user);
-    form.append("name", formData.name);
-    form.append("username", formData.username);
-    form.append("email", formData.email);
-    form.append("phone", formData.phone);
-    if (formData.password) form.append("password", formData.password);
-
-    form.append("license", formData.license || "");
-    form.append("soat", formData.soat || "");
-    form.append("vehicleCard", formData.vehicleCard || "");
-    form.append("vehicleType", formData.vehicleType || "");
-    form.append("vehicleWeight", formData.vehicleWeight?.toString() || "0");
-
-    // Agrega imágenes
-    for (const file of vehicleFiles) {
-      form.append("imagen", file); // este campo debe llamarse igual que en el backend
+    // ✅ Solo incluir la contraseña si fue escrita
+    if (formData.password && formData.password.trim() !== "") {
+      body.password = formData.password;
     }
 
-    const response = await fetch("https://senagrol.up.railway.app/usuario/edit", {
+    const response = await fetch("http://localhost:10101/usuario/edit", {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
-        // ⚠️ NO pongas Content-Type si estás usando FormData
+        "Content-Type": "application/json",
       },
-      body: form,
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();
@@ -43,6 +38,7 @@ export const updateUserProfile = async (formData: any, vehicleFiles: File[]) => 
 
     return data;
   } catch (error: any) {
+    console.error("Error en updateUserProfile:", error);
     throw new Error(error.message || "Error de conexión con el servidor.");
   }
 };

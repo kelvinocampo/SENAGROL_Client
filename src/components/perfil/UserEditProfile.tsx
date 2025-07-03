@@ -1,4 +1,3 @@
-// PerfilUsuarioUnico.tsx
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, UploadCloud } from "lucide-react";
@@ -47,7 +46,12 @@ function PerfilUsuarioUnico() {
   const [vehicleFiles, setVehicleFiles] = useState<File[]>([]);
 
   const [dialog, setDialog] = useState({ open: false, type: "success", message: "" });
-  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: "", message: "", onConfirm: () => {} });
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   useEffect(() => {
     const fetchPerfil = async () => {
@@ -88,15 +92,23 @@ function PerfilUsuarioUnico() {
     if (!formData) return;
     setLoading(true);
     try {
-      const payload: any = { ...formData, ...(password && { password }) };
-      await updateUserProfile(payload); // ✅ Aquí se pasan los archivos
+      const payload: any = {
+        ...formData,
+        ...(password.trim() !== "" ? { password: password.trim() } : {}),
+      };
+
+      await updateUserProfile(payload);
       setDialog({ open: true, type: "success", message: "Perfil actualizado correctamente." });
       setPassword("");
       setConfirmPassword("");
-      setVehicleFiles([]); // ✅ Limpia los archivos después de guardar
+      setVehicleFiles([]);
     } catch (err: any) {
       console.error("Error al actualizar perfil:", err);
-      setDialog({ open: true, type: "error", message: err.message || "Hubo un error al actualizar el perfil." });
+      setDialog({
+        open: true,
+        type: "error",
+        message: err.message || "Hubo un error al actualizar el perfil.",
+      });
     } finally {
       setLoading(false);
     }
@@ -108,7 +120,7 @@ function PerfilUsuarioUnico() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = () => {
     if (!formData) return;
 
     if (!formData.username || !formData.email || !formData.name || !formData.phone) {
@@ -117,16 +129,15 @@ function PerfilUsuarioUnico() {
     }
 
     if (password || confirmPassword) {
-  if (password.length < 6) {
-    setDialog({ open: true, type: "error", message: "La contraseña debe tener al menos 6 caracteres." });
-    return;
-  }
-  if (password !== confirmPassword) {
-    setDialog({ open: true, type: "error", message: "Las contraseñas no coinciden." });
-    return;
-  }
-}
-
+      if (password.length < 6) {
+        setDialog({ open: true, type: "error", message: "La contraseña debe tener al menos 6 caracteres." });
+        return;
+      }
+      if (password !== confirmPassword) {
+        setDialog({ open: true, type: "error", message: "Las contraseñas no coinciden." });
+        return;
+      }
+    }
 
     setConfirmDialog({
       open: true,
@@ -161,20 +172,27 @@ function PerfilUsuarioUnico() {
       <Header />
       <main className="flex-1 flex flex-col lg:flex-row pt-10 pb-20 px-10 gap-10">
         <UserProfileCard />
-
-        <motion.section className="lg:w-2/3 w-full h-full" initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 0.2 }}>
+        <motion.section
+          className="lg:w-2/3 w-full h-full"
+          initial={{ x: 50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
           <div className="p-8 rounded-2xl space-y-6">
             <h2 className="text-3xl font-bolder mb-4 text-[#0D141C]">Perfil</h2>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {['username', 'email', 'name', 'phone'].map((key, idx) => (
+              {["username", "email", "name", "phone"].map((key, idx) => (
                 <motion.div variants={fadeInUp} custom={idx} key={key}>
                   <Input
                     name={key}
                     label={
-                      key === 'username' ? 'Nombre de usuario' :
-                      key === 'email' ? 'Correo' :
-                      key === 'name' ? 'Nombre completo' : 'Teléfono'
+                      key === "username"
+                        ? "Nombre de usuario"
+                        : key === "email"
+                        ? "Correo"
+                        : key === "name"
+                        ? "Nombre completo"
+                        : "Teléfono"
                     }
                     type="text"
                     value={(formData as any)[key]}
@@ -184,15 +202,34 @@ function PerfilUsuarioUnico() {
               ))}
 
               <motion.div variants={fadeInUp} custom={4} className="relative">
-                <Input label="Contraseña" type={showPassword ? "text" : "password"} name="password" placeholder="Ingresa tu nueva contraseña"  onChange={(e) => setPassword(e.target.value)} />
-                <span className="absolute right-3 top-[38px] cursor-pointer text-gray-400 hover:text-black transition" onClick={() => setShowPassword(!showPassword)}>
+                <Input
+                  label="Contraseña"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Ingresa tu nueva contraseña"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <span
+                  className="absolute right-3 top-[38px] cursor-pointer text-gray-400 hover:text-black transition"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </span>
               </motion.div>
 
               <motion.div variants={fadeInUp} custom={5} className="relative">
-                <Input label="Confirmar Contraseña" type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Repite la nueva contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                <span className="absolute right-3 top-[38px] cursor-pointer text-gray-400 hover:text-black transition" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                <Input
+                  label="Confirmar Contraseña"
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="Repite la nueva contraseña"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <span
+                  className="absolute right-3 top-[38px] cursor-pointer text-gray-400 hover:text-black transition"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </span>
               </motion.div>
@@ -221,7 +258,11 @@ function PerfilUsuarioUnico() {
             </div>
 
             <div className="pt-6 text-right">
-              <button onClick={handleUpdate} className="bg-[#48bd28] hover:bg-[#379e1b] text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300" disabled={loading}>
+              <button
+                onClick={handleUpdate}
+                className="bg-[#48bd28] hover:bg-[#379e1b] text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300"
+                disabled={loading}
+              >
                 {loading ? "Guardando..." : "Guardar Cambios"}
               </button>
             </div>
