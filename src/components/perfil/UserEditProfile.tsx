@@ -89,7 +89,7 @@ function PerfilUsuarioUnico() {
     setLoading(true);
     try {
       const payload: any = { ...formData, ...(password && { password }) };
-      await updateUserProfile(payload, vehicleFiles); // ✅ Aquí se pasan los archivos
+      await updateUserProfile(payload); // ✅ Aquí se pasan los archivos
       setDialog({ open: true, type: "success", message: "Perfil actualizado correctamente." });
       setPassword("");
       setConfirmPassword("");
@@ -116,16 +116,17 @@ function PerfilUsuarioUnico() {
       return;
     }
 
-    if (password) {
-      if (password.length < 6) {
-        setDialog({ open: true, type: "error", message: "La contraseña debe tener al menos 6 caracteres." });
-        return;
-      }
-      if (password !== confirmPassword) {
-        setDialog({ open: true, type: "error", message: "Las contraseñas no coinciden." });
-        return;
-      }
-    }
+    if (password || confirmPassword) {
+  if (password.length < 6) {
+    setDialog({ open: true, type: "error", message: "La contraseña debe tener al menos 6 caracteres." });
+    return;
+  }
+  if (password !== confirmPassword) {
+    setDialog({ open: true, type: "error", message: "Las contraseñas no coinciden." });
+    return;
+  }
+}
+
 
     setConfirmDialog({
       open: true,
@@ -183,7 +184,7 @@ function PerfilUsuarioUnico() {
               ))}
 
               <motion.div variants={fadeInUp} custom={4} className="relative">
-                <Input label="Contraseña" type={showPassword ? "text" : "password"} name="password" placeholder="Ingresa tu nueva contraseña" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <Input label="Contraseña" type={showPassword ? "text" : "password"} name="password" placeholder="Ingresa tu nueva contraseña"  onChange={(e) => setPassword(e.target.value)} />
                 <span className="absolute right-3 top-[38px] cursor-pointer text-gray-400 hover:text-black transition" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </span>
