@@ -1,106 +1,47 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getCodigoCompra } from "@/services/QrServices";
+// @components/perfil/ModalQr.tsx
+import { Dialog } from "@headlessui/react";
 import { QRCodeCanvas } from "qrcode.react";
-import { BackToHome } from "@/components/admin/common/BackToHome";
-import Header from "../Header";
-import Footer from "@components/footer";
-import imagen from "../../assets/sin_foto.jpg";
 import { motion } from "framer-motion";
 
-const QrView = () => {
-  const { id_compra } = useParams();
-  const [codigo, setCodigo] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+interface ModalQrProps {
+  isOpen: boolean;
+  onClose: () => void;
+  codigo: string | null;
+}
 
-  useEffect(() => {
-    const fetchCodigo = async () => {
-      if (!id_compra) {
-        setError("ID de compra no válido.");
-        return;
-      }
-      try {
-        const token = localStorage.getItem("token");
-        const code = await getCodigoCompra(id_compra, token);
-        setCodigo(code);
-      } catch (err: any) {
-        setError(err.message || "Error al obtener el código.");
-      }
-    };
-
-    fetchCodigo();
-  }, [id_compra]);
-
+export const ModalQr: React.FC<ModalQrProps> = ({ isOpen, onClose, codigo }) => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-        <BackToHome/>
-      <motion.main
-        className="flex-grow flex flex-col items-center justify-start px-4 py-12 bg-gradient-to-br from-gray-100 to-white"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.2 }}
+    <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black opacity-40" />
+
+      <motion.div
+        className="bg-white p-6 rounded-2xl flex-1 justify-center shadow-xl z-50 max-w-sm w-full text-center"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.3 }}
       >
-      
-        <motion.div
-          className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full text-center"
-          initial={{ y: -40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-        >
-          <motion.img
-            src={imagen}
-            alt="Foto de perfil"
-            className="w-32 h-32 rounded-full object-cover mx-auto mb-4 shadow-md"
-            whileHover={{ scale: 1.1 }}
-            transition={{ type: "spring", stiffness: 200 }}
-          />
-          <h2 className="text-2xl font-bold text-gray-800 mb-1">Carlos Rodriguez</h2>
-          <p className="text-sm text-gray-500">Transportador</p>
-          <p className="text-sm text-gray-600 mt-1">CarlosR8... | 3189762543</p>
-
-          <motion.div
-            className="mt-10"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
+        <h2 className="text-xl font-bold mb-4 text-[#205116]">Código QR</h2>
+        {codigo ? (
+          <QRCodeCanvas   value={codigo} size={200} />
+        ) : (
+          <p className="text-gray-500">Cargando código...</p>
+        )}
+        <div className="mt-6 flex justify-center gap-4">
+          <button
+            onClick={onClose}
+            className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-xl font-medium"
           >
-            {error ? (
-              <motion.div
-                className="text-red-500 mt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                {error}
-              </motion.div>
-            ) : !codigo ? (
-              <motion.div
-                className="text-gray-600 mt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                Cargando...
-              </motion.div>
-            ) : (
-              <>
-                <h2 className="text-lg font-semibold mb-4 mt-6 text-gray-700">Código QR:</h2>
-                <motion.div
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                  className="inline-block"
-                >
-                  <QRCodeCanvas value={codigo} size={200} />
-                </motion.div>
-              </>
-            )}
-          </motion.div>
-        </motion.div>
-      </motion.main>
-
-      <Footer />
-    </div>
+            Volver
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-[#48BD28] hover:bg-[#379e1b] text-white px-4 py-2 rounded-xl font-medium"
+          >
+            Aceptar
+          </button>
+        </div>
+      </motion.div>
+    </Dialog>
   );
 };
-
-export default QrView;

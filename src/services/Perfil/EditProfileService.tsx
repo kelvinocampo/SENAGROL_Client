@@ -39,9 +39,11 @@ export const updateUserProfile = async (formData: any, vehicleFiles: File[] = []
     }
 
     // Archivos del vehículo (⚠️ verifica que el backend espera "fotos_vehiculo[]" como nombre del campo)
-    for (const file of vehicleFiles) {
-   form.append("imagen", file);
-    }
+    if (vehicleFiles.length > 0) {
+  for (const file of vehicleFiles) {
+    form.append("imagen", file);
+  }
+}
 
     // Log para depurar el contenido del FormData
     for (const pair of form.entries()) {
@@ -49,7 +51,7 @@ export const updateUserProfile = async (formData: any, vehicleFiles: File[] = []
     }
 
     const response = await fetch("http://localhost:10101/usuario/edit", {
-      method: "PUT",
+      method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         // ❌ No pongas Content-Type cuando usas FormData
