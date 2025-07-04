@@ -16,20 +16,37 @@ export const updateUserProfile = async (formData: any, vehicleFiles: File[] = []
       form.append("password", formData.password);
     }
 
-    // Datos de transportador
-    form.append("license", formData.license || "");
-    form.append("soat", formData.soat || "");
-    form.append("vehicleCard", formData.vehicleCard || "");
-    form.append("vehicleType", formData.vehicleType || "");
-  form.append("vehicleWeight", String(Number(formData.vehicleWeight) || 0));
-
-    // ⚠️ Este nombre debe coincidir con req.files.imagen
-    for (const file of vehicleFiles) {
-      form.append("imagen", file);
+    // Datos de transportador (solo si tienen valor)
+    if (formData.license && formData.license.trim().length > 0) {
+      form.append("license", formData.license);
     }
-for (const pair of form.entries()) {
-  console.log(`${pair[0]}: ${pair[1]}`);
-}
+
+    if (formData.soat && formData.soat.trim().length > 0) {
+      form.append("soat", formData.soat);
+    }
+
+    if (formData.vehicleCard && formData.vehicleCard.trim().length > 0) {
+      form.append("vehicleCard", formData.vehicleCard);
+    }
+
+    if (formData.vehicleType && formData.vehicleType.trim().length > 0) {
+      form.append("vehicleType", formData.vehicleType);
+    }
+
+    const weightNumber = Number(formData.vehicleWeight);
+    if (!isNaN(weightNumber) && weightNumber >= 500 && weightNumber <= 50000) {
+      form.append("vehicleWeight", weightNumber.toString());
+    }
+
+    // Archivos del vehículo (⚠️ verifica que el backend espera "fotos_vehiculo[]" como nombre del campo)
+    for (const file of vehicleFiles) {
+   form.append("imagen", file);
+    }
+
+    // Log para depurar el contenido del FormData
+    for (const pair of form.entries()) {
+      console.log(`${pair[0]}: ${pair[1]}`);
+    }
 
     const response = await fetch("http://localhost:10101/usuario/edit", {
       method: "PUT",
