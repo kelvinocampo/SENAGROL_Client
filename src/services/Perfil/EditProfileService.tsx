@@ -1,36 +1,41 @@
-// services/Perfil/EditProfileService.ts
-
-export const updateUserProfile = async (formData: any, vehicleFiles: File[]) => {
+export const updateUserProfile = async (formData: any, vehicleFiles: File[] = []) => {
   try {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("No se encontró el token de autenticación.");
 
     const form = new FormData();
 
-    // Asegúrate de enviar los campos EXACTOS que espera el backend
-    form.append("id_user", formData.id_user);
+    form.append("id_user", formData.id_user.toString());
     form.append("name", formData.name);
     form.append("username", formData.username);
     form.append("email", formData.email);
     form.append("phone", formData.phone);
-    if (formData.password) form.append("password", formData.password);
 
+    // Solo añade la contraseña si se ingresó
+    if (formData.password && formData.password.trim() !== "") {
+      form.append("password", formData.password);
+    }
+
+    // Datos de transportador
     form.append("license", formData.license || "");
     form.append("soat", formData.soat || "");
     form.append("vehicleCard", formData.vehicleCard || "");
     form.append("vehicleType", formData.vehicleType || "");
-    form.append("vehicleWeight", formData.vehicleWeight?.toString() || "0");
+  form.append("vehicleWeight", String(Number(formData.vehicleWeight) || 0));
 
-    // Agrega imágenes
+    // ⚠️ Este nombre debe coincidir con req.files.imagen
     for (const file of vehicleFiles) {
-      form.append("imagen", file); // este campo debe llamarse igual que en el backend
+      form.append("imagen", file);
     }
+for (const pair of form.entries()) {
+  console.log(`${pair[0]}: ${pair[1]}`);
+}
 
     const response = await fetch("http://localhost:10101/usuario/edit", {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
-        // ⚠️ NO pongas Content-Type si estás usando FormData
+        // ❌ No pongas Content-Type cuando usas FormData
       },
       body: form,
     });
@@ -43,6 +48,7 @@ export const updateUserProfile = async (formData: any, vehicleFiles: File[]) => 
 
     return data;
   } catch (error: any) {
+    console.error("Error en updateUserProfile:", error);
     throw new Error(error.message || "Error de conexión con el servidor.");
   }
 };

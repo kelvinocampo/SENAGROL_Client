@@ -8,7 +8,6 @@ import { ChatService } from "@/services/Chats/ChatService";
 import Header from "@components/Header";
 import Footer from "@components/footer";
 import { motion } from "framer-motion";
-import { ProductCard } from "@/components/ProductsManagement/ProductCard";
 import FallingLeaves from "@/components/FallingLeaf";
 
 export default function DetalleProducto() {
@@ -42,22 +41,22 @@ export default function DetalleProducto() {
 
   const isBuyer = roles.includes("comprador");
 
-  const handleComprar = () => {
-    if (!isBuyer) {
-      setNoBuyer(true);
-      return;
-    }
-    if (producto?.id) {
-      navigate(`/pago/${producto.id}`);
-    }
-  };
+ const handleComprar = () => {
+  if (!isBuyer) {
+    setNoBuyer(true);
+    return;
+  }
+
+  if (producto?.id) {
+    localStorage.setItem("cantidad_compra", cantidad.toString()); // 💾 Guardar cantidad
+    navigate(`/pago/${producto.id}`);
+  }
+};
 
   const handleChat = async () => {
     try {
       if (!producto?.id_vendedor) return;
-
       const chat = await ChatService.createOrGetChatWithUser(producto.id_vendedor);
-
       if (chat?.id_chat) {
         navigate(`/Chats/${chat.id_chat}`);
       } else {
@@ -80,102 +79,151 @@ export default function DetalleProducto() {
       </div>
       <Header />
       <BackToHome />
-      <div className="flex-grow relative">
-        <section className="lg:hidden p-4">
-          <ProductCard product={producto} isDetailView />
-        </section>
 
-        <motion.section
-          className="hidden lg:grid w-[92%] max-w-7xl mx-auto mt-6 grid-cols-[490px_1fr] gap-10 p-10"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <motion.div
-            className="flex items-center justify-center"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6 }}
-          >
-            <img
-              src={producto.imagen || "/placeholder.jpg"}
-              alt={producto.nombre}
-              className="w-full h-full object-cover rounded-xl shadow-lg"
-              onError={(e) => ((e.target as HTMLImageElement).src = "/placeholder.jpg")}
+      {/* Responsive mobile */}
+      <section className="lg:hidden p-4 flex flex-col gap-6">
+        <img
+          src={producto.imagen || "/placeholder.jpg"}
+          alt={producto.nombre}
+          className="w-full h-64 object-cover rounded-xl shadow-lg"
+        />
+
+        <div>
+          <h1 className="text-2xl font-bold text-black">{producto.nombre}</h1>
+          <p className="text-sm text-[#676767] mt-1">{producto.descripcion}</p>
+          <p className="text-green-700 font-bold mt-2">
+            Ahora: ${precioConDescuento.toLocaleString()} / unidad
+          </p>
+
+          <div className="mt-4 text-sm text-[#676767] space-y-1">
+            <p><b>Vendedor:</b> {producto.nombre_vendedor}</p>
+            <p><b>Compra mínima:</b> {producto.cantidad_minima_compra} unidades</p>
+            <p><b>Disponible:</b> {producto.cantidad} unidades</p>
+          </div>
+
+          <div className="mt-4 flex items-center gap-3">
+            <span className="text-sm font-medium">Cantidad:</span>
+            <button
+              onClick={() => setCantidad((c) => Math.max(producto.cantidad_minima_compra, c - 1))}
+              className="w-8 h-8 bg-[#48BD28] text-white rounded"
+            >-</button>
+            <input
+              type="number"
+              value={cantidad}
+              min={producto.cantidad_minima_compra}
+              max={producto.cantidad}
+              onChange={(e) => {
+                let val = parseInt(e.target.value, 10);
+                if (isNaN(val)) val = producto.cantidad_minima_compra;
+                val = Math.max(producto.cantidad_minima_compra, Math.min(val, producto.cantidad));
+                setCantidad(val);
+              }}
+              className="w-16 text-center border rounded"
             />
-          </motion.div>
+            <button
+              onClick={() => setCantidad((c) => Math.min(producto.cantidad, c + 1))}
+              className="w-8 h-8 bg-[#48BD28] text-white rounded"
+            >+</button>
+          </div>
 
-          <motion.div
-            className="flex flex-col justify-between"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div>
-              <h1 className="text-2xl font-bold text-black">{producto.nombre}</h1>
-              <p className="text-sm text-[#676767] mt-2">{producto.descripcion}</p>
+          <div className="mt-6 flex flex-col gap-3">
+            <button
+              onClick={handleComprar}
+              disabled={!isBuyer || cantidad < producto.cantidad_minima_compra}
+              className={`w-full py-2 rounded-lg shadow font-semibold transition
+                ${isBuyer && cantidad >= producto.cantidad_minima_compra
+                  ? "bg-[#48BD28] text-white hover:bg-green-600"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"}`}
+            >
+              Comprar
+            </button>
 
-              <div className="flex flex-col gap-2 mt-3">
-                <span className="px-2 py-1 text-xs font-bold bg-[#FF2B2B] text-white rounded-full w-fit">
-                  {producto.descuento * 100}% OFF
-                </span>
-                <span className="text-green-700 font-bold">
-                  Antes: ${producto.precio_unidad.toLocaleString()} <br />
-                  Ahora: ${precioConDescuento.toLocaleString()}
-                  <span className="text-sm text-[#676767]"> / unidad</span>
-                </span>
-              </div>
+            <button
+              onClick={handleChat}
+              className="w-full py-2 rounded-lg shadow font-semibold bg-[#676767] text-white hover:bg-gray-500"
+            >
+              Conversar con el vendedor
+            </button>
+          </div>
+        </div>
+      </section>
 
-              <ul className="mt-4 text-sm text-[#676767] space-y-1 leading-snug">
-                <li><span className="font-medium text-black">Vendedor:</span> {producto.nombre_vendedor}</li>
-                <li><span className="font-medium text-black">Compra mínima:</span> {producto.cantidad_minima_compra} unidades</li>
-                <li><span className="font-medium text-black">Disponible:</span> {producto.cantidad} unidades</li>
-              </ul>
+      {/* Desktop */}
+      <motion.section
+        className="hidden lg:grid w-[92%] max-w-7xl mx-auto mt-6 grid-cols-[490px_1fr] gap-10 p-10"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <motion.div className="flex items-center justify-center">
+          <img
+            src={producto.imagen || "/placeholder.jpg"}
+            alt={producto.nombre}
+            className="w-full h-full object-cover rounded-xl shadow-lg"
+          />
+        </motion.div>
+
+        <motion.div className="flex flex-col justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-black">{producto.nombre}</h1>
+            <p className="text-sm text-[#676767] mt-2">{producto.descripcion}</p>
+            <p className="text-green-700 font-bold mt-3">
+              Ahora: ${precioConDescuento.toLocaleString()} / unidad
+            </p>
+            <ul className="mt-4 text-sm text-[#676767] space-y-1">
+              <li><b>Vendedor:</b> {producto.nombre_vendedor}</li>
+              <li><b>Compra mínima:</b> {producto.cantidad_minima_compra} unidades</li>
+              <li><b>Disponible:</b> {producto.cantidad} unidades</li>
+            </ul>
+          </div>
+
+          <div className="flex flex-col gap-6 mt-6">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium">Cantidad:</span>
+              <button
+                onClick={() => setCantidad((c) => Math.max(producto.cantidad_minima_compra, c - 1))}
+                className="w-8 h-8 rounded-full bg-[#48BD28] hover:bg-green-500 text-white"
+              >-</button>
+              <input
+                type="number"
+                value={cantidad}
+                min={producto.cantidad_minima_compra}
+                max={producto.cantidad}
+                onChange={(e) => {
+                  let val = parseInt(e.target.value, 10);
+                  if (isNaN(val)) val = producto.cantidad_minima_compra;
+                  val = Math.max(producto.cantidad_minima_compra, Math.min(val, producto.cantidad));
+                  setCantidad(val);
+                }}
+                className="w-16 text-center border rounded"
+              />
+              <button
+                onClick={() => setCantidad((c) => Math.min(producto.cantidad, c + 1))}
+                className="w-8 h-8 rounded-full bg-[#48BD28] hover:bg-green-500 text-white"
+              >+</button>
             </div>
 
-            <div className="flex flex-col gap-6 mt-6">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium">Cantidad:</span>
-                <button
-                  onClick={() =>
-                    setCantidad((c) => Math.max(producto.cantidad_minima_compra, c - 1))
-                  }
-                  className="w-8 h-8 rounded-full bg-[#48BD28] hover:bg-green-500 text-white"
-                >
-                  –
-                </button>
-                <span className="px-3 py-0.5 font-semibold">{cantidad}</span>
-                <button
-                  onClick={() => setCantidad((c) => c + 1)}
-                  className="w-8 h-8 rounded-full bg-[#48BD28] hover:bg-green-500 text-white"
-                >
-                  +
-                </button>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={handleComprar}
-                  disabled={!isBuyer || cantidad < producto.cantidad_minima_compra}
-                  className={`w-48 py-2 rounded-lg shadow font-semibold transition
-                    ${isBuyer && cantidad >= producto.cantidad_minima_compra
-                      ? "bg-[#48BD28] text-white hover:bg-green-600"
-                      : "bg-gray-300 text-gray-600 cursor-not-allowed"}`}
-                >
-                  Comprar
-                </button>
-
-                <button
-                  onClick={handleChat}
-                  className="w-60 py-2 rounded-lg shadow font-semibold bg-[#676767] text-white hover:bg-gray-500 transition"
-                >
-                  Conversar con el vendedor
-                </button>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleComprar}
+                disabled={!isBuyer || cantidad < producto.cantidad_minima_compra}
+                className={`w-48 py-2 rounded-lg shadow font-semibold transition
+                  ${isBuyer && cantidad >= producto.cantidad_minima_compra
+                    ? "bg-[#48BD28] text-white hover:bg-green-600"
+                    : "bg-gray-300 text-gray-600 cursor-not-allowed"}`}
+              >
+                Comprar
+              </button>
+              <button
+                onClick={handleChat}
+                className="w-60 py-2 rounded-lg shadow font-semibold bg-[#676767] text-white hover:bg-gray-500"
+              >
+                Conversar con el vendedor
+              </button>
             </div>
-          </motion.div>
-        </motion.section>
-      </div>
+          </div>
+        </motion.div>
+      </motion.section>
 
       {noBuyer && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">

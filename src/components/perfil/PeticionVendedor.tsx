@@ -32,10 +32,10 @@ export default function PeticionVendedor() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-md mx-auto ">
       <button
         onClick={() => setIsDialogOpen(true)}
-        className="bg-[#17A2B8] text-white py-2 rounded-xl w-60 hover:bg-blue-500 transition"
+        className="bg-[#17A2B8] text-white py-2 rounded-xl w-60 font-[Fredoka] font-bold hover:bg-blue-500 transition"
       >
         Petición Vendedor
       </button>

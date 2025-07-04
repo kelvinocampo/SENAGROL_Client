@@ -48,8 +48,14 @@ export default function Pago() {
       navigate("/");
       return;
     }
+
     setProducto(found);
-    setCantidad(found.cantidad_minima_compra);
+
+    // ✅ Leer cantidad del localStorage
+    const storedQty = localStorage.getItem("cantidad_compra");
+    const parsedQty = storedQty ? parseInt(storedQty, 10) : found.cantidad_minima_compra;
+    const finalQty = Math.min(Math.max(parsedQty, found.cantidad_minima_compra), found.cantidad);
+    setCantidad(finalQty);
   }, [ctx, id, navigate]);
 
   useEffect(() => {
@@ -98,6 +104,10 @@ export default function Pago() {
       });
 
       alert("¡Compra realizada con éxito!");
+
+      // ✅ Limpiar cantidad del localStorage
+      localStorage.removeItem("cantidad_compra");
+
       navigate("/");
     } catch (err) {
       alert("Error al procesar la compra.");
@@ -210,21 +220,48 @@ export default function Pago() {
 
           <div className="flex items-center gap-2 mb-4">
             <span className="text-sm">Cantidad:</span>
+
             <button
               onClick={() =>
                 setCantidad((c) => Math.max(producto.cantidad_minima_compra, c - 1))
               }
-              className="w-8 h-8 bg-[#48BD28] text-white rounded hover:bg-green-600"
+              disabled={cantidad <= producto.cantidad_minima_compra}
+              className={`w-8 h-8 rounded text-white ${cantidad <= producto.cantidad_minima_compra
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-[#48BD28] hover:bg-green-600"
+              }`}
             >
               –
             </button>
-            <span className="px-3">{cantidad}</span>
+
+            <input
+              type="number"
+              value={cantidad}
+              onChange={(e) => {
+                let val = parseInt(e.target.value, 10);
+                if (isNaN(val)) val = producto.cantidad_minima_compra;
+                val = Math.max(producto.cantidad_minima_compra, Math.min(val, producto.cantidad));
+                setCantidad(val);
+              }}
+              min={producto.cantidad_minima_compra}
+              max={producto.cantidad}
+              className="w-16 text-center border border-[#48BD28] rounded-md px-2 py-1"
+            />
+
             <button
-              onClick={() => setCantidad((c) => c + 1)}
-              className="w-8 h-8 bg-[#48BD28] text-white rounded hover:bg-green-600"
+              onClick={() =>
+                setCantidad((c) => Math.min(producto.cantidad, c + 1))
+              }
+              disabled={cantidad >= producto.cantidad}
+              className={`w-8 h-8 rounded text-white ${cantidad >= producto.cantidad
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-[#48BD28] hover:bg-green-600"
+              }`}
             >
               +
             </button>
+
+            <span className="ml-6 text-sm text-gray-700">Stock: {producto.cantidad}</span>
           </div>
 
           <div className="h-40 w-full mb-4 border rounded overflow-hidden">
@@ -248,10 +285,9 @@ export default function Pago() {
           <button
             onClick={handlePagar}
             disabled={loading || !isFormValid()}
-            className={`w-full py-3 rounded-lg text-white font-semibold transition ${
-              loading || !isFormValid()
-                ? "bg-green-300 cursor-not-allowed"
-                : "bg-[#48BD28] hover:bg-green-600"
+            className={`w-full py-3 rounded-lg text-white font-semibold transition ${loading || !isFormValid()
+              ? "bg-green-300 cursor-not-allowed"
+              : "bg-[#48BD28] hover:bg-green-600"
             }`}
           >
             {loading ? "Procesando..." : "Pagar"}
