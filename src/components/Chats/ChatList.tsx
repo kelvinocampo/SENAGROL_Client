@@ -13,11 +13,17 @@ export const ChatsList = () => {
 
   const [currentUserId, setCurrentUserId] = useState(0);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMessage, setConfirmMessage] = useState("");
   const confirmAction = useRef<() => void>(() => {});
-  const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>(
+    {}
+  );
 
   useEffect(() => {
     (async () => {
@@ -45,9 +51,12 @@ export const ChatsList = () => {
 
   const performBlockUnblock = useCallback(
     async (cid: number, blocked: boolean) => {
-      blocked ? await ChatService.unblockChat(cid) : await ChatService.blockChat(cid);
+      blocked
+        ? await ChatService.unblockChat(cid)
+        : await ChatService.blockChat(cid);
       await fetchChats();
       setOpenMenuId(null);
+      setMenuPosition(null);
     },
     [fetchChats]
   );
@@ -57,14 +66,20 @@ export const ChatsList = () => {
       await ChatService.deleteChat(cid);
       await fetchChats();
       setOpenMenuId(null);
+      setMenuPosition(null);
     },
     [fetchChats]
   );
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (!menuRef.current) return;
-      if (!menuRef.current.contains(e.target as Node)) setOpenMenuId(null);
+      const clickedOutside = Object.values(menuButtonRefs.current).every(
+        (btn) => btn && !btn.contains(e.target as Node)
+      );
+      if (clickedOutside) {
+        setOpenMenuId(null);
+        setMenuPosition(null);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -76,8 +91,8 @@ export const ChatsList = () => {
   const inactiveStyle = "bg-white text-black hover:bg-[#d9f7c6]";
 
   return (
-    <div className="relative overflow-visible">
-      <div className="flex flex-col gap-1 max-h-[300px] pb-2 pr-1 overflow-visible">
+    <div className="relative">
+      <div className="flex flex-col gap-1 pb-2 pr-1">
         {chats.length === 0 ? (
           <p className="text-center text-gray-500 py-4 text-sm">No hay chats</p>
         ) : (
@@ -87,9 +102,11 @@ export const ChatsList = () => {
             const isMenuOpen = openMenuId === chat.id_chat;
 
             return (
-              <div key={chat.id_chat} className="relative overflow-visible">
+              <div key={chat.id_chat} className="relative">
                 <div
-                  className={`${itemBase} ${isActive ? activeStyle : inactiveStyle}`}
+                  className={`${itemBase} ${
+                    isActive ? activeStyle : inactiveStyle
+                  }`}
                   onClick={() => navigate(`/chats/chat/${chat.id_chat}`)}
                 >
                   <div className="flex flex-col flex-1 min-w-0">
@@ -106,9 +123,17 @@ export const ChatsList = () => {
                   )}
 
                   <button
+                    ref={(el) => {
+                      menuButtonRefs.current[chat.id_chat] = el;
+                    }}
                     className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-black/10"
                     onClick={(e) => {
                       e.stopPropagation();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setMenuPosition({
+                        top: rect.top - 120,
+                        left: rect.right -100 , // espacio a la derecha
+                      });
                       setOpenMenuId((prev) =>
                         prev === chat.id_chat ? null : chat.id_chat
                       );
@@ -117,52 +142,54 @@ export const ChatsList = () => {
                     {isMenuOpen ? <FiX /> : <FiMoreVertical />}
                   </button>
                 </div>
-
-                {/* Menú desplegable */}
-                {isMenuOpen && (
-                  <div
-                    ref={menuRef}
-                    className="absolute z-50 left-64 top-13 -translate-y-1/2 ml-2"
-                  >
-                    {/* Flecha */}
-                    <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-r-8 border-r-white shadow-md"></div>
-
-                    {/* Menú */}
-                    <div className="w-44 bg-[#E2E2E2] border border-gray-200 rounded-lg shadow-xl overflow-visible">
-                      <button
-                        className="w-42 text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
-                        onClick={() =>
-                          openConfirm(
-                            other.blocked ? "Desbloquear chat" : "Bloquear chat",
-                            `¿Seguro que deseas ${
-                              other.blocked ? "desbloquear" : "bloquear"
-                            } este chat?`,
-                            () => performBlockUnblock(chat.id_chat, other.blocked)
-                          )
-                        }
-                      >
-                        {other.blocked ? "Desbloquear chat" : "Bloquear chat"}
-                      </button>
-                      <button
-                        className="w-42 text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
-                        onClick={() =>
-                          openConfirm(
-                            "Eliminar chat",
-                            "¿Seguro que deseas eliminar este chat? Esta acción es irreversible.",
-                            () => performDelete(chat.id_chat)
-                          )
-                        }
-                      >
-                        Eliminar chat
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
             );
           })
         )}
       </div>
+
+      {/* Menú flotante */}
+      {openMenuId !== null && menuPosition && (
+        <div
+          className="fixed z-[999] w-44 bg-[#E2E2E2] border border-gray-200 rounded-lg shadow-xl"
+          style={{ top: menuPosition.top, left: menuPosition.left }}
+        >
+          <button
+            className="w-full text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
+            onClick={() => {
+              const chat = chats.find((c: any) => c.id_chat === openMenuId);
+              if (!chat) return;
+              const other = getOtherUser(chat);
+              openConfirm(
+                other.blocked ? "Desbloquear chat" : "Bloquear chat",
+                `¿Seguro que deseas ${
+                  other.blocked ? "desbloquear" : "bloquear"
+                } este chat?`,
+                () => performBlockUnblock(chat.id_chat, other.blocked)
+              );
+            }}
+          >
+            {getOtherUser(chats.find((c: any) => c.id_chat === openMenuId))
+              .blocked
+              ? "Desbloquear chat"
+              : "Bloquear chat"}
+          </button>
+          <button
+            className="w-full text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
+            onClick={() => {
+              const chat = chats.find((c: any) => c.id_chat === openMenuId);
+              if (!chat) return;
+              openConfirm(
+                "Eliminar chat",
+                "¿Seguro que deseas eliminar este chat? Esta acción es irreversible.",
+                () => performDelete(chat.id_chat)
+              );
+            }}
+          >
+            Eliminar chat
+          </button>
+        </div>
+      )}
 
       {/* Diálogo de confirmación */}
       <ConfirmDialog
@@ -178,3 +205,4 @@ export const ChatsList = () => {
     </div>
   );
 };
+export default ChatsList;

@@ -7,6 +7,7 @@ import { FaTrash } from "react-icons/fa";
 import { MiniMap } from "@/components/admin/common/MiniMap";
 import { ProductManagementContext } from "@/contexts/admin/ProductsManagement";
 import { motion, AnimatePresence } from "framer-motion";
+import Buscador from "@/components/Inicio/Search";
 
 const rowVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -24,6 +25,7 @@ export const ProductTable = () => {
   );
   const [messageOpen, setMessageOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // 👈 Agregado
 
   const handleConfirm = (message: string, action: () => Promise<void>) => {
     setConfirmMessage(message);
@@ -55,8 +57,7 @@ export const ProductTable = () => {
     );
   }
 
-  const { products, unpublishProduct, publish, deleteProduct, fetchProducts } =
-    context;
+  const { products, unpublishProduct, publish, deleteProduct, fetchProducts } = context;
 
   if (!products || products.length === 0) {
     return (
@@ -66,8 +67,23 @@ export const ProductTable = () => {
     );
   }
 
+  const filteredProducts = products.filter((product) =>
+    product.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="bg-white rounded-2xl shadow-md p-4">
+    <div className="rounded-2xl p-4">
+      {/* 🔍 Buscador */}
+      <Buscador
+        busqueda={searchTerm}
+        setBusqueda={setSearchTerm}
+        setPaginaActual={() => {}}
+        placeholderText="Buscar por nombre de producto..."
+        containerClassName="mb-4"
+        inputClassName="w-full px-4 py-2 rounded-full border border-[#48BD28] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6dd850]"
+      />
+
+      {/* 🧾 Tabla */}
       <table className="min-w-full table-auto overflow-hidden rounded-2xl border border-[#48bd28]">
         <thead className="bg-[#E4FBDD] text-black">
           <tr>
@@ -84,7 +100,7 @@ export const ProductTable = () => {
         </thead>
         <tbody>
           <AnimatePresence>
-            {products.map((product, index) => (
+            {filteredProducts.map((product, index) => (
               <motion.tr
                 key={product.id}
                 variants={rowVariants}
@@ -170,7 +186,7 @@ export const ProductTable = () => {
         </tbody>
       </table>
 
-      {/* Confirmación y mensajes */}
+      {/* Diálogos */}
       <AnimatePresence>
         {confirmOpen && (
           <motion.div
