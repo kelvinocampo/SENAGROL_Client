@@ -37,7 +37,7 @@ export const Chat = () => {
   const { id_chat = "" } = useParams<{ id_chat: string }>();
   const { chats, loading: chatsLoading } = useContext(ChatsContext);
   const navigate = useNavigate();
-  const socket = useSocket("http://localhost:10101");
+  const socket = useSocket("https://senagrol.up.railway.app");
 
   /* ─── ConfirmDialog ───────────────────────────────────────────── */
   const [confirmOpen, setConfirmOpen] = useState(false);

@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:10101";
+const API_BASE = "https://senagrol.up.railway.app";
 
 const TransportService = {
   async getTransports(id_user: number) {
