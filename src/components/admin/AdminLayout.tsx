@@ -131,7 +131,7 @@ export const AdminLayout = () => {
             <motion.div {...fadeUp} className="overflow-x-autow-full h-full col-span-1 lg:col-span-2">
               <PieChartProductsByMonth />
             </motion.div>
-            <motion.div {...fadeUp} className="col-span-full overflow-x-auto bg-white p-6 rounded-xl shadow-lg w-full h-full">
+            <motion.div {...fadeUp} className="col-span-full overflow-x-aut p-6 rounded-xl  w-full h-full">
               <h2 className="text-2xl font-bold mb-4 text-center md:text-left">Productos</h2>
               <ProductTable />
             </motion.div>

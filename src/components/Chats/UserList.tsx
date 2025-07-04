@@ -17,25 +17,27 @@ export const UserList = () => {
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
-  const currentUser: User | null = (() => {
+  useEffect(() => {
+    // Cargar usuario actual
     try {
-      const u = localStorage.getItem("currentUser");
-      return u ? JSON.parse(u) : null;
+      const user = localStorage.getItem("currentUser");
+      if (user) {
+        const parsed = JSON.parse(user);
+        setCurrentUserId(parsed.id_usuario);
+      }
     } catch {
-      return null;
+      setCurrentUserId(null);
     }
-  })();
+  }, []);
 
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
       setError(null);
       const result = await ChatService.getUsers();
-      const filtered = currentUser
-        ? result.filter((u: User) => u.id_usuario !== currentUser.id_usuario)
-        : result;
-      setUsers(filtered);
+      setUsers(result);
     } catch {
       setError("Error al cargar usuarios.");
     } finally {
@@ -57,9 +59,12 @@ export const UserList = () => {
     }
   };
 
-  const filtered = users.filter((u) =>
-    u.nombre_usuario.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filtrar usuarios visibles
+  const filtered = users
+    .filter((u) => currentUserId === null || u.id_usuario !== currentUserId)
+    .filter((u) =>
+      u.nombre_usuario.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const Skeleton = () => (
     <ul className="space-y-2">
@@ -79,11 +84,9 @@ export const UserList = () => {
       transition={{ duration: 0.4 }}
       className="w-full px-2 md:px-4 pt-2 pb-1"
     >
-      <div className=" w-ful relative">
-        {/* Título */}
+      <div className="w-full relative">
         <h2 className="text-2xl font-bold text-[#000000] mb-4">Usuarios</h2>
 
-        {/* Buscador */}
         <Buscador
           busqueda={searchTerm}
           setBusqueda={setSearchTerm}
@@ -93,18 +96,18 @@ export const UserList = () => {
           inputClassName="w-full px-4 py-2 rounded-full border border-[#48BD28] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6dd850]"
         />
 
-        {/* Error acción */}
         {actionError && (
           <p className="text-red-600 text-center mb-3 text-sm">{actionError}</p>
         )}
 
-        {/* Lista */}
         {isLoading ? (
           <Skeleton />
         ) : error ? (
           <p className="text-center text-red-600 py-4">{error}</p>
         ) : filtered.length === 0 ? (
-          <p className="text-center text-gray-600 py-4">No se encontraron Usuarios con esos datos.</p>
+          <p className="text-center text-gray-600 py-4">
+            No se encontraron usuarios con esos datos.
+          </p>
         ) : (
           <ul className="max-h-[55vh] overflow-y-auto rounded-lg border border-[#48BD28]">
             <AnimatePresence>
@@ -127,9 +130,7 @@ export const UserList = () => {
                   <span className="font-medium truncate text-[#000000]">
                     {u.nombre_usuario}
                   </span>
-                  <span className="text-xs  text-[#676767]">
-                    {u.roles}
-                  </span>
+                  <span className="text-xs text-[#676767]">{u.roles}</span>
                 </motion.li>
               ))}
             </AnimatePresence>
