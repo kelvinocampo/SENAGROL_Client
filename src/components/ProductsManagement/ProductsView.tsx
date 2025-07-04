@@ -4,7 +4,6 @@ import { ProductManagementContext } from "@/contexts/ProductsManagement";
 import { ProductCard } from "@components/ProductsManagement/ProductCard";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import { ProductSearcher } from "@components/ProductsManagement/ProductSearcher";
-import Footer from "@components/footer";
 
 export const ProductsView = () => {
   const {
@@ -61,7 +60,7 @@ export const ProductsView = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-green-50 font-[Fredoka]">
+    <div className="min-h-screen flex flex-col  font-[Fredoka]">
       <main className="flex-1 w-full max-w-7xl mx-auto px-6 sm:px-12 py-10">
         {/* Título y buscador */}
         <motion.div
@@ -134,7 +133,6 @@ export const ProductsView = () => {
           </AnimatePresence>
         )}
       </main>
-      <Footer />
     </div>
   );
 };

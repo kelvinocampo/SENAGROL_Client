@@ -97,7 +97,7 @@ function PerfilUsuarioUnico() {
         ...(password.trim() !== "" ? { password: password.trim() } : {}),
       };
 
-      await updateUserProfile(payload);
+   await updateUserProfile(payload, vehicleFiles);
       setDialog({ open: true, type: "success", message: "Perfil actualizado correctamente." });
       setPassword("");
       setConfirmPassword("");

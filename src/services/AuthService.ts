@@ -1,5 +1,5 @@
 export class AuthService {
-    static API_URL = 'https://senagrol.up.railway.app';
+    static API_URL = 'http://localhost:10101';
     static async getIDUser() {
         const token = localStorage.getItem('token');
         try {

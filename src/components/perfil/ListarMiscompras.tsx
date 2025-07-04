@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { QrCode } from "lucide-react";
-import Buscador from "../Inicio/Search";
-import { ProductManagementService } from "@/services/Perfil/PerfilcomprasServices";
-import TransportService from "@/services/Perfil/ListarMisTransportes";
 
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+import Buscador from "../Inicio/Search";
 import UserProfileCard from "@components/perfil/UserProfileCard";
 import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog";
+
+import { ProductManagementService } from "@/services/Perfil/PerfilcomprasServices";
+import TransportService from "@/services/Perfil/ListarMisTransportes";
 
 export type Compra = {
   id_compra: number;
@@ -38,7 +39,7 @@ export default function ListarMisCompras() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("");
   const [dialogMsg, setDialogMsg] = useState<React.ReactNode>("");
-  const [onConfirm, setOnConfirm] = useState<() => void>(() => () => { });
+  const [onConfirm, setOnConfirm] = useState<() => void>(() => () => {});
 
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const navigate = useNavigate();
@@ -90,10 +91,12 @@ export default function ListarMisCompras() {
   return (
     <>
       <Header />
+
       {toast && (
         <div
-          className={`fixed top-4 right-4 z-50 px-4 py-2 rounded shadow text-white cursor-pointer ${toast.ok ? "bg-green-600" : "bg-red-600"
-            }`}
+          className={`fixed top-4 right-4 z-50 px-4 py-2 rounded shadow text-white cursor-pointer ${
+            toast.ok ? "bg-green-600" : "bg-red-600"
+          }`}
           onClick={() => setToast(null)}
         >
           {toast.msg}
@@ -101,22 +104,20 @@ export default function ListarMisCompras() {
       )}
 
       <div className="font-[Fredoka] min-h-screen flex flex-col bg-gradient-to-b from-[#E1FFD9] to-[#F0F0F0]">
-        <main className="flex flex-col lg:flex-row gap-8 px-10 pb-16 py-10">
-          {/* Columna izquierda: perfil */}
-          <div className="w-full lg:w-1/4">
+        <main className="flex flex-col-reverse lg:flex-row gap-8 px-4 sm:px-6 md:px-10 pb-16 py-10">
+          {/* Perfil */}
+          <div className="w-full lg:w-1/2">
             <UserProfileCard />
           </div>
 
-          {/* Columna derecha: tabla */}
+          {/* Tabla */}
           <motion.div
             initial="hidden"
             animate="visible"
             variants={fadeIn}
-            className="w-full lg:w-3/4"
+            className="w-full lg:w-3/4 overflow-x-auto"
           >
-            <h2 className="text-3xl font-bolder mb-4 text-[#0D141C]">
-              Mis Compras
-            </h2>
+            <h2 className="text-3xl font-bolder mb-4 text-[#0D141C]">Mis Compras</h2>
 
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -127,7 +128,7 @@ export default function ListarMisCompras() {
               <Buscador
                 busqueda={busqueda}
                 setBusqueda={setBusqueda}
-                setPaginaActual={() => { }}
+                setPaginaActual={() => {}}
                 placeholderText="Buscar por nombre, vendedor o precio…"
               />
             </motion.div>
@@ -138,49 +139,44 @@ export default function ListarMisCompras() {
               <p className="text-red-500">{error}</p>
             ) : (
               <div className="border rounded-lg shadow overflow-hidden">
-                <table className="min-w-full text-xs text-left">
-                  <thead className="bg-white sticky top-0 z-10">
-                    <tr className="text-black uppercase">
-                      {[
-                        "Estado",
-                        "Fecha Compra",
-                        "Fecha Entrega",
-                        "Vendedor",
-                        "Transportador",
-                        "Producto",
-                        "Cantidad",
-                        "Precio por unidad",
-                        "Precio transporte",
-                        "Precio Total",
-                        "QR/Código",
-                        "Acción",
-                      ].map((th) => (
-                        <th key={th} className="px-3 py-2 whitespace-nowrap">
-                          {th}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                </table>
+                <div className="">
+                  <table className="min-w-full text-xs text-left">
+                    <thead className="bg-white sticky top-0 z-10">
+                      <tr className="text-black uppercase">
+                        {[
+                          "Estado", "Fecha Compra", "Fecha Entrega", "Vendedor",
+                          "Transportador", "Producto", "Cantidad", "Precio por unidad",
+                          "Precio transporte", "Precio Total", "QR/Código", "Acción"
+                        ].map((th) => (
+                          <th key={th} className="px-3 py-2 whitespace-nowrap">
+                            {th}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
 
-                <div className="max-h-[240px] overflow-y-auto ">
-                  <table className="min-w-full text-xs text-left ">
-                    <tbody className="divide-y divide-[#48BD28] text-[13px] ">
+                <div className="max-h-[240px] overflow-y-auto">
+                  <table className="min-w-full text-xs text-left">
+                    <tbody className="divide-y divide-[#48BD28] text-[13px]">
                       {comprasFiltradas.length ? (
                         comprasFiltradas.map((c, i) => (
                           <tr
                             key={c.id_compra}
-                            className={`transition-colors ${i % 2 === 0 ? "bg-[#E1FFD9]" : "bg-white"
-                              } hover:bg-[#e4fbdd]`}
+                            className={`transition-colors ${
+                              i % 2 === 0 ? "bg-[#E1FFD9]" : "bg-white"
+                            } hover:bg-[#e4fbdd]`}
                           >
-                            <td className={`px-4 py-2 ${c.estado === "Pendiente"
-                              ? "text-red-600 font-bold"
-                              : c.estado === "Asignada"
+                            <td className={`px-4 py-2 ${
+                              c.estado === "Pendiente"
+                                ? "text-red-600 font-bold"
+                                : c.estado === "Asignada"
                                 ? "text-yellow-500 font-bold"
                                 : c.estado === "Completada"
-                                  ? "text-green-600 font-bold"
-                                  : ""
-                              }`}>
+                                ? "text-green-600 font-bold"
+                                : ""
+                            }`}>
                               {c.estado}
                             </td>
                             <td className="px-3 py-2">{c.fecha_compra}</td>
@@ -191,11 +187,7 @@ export default function ListarMisCompras() {
                                 (c.estado === "Pendiente" && (
                                   <button
                                     onClick={() =>
-                                      openDialog(
-                                        "Asignar transportador",
-                                        "¿Deseas asignar un transportador para esta compra?",
-                                        () => gotoAsignar(c.id_compra)
-                                      )
+                                      openDialog("Asignar transportador", "¿Deseas asignar un transportador para esta compra?", () => gotoAsignar(c.id_compra))
                                     }
                                     className="bg-[#48BD28] hover:bg-[#379e1b] text-white px-4 py-1 rounded-full text-xs"
                                   >
@@ -215,11 +207,7 @@ export default function ListarMisCompras() {
                                 <div className="flex items-center gap-1">
                                   <button
                                     onClick={() =>
-                                      openDialog(
-                                        "Generar Código QR",
-                                        "¿Está seguro de generar el código QR?",
-                                        () => gotoQr(c.id_compra)
-                                      )
+                                      openDialog("Generar Código QR", "¿Está seguro de generar el código QR?", () => gotoQr(c.id_compra))
                                     }
                                     className="p-1 rounded hover:text-green-700"
                                   >
@@ -227,11 +215,7 @@ export default function ListarMisCompras() {
                                   </button>
                                   <button
                                     onClick={() =>
-                                      openDialog(
-                                        "Generar Código",
-                                        "¿Está seguro de generar el código?",
-                                        () => gotoCodigo(c.id_compra)
-                                      )
+                                      openDialog("Generar Código", "¿Está seguro de generar el código?", () => gotoCodigo(c.id_compra))
                                     }
                                     className="bg-[#48BD28] hover:bg-[#379e1b] text-white px-2 py-1 rounded text-xs"
                                   >
@@ -243,16 +227,13 @@ export default function ListarMisCompras() {
                             <td className="px-3 py-2">
                               {(c.estado === "Pendiente" || c.estado === "Asignada") && (
                                 <button
-                                  className={`px-4 py-1 rounded-full text-white text-xs ${c.estado === "Asignada"
-                                    ? "bg-red-600 hover:bg-red-700"
-                                    : "bg-[#BDBDBD] hover:bg-gray-500"
-                                    }`}
+                                  className={`px-4 py-1 rounded-full text-white text-xs ${
+                                    c.estado === "Asignada"
+                                      ? "bg-red-600 hover:bg-red-700"
+                                      : "bg-[#BDBDBD] hover:bg-gray-500"
+                                  }`}
                                   onClick={() =>
-                                    openDialog(
-                                      "Cancelar transporte",
-                                      "¿Está seguro de cancelar el transporte?",
-                                      () => cancelTransport(c.id_compra)
-                                    )
+                                    openDialog("Cancelar transporte", "¿Está seguro de cancelar el transporte?", () => cancelTransport(c.id_compra))
                                   }
                                 >
                                   Cancelar
@@ -263,10 +244,7 @@ export default function ListarMisCompras() {
                         ))
                       ) : (
                         <tr>
-                          <td
-                            colSpan={12}
-                            className="text-center py-4 text-gray-500"
-                          >
+                          <td colSpan={12} className="text-center py-4 text-gray-500">
                             Aún no has realizado ninguna compra.
                           </td>
                         </tr>
@@ -291,3 +269,4 @@ export default function ListarMisCompras() {
     </>
   );
 }
+  

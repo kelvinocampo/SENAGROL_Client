@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Buscador from "../Inicio/Search";
 import { obtenerTransportadores } from "@/services/Perfil/perfiltransportadorServices";
 import { asignarTransportador } from "@/services/Perfil/Asignartransportador";
+import { ChatService } from "@/services/Chats/ChatService";
 
 import Header from "@/components/Header";
 import UserProfileCard from "@components/perfil/UserProfileCard";
@@ -40,8 +41,10 @@ export default function Transportadores({ id_compra }: Props) {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [confirmacionFinal, setConfirmacionFinal] = useState(false);
   const [error, setError] = useState("");
-  const [modalExitoVisible, setModalExitoVisible] = useState(false); // 👈 Nuevo modal de éxito
-const navigate = useNavigate();
+  const [modalExitoVisible, setModalExitoVisible] = useState(false);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -82,27 +85,34 @@ const navigate = useNavigate();
     setConfirmacionFinal(true);
   };
 
-const handleAsignacionFinal = async () => {
-  if (!selected || !precio) return;
-  try {
-    await asignarTransportador(
-      Number(id_compra),
-      selected.id_usuario,
-      parseFloat(precio)
-    );
-    cerrarModal();
-    setModalExitoVisible(true); // Muestra el modal visual
+  const handleAsignacionFinal = async () => {
+    if (!selected || !precio) return;
+    try {
+      await asignarTransportador(
+        Number(id_compra),
+        selected.id_usuario,
+        parseFloat(precio)
+      );
+      cerrarModal();
+      setModalExitoVisible(true);
+      setTimeout(() => {
+        navigate("/perfil");
+      }, 2000);
+    } catch (error) {
+      console.error("❌ Error al asignar transportador:", error);
+      alert("❌ Error al asignar transportador");
+    }
+  };
 
-    // Espera 2 segundos antes de redirigir
-    setTimeout(() => {
-       navigate("/perfil");
-    }, 2000);
-  } catch (error) {
-    console.error("❌ Error al asignar transportador:", error);
-    alert("❌ Error al asignar transportador");
-  }
-};
-
+  const handleAbrirChat = async (id_usuario2: number) => {
+    try {
+      const { chat } = await ChatService.getChat(id_usuario2);
+      navigate(`/Chats/${chat}`);
+    } catch (error) {
+      console.error("❌ Error al iniciar el chat:", error);
+      alert("No se pudo abrir el chat. Intenta de nuevo.");
+    }
+  };
 
   const cerrarModal = () => {
     setMostrarModal(false);
@@ -177,7 +187,10 @@ const handleAsignacionFinal = async () => {
                           <td className="w-[240px] px-4 py-1">{t.correo}</td>
                           <td className="w-[180px] px-4 py-1">
                             <div className="flex justify-center items-center gap-2">
-                              <button className="bg-[#1D9BF0] text-white px-3 py-1.5 rounded hover:bg-[#1877F2] transition">
+                              <button
+                                onClick={() => handleAbrirChat(t.id_usuario)}
+                                className="bg-[#1D9BF0] text-white px-3 py-1.5 rounded hover:bg-[#1877F2] transition"
+                              >
                                 Chat
                               </button>
                               <button
