@@ -48,7 +48,7 @@ export const updateUserProfile = async (formData: any, vehicleFiles: File[] = []
       console.log(`${pair[0]}: ${pair[1]}`);
     }
 
-    const response = await fetch("https://senagrol.up.railway.app/usuario/edit", {
+    const response = await fetch("http://localhost:10101/usuario/edit", {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,

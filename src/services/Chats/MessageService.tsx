@@ -1,5 +1,5 @@
 export class MessageService {
-  static readonly API_URL = 'https://senagrol.up.railway.app';
+  static readonly API_URL = 'http://localhost:10101';
 
   /* ───────── Helpers ─────────────────────────── */
   private static async handleResponse<T>(response: Response): Promise<T> {

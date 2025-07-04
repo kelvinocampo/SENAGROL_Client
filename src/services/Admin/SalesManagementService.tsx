@@ -1,5 +1,5 @@
 export class SalesService {
-  private static API_URL = 'https://senagrol.up.railway.app';
+  private static API_URL = 'http://localhost:10101';
 
   static async getAllAdmin() {
     const res = await fetch(`${this.API_URL}/admin/sales`, {
