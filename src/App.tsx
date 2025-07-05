@@ -14,7 +14,6 @@ import MyPurchasesPage from "@/pages/Perfil/ListarMisCompras";
 import FormularioTransporte from "@/pages/Perfil/FormularioTransporte";
 import Transporte from "@/pages/Perfil/ListaTransportadores";
 import MisTransportes from "@/pages/Perfil/ListarMisTransportes";
-import QRCompras from "@/pages/Perfil/Qrcompras";
 import CodigoCompras from "@/pages/Perfil/CodigoCompras";
 import { IA } from "@pages/IA";
 import Transportadores from "@/pages/Perfil/ListaTransportadores";
@@ -74,7 +73,6 @@ function App() {
             <Route path="/miscompras" element={<MyPurchasesPage />} />
             <Route path="/transporte" element={<Transporte />} />
             <Route path="/mistransportes" element={<MisTransportes />} />
-            <Route path="/compra/:id_compra/qr" element={<QRCompras />} />
             <Route path="/compra/:id_compra/codigo" element={<CodigoCompras />} />
             <Route path="/IA" element={<IA />} />
             <Route path="/transporte/:id_compra" element={<Transportadores />} />

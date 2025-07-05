@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
-import { getCodigoCompra } from "@/services/QrServices";
+// @components/ProductsManagement/ModalCodigo.tsx
+import React, { useEffect, useState } from "react";
+import { Dialog } from "@headlessui/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getCodigoCompra } from "@/services/QrServices";
 
 interface ModalCodigoProps {
   isOpen: boolean;
@@ -8,14 +10,17 @@ interface ModalCodigoProps {
   id_compra: string | null;
 }
 
-export const ModalCodigo = ({ isOpen, onClose, id_compra }: ModalCodigoProps) => {
+export const ModalCodigo: React.FC<ModalCodigoProps> = ({
+  isOpen,
+  onClose,
+  id_compra,
+}) => {
   const [codigo, setCodigo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCodigo = async () => {
-      if (!isOpen || !id_compra) return;
-
+    if (!isOpen || !id_compra) return;
+    (async () => {
       try {
         const token = localStorage.getItem("token");
         const code = await getCodigoCompra(id_compra, token);
@@ -25,58 +30,64 @@ export const ModalCodigo = ({ isOpen, onClose, id_compra }: ModalCodigoProps) =>
         setError(err.message || "Error al obtener el código.");
         setCodigo(null);
       }
-    };
-
-    fetchCodigo();
-  }, [id_compra, isOpen]);
-
-  if (!isOpen) return null;
+    })();
+  }, [isOpen, id_compra]);
 
   return (
     <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 bg-white/30 bg-opacity-50 z-50 flex items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        <motion.div
-          className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full text-center relative"
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0.9 }}
+      {isOpen && (
+        <Dialog
+          as="div"
+          open
+          onClose={onClose}
+          className="fixed inset-0 z-50 flex items-center justify-center"
         >
-          {/* Contenido del código */}
-          <div className="mt-6">
-            {error ? (
-              <p className="text-red-500">{error}</p>
-            ) : !codigo ? (
-              <p className="text-gray-600">Cargando...</p>
-            ) : (
-              <>
-                <h3 className="text-lg font-semibold mb-2 mt-4">Código:</h3>
-                <p className="text-2xl font-bold text-gray-800">{codigo}</p>
-              </>
-            )}
-          </div>
+          {/* Fondo semitransparente */}
+          <div className="fixed inset-0 bg-black/30" />
 
-          {/* Botones */}
-          <div className="flex justify-center gap-4 mt-8">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+          <motion.div
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 flex flex-col items-center text-center"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <Dialog.Title
+              as="h3"
+              className="text-xl font-bold text-[#205116] mb-4"
             >
-              Volver
-            </button>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-[#48BD28] text-white rounded hover:bg-[#379e1b]"
-            >
-              Aceptar
-            </button>
-          </div>
-        </motion.div>
-      </motion.div>
+              Código alfanumérico
+            </Dialog.Title>
+
+            {error ? (
+              <p className="text-red-500 mb-4">{error}</p>
+            ) : !codigo ? (
+              <p className="text-gray-500 mb-4">Cargando...</p>
+            ) : (
+              <input
+                readOnly
+                value={codigo}
+                className="w-full border border-gray-300 rounded-full py-2 px-4 text-center text-lg font-mono"
+              />
+            )}
+
+            <div className="mt-6 flex w-full gap-4">
+              <button
+                onClick={onClose}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-black py-2 rounded-xl font-medium transition"
+              >
+                Volver
+              </button>
+              <button
+                onClick={onClose}
+                className="flex-1 bg-[#48BD28] hover:bg-[#379e1b] text-white py-2 rounded-xl font-medium transition"
+              >
+                Aceptar
+              </button>
+            </div>
+          </motion.div>
+        </Dialog>
+      )}
     </AnimatePresence>
   );
 };

@@ -1,4 +1,3 @@
-// src/pages/producto/DetalleProducto.tsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
@@ -41,17 +40,17 @@ export default function DetalleProducto() {
 
   const isBuyer = roles.includes("comprador");
 
- const handleComprar = () => {
-  if (!isBuyer) {
-    setNoBuyer(true);
-    return;
-  }
+  const handleComprar = () => {
+    if (!isBuyer) {
+      setNoBuyer(true);
+      return;
+    }
 
-  if (producto?.id) {
-    localStorage.setItem("cantidad_compra", cantidad.toString()); // 💾 Guardar cantidad
-    navigate(`/pago/${producto.id}`);
-  }
-};
+    if (producto?.id) {
+      localStorage.setItem("cantidad_compra", cantidad.toString());
+      navigate(`/pago/${producto.id}`);
+    }
+  };
 
   const handleChat = async () => {
     try {
@@ -80,7 +79,7 @@ export default function DetalleProducto() {
       <Header />
       <BackToHome />
 
-      {/* Responsive mobile */}
+      {/* Responsive (Mobile) */}
       <section className="lg:hidden p-4 flex flex-col gap-6">
         <img
           src={producto.imagen || "/placeholder.jpg"}

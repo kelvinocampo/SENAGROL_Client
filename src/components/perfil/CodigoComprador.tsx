@@ -1,68 +1,100 @@
-
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-
-import imagen from "@/assets/sin_foto.jpg";   // cámbialo por el avatar real
+import React, { useEffect, useState } from "react";
+import { Dialog } from "@headlessui/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { getCodigoCompra } from "@/services/Perfil/Qr&codigocompradorServices";
 
-const CodeGenerator = () => {
-  /* ---------- params / estado ---------- */
-  const { id_compra } = useParams();
-  const [codigo, setCodigo] = useState<string | null>(null);
-  const [error, setError]   = useState<string | null>(null);
+type ModalCodeGeneratorProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  compraId: number | null;
+};
 
-  /* ---------- fetch ---------- */
+const ModalCodeGenerator: React.FC<ModalCodeGeneratorProps> = ({
+  isOpen,
+  onClose,
+  compraId,
+}) => {
+  const [codigo, setCodigo] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchCodigo = async () => {
-      if (!id_compra) {
+      if (!compraId) {
         setError("ID de compra no válido.");
         return;
       }
       try {
-        const token  = localStorage.getItem("token");
-        const code   = await getCodigoCompra(id_compra, token);
+        const token = localStorage.getItem("token");
+        const code = await getCodigoCompra(compraId.toString(), token);
         setCodigo(code);
+        setError(null);
       } catch (err: any) {
         setError(err.message || "Error al obtener el código.");
+        setCodigo(null);
       }
     };
-    fetchCodigo();
-  }, [id_compra]);
 
-  /* ---------- UI ---------- */
+    if (isOpen) {
+      setCodigo(null);
+      setError(null);
+      fetchCodigo();
+    }
+  }, [isOpen, compraId]);
+
   return (
-    <div className="flex flex-col min-h-screen font-[Fredoka] bg-gradient-to-br from-gray-100 to-white">
-      <main className="flex-grow flex flex-col items-center justify-start pt-16 px-4 text-center">
-        {/* Avatar + datos de ejemplo (opcional) */}
-        <img
-          src={imagen}
-          alt="Foto de perfil"
-          className="w-32 h-32 rounded-full object-cover mb-4 shadow-md"
-        />
-        <h2 className="text-2xl font-bold text-gray-800">Carlos Rodriguez</h2>
-        <p className="text-sm text-gray-500">Transportador</p>
-        <p className="text-sm text-gray-600 mt-1">CarlosR8… | 318 976 2543</p>
+    <AnimatePresence>
+      {isOpen && (
+        <Dialog
+          as="div"
+          open
+          onClose={onClose}
+          className="fixed inset-0 z-50 flex items-center justify-center"
+        >
+          {/* Fondo semitransparente */}
+          <div className="fixed inset-0 bg-black/30" />
 
-        {/* Código */}
-        <section className="mt-10 bg-white shadow-xl rounded-2xl px-6 py-8 max-w-md w-full">
-          {error ? (
-            <p className="text-red-500">{error}</p>
-          ) : !codigo ? (
-            <p className="text-gray-600">Cargando…</p>
-          ) : (
-            <>
-              <h3 className="text-lg font-semibold mb-4 text-gray-700">
-                Código de la compra
-              </h3>
-              <p className="text-3xl font-extrabold tracking-widest text-green-700 select-all">
-                {codigo}
-              </p>
-            </>
-          )}
-        </section>
-      </main>
-    </div>
+          <motion.div
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 flex flex-col items-center text-center"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <Dialog.Title className="text-xl font-bold text-[#205116] mb-4">
+              Código alfanumérico
+            </Dialog.Title>
+
+            {error ? (
+              <p className="text-red-500 mb-4">{error}</p>
+            ) : !codigo ? (
+              <p className="text-gray-500 mb-4">Cargando...</p>
+            ) : (
+              <input
+                readOnly
+                value={codigo}
+                className="w-full border border-gray-300 rounded-full py-2 px-4 text-center text-lg font-mono shadow-sm"
+              />
+            )}
+
+            <div className="mt-6 flex w-full gap-4">
+              <button
+                onClick={onClose}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-black py-2 rounded-xl font-medium transition"
+              >
+                Volver
+              </button>
+              <button
+                onClick={onClose}
+                className="flex-1 bg-[#48BD28] hover:bg-[#379e1b] text-white py-2 rounded-xl font-medium transition"
+              >
+                Aceptar
+              </button>
+            </div>
+          </motion.div>
+        </Dialog>
+      )}
+    </AnimatePresence>
   );
 };
 
-export default CodeGenerator;
+export default ModalCodeGenerator;

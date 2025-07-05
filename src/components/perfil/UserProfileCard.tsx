@@ -36,7 +36,6 @@ const UserProfileCard: React.FC = () => {
 
         const data = await obtenerPerfilUsuario(token);
         const user = data?.[0];
-
         if (user) {
           setProfileData({
             id_user: user.id_usuario,
@@ -63,13 +62,25 @@ const UserProfileCard: React.FC = () => {
     fetchProfile();
   }, []);
 
+  const containerVariants = {
+    hidden: { x: -50, opacity: 0 },
+    visible: { x: 0, opacity: 1, transition: { duration: 0.5 } },
+  };
+
+  // estilos compartidos para el aside
+  const baseClasses = `
+    w-full max-w-xs lg:max-w-sm
+    bg-white rounded-xl p-6
+    shadow-xl flex flex-col items-center text-center
+  `;
+
   if (loading) {
     return (
       <motion.aside
-        className="lg:w-1/3 w-full bg-white rounded-xl p-8 shadow-xl flex flex-col items-center text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
+        className={baseClasses}
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
       >
         <p className="text-gray-500">Cargando perfil...</p>
       </motion.aside>
@@ -79,10 +90,10 @@ const UserProfileCard: React.FC = () => {
   if (!profileData) {
     return (
       <motion.aside
-        className="lg:w-1/3 w-full bg-white rounded-xl p-8 shadow-xl flex flex-col items-center text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
+        className={baseClasses}
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
       >
         <p className="text-red-500">No se pudo cargar la información del perfil.</p>
       </motion.aside>
@@ -93,92 +104,77 @@ const UserProfileCard: React.FC = () => {
 
   return (
     <motion.aside
-      className="lg:w-110 w-full bg-white h-full rounded-xl p-8 shadow-xg flex flex-col items-center text-center "
-      initial={{ x: -50, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      className={baseClasses}
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
     >
+      {/* Foto y nombre */}
       <img
         src={perfilImg}
         alt="Foto de perfil"
         className="rounded-full w-24 h-24 object-cover"
       />
-      <h2 className="text-xl font-semibold mt-2">{profileData.username}</h2>
+      <h2 className="text-xl font-semibold mt-4">{profileData.username}</h2>
 
-      <div className="w-full mt-4 space-y-1 text-sm text-left">
-        <div className="flex justify-between text-[#2E7C19] font-medium">
-          <span>Nombre</span>
-          <span className="text-black">{profileData.name || "—"}</span>
-        </div>
-        <div className="flex justify-between text-[#2E7C19] font-medium">
-          <span>Correo</span>
-          <span className="text-black">{profileData.email || "—"}</span>
-        </div>
-        <div className="flex justify-between text-[#2E7C19] font-medium">
-          <span>Teléfono</span>
-          <span className="text-black">{profileData.phone || "—"}</span>
-        </div>
-        <div className="flex justify-between text-[#2E7C19] font-medium">
-          <span>Rol</span>
-          <span className="text-black">{profileData.roles || "—"}</span>
-        </div>
+      {/* Datos básicos */}
+      <div className="w-full mt-6 space-y-2 text-sm text-left">
+        {[
+          ["Nombre", profileData.name],
+          ["Correo", profileData.email],
+          ["Teléfono", profileData.phone],
+          ["Rol", profileData.roles],
+        ].map(([label, value]) => (
+          <div key={label} className="flex justify-between text-[#2E7C19] font-medium">
+            <span>{label}</span>
+            <span className="text-black">{value || "—"}</span>
+          </div>
+        ))}
       </div>
 
+      {/* Sección de transportador */}
       {lowerRole.includes("transportador") && (
         <>
           <hr className="my-4 w-full border-gray-300" />
-          <div className="w-full space-y-1 text-sm text-left">
-            <div className="flex justify-between text-[#2E7C19] font-medium">
-              <span>Tipo de Vehículo</span>
-              <span className="text-black">{profileData.tipoVehiculo || "—"}</span>
-            </div>
-            <div className="flex justify-between text-[#2E7C19] font-medium">
-              <span>Tarjeta Propiedad</span>
-              <span className="text-black">{profileData.tarjetaPropiedad || "—"}</span>
-            </div>
-            <div className="flex justify-between text-[#2E7C19] font-medium">
-              <span>Licencia de Conducción</span>
-              <span className="text-black">{profileData.licenciaConduccion || "—"}</span>
-            </div>
-            <div className="flex justify-between text-[#2E7C19] font-medium">
-              <span>SOAT</span>
-              <span className="text-black">{profileData.soat || "—"}</span>
-            </div>
-            <div className="flex justify-between text-[#2E7C19] font-medium">
-              <span>Peso del vehículo</span>
-              <span className="text-black">{profileData.pesoVehiculo || "—"}</span>
-            </div>
+          <div className="w-full space-y-2 text-sm text-left">
+            {[
+              ["Tipo de Vehículo", profileData.tipoVehiculo],
+              ["Tarjeta Propiedad", profileData.tarjetaPropiedad],
+              ["Licencia de Conducción", profileData.licenciaConduccion],
+              ["SOAT", profileData.soat],
+              ["Peso del Vehículo", profileData.pesoVehiculo],
+            ].map(([label, value]) => (
+              <div key={label} className="flex justify-between text-[#2E7C19] font-medium">
+                <span>{label}</span>
+                <span className="text-black">{value || "—"}</span>
+              </div>
+            ))}
           </div>
-
-          {profileData.fotosVehiculo && (
-            <div className="mt-4">
-              <Slider
-                fotos={profileData.fotosVehiculo.split(",").map((f) => f.trim())}
-                nombre={profileData.name}
-              />
-            </div>
-          )}
         </>
       )}
 
-      <div className="w-full mt-4 space-y-2 flex flex-col items-center">
+      {/* Botones de acción */}
+      <div className="w-full mt-6 flex flex-col gap-3">
+        {/* Formulario transportador */}
         {!lowerRole.includes("transportador") && (
           <button
             onClick={() => navigate("/formulariotransportador")}
-            className="w-60 bg-[#28A745] text-white py-2 rounded-xl font-semibold hover:bg-[#379e1b] transition-colors"
+            className="w-full bg-[#28A745] text-white py-2 rounded-xl font-semibold hover:bg-[#379e1b] transition-colors"
           >
             Formulario para transportador
           </button>
         )}
 
+        {/* Petición vendedor */}
         {!lowerRole.includes("vendedor") && <PeticionVendedor />}
 
+        {/* Logout */}
         <button
           onClick={() => {
             localStorage.removeItem("token");
             navigate("/login");
           }}
-          className="w-60 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl font-semibold transition-colors"
+          className="w-full bg-red-500 text-white py-2 rounded-xl font-semibold hover:bg-red-600 transition-colors"
         >
           Cerrar sesión
         </button>
@@ -188,38 +184,3 @@ const UserProfileCard: React.FC = () => {
 };
 
 export default UserProfileCard;
-
-// Carrusel de fotos del vehículo
-function Slider({ fotos, nombre }: { fotos: string[]; nombre: string }) {
-  const [index, setIndex] = useState(0);
-
-  const siguiente = () => setIndex((prev) => (prev + 1) % fotos.length);
-  const anterior = () => setIndex((prev) => (prev - 1 + fotos.length) % fotos.length);
-
-  return (
-    <div className="relative w-44 h-28 rounded overflow-hidden shadow bg-white mx-auto">
-      <img
-        src={fotos[index]}
-        alt={`Foto ${index + 1} de ${nombre}`}
-        className="w-full h-full object-cover"
-        onError={(e) => (e.currentTarget.src = "/img/default-car.png")}
-      />
-      {fotos.length > 1 && (
-        <>
-          <button
-            onClick={anterior}
-            className="absolute left-1 top-1/2 transform -translate-y-1/2 text-white text-xs bg-black/50 px-2 rounded"
-          >
-            ‹
-          </button>
-          <button
-            onClick={siguiente}
-            className="absolute right-1 top-1/2 transform -translate-y-1/2 text-white text-xs bg-black/50 px-2 rounded"
-          >
-            ›
-          </button>
-        </>
-      )}
-    </div>
-  );
-}
