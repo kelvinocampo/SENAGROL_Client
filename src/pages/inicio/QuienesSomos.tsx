@@ -1,10 +1,10 @@
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import { motion } from "framer-motion";
-import Farmer1 from "@/assets/QuienesSomos/Farmer1.png";
-import Farmer3 from "@/assets/QuienesSomos/Farmer3.png";
-import Farmer4 from "@/assets/QuienesSomos/Farmer4.png";
-import Farmer5 from "@/assets/QuienesSomos/Farmer5.png";
+import Farmer1 from "@/assets/QuienesSomos/farmer1.png";
+import Farmer3 from "@/assets/QuienesSomos/farmer3.png";
+import Farmer4 from "@/assets/QuienesSomos/farmer4.png";
+import Farmer5 from "@/assets/QuienesSomos/farmer5.png";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
