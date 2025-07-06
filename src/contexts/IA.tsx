@@ -10,9 +10,18 @@ export const IAProvider = ({ children }: any) => {
       : []
   );
 
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    !!localStorage.getItem("token")
+  );
+
   useEffect(() => {
     sessionStorage.setItem("history", JSON.stringify(history));
   }, [history]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  }, []);
 
   const clearHistory = () => {
     setHistory([]);
@@ -21,7 +30,14 @@ export const IAProvider = ({ children }: any) => {
 
   return (
     <IAContext.Provider
-      value={{ message, setMessage, history, setHistory, clearHistory }}
+      value={{
+        message,
+        setMessage,
+        history,
+        setHistory,
+        clearHistory,
+        isAuthenticated, // ✅ Ahora disponible en cualquier componente
+      }}
     >
       {children}
     </IAContext.Provider>

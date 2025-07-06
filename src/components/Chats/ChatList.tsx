@@ -33,14 +33,14 @@ export const ChatsList = () => {
     })();
   }, [fetchChats]);
 
-  const getOtherUser = (chat: any) => {
-    const isUser1 = chat.id_user1 === currentUserId;
-    return {
-      name: isUser1 ? chat.nombre_user2 : chat.nombre_user1,
-      blocked: chat.estado === "Bloqueado",
-      role: "Vendedor",
-    };
+const getOtherUser = (chat: any) => {
+  const isUser1 = chat.id_user1 === currentUserId;
+  return {
+    name: isUser1 ? chat.nombre_user2 : chat.nombre_user1,
+    blocked: chat.estado === "Bloqueado",
+    role: isUser1 ? chat.rol_user2 : chat.rol_user1, // <- aquí se usa el valor correcto dinámicamente
   };
+};
 
   const openConfirm = (title: string, msg: string, action: () => void) => {
     setConfirmTitle(title);

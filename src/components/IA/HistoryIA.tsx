@@ -484,7 +484,14 @@ export const HistoryIA = () => {
           </button>
         </div>
       )}
-
+    {!history.some((item) => item.type === "user") && (
+      <div className="flex items-start text-left w-full px-3 gap-x-2 animate-fade-in">
+        <img src={senagrol} alt="IA" className="h-8 mt-1" />
+        <div className="bg-[#D9D9D9] text-black px-4 py-2 rounded-xl w-fit max-w-[90%] shadow-sm border border-gray-200">
+          <p className="whitespace-pre-wrap">¡Hola! 👋 ¿En qué puedo ayudarte hoy?</p>
+        </div>
+      </div>
+    )}
       {/* Render de historial */}
       {history.map((item, index) => {
         const { chartData, messageParts } = processMessage(item.message);

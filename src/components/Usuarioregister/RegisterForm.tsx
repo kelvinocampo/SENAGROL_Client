@@ -1,37 +1,14 @@
-/* -------------------------------------------------------------
-   src/pages/RegisterForm.tsx
-   - Logo fijo arriba del formulario (no se cruza con inputs)
-   - Sin bordes/fondos verdes extra
-   - 100 % responsive (xs → xl)
-------------------------------------------------------------- */
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BackToHome } from "@components/admin/common/BackToHome";
 import { motion } from "framer-motion";
 import senagrol from "@assets/senagrol.png";
-import Image1 from "@assets/co.jpg";
-import Image2 from "@assets/Travel.jpg";
-import Image3 from "@assets/LoginImg.jpg";
+import Image1 from "@assets/login.png"; // solo una imagen ahora
 import { InicioService } from "@/services/Perfil/inicioServices";
 import { Input } from "@components/Input";
 
-/* ----------------- Slider ----------------- */
-const images = [Image1, Image2, Image3];
-
-/* ----------------- Animaciones ----------------- */
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { when: "beforeChildren", staggerChildren: 0.15 },
-  },
-};
-const fadeInUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } };
-
 export function RegisterForm() {
-  /* ---------- Estados de formulario ---------- */
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -40,8 +17,8 @@ export function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [strength, setStrength] = useState(0);
   const [message, setMessage] = useState("");
+  const [strength, setStrength] = useState(0);
   const [errors, setErrors] = useState({
     name: "",
     username: "",
@@ -51,15 +28,8 @@ export function RegisterForm() {
     confirmPassword: "",
   });
 
-  /* ---------- Slider ---------- */
-  const [currentImage, setCurrentImage] = useState(0);
   const navigate = useNavigate();
-  useEffect(() => {
-    const int = setInterval(() => setCurrentImage((i) => (i + 1) % images.length), 4000);
-    return () => clearInterval(int);
-  }, []);
 
-  /* ---------- Password strength ---------- */
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const pwd = e.target.value;
     setPassword(pwd);
@@ -71,22 +41,18 @@ export function RegisterForm() {
     setStrength(Math.min(sc, 100));
   };
 
-  /* ---------- Validación ---------- */
   const validate = () => {
     const e = { ...errors };
     e.name = !name.trim() ? "El nombre completo es obligatorio." : "";
     e.username = !username.trim() ? "El nombre de usuario es obligatorio." : "";
-    e.email =
-      !email.trim() || !/\S+@\S+\.\S+/.test(email) ? "Correo inválido." : "";
+    e.email = !email.trim() || !/\S+@\S+\.\S+/.test(email) ? "Correo inválido." : "";
     e.phone = !phone.trim() ? "El número es obligatorio." : "";
     e.password = password.length < 8 ? "Debe tener al menos 8 caracteres." : "";
-    e.confirmPassword =
-      password !== confirmPassword ? "Las contraseñas no coinciden." : "";
+    e.confirmPassword = password !== confirmPassword ? "Las contraseñas no coinciden." : "";
     setErrors(e);
     return Object.values(e).every((v) => v === "");
   };
 
-  /* ---------- Submit ---------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
@@ -94,14 +60,7 @@ export function RegisterForm() {
       return;
     }
     try {
-      await InicioService.register(
-        name,
-        username,
-        email,
-        password,
-        phone,
-        confirmPassword
-      );
+      await InicioService.register(name, username, email, password, phone, confirmPassword);
       setMessage("Cuenta creada exitosamente.");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err: any) {
@@ -116,86 +75,78 @@ export function RegisterForm() {
     }
   };
 
-  /* ---------- UI ---------- */
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-white">
+    <div className="min-h-screen w-full flex items-center justify-center">
       <div className="w-full flex flex-col md:flex-row">
+        {/* Botón volver al inicio */}
         <div className="fixed top-5 left-5 z-20">
           <BackToHome />
         </div>
 
-        <div className="w-full md:w-1/2 flex items-center justify-center px-6 sm:px-10 py-12 bg-white">
-          <motion.div
-            className="w-full max-w-[450px]"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <div className="flex justify-center mb-8">
+        {/* Formulario */}
+        <div className="w-full md:w-1/2 flex items-center justify-center px-6 sm:px-10 py-12 bg-gradient-to-b from-[#e4fbdd] to-[#f4fcf1]">
+          <motion.div className="w-full max-w-[450px] space-y-4">
+            {/* Logo */}
+            <div className="flex justify-center mb-2">
               <img
                 src={senagrol}
                 alt="Senagrol"
-                className="w-16 h-16 md:w-20 md:h-20 rounded-full shadow-md"
+                className="w-20 h-20 rounded-full shadow-md"
               />
             </div>
 
-            <div className="flex justify-between mb-6 border-b border-gray-300 pb-2 text-sm sm:text-base">
+            {/* Encabezado */}
+            <div className="flex justify-between mb-4 border-b border-gray-300 pb-1 text-sm sm:text-base">
               <motion.span
                 onClick={() => navigate("/login")}
                 className="text-gray-400 cursor-pointer hover:text-black"
-                whileHover={{ scale: 1.05 }}
               >
-                Login
+                Iniciar sesión
               </motion.span>
               <span className="text-black font-semibold border-b-2 border-[#48BD28] pb-1">
                 Registro
               </span>
             </div>
 
-            <motion.form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-              <motion.div variants={fadeInUp}>
-                <Input
-                  name="username"
-                  label="Nombre de usuario"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  error={errors.username}
-                />
-              </motion.div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                name="username"
+                label="Nombre de usuario"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                error={errors.username}
+                placeholder="ingresa tu nombre de usuario"
+              />
 
-              <motion.div variants={fadeInUp}>
-                <Input
-                  name="email"
-                  label="Correo electrónico"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  error={errors.email}
-                />
-              </motion.div>
+              <Input
+                name="name"
+                label="Nombre completo"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                error={errors.name}
+                placeholder="ingresa tu nombre completo"
+              />
 
-              <motion.div variants={fadeInUp}>
-                <Input
-                  name="name"
-                  label="Nombre completo"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  error={errors.name}
-                />
-              </motion.div>
+              <Input
+                name="email"
+                label="Correo electrónico"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={errors.email}
+                placeholder="ingresa tu correo electrónico"
+              />
 
-              <motion.div variants={fadeInUp}>
-                <Input
-                  name="phone"
-                  label="Teléfono"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  error={errors.phone}
-                />
-              </motion.div>
+              <Input
+                name="phone"
+                label="Teléfono"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                error={errors.phone}
+                placeholder="ingresa tu número de teléfono"
+              />
 
-              {/* Contraseña */}
-              <motion.div variants={fadeInUp} className="relative">
+              <div className="relative">
                 <Input
                   name="password"
                   label="Contraseña"
@@ -203,6 +154,7 @@ export function RegisterForm() {
                   value={password}
                   onChange={handlePasswordChange}
                   error={errors.password}
+                  placeholder="ingresa tu contraseña"
                 />
                 <span
                   className="absolute right-3 top-[38px] cursor-pointer text-gray-400"
@@ -212,19 +164,16 @@ export function RegisterForm() {
                 </span>
                 <div className="w-full bg-gray-200 h-2 rounded mt-1">
                   <div
-                    className={`h-2 rounded ${
-                      strength < 50 ? "bg-red-500" : "bg-green-500"
-                    }`}
+                    className={`h-2 rounded ${strength < 50 ? "bg-red-500" : "bg-green-500"}`}
                     style={{ width: `${strength}%` }}
                   />
                 </div>
                 <p className="text-xs text-green-600 mt-1">
                   Usa mínimo 8 caracteres, una mayúscula y un símbolo.
                 </p>
-              </motion.div>
+              </div>
 
-              {/* Confirmar contraseña */}
-              <motion.div variants={fadeInUp} className="relative">
+              <div className="relative">
                 <Input
                   name="confirmPassword"
                   label="Confirmar contraseña"
@@ -232,6 +181,7 @@ export function RegisterForm() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   error={errors.confirmPassword}
+                  placeholder="ingresa tu contraseña"
                 />
                 <span
                   className="absolute right-3 top-[38px] cursor-pointer text-gray-400"
@@ -239,12 +189,10 @@ export function RegisterForm() {
                 >
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </span>
-              </motion.div>
+              </div>
 
-              {/* Mensajes */}
               {message && (
-                <motion.p
-                  variants={fadeInUp}
+                <p
                   className={`text-sm font-medium ${
                     message.toLowerCase().includes("exitosamente")
                       ? "text-green-600"
@@ -252,31 +200,24 @@ export function RegisterForm() {
                   }`}
                 >
                   {message}
-                </motion.p>
+                </p>
               )}
 
-              {/* Botón */}
-              <motion.button
+              <button
                 type="submit"
-                variants={fadeInUp}
-                className="bg-[#48BD28] text-white font-bold py-2 px-4 rounded-md hover:bg-[#379E1B] transition"
-                whileHover={{
-                  scale: 1.03,
-                  boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
-                }}
-                whileTap={{ scale: 0.97 }}
+                className="w-full bg-[#48BD28] text-white py-2 rounded-md font-bold hover:bg-[#379E1B] transition"
               >
                 Registrarse
-              </motion.button>
-            </motion.form>
+              </button>
+            </form>
           </motion.div>
         </div>
 
-  
+        {/* Imagen derecha fija */}
         <div className="hidden md:block md:w-1/2 h-screen">
           <img
-            src={images[currentImage]}
-            alt="slider"
+            src={Image1}
+            alt="Imagen"
             className="w-full h-full object-cover"
           />
         </div>

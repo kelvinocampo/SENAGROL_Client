@@ -5,7 +5,7 @@ import ManualCodeForm from "@components/perfil/CodigoTransportador";
 import ModalEscanearQr from "@components/perfil/EscanearQr";
 import ModalUbicacionCompra from "@pages/Perfil/UbicacionCompra";
 
-type Compra = {
+interface Compra {
   id_compra: number;
   fecha_entrega: string;
   producto_nombre: string;
@@ -13,7 +13,7 @@ type Compra = {
   precio_transporte: number;
   vendedor_nombre: string;
   estado: "Asignada" | "En Proceso" | "Completada";
-};
+}
 
 const estadoColor: Record<Compra["estado"], string> = {
   Asignada: "text-[#0284C7]",
@@ -21,7 +21,7 @@ const estadoColor: Record<Compra["estado"], string> = {
   Completada: "text-[#28A745]",
 };
 
-const TransportesContenido: React.FC = () => {
+export const TransportesContenido: React.FC = () => {
   const [compras, setCompras] = useState<Compra[]>([]);
   const [toast, setToast] = useState<{ mensaje: string; tipo: "success" | "error" } | null>(null);
 
@@ -31,57 +31,71 @@ const TransportesContenido: React.FC = () => {
     compra: Compra;
   } | null>(null);
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalCodigoOpen, setModalCodigoOpen] = useState(false);
   const [modalQrOpen, setModalQrOpen] = useState(false);
   const [modalUbicacionOpen, setModalUbicacionOpen] = useState(false);
 
-  const cargarTransportes = async () => {
-    try {
-      const id_user = JSON.parse(localStorage.getItem("user") || "{}").id;
-      const data = await TransportService.getTransports(id_user);
-      setCompras(data.filter((c: Compra) => ["Asignada", "En Proceso", "Completada"].includes(c.estado)));
-    } catch {
-      setToast({ mensaje: "Error al cargar transportes", tipo: "error" });
-    }
-  };
-
+  // Carga inicial de compras
   useEffect(() => {
-    cargarTransportes();
+    (async () => {
+      try {
+        const id_user = JSON.parse(localStorage.getItem("user") || "{}").id;
+        const data: Compra[] = await TransportService.getTransports(id_user);
+        setCompras(
+          data.filter(
+            (c: Compra) =>
+              c.estado === "Asignada" ||
+              c.estado === "En Proceso" ||
+              c.estado === "Completada"
+          )
+        );
+      } catch {
+        setToast({ mensaje: "Error al cargar transportes", tipo: "error" });
+      }
+    })();
   }, []);
 
-  const ejecutarAccion = async () => {
+  // Ejecuta la acción pendiente: cancelar, código, QR o ubicación
+  const ejecutarAccion = () => {
     if (!accionPendiente) return;
     const { tipo, compra } = accionPendiente;
 
-    switch (tipo) {
-      case "cancelar":
-        try {
-          await TransportService.cancelarCompra(compra.id_compra);
+    if (tipo === "cancelar") {
+      TransportService.cancelarCompra(compra.id_compra)
+        .then(() => {
           setToast({ mensaje: "Compra cancelada correctamente", tipo: "success" });
-          cargarTransportes();
-        } catch {
+          // recargar transportes
+          return TransportService.getTransports(
+            JSON.parse(localStorage.getItem("user") || "{}").id
+          );
+        })
+        .then((data: Compra[]) =>
+          setCompras(
+            data.filter(
+              (c: Compra) =>
+                c.estado === "Asignada" ||
+                c.estado === "En Proceso" ||
+                c.estado === "Completada"
+            )
+          )
+        )
+        .catch(() => {
           setToast({ mensaje: "Error al cancelar la compra", tipo: "error" });
-        }
-        break;
-      case "codigo":
-        setModalOpen(true);
-        break;
-      case "qr":
-        setModalQrOpen(true);
-        break;
-      case "ubicacion":
-        setModalUbicacionOpen(true);
-        break;
+        });
+    } else if (tipo === "codigo") {
+      setModalCodigoOpen(true);
+    } else if (tipo === "qr") {
+      setModalQrOpen(true);
+    } else if (tipo === "ubicacion") {
+      setModalUbicacionOpen(true);
     }
-
-    setAccionPendiente(null);
-    setConfirmOpen(false);
   };
 
+  // Conteos por estado
   const countByEstado = {
-    Asignada: compras.filter((c) => c.estado === "Asignada").length,
-    "En Proceso": compras.filter((c) => c.estado === "En Proceso").length,
-    Completada: compras.filter((c) => c.estado === "Completada").length,
+    Asignada: compras.filter((c: Compra) => c.estado === "Asignada").length,
+    "En Proceso": compras.filter((c: Compra) => c.estado === "En Proceso").length,
+    Completada: compras.filter((c: Compra) => c.estado === "Completada").length,
   };
 
   return (
@@ -98,65 +112,91 @@ const TransportesContenido: React.FC = () => {
         </div>
       )}
 
-      {/* Indicadores */}
+      {/* Indicadores de estado */}
       <div className="flex flex-wrap gap-4 mb-6">
-        {[
-          { label: "Asignada", bg: "#E0F2FE", text: "#0284C7", count: countByEstado.Asignada },
-          { label: "En Proceso", bg: "#fde68a", text: "#CA8A04", count: countByEstado["En Proceso"] },
-          { label: "Completada", bg: "#DCFCE7", text: "#16A34A", count: countByEstado.Completada },
-        ].map((estado) => (
-          <span
-            key={estado.label}
-            className="px-4 py-2 rounded-xl text-sm font-medium"
-            style={{
-              backgroundColor: estado.bg,
-              color: estado.text,
-              border: `2px solid ${estado.text}`,
-            }}
-          >
-            {estado.label}
-            <span className="bg-white rounded-full px-2 ml-2">{estado.count}</span>
-          </span>
-        ))}
+        {(["Asignada", "En Proceso", "Completada"] as Compra["estado"][]).map(
+          (estado) => (
+            <span
+              key={estado}
+              className="px-4 py-2 rounded-xl text-sm font-medium"
+              style={{
+                backgroundColor:
+                  estado === "Asignada"
+                    ? "#E0F2FE"
+                    : estado === "En Proceso"
+                    ? "#fde68a"
+                    : "#DCFCE7",
+                color:
+                  estado === "Asignada"
+                    ? "#0284C7"
+                    : estado === "En Proceso"
+                    ? "#CA8A04"
+                    : "#16A34A",
+                border: `2px solid ${
+                  estado === "Asignada"
+                    ? "#0284C7"
+                    : estado === "En Proceso"
+                    ? "#CA8A04"
+                    : "#16A34A"
+                }`,
+              }}
+            >
+              {estado}
+              <span className="bg-white rounded-full px-2 ml-2">
+                {countByEstado[estado]}
+              </span>
+            </span>
+          )
+        )}
       </div>
 
-      {/* Tabla */}
+      {/* Tabla de compras */}
       <div className="w-full overflow-x-auto rounded-xl border border-[#48bd28] shadow bg-white">
         <table className="w-full min-w-[720px] table-auto text-sm text-center">
-          <thead className="bg-white text-black font-bold">
+          <thead className="bg-white text-black font-bold sticky top-0 z-10">
             <tr>
               <th className="px-4 py-2">Estado</th>
-              <th className="px-4 py-2">Fecha Entrega</th>
+              <th className="px-4 py-2">Fecha entrega</th>
               <th className="px-4 py-2">Vendedor</th>
               <th className="px-4 py-2">Producto</th>
               <th className="px-4 py-2">Cantidad</th>
-              <th className="px-4 py-2">Precio transporte</th>
+              <th className="px-4 py-2">Precio transp.</th>
               <th className="px-4 py-2">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {compras.map((compra, index) => (
-              <tr key={compra.id_compra} className={index % 2 === 0 ? "bg-[#f4fcf1]" : "bg-white"}>
-                <td className="px-2 py-2">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${estadoColor[compra.estado]}`}>
+            {compras.map((compra: Compra, index: number) => (
+              <tr
+                key={compra.id_compra}
+                className={index % 2 === 0 ? "bg-[#f4fcf1]" : "bg-white"}
+              >
+                <td className="px-2 py-1">
+                  <span
+                    className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      estadoColor[compra.estado]
+                    }`}
+                  >
                     {compra.estado}
                   </span>
                 </td>
-                <td className="px-2 py-2">{new Date(compra.fecha_entrega).toLocaleString()}</td>
-                <td className="px-2 py-2">{compra.vendedor_nombre}</td>
-                <td className="px-2 py-2">{compra.producto_nombre}</td>
-                <td className="px-2 py-2">{compra.cantidad}</td>
-                <td className="px-2 py-2 text-green-700 font-semibold">
+                <td className="px-2 py-1 whitespace-nowrap">
+                  {new Date(compra.fecha_entrega).toLocaleString()}
+                </td>
+                <td className="px-2 py-1">{compra.vendedor_nombre}</td>
+                <td className="px-2 py-1">{compra.producto_nombre}</td>
+                <td className="px-2 py-1">{compra.cantidad}</td>
+                <td className="px-2 py-1 text-green-700 font-semibold">
                   ${compra.precio_transporte.toLocaleString()}
                 </td>
-                <td className="px-2 py-2">
-                  <div className="flex flex-wrap justify-center gap-1">
+                  <td className="py-2 px-4">
+                  {/* Botones en una sola fila */}
+                  <div className="flex gap-2">
                     <button
                       onClick={() => {
                         setAccionPendiente({ tipo: "codigo", compra });
                         setConfirmOpen(true);
                       }}
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 text-xs rounded"
+                      className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded"
                     >
                       Código
                     </button>
@@ -165,7 +205,7 @@ const TransportesContenido: React.FC = () => {
                         setAccionPendiente({ tipo: "qr", compra });
                         setConfirmOpen(true);
                       }}
-                      className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 text-xs rounded"
+                      className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
                     >
                       QR
                     </button>
@@ -174,7 +214,7 @@ const TransportesContenido: React.FC = () => {
                         setAccionPendiente({ tipo: "ubicacion", compra });
                         setConfirmOpen(true);
                       }}
-                      className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 text-xs rounded"
+                      className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded"
                     >
                       Ubicación
                     </button>
@@ -184,7 +224,7 @@ const TransportesContenido: React.FC = () => {
                           setAccionPendiente({ tipo: "cancelar", compra });
                           setConfirmOpen(true);
                         }}
-                        className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 text-xs rounded"
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
                       >
                         Cancelar
                       </button>
@@ -197,33 +237,34 @@ const TransportesContenido: React.FC = () => {
         </table>
       </div>
 
-      {/* Confirmación */}
+      {/* ConfirmDialog */}
       <ConfirmDialog
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
-        onConfirm={ejecutarAccion}
+        onConfirm={() => {
+          ejecutarAccion();
+          setConfirmOpen(false);
+        }}
         title="Confirmar acción"
-        message={`¿Está seguro que desea continuar con la acción "${
-          accionPendiente?.tipo || ""
-        }"?`}
+        message={`¿Deseas continuar con "${accionPendiente?.tipo}"?`}
       />
 
       {/* Modales */}
-      {modalOpen && accionPendiente?.compra && (
+      {modalCodigoOpen && accionPendiente && (
         <ManualCodeForm
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
+          isOpen={modalCodigoOpen}
+          onClose={() => setModalCodigoOpen(false)}
           compraId={accionPendiente.compra.id_compra}
         />
       )}
-      {modalQrOpen && accionPendiente?.compra && (
+      {modalQrOpen && accionPendiente && (
         <ModalEscanearQr
           isOpen={modalQrOpen}
           onClose={() => setModalQrOpen(false)}
           compraId={accionPendiente.compra.id_compra}
         />
       )}
-      {modalUbicacionOpen && accionPendiente?.compra && (
+      {modalUbicacionOpen && accionPendiente && (
         <ModalUbicacionCompra
           id={accionPendiente.compra.id_compra}
           onClose={() => setModalUbicacionOpen(false)}

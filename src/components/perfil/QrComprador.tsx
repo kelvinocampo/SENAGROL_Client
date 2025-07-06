@@ -1,112 +1,100 @@
-
-
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { QRCodeCanvas } from "qrcode.react";        // <- reemplaza por 'react-qr-code' si lo prefieres
-import { motion } from "framer-motion";
-
-import imagen from "@/assets/sin_foto.jpg";          // <- pon tu imagen real
+import React, { useEffect, useState } from "react";
+import { Dialog } from "@headlessui/react";
+import { QRCodeCanvas } from "qrcode.react";
+import { motion, AnimatePresence } from "framer-motion";
 import { getCodigoCompra } from "@/services/Perfil/Qr&codigocompradorServices";
 
-const QRCodeGenerator = () => {
-  /* ------------ params & state ------------ */
-  const { id_compra } = useParams();
+type ModalQrGeneratorProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  compraId: number | null;
+};
+
+const ModalQrGenerator: React.FC<ModalQrGeneratorProps> = ({
+  isOpen,
+  onClose,
+  compraId,
+}) => {
   const [codigo, setCodigo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  /* ------------ fetch code ------------ */
   useEffect(() => {
     const fetchCodigo = async () => {
-      if (!id_compra) {
+      if (!compraId) {
         setError("ID de compra no válido.");
         return;
       }
+
       try {
         const token = localStorage.getItem("token");
-        const code = await getCodigoCompra(id_compra, token);
+        const code = await getCodigoCompra(compraId.toString(), token);
         setCodigo(code);
       } catch (err: any) {
         setError(err.message || "Error al obtener el código.");
       }
     };
-    fetchCodigo();
-  }, [id_compra]);
 
-  /* ------------ UI ------------ */
+    if (isOpen) {
+      setCodigo(null);
+      setError(null);
+      fetchCodigo();
+    }
+  }, [compraId, isOpen]);
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <motion.main
-        className="flex-grow flex flex-col items-center justify-start px-4 py-12 bg-gradient-to-br from-gray-100 to-white"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.2 }}
-      >
-        <motion.div
-          className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full text-center"
-          initial={{ y: -40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1, ease: 'easeOut' }}
+    <AnimatePresence>
+      {isOpen && (
+        <Dialog
+          as="div"
+          open={isOpen}
+          onClose={onClose}
+          className="fixed inset-0 z-50 flex items-center justify-center"
         >
-          {/* avatar / info (opcional) */}
-          <motion.img
-            src={imagen}
-            alt="Foto de perfil"
-            className="w-32 h-32 rounded-full object-cover mx-auto mb-4 shadow-md"
-            whileHover={{ scale: 1.1 }}
-            transition={{ type: "spring", stiffness: 200 }}
-          />
-          <h2 className="text-2xl font-bold text-gray-800 mb-1">
-            Carlos Rodriguez
-          </h2>
-          <p className="text-sm text-gray-500">Transportador</p>
-          <p className="text-sm text-gray-600 mt-1">
-            CarlosR8… | 318 976 2543
-          </p>
+          {/* Fondo */}
+          <div className="fixed inset-0 bg-black/40" />
 
-          {/* QR section */}
+          {/* Contenedor del modal */}
           <motion.div
-            className="mt-10"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 flex flex-col items-center"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.25 }}
           >
+            <Dialog.Title
+              as="h2"
+              className="text-lg font-bold text-[#205116] mb-4"
+            >
+              Código QR
+            </Dialog.Title>
+
             {error ? (
-              <motion.div
-                className="text-red-500 mt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                {error}
-              </motion.div>
+              <p className="text-red-500 mb-4">{error}</p>
             ) : !codigo ? (
-              <motion.div
-                className="text-gray-600 mt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                Cargando…
-              </motion.div>
+              <p className="text-gray-500 mb-4">Cargando código...</p>
             ) : (
-              <>
-                <h3 className="text-lg font-semibold mb-4 mt-6 text-gray-700">
-                  Código QR
-                </h3>
-                <motion.div
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                  className="inline-block"
-                >
-                  {/* si prefieres react-qr-code: <QRCode value={codigo} size={200}/> */}
-                  <QRCodeCanvas value={codigo} size={200} />
-                </motion.div>
-              </>
+              <QRCodeCanvas value={codigo} size={180} className="mb-4" />
             )}
+
+            <div className="mt-4 w-full flex justify-between gap-2">
+              <button
+                onClick={onClose}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-black py-2 rounded-xl font-medium transition"
+              >
+                Volver
+              </button>
+              <button
+                onClick={onClose}
+                className="flex-1 bg-[#48BD28] hover:bg-[#379e1b] text-white py-2 rounded-xl font-medium transition"
+              >
+                Aceptar
+              </button>
+            </div>
           </motion.div>
-        </motion.div>
-      </motion.main>
-    </div>
+        </Dialog>
+      )}
+    </AnimatePresence>
   );
 };
 
-export default QRCodeGenerator;
+export default ModalQrGenerator;

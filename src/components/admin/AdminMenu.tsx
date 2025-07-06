@@ -81,11 +81,11 @@ export const AdminMenu = ({
           >
             {/* Encabezado del menú */}
             <div className="flex flex-col items-center py-6 border-b border-[#caf5bd]">
-              <BackToHome textColor="text-[#205116]" />
+              <BackToHome/>
               <img
                 src={senagrol}
                 alt="Senagrol"
-                className="w-24 h-24 rounded-full mb-2 border-4 border-[#caf5bd]"
+                className="w-40 h-40 rounded-full mb-2 border-4 border-none"
               />
               <h2 className="text-lg font-bold text-[#1B7D00]">Administrador</h2>
             </div>

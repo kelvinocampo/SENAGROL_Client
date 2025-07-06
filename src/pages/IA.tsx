@@ -20,18 +20,16 @@ export const IA = () => {
           <h2 className="text-2xl text-[#2e7c19] font-bold mb-4">Asistente</h2>
 
           {/* Chat history que se expande */}
-          <div className="flex flex-col gap-4 flex-grow overflow-y-auto mb-6">
+          <div className="flex flex-col relative gap-4 flex-grow overflow-y-auto mb-6">
             <HistoryIA />
           </div>
 
-          {/* Input siempre pegado abajo dentro del main */}
-          <div className="mt-auto my-10">
+          <div className="mt-auto relative my-10">
             <InputIA />
           </div>
         </main>
       </IAProvider>
 
-      {/* Footer fuera del Provider, siempre abajo */}
       <Footer />
     </div>
   );

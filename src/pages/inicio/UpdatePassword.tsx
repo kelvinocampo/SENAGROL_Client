@@ -3,7 +3,7 @@ import { RecoverPasswordProvider } from "@/contexts/User/UserManagement";
 
 const ActulizarContraseña = () => {
   return (
-    <div className="bg-white min-h-screen flex items-start justify-start">
+    <div className=" min-h-screen flex items-start justify-start">
       <RecoverPasswordProvider>
         <UpdatePassword />
       </RecoverPasswordProvider>

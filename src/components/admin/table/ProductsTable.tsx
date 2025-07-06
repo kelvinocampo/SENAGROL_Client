@@ -83,9 +83,8 @@ export const ProductTable = () => {
         inputClassName="w-full px-4 py-2 rounded-full border border-[#48BD28] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6dd850]"
       />
 
-      {/* 🧾 Tabla */}
       <table className="min-w-full table-auto overflow-hidden rounded-2xl border border-[#48bd28]">
-        <thead className="bg-[#E4FBDD] text-black">
+        <thead className="bg-[#E4FBDD] border-[#48BD28] text-black">
           <tr>
             <TableHeader>Imagen</TableHeader>
             <TableHeader>Nombre</TableHeader>
@@ -98,7 +97,7 @@ export const ProductTable = () => {
             <TableHeader>Eliminar</TableHeader>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-transparent bg-[#E4FBDD] border  border-[#48BD28] rounded-xl overflow-hidden">
           <AnimatePresence>
             {filteredProducts.map((product, index) => (
               <motion.tr
@@ -108,8 +107,8 @@ export const ProductTable = () => {
                 animate="visible"
                 exit="exit"
                 transition={{ duration: 0.3 }}
-                className={`text-center text-black font-semibold ${
-                  index % 2 === 0 ? "bg-white" : "bg-[#E4FBDD]"
+                className={`text-center text-black font-semibold border-[#48BD28] ${
+                  index % 2 === 0 ? "bg-white" : "bg-[#E4FBDD] "
                 }`}
               >
                 <td className="p-3">

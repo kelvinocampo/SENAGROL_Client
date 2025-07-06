@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { requestSeller } from "@/services/Perfil/PeticiónVService";
-import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog"; // Ajusta la ruta si es necesario
+import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog";
 
 export default function PeticionVendedor() {
   const [mensaje, setMensaje] = useState("");
@@ -32,10 +32,10 @@ export default function PeticionVendedor() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto ">
+    <div className="w-full max-w-md mx-auto px-4">
       <button
         onClick={() => setIsDialogOpen(true)}
-        className="bg-[#17A2B8] text-white py-2 rounded-xl w-60 font-[Fredoka] font-bold hover:bg-blue-500 transition"
+        className="w-full sm:w-50  mx-auto block bg-[#17A2B8] text-white py-2 rounded-xl font-[Fredoka] font-bold hover:bg-blue-500 transition"
       >
         Petición Vendedor
       </button>
@@ -54,7 +54,7 @@ export default function PeticionVendedor() {
         </div>
       )}
 
-      {/* Componente de confirmación */}
+      {/* Confirmación */}
       <ConfirmDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
