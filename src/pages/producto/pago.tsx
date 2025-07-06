@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { BackToHome } from "@components/admin/common/BackToHome";
 import { LocationPicker } from "@components/ProductsManagement/LocationPicker";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
 import {
@@ -119,13 +120,13 @@ export default function Pago() {
   if (!producto) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] font-[Fredoka]">
+    <div className="min-h-screen flex flex-col  font-[Fredoka]">
       <Header />
-
+   <BackToHome />
       <main className="flex-grow w-[92%] max-w-7xl mx-auto mt-6 p-6 flex flex-col lg:flex-row gap-10">
         {/* Columna izquierda: Formulario */}
         <section className="flex-1">
-          <h2 className="text-2xl font-bold text-[#2e7c19] mb-6">Proceso de Pago</h2>
+          <h2 className="text-2xl font-bold text-black mb-6">Proceso de Pago</h2>
 
           <div className="border-2 border-[#48BD28] rounded-xl p-6 space-y-5 backdrop-blur-sm text-sm">
             <div>

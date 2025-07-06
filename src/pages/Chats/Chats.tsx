@@ -22,11 +22,11 @@ export const Chats = () => {
 
   return (
     <ChatsProvider>
-
-      <div className="min-h-screen flex flex-col ] font-[Fredoka]">
-        <div className="fixed inset-0 pointer-events-none z-0">
+  <div className="fixed inset-0 pointer-events-none z-0">
           <FallingLeaves quantity={20} />
         </div>
+      <div className="min-h-screen flex flex-col ] font-[Fredoka]">
+      
         {/* Header */}
         <Header />
 

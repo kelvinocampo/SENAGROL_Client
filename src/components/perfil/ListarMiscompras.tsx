@@ -49,23 +49,26 @@ export default function ListarMisCompras() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const data = await ProductManagementService.getBySeller();
-        const formatted: Compra[] = data.map((c: any) => ({
-          ...c,
-          precio_producto: parseFloat(c.precio_producto) || 0,
-          precio_transporte: parseFloat(c.precio_transporte) || 0,
-        }));
-        setCompras(formatted);
-      } catch (e: any) {
-        setError(e.message || "Error al cargar compras");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const data = await ProductManagementService.getBySeller();
+      const formatted: Compra[] = data.map((c: any) => ({
+        ...c,
+        precio_producto: parseFloat(c.precio_producto) || 0,
+        precio_transporte: parseFloat(c.precio_transporte) || 0,
+      }));
+      setCompras(formatted);
+    } catch (e: any) {
+      setError(e.message || "Error al cargar compras");
+    } finally {
+      setLoading(false); // Esto garantiza que el loading se desactive siempre
+    }
+  };
+
+  fetchData();
+}, []);
+
 
   const comprasFiltradas = compras.filter((c) =>
     [c.producto_nombre, c.vendedor_nombre, c.estado]
@@ -105,9 +108,15 @@ export default function ListarMisCompras() {
 
   return (
     <>
-      <Header />
-
-      {toast && (
+     {loading ? (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
+        <div className="w-20 h-20 border-8 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-6 text-xl font-semibold text-gray-700">Cargando Mis compras...</p>
+      </div>
+    ) : (
+      <>
+        <Header />
+         {toast && (
         <div
           className={`fixed top-4 right-4 z-50 px-4 py-2 rounded shadow text-white cursor-pointer ${
             toast.ok ? "bg-green-600" : "bg-red-600"
@@ -117,7 +126,6 @@ export default function ListarMisCompras() {
           {toast.msg}
         </div>
       )}
-
       <div className="font-[Fredoka] flex flex-col min-h-screen bg-gradient-to-b from-[#E1FFD9] to-[#F0F0F0]">
         <main className="flex flex-col-reverse lg:flex-row gap-8 px-4 sm:px-6 md:px-10 py-10 pb-16">
           <aside className="w-full lg:w-1/2">
@@ -300,6 +308,13 @@ export default function ListarMisCompras() {
 
         <Footer />
       </div>
+      </>
+    )}
+     
+
+     
+
+      
     </>
   );
 }

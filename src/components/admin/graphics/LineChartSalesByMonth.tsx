@@ -31,7 +31,7 @@ export const LineChartSalesByMonth = () => {
   }));
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <div className="w-full max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
       <h2 className="text-2xl font-bold mb-6 text-center text-black">Ganancias</h2>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>

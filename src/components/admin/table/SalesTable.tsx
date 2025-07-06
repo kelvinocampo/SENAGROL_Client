@@ -67,7 +67,7 @@ export const SalesTable = () => {
         </div>
 
         <select
-          className="h-10 px-4 py-2 rounded-xl border border-gray-300 bg-[#E4FBDD] text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+          className="h-10 px-4 py-2 rounded-xl border border-none bg-white text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
         >
@@ -88,8 +88,8 @@ export const SalesTable = () => {
       </div>
 
       {/* Tabla */}
-      <table className="min-w-full table-auto rounded-xl ">
-        <thead className="bg-[#E4FBDD] text-black">
+      <table className="min-w-full table-auto rounded-xl border-[#48BD28]  ">
+        <thead className="bg-[#E4FBDD]  borderborder-[#48BD28] text-black">
           <tr>
             <TableHeader>Estado</TableHeader>
             <TableHeader>Fecha Compra</TableHeader>
@@ -102,53 +102,52 @@ export const SalesTable = () => {
             <TableHeader>Precio Total</TableHeader>
           </tr>
         </thead>
-        <tbody>
-          {filteredSales.length === 0 ? (
-            <tr>
-              <td colSpan={9} className="text-center py-4 text-gray-500">
-                No hay ventas que coincidan con la búsqueda.
-              </td>
-            </tr>
-          ) : (
-            filteredSales.map((sale) => (
-              <motion.tr
-                key={sale.id_compra}
-                className="text-center hover:bg-gray-50 border-t border-[#E5E8EB]"
-                variants={rowVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                layout
-              >
-                <td className="p-2 break-words max-w-[140px]">
-                  <span className={statusColors[sale.estado] || "text-gray-700"}>
-                    {sale.estado}
-                  </span>
-                </td>
-                <td className="p-2 text-gray-800">{sale.fecha_compra}</td>
-                <td className="p-2 text-gray-800">
-                  {sale.fecha_entrega || "No asignado"}
-                </td>
-                <td className="p-2 text-gray-800">{sale.vendedor_nombre}</td>
-                <td className="p-2 text-gray-800">
-                  {sale.transportador_nombre || "No asignado"}
-                </td>
-                <td className="p-2 text-gray-800">{sale.comprador_nombre}</td>
-                <td className="p-2 text-gray-800">${sale.precio_producto}</td>
-                <td className="p-2 text-gray-800">
-                  {sale.precio_transporte ?? "No asignado"}
-                </td>
-                <td className="p-2 text-green-600 font-semibold">
-                  $
-                  {(
-                    (Number(sale.precio_transporte) || 0) +
-                    (Number(sale.precio_producto) || 0)
-                  ).toFixed(2)}
-                </td>
-              </motion.tr>
-            ))
-          )}
-        </tbody>
+       <tbody className="divide-y divide-transparent bg-[#E4FBDD] border  border-[#48BD28] rounded-xl overflow-hidden">
+  {filteredSales.length === 0 ? (
+    <tr>
+      <td colSpan={9} className="text-center py-4 text-gray-500">
+        No hay ventas que coincidan con la búsqueda.
+      </td>
+    </tr>
+  ) : (
+    filteredSales.map((sale, index) => (
+      <motion.tr
+        key={sale.id_compra}
+         className={`text-center text-black font-semibold ${
+                  index % 2 === 0 ? "bg-white" : "bg-[#E4FBDD]"
+                }`}
+        variants={rowVariants}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        layout
+      >
+        <td className="p-3">
+          <span className={statusColors[sale.estado] || "text-gray-700"}>
+            {sale.estado}
+          </span>
+        </td>
+        <td className="p-3 text-black">{sale.fecha_compra}</td>
+        <td className="p-3 text-black">{sale.fecha_entrega || "No asignado"}</td>
+        <td className="p-3 text-black">{sale.vendedor_nombre}</td>
+        <td className="p-3 text-black">{sale.transportador_nombre || "No asignado"}</td>
+        <td className="p-3 text-black">{sale.comprador_nombre}</td>
+        <td className="p-3 text-black">${sale.precio_producto}</td>
+        <td className="p-3 text-black">
+          {sale.precio_transporte ?? "No asignado"}
+        </td>
+        <td className="p-3 text-black font-semibold">
+          $
+          {(
+            (Number(sale.precio_transporte) || 0) +
+            (Number(sale.precio_producto) || 0)
+          ).toLocaleString("es-CO")}
+        </td>
+      </motion.tr>
+    ))
+  )}
+</tbody>
+
       </table>
     </motion.div>
   );

@@ -23,9 +23,9 @@ const Footer = () => {
     >
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
-        {/* Contacto y Social en una misma columna */}
+   
         <div className="flex flex-col md:flex-row gap-16 md:gap-24">
-          {/* Servicio de contacto */}
+
           <div>
             <h4 className="uppercase text-xs font-bold tracking-wider mb-3">
               Servicio de contacto
@@ -38,7 +38,7 @@ const Footer = () => {
               </li>
               <li>
                 <a href="/PoliticasPrivacidad" className="hover:underline">
-                  Términos y condiciones
+                  Políticas de Privacidad
                 </a>
               </li>
               <li>
@@ -109,12 +109,15 @@ const Footer = () => {
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           viewport={{ once: true }}
         >
-          <img
-            src={senagrolLogo}
-            alt="Logo Senagrol"
-            className="w-28 md:w-32"
-          />
+         <a href="/">
+  <img
+    src={senagrolLogo}
+    alt="Logo Senagrol"
+    className="w-28 md:w-32 cursor-pointer"
+  />
+</a>
           <span className="mt-1 text-[#48BD28] font-semibold">SENAGROL</span>
+    
         </motion.div>
       </div>
 

@@ -127,7 +127,6 @@ export default function DetalleProducto() {
       <Header />
       <BackToHome />
 
-      {/* Vista móvil */}
       <section className="lg:hidden p-4 flex flex-col gap-6">
         <img
           src={producto.imagen || "/placeholder.jpg"}

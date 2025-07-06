@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, UploadCloud } from "lucide-react";
-
+import FallingLeaves from "@/components/FallingLeaf";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import UserProfileCard from "@components/perfil/UserProfileCard";
@@ -45,7 +45,11 @@ function PerfilUsuarioUnico() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [vehicleFiles, setVehicleFiles] = useState<File[]>([]);
 
-  const [dialog, setDialog] = useState({ open: false, type: "success", message: "" });
+  const [dialog, setDialog] = useState({
+    open: false,
+    type: "success",
+    message: "",
+  });
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
     title: "",
@@ -97,8 +101,12 @@ function PerfilUsuarioUnico() {
         ...(password.trim() !== "" ? { password: password.trim() } : {}),
       };
 
-   await updateUserProfile(payload, vehicleFiles);
-      setDialog({ open: true, type: "success", message: "Perfil actualizado correctamente." });
+      await updateUserProfile(payload, vehicleFiles);
+      setDialog({
+        open: true,
+        type: "success",
+        message: "Perfil actualizado correctamente.",
+      });
       setPassword("");
       setConfirmPassword("");
       setVehicleFiles([]);
@@ -123,18 +131,35 @@ function PerfilUsuarioUnico() {
   const handleUpdate = () => {
     if (!formData) return;
 
-    if (!formData.username || !formData.email || !formData.name || !formData.phone) {
-      setDialog({ open: true, type: "error", message: "Por favor completa todos los campos obligatorios." });
+    if (
+      !formData.username ||
+      !formData.email ||
+      !formData.name ||
+      !formData.phone
+    ) {
+      setDialog({
+        open: true,
+        type: "error",
+        message: "Por favor completa todos los campos obligatorios.",
+      });
       return;
     }
 
     if (password || confirmPassword) {
       if (password.length < 6) {
-        setDialog({ open: true, type: "error", message: "La contraseña debe tener al menos 6 caracteres." });
+        setDialog({
+          open: true,
+          type: "error",
+          message: "La contraseña debe tener al menos 6 caracteres.",
+        });
         return;
       }
       if (password !== confirmPassword) {
-        setDialog({ open: true, type: "error", message: "Las contraseñas no coinciden." });
+        setDialog({
+          open: true,
+          type: "error",
+          message: "Las contraseñas no coinciden.",
+        });
         return;
       }
     }
@@ -162,15 +187,20 @@ function PerfilUsuarioUnico() {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
         <div className="w-20 h-20 border-8 border-green-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-6 text-xl font-semibold text-gray-700">Cargando perfil...</p>
+        <p className="mt-6 text-xl font-semibold text-gray-700">
+          Cargando perfil...
+        </p>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#f4fcf1] to-[#caf5bd] font-[Fredoka] text-[#111]">
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <FallingLeaves quantity={20} />
+      </div>
       <Header />
-      <main className="flex-1 flex flex-col lg:flex-row pt-10 pb-20 px-10 gap-10">
+      <main className="relative flex-1 flex flex-col lg:flex-row pt-10 pb-20 px-10 gap-10">
         <UserProfileCard />
         <motion.section
           className="lg:w-2/3 w-full h-full"
@@ -230,26 +260,73 @@ function PerfilUsuarioUnico() {
                   className="absolute right-3 top-[38px] cursor-pointer text-gray-400 hover:text-black transition"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </span>
               </motion.div>
 
               {formData.roles?.toLowerCase().includes("transportador") && (
                 <>
-                  <Input name="license" label="Licencia de conducción" type="text" value={formData.license || ""} onChange={handleChange} />
-                  <Input name="soat" label="SOAT vigente" type="text" value={formData.soat || ""} onChange={handleChange} />
-                  <Input name="vehicleCard" label="Tarjeta de propiedad del vehículo" type="text" value={formData.vehicleCard || ""} onChange={handleChange} />
-                  <Input name="vehicleType" label="Tipo de vehículo" type="text" value={formData.vehicleType || ""} onChange={handleChange} />
-                  <Input name="vehicleWeight" label="Peso del vehículo (kg)" type="number" value={formData.vehicleWeight || 0} onChange={handleChange} />
+                  <Input
+                    name="license"
+                    label="Licencia de conducción"
+                    type="text"
+                    value={formData.license || ""}
+                    onChange={handleChange}
+                  />
+                  <Input
+                    name="soat"
+                    label="SOAT vigente"
+                    type="text"
+                    value={formData.soat || ""}
+                    onChange={handleChange}
+                  />
+                  <Input
+                    name="vehicleCard"
+                    label="Tarjeta de propiedad del vehículo"
+                    type="text"
+                    value={formData.vehicleCard || ""}
+                    onChange={handleChange}
+                  />
+                  <Input
+                    name="vehicleType"
+                    label="Tipo de vehículo"
+                    type="text"
+                    value={formData.vehicleType || ""}
+                    onChange={handleChange}
+                  />
+                  <Input
+                    name="vehicleWeight"
+                    label="Peso del vehículo (kg)"
+                    type="number"
+                    value={formData.vehicleWeight || 0}
+                    onChange={handleChange}
+                  />
                   <div className="col-span-2">
-                    <label className="block mb-2 text-sm font-medium">Imágenes del vehículo (2-3 imágenes)</label>
+                    <label className="block mb-2 text-sm font-medium">
+                      Imágenes del vehículo (2-3 imágenes)
+                    </label>
                     <label className="flex items-center justify-center w-full px-4 py-6 tracking-wide text-green-700 uppercase border border-green-300 rounded-lg cursor-pointer bg-white hover:bg-green-50">
                       <UploadCloud className="mr-2" /> Elegir archivos
-                      <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
                     </label>
                     <div className="mt-2 grid grid-cols-3 gap-4">
                       {vehicleFiles.map((file, idx) => (
-                        <img key={idx} src={URL.createObjectURL(file)} alt={`img-${idx}`} className="h-24 w-full object-cover rounded-lg border border-gray-300" />
+                        <img
+                          key={idx}
+                          src={URL.createObjectURL(file)}
+                          alt={`img-${idx}`}
+                          className="h-24 w-full object-cover rounded-lg border border-gray-300"
+                        />
                       ))}
                     </div>
                   </div>
@@ -272,16 +349,40 @@ function PerfilUsuarioUnico() {
 
       <AnimatePresence>
         {confirmDialog.open && (
-          <motion.div key="confirm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.3 }}>
-            <ConfirmDialog isOpen={confirmDialog.open} onClose={() => setConfirmDialog({ ...confirmDialog, open: false })} onConfirm={confirmDialog.onConfirm} title={confirmDialog.title} message={confirmDialog.message} />
+          <motion.div
+            key="confirm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ConfirmDialog
+              isOpen={confirmDialog.open}
+              onClose={() =>
+                setConfirmDialog({ ...confirmDialog, open: false })
+              }
+              onConfirm={confirmDialog.onConfirm}
+              title={confirmDialog.title}
+              message={confirmDialog.message}
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {dialog.open && (
-          <motion.div key="message" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.3 }}>
-            <MessageDialog isOpen={dialog.open} onClose={() => setDialog({ ...dialog, open: false })} message={dialog.message} />
+          <motion.div
+            key="message"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <MessageDialog
+              isOpen={dialog.open}
+              onClose={() => setDialog({ ...dialog, open: false })}
+              message={dialog.message}
+            />
           </motion.div>
         )}
       </AnimatePresence>

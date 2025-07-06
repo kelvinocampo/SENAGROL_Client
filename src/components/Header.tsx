@@ -196,7 +196,13 @@ const PerfilDropdown = ({ mobile = false }: { mobile?: boolean }) => (
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <img src={senagrol} alt="Senagrol Logo" className="h-10 w-auto sm:h-12" />
+        <a href="/">
+  <img
+    src={senagrol}
+    alt="Logo Senagrol"
+    className="w-15 md:w-20 cursor-pointer"
+  />
+</a>
             <span className="text-lg sm:text-xl font-bold text-[#379E1B] hidden xs:inline">
               Senagrol
             </span>

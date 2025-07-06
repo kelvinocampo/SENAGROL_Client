@@ -6,5 +6,5 @@ interface TableHeaderProps {
 }
 
 export const TableHeader = ({ children, className = '' }: TableHeaderProps) => (
-  <th className={`p-2 font-semibold text-left ${className}`}>{children}</th>
+  <th className={`p-2 font-semibold text-left bg-white ${className}`}>{children}</th>
 );
