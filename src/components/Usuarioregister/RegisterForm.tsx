@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { BackToHome } from "@components/admin/common/BackToHome";
 import { motion } from "framer-motion";
 import senagrol from "@assets/senagrol.png";
-import Image1 from "@assets/login.png"; // solo una imagen ahora
+import Image1 from "@assets/login.png";
 import { InicioService } from "@/services/Perfil/inicioServices";
 import { Input } from "@components/Input";
 
@@ -76,7 +76,7 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center">
+    <div className="min-h-screen w-full flex items-center justify-center overflow-hidden">
       <div className="w-full flex flex-col md:flex-row">
         {/* Botón volver al inicio */}
         <div className="fixed top-5 left-5 z-20">
@@ -84,7 +84,7 @@ export function RegisterForm() {
         </div>
 
         {/* Formulario */}
-        <div className="w-full md:w-1/2 flex items-center justify-center px-6 sm:px-10 py-12 bg-gradient-to-b from-[#e4fbdd] to-[#f4fcf1]">
+        <div className="w-full md:w-1/2 flex items-center justify-center px-6 sm:px-10 py-12 bg-gradient-to-b from-[#e4fbdd] to-[#f4fcf1] max-h-screen overflow-y-auto">
           <motion.div className="w-full max-w-[450px] space-y-4">
             {/* Logo */}
             <div className="flex justify-center mb-2">
@@ -213,12 +213,12 @@ export function RegisterForm() {
           </motion.div>
         </div>
 
-        {/* Imagen derecha fija */}
-        <div className="hidden md:block md:w-1/2 h-screen">
+        {/* Imagen derecha fija (responsive) */}
+        <div className="hidden md:flex md:w-1/2 h-screen">
           <img
             src={Image1}
             alt="Imagen"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain md:object-cover"
           />
         </div>
       </div>

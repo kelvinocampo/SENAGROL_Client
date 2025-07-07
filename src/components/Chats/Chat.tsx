@@ -94,6 +94,7 @@ export const Chat = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [chatExists, setChatExists] = useState<boolean | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioStreamRef = useRef<MediaStream | null>(null);
 
   /* ─── Chat & bloqueo ──────────────────────────────────────────── */
   const chatIdParsed = parseInt(id_chat);
@@ -179,6 +180,7 @@ export const Chat = () => {
         id_chat: response.id_chat,
         tipo: response.tipo,
         editado: response.editado ? 1 : 0,
+        estado: "enviado"
       };
 
       setMessages((prev) => prev.map((m) => (m.tempId === tempMsg.tempId ? realMessage : m)));
@@ -217,46 +219,73 @@ export const Chat = () => {
   /* ─── Grabación y envío de audio ──────────────────────────────── */
   const startRecording = async () => {
     try {
+      // Limpiar chunks anteriores
+      setAudioChunks([]);
+      
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioStreamRef.current = stream;
+      
       const mimeType = getSupportedMimeType();
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
 
+      // Usar variable local para chunks
+      let chunks: Blob[] = [];
+      
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
-          setAudioChunks(prev => [...prev, e.data]);
+          chunks.push(e.data);
         }
       };
 
       recorder.onstop = async () => {
-        if (audioChunks.length === 0) {
+        if (chunks.length === 0) {
           stream.getTracks().forEach(t => t.stop());
           return;
         }
 
-        const blob = new Blob(audioChunks, { type: mimeType || "audio/webm" });
-        const tempMsg = createTempMessage(URL.createObjectURL(blob), "audio");
+        const blob = new Blob(chunks, { type: mimeType || "audio/webm" });
+        const audioUrl = URL.createObjectURL(blob);
+        const tempMsg = createTempMessage(audioUrl, "audio");
         setMessages(p => [...p, tempMsg]);
 
         try {
           await MessageService.sendAudioMessage(blob, chatIdParsed);
+          // Actualizar estado del mensaje
+          setMessages(p => p.map(m => 
+            m.tempId === tempMsg.tempId ? {...m, estado: "enviado"} : m
+          ));
         } catch (err) {
           showError(err, "Error al enviar audio");
           setMessages(p => p.filter(m => (m as any).tempId !== tempMsg.tempId));
         } finally {
-          stream.getTracks().forEach(t => t.stop());
+          chunks = [];
           setAudioChunks([]);
+          if (audioStreamRef.current) {
+            audioStreamRef.current.getTracks().forEach(track => track.stop());
+            audioStreamRef.current = null;
+          }
         }
       };
 
-      recorder.start(100); // Collect data every 100ms
+      recorder.start(100);
       setMediaRecorder(recorder);
       setRecording(true);
       setRecordingSeconds(0);
 
+      // Guardar referencia para limpieza
+      const currentRecorder = recorder;
+      
       // Start timer
       recordingIntervalRef.current = setInterval(() => {
         setRecordingSeconds(prev => prev + 1);
       }, 1000);
+
+      // Limpiar al desmontar
+      return () => {
+        if (currentRecorder.state !== "inactive") {
+          currentRecorder.stop();
+        }
+      };
     } catch (err) {
       console.error("Error al acceder al micrófono:", err);
       setError("No se pudo acceder al micrófono");
@@ -275,17 +304,33 @@ export const Chat = () => {
     }
   };
 
-  const cancelRecording = () => {
-    if (mediaRecorder && recording) {
-      mediaRecorder.stop();
-      setRecording(false);
-      setAudioChunks([]);
-      if (recordingIntervalRef.current) {
-        clearInterval(recordingIntervalRef.current);
-        recordingIntervalRef.current = null;
-      }
+const cancelRecording = () => {
+  if (mediaRecorder && recording) {
+    // Detener intervalo
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
     }
-  };
+
+    // Detener grabación sin procesar el blob
+    mediaRecorder.ondataavailable = null;
+    mediaRecorder.onstop = null;
+
+    mediaRecorder.stop(); // Esto solo detiene el stream
+
+    // Detener tracks de audio
+    if (audioStreamRef.current) {
+      audioStreamRef.current.getTracks().forEach(track => track.stop());
+      audioStreamRef.current = null;
+    }
+
+    setRecording(false);
+    setMediaRecorder(null);
+    setAudioChunks([]);
+    setRecordingSeconds(0);
+  }
+};
+
 
   const toggleRecording = () => {
     if (recording) {
@@ -300,7 +345,7 @@ export const Chat = () => {
     if (!editing || isBlocked) return;
     try {
       const updated = await MessageService.editMessage(editing.id, editing.content, chatIdParsed);
-      setMessages((p) => p.map((m) => (m.id_mensaje === editing.id ? updated : m)));
+      setMessages((p) => p.map((m) => (m.id_mensaje === editing.id ? {...updated, estado: "enviado"} : m)));
       setEditing(null);
     } catch (err) {
       showError(err, "No se pudo editar mensaje");
@@ -317,6 +362,20 @@ export const Chat = () => {
     }
   };
   
+  /* ─── Manejo del formulario ───────────────────────────────────── */
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (recording) {
+      stopRecording();
+      return;
+    }
+    
+    if (newMessage.trim()) {
+      sendTextMessage(e);
+    }
+  };
+
   const isUser1 = currentChat?.id_user1 === currentUserId;
   const nombreUsuario = currentChat
     ? isUser1
@@ -366,6 +425,9 @@ export const Chat = () => {
     return () => {
       if (recordingIntervalRef.current) {
         clearInterval(recordingIntervalRef.current);
+      }
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach(track => track.stop());
       }
     };
   }, []);
@@ -659,105 +721,96 @@ export const Chat = () => {
       </main>
 
       {/* ╭─ Formulario de envío de mensajes ────────────────────────╮ */}
-      
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (recording) {
-              mediaRecorder?.stop();
-              setRecording(false);
-            } else {
-              sendTextMessage(e);
-            }
-          }}
-          className=" relative flex items-center gap-3 border-t border-black/10 px-4 py-3 bg-white"
+      <form
+        onSubmit={handleSubmit}
+        className="relative flex items-center gap-3 border-t border-black/10 px-4 py-3 bg-white"
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={sendImage}
+        />
+        <button
+          type="button"
+          onClick={() => !isBlocked && fileInputRef.current?.click()}
+          className={`${isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
+            }`}
+          disabled={isBlocked}
         >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={sendImage}
-          />
-          <button
-            type="button"
-            onClick={() => !isBlocked && fileInputRef.current?.click()}
-            className={`${isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
-              }`}
-            disabled={isBlocked}
-          >
-            <MdPhotoSizeSelectActual size={24} />
-          </button>
+          <MdPhotoSizeSelectActual size={24} />
+        </button>
 
-          {recording ? (
-            <div className="flex-grow w-full bg-green-100 border border-black rounded-lg px-4 py-2 shadow-sm flex items-center gap-3">
-              {/* Tiempo */}
-              <span className="text-xs font-semibold w-10">
-                00:{recordingSeconds < 10 ? `0${recordingSeconds}` : recordingSeconds}
-              </span>
-              <div className="flex flex-grow gap-[3px] items-end h-6 overflow-hidden">
-                {Array.from({ length: 40 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-[19px] bg-green-700 rounded-sm"
-                    style={{
-                      height: `${30 + Math.random() * 50}%`,
-                      animation: `bounce 1s ease-in-out infinite`,
-                      animationDelay: `${i * 0.04}s`,
-                    }}
-                  />
-                ))}
-              </div>
-
-              <button
-                type="submit"
-                title="Enviar audio"
-                className="text-[#1B7D00] hover:text-[#2e7c19] p-2 rounded-full"
-              >
-                <IoMdSend size={22} />
-              </button>
-              <button
-                type="button"
-                title="Cancelar grabación"
-                onClick={cancelRecording}
-                className="text-[#1B7D00] p-2 rounded-full"
-              >
-                <IoClose size={22} />
-              </button>
+        {recording ? (
+          <div className="flex-grow w-full bg-green-100 border border-black rounded-lg px-4 py-2 shadow-sm flex items-center gap-3">
+            {/* Tiempo */}
+            <span className="text-xs font-semibold w-10">
+              00:{recordingSeconds < 10 ? `0${recordingSeconds}` : recordingSeconds}
+            </span>
+            <div className="flex flex-grow gap-[3px] items-end h-6 overflow-hidden">
+              {Array.from({ length: 40 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="w-[19px] bg-green-700 rounded-sm"
+                  style={{
+                    height: `${30 + Math.random() * 50}%`,
+                    animation: `bounce 1s ease-in-out infinite`,
+                    animationDelay: `${i * 0.04}s`,
+                  }}
+                />
+              ))}
             </div>
-          ) : (
-            <>
-              <input
-                type="text"
-                placeholder="Escribe tu mensaje…"
-                className="flex-grow border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28]"
-                value={newMessage}
-                onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
-                disabled={isBlocked}
-              />
 
-              <button
-                type="submit"
-                disabled={isBlocked || !newMessage.trim()}
-                className={`${isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
-                  }`}
-              >
-                <IoMdSend size={24} />
-              </button>
+            <button
+              type="button"
+              onClick={stopRecording}
+              title="Enviar audio"
+              className="text-[#1B7D00] hover:text-[#2e7c19] p-2 rounded-full"
+            >
+              <IoMdSend size={22} />
+            </button>
+            <button
+              type="button"
+              title="Cancelar grabación"
+              onClick={cancelRecording}
+              className="text-[#1B7D00] p-2 rounded-full"
+            >
+              <IoClose size={22} />
+            </button>
+          </div>
+        ) : (
+          <>
+            <input
+              type="text"
+              placeholder="Escribe tu mensaje…"
+              className="flex-grow border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28]"
+              value={newMessage}
+              onChange={(e) => !isBlocked && setNewMessage(e.target.value)}
+              disabled={isBlocked}
+            />
 
-              <button
-                type="button"
-                onClick={!isBlocked ? toggleRecording : undefined}
-                className={`${isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
-                  }`}
-                disabled={isBlocked}
-              >
-                <FaMicrophone size={24} />
-              </button>
-            </>
-          )}
-        </form>
-      
+            <button
+              type="submit"
+              disabled={isBlocked || !newMessage.trim()}
+              className={`${isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
+                }`}
+            >
+              <IoMdSend size={24} />
+            </button>
+
+            <button
+              type="button"
+              onClick={!isBlocked ? toggleRecording : undefined}
+              className={`${isBlocked ? "text-gray-300" : "text-[#1B7D00] hover:text-[#2e7c19]"
+                }`}
+              disabled={isBlocked}
+            >
+              <FaMicrophone size={24} />
+            </button>
+          </>
+        )}
+      </form>
 
       <ConfirmDialog
         isOpen={confirmOpen}
