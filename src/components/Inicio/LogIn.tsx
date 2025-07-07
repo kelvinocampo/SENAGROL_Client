@@ -7,6 +7,7 @@ import { InicioService } from "@/services/Perfil/inicioServices";
 import { Input } from "@components/Input";
 import { Paragraph } from "@components/Inicio/Paragraph";
 import { Eye, EyeOff } from "lucide-react";
+import  FallingLeaves  from "@components/FallingLeaf";
 
 export const LoginForm = () => {
   const [identifier, setIdentifier] = useState("");
@@ -34,6 +35,7 @@ export const LoginForm = () => {
 
   return (
     <div className="h-screen w-full flex items-center">
+ 
       <div className="w-full h-full flex flex-col md:flex-row">
         {/* Botón volver al inicio */}
         <div className="absolute top-5 left-5 z-10">
@@ -42,6 +44,9 @@ export const LoginForm = () => {
 
         {/* Lado izquierdo: Formulario */}
         <div className="w-full md:w-1/2 h-full flex flex-col items-center justify-center px-6 sm:px-10 ">
+              <div className="fixed inset-0 pointer-events-none z-0">
+                <FallingLeaves quantity={20} />
+              </div>
           {/* Logo */}
           <div className="mb-6">
             <img
@@ -66,7 +71,7 @@ export const LoginForm = () => {
 
           {/* Formulario */}
           <form
-            className="w-full max-w-md flex flex-col gap-6"
+            className="w-full relative max-w-md flex flex-col gap-6"
             onSubmit={handleSubmit}
           >
             <Input
@@ -114,7 +119,7 @@ export const LoginForm = () => {
         </div>
 
         {/* Lado derecho: Imagen fija */}
-        <div className="hidden md:block md:w-1/2 h-full">
+        <div className=" relative hidden md:block md:w-1/2 h-full">
           <img
             src={Image1}
             alt="Imagen login"
