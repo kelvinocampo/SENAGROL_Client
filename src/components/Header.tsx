@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { getUserRole } from "@/services/Perfil/authService";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -9,8 +9,11 @@ import { RxExit } from "react-icons/rx";
 import { PiUserLight } from "react-icons/pi";
 import { GrArchive } from "react-icons/gr";
 import { RiShoppingCartLine } from "react-icons/ri";
+import { useMobileMenu } from "@/contexts/MobileMenuContext";
+import { IAContext } from "@/contexts/IA";
 
 type SingleRole = "vendedor" | "comprador" | "transportador" | "administrador";
+
 type User = {
   isLoggedIn: boolean;
   roles: SingleRole[];
@@ -19,11 +22,17 @@ type User = {
 const Header = () => {
   const [user, setUser] = useState<User>({ isLoggedIn: false, roles: [] });
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobilePerfilOpen, setMobilePerfilOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
+
+  const { openMenu, toggleMenu, closeMenu } = useMobileMenu();
+  const isMobileMenuOpen = openMenu === "header";
+
+  const ia = useContext(IAContext);
+  if (!ia) throw new Error("IAContext no disponible");
+  const { clearHistory } = ia;
 
   useEffect(() => {
     (async () => {
@@ -59,8 +68,6 @@ const Header = () => {
     perfilBtn: (
       <button
         onClick={() => setMobilePerfilOpen((p) => !p)}
-        aria-haspopup="true"
-        aria-expanded={isMobilePerfilOpen}
         className={`${linkClass} flex items-center justify-between`}
       >
         Perfil
@@ -87,8 +94,7 @@ const Header = () => {
     const seen = new Set<string>();
     const filtered = initialLinks.filter((l) => {
       const id =
-        (l as any)?.props?.to ??
-        (l as any)?.props?.children?.toString();
+        (l as any)?.props?.to ?? (l as any)?.props?.children?.toString();
       if (seen.has(id)) return false;
       seen.add(id);
       return true;
@@ -108,59 +114,32 @@ const Header = () => {
           ? "pl-4 mt-2"
           : "absolute right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-50 text-sm font-medium text-gray-700 w-52"
       }
-      role="menu"
-      aria-label="Menú de perfil"
     >
       {hasRole("comprador") && (
-        <Link
-          to="/miscompras"
-          onClick={() => mobile && setMobileMenuOpen(false)}
-          className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD] rounded-t-lg"
-          role="menuitem"
-        >
+        <Link to="/miscompras" onClick={closeMenu} className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD] rounded-t-lg">
           <RiShoppingCartLine className="h-5 w-5 text-black" />
           <span className="font-semibold">Mis Compras</span>
         </Link>
       )}
-
       {hasRole("vendedor") && (
-        <Link
-          to="/MisProductos"
-          onClick={() => mobile && setMobileMenuOpen(false)}
-          className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD]"
-          role="menuitem"
-        >
+        <Link to="/MisProductos" onClick={closeMenu} className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD]">
           <img src={misproductos} alt="Mis productos" className="h-5 w-5" />
           <span className="font-semibold">Mis Productos</span>
         </Link>
       )}
-
       {hasRole("transportador") && (
-        <Link
-          to="/mistransportes"
-          onClick={() => mobile && setMobileMenuOpen(false)}
-          className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD]"
-          role="menuitem"
-        >
+        <Link to="/mistransportes" onClick={closeMenu} className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD]">
           <GrArchive className="h-5 w-5 text-black" />
           <span className="font-semibold">Mis Transportes</span>
         </Link>
       )}
-
-      <Link
-        to="/perfil"
-        onClick={() => mobile && setMobileMenuOpen(false)}
-        className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD]"
-        role="menuitem"
-      >
+      <Link to="/perfil" onClick={closeMenu} className="flex items-center gap-3 px-4 py-2 hover:bg-[#E4FBDD]">
         <PiUserLight className="h-5 w-5 text-[#379E1B]" />
         <span className="font-semibold">Perfil</span>
       </Link>
-
       <button
         onClick={() => setShowLogoutConfirm(true)}
         className="flex items-center gap-3 w-full text-left px-4 py-2 hover:bg-red-100 rounded-b-lg"
-        role="menuitem"
       >
         <RxExit className="h-5 w-5 text-red-600" />
         <span className="font-semibold text-red-600">Cerrar Sesión</span>
@@ -172,6 +151,7 @@ const Header = () => {
     timeoutRef.current && clearTimeout(timeoutRef.current);
     setDropdownOpen(true);
   };
+
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => setDropdownOpen(false), 250);
   };
@@ -182,27 +162,18 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <a href="/">
-              <img
-                src={senagrol}
-                alt="Logo Senagrol"
-                className="w-15 md:w-20 cursor-pointer"
-              />
+              <img src={senagrol} alt="Logo Senagrol" className="w-15 md:w-20 cursor-pointer" />
             </a>
             <span className="text-lg sm:text-xl font-bold text-[#379E1B] hidden xs:inline">
               Senagrol
             </span>
           </div>
-
           <nav className="hidden md:flex items-center gap-3">
             {renderLinks().map((el, i) => (
               <div
                 key={i}
-                onMouseEnter={
-                  el === common.perfilBtn ? handleMouseEnter : undefined
-                }
-                onMouseLeave={
-                  el === common.perfilBtn ? handleMouseLeave : undefined
-                }
+                onMouseEnter={el === common.perfilBtn ? handleMouseEnter : undefined}
+                onMouseLeave={el === common.perfilBtn ? handleMouseLeave : undefined}
                 className="relative"
               >
                 {el}
@@ -214,11 +185,10 @@ const Header = () => {
               </div>
             ))}
           </nav>
-
           <div className="md:hidden">
             <button
               onClick={() => {
-                setMobileMenuOpen((p) => !p);
+                toggleMenu("header");
                 setMobilePerfilOpen(false);
               }}
               className="p-2 rounded-md border border-gray-300 hover:bg-[#48BD28] hover:text-white transition-colors"
@@ -239,10 +209,7 @@ const Header = () => {
             >
               {renderLinks().map((el, i) =>
                 el === common.perfilBtn ? (
-                  <div
-                    key={i}
-                    className="border-b border-gray-200 pb-3 text-left"
-                  >
+                  <div key={i} className="border-b border-gray-200 pb-3 text-left">
                     {common.perfilBtn}
                     <AnimatePresence>
                       {isMobilePerfilOpen && <PerfilDropdown mobile />}
@@ -252,7 +219,7 @@ const Header = () => {
                   <div
                     key={i}
                     className="border-b border-gray-200 pb-3 text-left"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMenu}
                   >
                     {el}
                   </div>
@@ -278,6 +245,7 @@ const Header = () => {
               <button
                 onClick={() => {
                   localStorage.clear();
+                  clearHistory();
                   setUser({ isLoggedIn: false, roles: [] });
                   setShowLogoutConfirm(false);
                   navigate("/");

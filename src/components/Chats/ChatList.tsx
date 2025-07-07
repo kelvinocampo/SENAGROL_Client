@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useRef, useCallback } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiMoreVertical, FiX } from "react-icons/fi";
 import { AuthService } from "@/services/AuthService";
@@ -13,17 +13,13 @@ export const ChatsList = () => {
 
   const [currentUserId, setCurrentUserId] = useState(0);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{
-    top: number;
-    left: number;
-  } | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+
+  // ConfirmDialog states
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMessage, setConfirmMessage] = useState("");
-  const confirmAction = useRef<() => void>(() => {});
-  const menuButtonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>(
-    {}
-  );
+  const confirmAction = useRef<() => Promise<void>>(async () => {});
 
   useEffect(() => {
     (async () => {
@@ -33,57 +29,51 @@ export const ChatsList = () => {
     })();
   }, [fetchChats]);
 
-const getOtherUser = (chat: any) => {
-  const isUser1 = chat.id_user1 === currentUserId;
-  return {
-    name: isUser1 ? chat.nombre_user2 : chat.nombre_user1,
-    blocked: chat.estado === "Bloqueado",
-    role: isUser1 ? chat.rol_user2 : chat.rol_user1, // <- aquí se usa el valor correcto dinámicamente
+  const getOtherUser = (chat: any) => {
+    const isUser1 = chat.id_user1 === currentUserId;
+    return {
+      name: isUser1 ? chat.nombre_user2 : chat.nombre_user1,
+      blocked: chat.estado === "Bloqueado",
+      role: isUser1 ? chat.rol_user2 : chat.rol_user1,
+    };
   };
-};
 
-  const openConfirm = (title: string, msg: string, action: () => void) => {
+  const showConfirmDialog = (title: string, message: string, action: () => Promise<void>) => {
     setConfirmTitle(title);
-    setConfirmMessage(msg);
+    setConfirmMessage(message);
     confirmAction.current = action;
     setConfirmOpen(true);
   };
 
-  const performBlockUnblock = useCallback(
-    async (cid: number, blocked: boolean) => {
-      blocked
-        ? await ChatService.unblockChat(cid)
-        : await ChatService.blockChat(cid);
-      await fetchChats();
-      setOpenMenuId(null);
-      setMenuPosition(null);
-    },
-    [fetchChats]
-  );
+  const handleBlockUnblock = async (chat: any) => {
+    const other = getOtherUser(chat);
+    const title = other.blocked ? "Desbloquear chat" : "Bloquear chat";
+    const message = `¿Estás seguro de que deseas ${other.blocked ? "desbloquear" : "bloquear"} este chat con ${other.name}?`;
 
-  const performDelete = useCallback(
-    async (cid: number) => {
-      await ChatService.deleteChat(cid);
-      await fetchChats();
-      setOpenMenuId(null);
-      setMenuPosition(null);
-    },
-    [fetchChats]
-  );
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      const clickedOutside = Object.values(menuButtonRefs.current).every(
-        (btn) => btn && !btn.contains(e.target as Node)
-      );
-      if (clickedOutside) {
-        setOpenMenuId(null);
-        setMenuPosition(null);
+    showConfirmDialog(title, message, async () => {
+      if (other.blocked) {
+        await ChatService.unblockChat(chat.id_chat);
+      } else {
+        await ChatService.blockChat(chat.id_chat);
       }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+      await fetchChats();
+      setOpenMenuId(null);
+      setMenuPosition(null);
+    });
+  };
+
+  const handleDelete = async (chat: any) => {
+    const other = getOtherUser(chat);
+    const title = "Eliminar chat";
+    const message = `¿Estás seguro de que deseas eliminar el chat con ${other.name}? Esta acción no se puede deshacer.`;
+
+    showConfirmDialog(title, message, async () => {
+      await ChatService.deleteChat(chat.id_chat);
+      await fetchChats();
+      setOpenMenuId(null);
+      setMenuPosition(null);
+    });
+  };
 
   const itemBase =
     "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors";
@@ -104,15 +94,11 @@ const getOtherUser = (chat: any) => {
             return (
               <div key={chat.id_chat} className="relative">
                 <div
-                  className={`${itemBase} ${
-                    isActive ? activeStyle : inactiveStyle
-                  }`}
+                  className={`${itemBase} ${isActive ? activeStyle : inactiveStyle}`}
                   onClick={() => navigate(`/chats/chat/${chat.id_chat}`)}
                 >
                   <div className="flex flex-col flex-1 min-w-0">
-                    <span className="font-semibold text-sm truncate">
-                      {other.name}
-                    </span>
+                    <span className="font-semibold text-sm truncate">{other.name}</span>
                     <span className="text-xs text-gray-500">{other.role}</span>
                   </div>
 
@@ -123,16 +109,13 @@ const getOtherUser = (chat: any) => {
                   )}
 
                   <button
-                    ref={(el) => {
-                      menuButtonRefs.current[chat.id_chat] = el;
-                    }}
                     className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-black/10"
                     onClick={(e) => {
                       e.stopPropagation();
                       const rect = e.currentTarget.getBoundingClientRect();
                       setMenuPosition({
-                        top: rect.top - 120,
-                        left: rect.right -100 , // espacio a la derecha
+                        top: rect.top + window.scrollY - 150,
+                        left: rect.right - 40,
                       });
                       setOpenMenuId((prev) =>
                         prev === chat.id_chat ? null : chat.id_chat
@@ -151,39 +134,26 @@ const getOtherUser = (chat: any) => {
       {/* Menú flotante */}
       {openMenuId !== null && menuPosition && (
         <div
-          className="fixed z-[999] w-44 bg-[#E2E2E2] border border-gray-200 rounded-lg shadow-xl"
+          className="fixed z-[9999] overflow-visible w-44 bg-[#E2E2E2] border border-gray-200 rounded-lg shadow-xl"
           style={{ top: menuPosition.top, left: menuPosition.left }}
         >
           <button
             className="w-full text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
             onClick={() => {
               const chat = chats.find((c: any) => c.id_chat === openMenuId);
-              if (!chat) return;
-              const other = getOtherUser(chat);
-              openConfirm(
-                other.blocked ? "Desbloquear chat" : "Bloquear chat",
-                `¿Seguro que deseas ${
-                  other.blocked ? "desbloquear" : "bloquear"
-                } este chat?`,
-                () => performBlockUnblock(chat.id_chat, other.blocked)
-              );
+              if (chat) handleBlockUnblock(chat);
             }}
           >
-            {getOtherUser(chats.find((c: any) => c.id_chat === openMenuId))
-              .blocked
+            {getOtherUser(chats.find((c: any) => c.id_chat === openMenuId))?.blocked
               ? "Desbloquear chat"
               : "Bloquear chat"}
           </button>
+
           <button
             className="w-full text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
             onClick={() => {
               const chat = chats.find((c: any) => c.id_chat === openMenuId);
-              if (!chat) return;
-              openConfirm(
-                "Eliminar chat",
-                "¿Seguro que deseas eliminar este chat? Esta acción es irreversible.",
-                () => performDelete(chat.id_chat)
-              );
+              if (chat) handleDelete(chat);
             }}
           >
             Eliminar chat
@@ -191,18 +161,19 @@ const getOtherUser = (chat: any) => {
         </div>
       )}
 
-      {/* Diálogo de confirmación */}
+      {/* Confirmación */}
       <ConfirmDialog
         isOpen={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        onConfirm={() => {
-          confirmAction.current();
-          setConfirmOpen(false);
-        }}
         title={confirmTitle}
         message={confirmMessage}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={async () => {
+          await confirmAction.current();
+          setConfirmOpen(false);
+        }}
       />
     </div>
   );
 };
+
 export default ChatsList;

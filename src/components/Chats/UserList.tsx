@@ -109,7 +109,7 @@ export const UserList = () => {
             No se encontraron usuarios con esos datos.
           </p>
         ) : (
-          <ul className="max-h-[55vh] overflow-y-auto rounded-lg border border-[#48BD28]">
+          <ul className="max-h-[55vh] z-0 overflow-y-auto rounded-lg border border-[#48BD28]">
             <AnimatePresence>
               {filtered.map((u, idx) => (
                 <motion.li
