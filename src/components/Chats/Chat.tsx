@@ -106,6 +106,7 @@ export const Chat = () => {
     console.error(err);
     setError(err instanceof Error ? err.message : fallback);
   };
+console.log(audioChunks);
 
   /* ─── Bloqueo helpers ─────────────────────────────────────────── */
   const verifyBlockStatus = useCallback((userId: number, chat: Chat) => {

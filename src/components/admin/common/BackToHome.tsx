@@ -17,7 +17,7 @@ export const BackToHome = ({ textColor = "text-green-700" }: BackToHomeProps) =>
           viewBox="0 0 24 24"
           strokeWidth={2}
           stroke="currentColor"
-          className="w-5 h-5 mr-2"
+          className="w-5  h-5 mr-2"
         >
           <path
             strokeLinecap="round"

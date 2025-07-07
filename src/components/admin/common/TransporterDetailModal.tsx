@@ -21,7 +21,7 @@ interface TransporterData {
   tarjeta_propiedad_vehiculo: string;
   tipo_vehiculo: string;
   peso_vehiculo: string;
-  estado_transportador: string;
+  estado: string;
   nombre?: string;
   fotos_vehiculo?: string;
 }
@@ -40,7 +40,7 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
     const fetchTransporterData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`https://senagrol.up.railway.app/admin/transporters/${user.id}`, {
+        const res = await fetch(`http://localhost:10101/admin/transporters/${user.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -60,6 +60,15 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
     fetchTransporterData();
   }, [user?.id, isOpen]);
 
+  const renderField = (label: string, value: string | undefined) => (
+    <p>
+      <strong>{label}:</strong>{" "}
+      <span className={value ? "text-gray-700" : "text-red-600 font-semibold"}>
+        {value || "No disponible"}
+      </span>
+    </p>
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -70,7 +79,7 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 bg-white opacity-30 flex items-center justify-center"
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
       >
         <motion.div
           key="modal"
@@ -79,11 +88,13 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.3 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-white border-4  rounded-xl max-w-lg w-full p-6 shadow-lg text-black"
+          className="bg-white border-4 border-none rounded-xl max-w-lg w-[90%] p-6 shadow-xl text-black"
         >
           <div className="flex flex-col items-center text-center">
             <FaTruckMoving size={50} className="text-green-600 mb-2" />
-            <h2 className="text-2xl font-bold text-green-700 mb-4">Detalles del transportador</h2>
+            <h2 className="text-2xl font-bold text-green-700 mb-4">
+              Detalles del transportador
+            </h2>
           </div>
 
           {loading ? (
@@ -93,35 +104,14 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
               No se encontraron datos del transportador.
             </p>
           ) : (
-            <div className="space-y-1 text-sm">
-              <p>
-                <strong>Nombre:</strong>{" "}
-                <span className="text-red-600 font-medium">
-                  {transporterData.nombre || "No disponible"}
-                </span>
-              </p>
-              <p>
-                <strong>Licencia de conducción:</strong> {transporterData.licencia_conduccion}
-              </p>
-              <p>
-                <strong>SOAT vigente:</strong> {transporterData.soat}
-              </p>
-              <p>
-                <strong>Tarjeta de propiedad de vehículo:</strong>{" "}
-                {transporterData.tarjeta_propiedad_vehiculo}
-              </p>
-              <p>
-                <strong>Tipo de vehículo:</strong> {transporterData.tipo_vehiculo}
-              </p>
-              <p>
-                <strong>Peso de vehículo:</strong> {transporterData.peso_vehiculo}
-              </p>
-              <p>
-                <strong>Estado del transportador:</strong>{" "}
-                <span className="text-red-600 font-medium">
-                  {transporterData.estado_transportador || "No disponible"}
-                </span>
-              </p>
+            <div className="space-y-2 text-sm mt-2">
+              {renderField("Nombre", user.name)}
+              {renderField("Licencia de conducción", transporterData.licencia_conduccion)}
+              {renderField("SOAT vigente", transporterData.soat)}
+              {renderField("Tarjeta de propiedad de vehículo", transporterData.tarjeta_propiedad_vehiculo)}
+              {renderField("Tipo de vehículo", transporterData.tipo_vehiculo)}
+              {renderField("Peso de vehículo", transporterData.peso_vehiculo)}
+              {renderField("Estado del transportador", transporterData.estado )}
 
               {transporterData.fotos_vehiculo && (
                 <div className="mt-4">
