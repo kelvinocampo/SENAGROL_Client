@@ -6,10 +6,10 @@ interface BackToHomeProps {
 
 export const BackToHome = ({ textColor = "text-green-700" }: BackToHomeProps) => {
   return (
-    <div className="px-4 pt-6">
+    <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-50">
       <Link
         to="/"
-        className={`inline-flex items-center ${textColor} hover:text-green-900 font-medium`}
+        className={`inline-flex items-center ${textColor} hover:text-green-900 font-medium text-sm sm:text-base`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -17,7 +17,7 @@ export const BackToHome = ({ textColor = "text-green-700" }: BackToHomeProps) =>
           viewBox="0 0 24 24"
           strokeWidth={2}
           stroke="currentColor"
-          className="w-5 h-5 mr-2"
+          className="w-5  h-5 mr-2"
         >
           <path
             strokeLinecap="round"

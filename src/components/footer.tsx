@@ -115,7 +115,7 @@ const Footer = () => {
     alt="Logo Senagrol"
     className="w-28 md:w-32 cursor-pointer"
   />
-</a>
+  </a>
           <span className="mt-1 text-[#48BD28] font-semibold">SENAGROL</span>
     
         </motion.div>

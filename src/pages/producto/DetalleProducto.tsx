@@ -19,8 +19,15 @@ export default function DetalleProducto() {
   const [cantidad, setCantidad] = useState(0);
   const [roles, setRoles] = useState<string[]>([]);
   const [noBuyer, setNoBuyer] = useState(false);
+  const [notLoggedIn, setNotLoggedIn] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const isBuyer = roles.includes("comprador");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token"); // o la clave que uses
+    setIsAuthenticated(!!token);
+  }, []);
 
   useEffect(() => {
     if (context && id) {
@@ -56,15 +63,14 @@ export default function DetalleProducto() {
   };
 
   const handleChat = async () => {
-    console.log(producto.id_vendedor);
+    if (!isAuthenticated) {
+      setNotLoggedIn(true);
+      return;
+    }
 
     try {
       if (!producto?.id_vendedor) return;
-      const chat = await ChatService.createOrGetChatWithUser(
-        producto.id_vendedor
-      );
-      console.log("📨 Chat recibido:", chat);
-
+      const chat = await ChatService.createOrGetChatWithUser(producto.id_vendedor);
       if (chat) {
         navigate(`/Chats/${chat}`);
       } else {
@@ -127,6 +133,7 @@ export default function DetalleProducto() {
       <Header />
       <BackToHome />
 
+      {/* Vista móvil */}
       <section className="lg:hidden p-4 flex flex-col gap-6">
         <img
           src={producto.imagen || "/placeholder.jpg"}
@@ -172,7 +179,13 @@ export default function DetalleProducto() {
 
             <button
               onClick={handleChat}
-              className="w-full py-2 rounded-lg shadow font-semibold bg-[#676767] text-white hover:bg-gray-500"
+              disabled={!isAuthenticated}
+              className={`w-full py-2 rounded-lg shadow font-semibold transition
+                ${
+                  isAuthenticated
+                    ? "bg-[#676767] text-white hover:bg-gray-500"
+                    : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                }`}
             >
               Conversar con el vendedor
             </button>
@@ -199,22 +212,14 @@ export default function DetalleProducto() {
         <motion.div className="flex flex-col justify-between">
           <div>
             <h1 className="text-2xl font-bold text-black">{producto.nombre}</h1>
-            <p className="text-sm text-[#676767] mt-2">
-              {producto.descripcion}
-            </p>
+            <p className="text-sm text-[#676767] mt-2">{producto.descripcion}</p>
             <p className="text-green-700 font-bold mt-3">
               Ahora: ${precioConDescuento.toLocaleString()} / unidad
             </p>
             <ul className="mt-4 text-sm text-[#676767] space-y-1">
-              <li>
-                <b>Vendedor:</b> {producto.nombre_vendedor}
-              </li>
-              <li>
-                <b>Compra mínima:</b> {producto.cantidad_minima_compra} unidades
-              </li>
-              <li>
-                <b>Disponible:</b> {producto.cantidad} unidades
-              </li>
+              <li><b>Vendedor:</b> {producto.nombre_vendedor}</li>
+              <li><b>Compra mínima:</b> {producto.cantidad_minima_compra} unidades</li>
+              <li><b>Disponible:</b> {producto.cantidad} unidades</li>
             </ul>
           </div>
 
@@ -223,9 +228,7 @@ export default function DetalleProducto() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleComprar}
-                disabled={
-                  !isBuyer || cantidad < producto.cantidad_minima_compra
-                }
+                disabled={!isBuyer || cantidad < producto.cantidad_minima_compra}
                 className={`w-48 py-2 rounded-lg shadow font-semibold transition
                   ${
                     isBuyer && cantidad >= producto.cantidad_minima_compra
@@ -235,9 +238,16 @@ export default function DetalleProducto() {
               >
                 Comprar
               </button>
+
               <button
                 onClick={handleChat}
-                className="w-60 py-2 rounded-lg shadow font-semibold bg-[#676767] text-white hover:bg-gray-500"
+                disabled={!isAuthenticated}
+                className={`w-60 py-2 rounded-lg shadow font-semibold transition
+                  ${
+                    isAuthenticated
+                      ? "bg-[#676767] text-white hover:bg-gray-500"
+                      : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  }`}
               >
                 Conversar con el vendedor
               </button>
@@ -246,6 +256,7 @@ export default function DetalleProducto() {
         </motion.div>
       </motion.section>
 
+      {/* Modal: solo compradores pueden comprar */}
       {noBuyer && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
           <motion.div
@@ -257,12 +268,35 @@ export default function DetalleProducto() {
               Acción no permitida
             </h3>
             <p className="mb-6 text-gray-800">
-              Solo los usuarios con rol <b>comprador</b> pueden realizar
-              compras.
+              Solo los usuarios con rol <b>comprador</b> pueden realizar compras.
             </p>
             <button
               onClick={() => setNoBuyer(false)}
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full"
+            >
+              Cerrar
+            </button>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Modal: no autenticado */}
+      {notLoggedIn && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
+          <motion.div
+            className="max-w-md mx-4 bg-white/90 p-8 rounded-2xl shadow-2xl border border-yellow-400 text-center"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+          >
+            <h3 className="text-xl font-semibold text-yellow-600 mb-4">
+              No has iniciado sesión
+            </h3>
+            <p className="mb-6 text-gray-800">
+              Inicia sesión para conversar con el vendedor.
+            </p>
+            <button
+              onClick={() => setNotLoggedIn(false)}
+              className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-full"
             >
               Cerrar
             </button>
