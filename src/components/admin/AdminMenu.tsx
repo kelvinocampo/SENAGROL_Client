@@ -52,9 +52,21 @@ export const AdminMenu = ({
   };
 
   const menuItems = [
-    { key: "usuarios", icon: <PiUsersThreeLight color="#00A650" size={24} />, label: "Usuarios" },
-    { key: "productos", icon: <BsBox color="#00A650" size={24} />, label: "Productos" },
-    { key: "ventas", icon: <TbWorld color="#00A650" size={24} />, label: "Ventas" },
+    {
+      key: "usuarios",
+      icon: <PiUsersThreeLight color="#00A650" size={24} />,
+      label: "Usuarios",
+    },
+    {
+      key: "productos",
+      icon: <BsBox color="#00A650" size={24} />,
+      label: "Productos",
+    },
+    {
+      key: "ventas",
+      icon: <TbWorld color="#00A650" size={24} />,
+      label: "Ventas",
+    },
   ];
 
   return (
@@ -88,16 +100,20 @@ export const AdminMenu = ({
           >
             {/* Encabezado */}
             <div className="flex flex-col items-center py-6 border-b border-none relative space-y-4">
-              <div className="w-full pl-4">
+              <div className="w-full pl-4 my-5">
                 <BackToHome />
               </div>
+              <a href="/">
+                <img
+                  src={senagrol}
+                  alt="Senagrol"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-none"
+                />
+              </a>
 
-              <img
-                src={senagrol}
-                alt="Senagrol"
-                className="w-32 h-32 rounded-full object-cover border-4 border-none"
-              />
-              <h2 className="text-lg font-bold text-[#1B7D00]">Administrador</h2>
+              <h2 className="text-lg font-bold text-[#1B7D00]">
+                Administrador
+              </h2>
             </div>
 
             {/* Opciones del menú */}

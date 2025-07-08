@@ -13,9 +13,19 @@ export const ProductCard = ({ product }: any) => {
 
   const isAvailable = !product.despublicado;
 
-  const precioConDescuento = product.descuento
-    ? (product.precio_unidad * (1 - product.descuento / 100)).toFixed(0)
-    : product.precio_unidad;
+  // Calcular el precio con descuento
+  const precioConDescuento =
+    product.descuento > 0
+      ? product.precio_unidad * (1 - product.descuento / 100)
+      : product.precio_unidad;
+
+  // Formateador de precios
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0,
+    }).format(value);
 
   const handleDeleteConfirm = async () => {
     try {
@@ -26,7 +36,6 @@ export const ProductCard = ({ product }: any) => {
       );
       setIsMessageOpen(true);
     } catch (error) {
-      console.error("Error al eliminar el producto:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -61,9 +70,6 @@ export const ProductCard = ({ product }: any) => {
           >
             {isAvailable ? "Disponible" : "No disponible"}
           </motion.span>
-
-          {/* Badge de oferta */}
-         
         </div>
 
         {/* Contenido */}
@@ -75,18 +81,23 @@ export const ProductCard = ({ product }: any) => {
             {product.descripcion}
           </p>
 
-       {product.descuento > 0 ? (
-  <p className="font-semibold text-[#FF0000] mt-1 text-sm">
-    Antes: <span className="line-through">${product.precio_unidad}</span> <br />
-    Ahora: <span>${precioConDescuento}</span> <br />
-    <span className="text-yellow-600 font-bold">{product.descuento}% OFF</span>
-  </p>
-) : (
-  <p className="font-semibold text-green-600 mt-1 text-sm">
-    ${product.precio_unidad}
-  </p>
-)}
-
+          {/* Precio con descuento o normal */}
+          {product.descuento > 0 ? (
+            <p className="font-semibold text-[#FF0000] mt-1 text-sm">
+              Antes:{" "}
+              <span className="line-through">
+                {formatPrice(product.precio_unidad)}
+              </span>
+              <br />
+              Ahora: <span>{formatPrice(precioConDescuento)}</span>
+              <br />
+      
+            </p>
+          ) : (
+            <p className="font-semibold text-green-600 mt-1 text-sm">
+              {formatPrice(product.precio_unidad)}
+            </p>
+          )}
 
           {/* Botones */}
           <div className="flex gap-2 mt-auto w-full justify-center">
@@ -95,7 +106,9 @@ export const ProductCard = ({ product }: any) => {
               whileTap={{ scale: 0.95 }}
               className="bg-[#5ABA41] hover:bg-green-600 text-white px-4 py-1 rounded-md font-semibold text-sm shadow-sm"
               onClick={() =>
-                window.location.assign(`/MisProductos/Editar/${product.id_producto}`)
+                window.location.assign(
+                  `/MisProductos/Editar/${product.id_producto}`
+                )
               }
             >
               Editar

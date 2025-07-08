@@ -93,7 +93,6 @@ export const UserList = () => {
           setPaginaActual={() => {}}
           placeholderText="Buscar usuario…"
           containerClassName="w-full mb-6"
-          inputClassName="w-full px-4 py-2 rounded-full border border-[#48BD28] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6dd850]"
         />
 
         {actionError && (
