@@ -1,117 +1,125 @@
-  // src/pages/producto/PaginaProductos.tsx
-  import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-  import { useContext, useEffect, useMemo, useState } from "react";
-  import { Carousel } from "react-responsive-carousel";
-  import "react-responsive-carousel/lib/styles/carousel.min.css";
-  import { Link, useNavigate } from "react-router-dom";
-  import { motion } from "framer-motion";
+// src/pages/producto/PaginaProductos.tsx
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
-  import Header from "@components/Header";
-  import Footer from "@components/footer";
-  import Buscador from "@components/Inicio/Search";
-  import FallingLeaves from "@/components/FallingLeaf";
+import Header from "@components/Header";
+import Footer from "@components/footer";
+import Buscador from "@components/Inicio/Search";
+import FallingLeaves from "@components/FallingLeaf";
 
-  import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
-  import { getUserRole } from "@/services/Perfil/authService";
+import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
+import { getUserRole } from "@/services/Perfil/authService";
 
-  export default function PaginaProductos() {
-    const [busqueda, setBusqueda] = useState("");
-    const [limiteProductos, setLimiteProductos] = useState(10);
-    const [toastOK, setToastOK] = useState(false);
-    const [toastNo, setToastNo] = useState(false);
-    const [userRoles, setUserRoles] = useState<string[]>([]);
+const formatearCOP = (numero: number) =>
+  new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+  }).format(numero);
 
-    const ctx = useContext(DiscountedProductContext);
-    const navigate = useNavigate();
+export default function PaginaProductos() {
+  const [busqueda, setBusqueda] = useState("");
+  const [limiteProductos, setLimiteProductos] = useState(10);
+  const [toastOK, setToastOK] = useState(false);
+  const [toastNo, setToastNo] = useState(false);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
 
-    const comprar = (p: typeof productos[0]) => {
-      if (!userRoles.includes("comprador")) {
-        setToastNo(true);
-        return;
+  const ctx = useContext(DiscountedProductContext);
+  const navigate = useNavigate();
+
+  const comprar = (p: (typeof productos)[0]) => {
+    if (!userRoles.includes("comprador")) {
+      setToastNo(true);
+      return;
+    }
+    navigate(`/pago/${p.id}`);
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const roles = (await getUserRole())?.split(/\s+/).filter(Boolean) || [];
+        setUserRoles(roles);
+      } catch {
+        setUserRoles([]);
       }
-      navigate(`/pago/${p.id}`);
-    };
+    })();
+  }, []);
 
-    useEffect(() => {
-      (async () => {
-        try {
-          const roles = (await getUserRole())?.split(/\s+/).filter(Boolean) || [];
-          setUserRoles(roles);
-        } catch {
-          setUserRoles([]);
-        }
-      })();
-    }, []);
+  if (!ctx) return <p className="p-10">Cargando…</p>;
+  const { allProducts, discountedProducts } = ctx;
 
-    if (!ctx) return <p className="p-10">Cargando…</p>;
-    const { allProducts, discountedProducts } = ctx;
+  const productosFiltrados = allProducts
+    .filter((p) => !p.eliminado && !p.despublicado)
+    .filter((p) => {
+      const q = busqueda.toLowerCase();
+      return (
+        p.nombre.toLowerCase().includes(q) ||
+        p.nombre_vendedor?.toLowerCase().includes(q) ||
+        p.precio_unidad.toString().includes(q)
+      );
+    });
 
-    const productosFiltrados = allProducts
+  const productos = productosFiltrados.slice(0, limiteProductos);
+
+  const carrusel = useMemo(() => {
+    return [...discountedProducts]
       .filter((p) => !p.eliminado && !p.despublicado)
-      .filter((p) => {
-        const q = busqueda.toLowerCase();
-        return (
-          p.nombre.toLowerCase().includes(q) ||
-          p.nombre_vendedor?.toLowerCase().includes(q) ||
-          p.precio_unidad.toString().includes(q)
-        );
-      });
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 8);
+  }, [discountedProducts]);
 
-    const productos = productosFiltrados.slice(0, limiteProductos);
+  return (
+    <>
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <FallingLeaves quantity={20} />
+      </div>
 
-    // 🔒 Carrusel memorizado para que no se regenere en cada render
-    const carrusel = useMemo(() => {
-      return [...discountedProducts]
-        .filter((p) => !p.eliminado && !p.despublicado)
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 8);
-    }, [discountedProducts]);
+      <div className="font-[Fredoka] bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] min-h-screen flex flex-col flex-grow">
+        <Header />
 
-    return (
-      <>
-        <div className="fixed inset-0 pointer-events-none z-0">
-          <FallingLeaves quantity={20} />
-        </div>
-
-        <div className="font-[Fredoka] bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] min-h-screen flex flex-col flex-grow">
-          <Header />
-
-          <div className="max-w-5xl mx-auto mt-6 mb-12 rounded-2xl overflow-hidden shadow-lg">
-            <Carousel
-              autoPlay
-              infiniteLoop
-              interval={5000}
-              showThumbs={false}
-              showStatus={false}
-              showIndicators={false}
-              swipeable
-              emulateTouch
-              renderArrowPrev={(onClickHandler, hasPrev, label) =>
-                hasPrev && (
-                  <button
-                    type="button"
-                    onClick={onClickHandler}
-                    title={label}
-                    className="absolute top-1/2 left-4 z-10 -translate-y-1/2 bg-black rounded-full p-2 shadow hover:scale-105 transition"
-                  >
-                    <FaChevronLeft className="text-white" />
-                  </button>
-                )
-              }
-              renderArrowNext={(onClickHandler, hasNext, label) =>
-                hasNext && (
-                  <button
-                    type="button"
-                    onClick={onClickHandler}
-                    title={label}
-                    className="absolute top-1/2 right-4 z-10 -translate-y-1/2 bg-black rounded-full p-2 shadow hover:scale-105 transition"
-                  >
-                    <FaChevronRight className="text-white" />
-                  </button>
-                )
-              }
-            >
-              {carrusel.map((p) => (
+        <div className="max-w-5xl mx-auto mt-6 mb-12 rounded-2xl overflow-hidden shadow-lg">
+          <Carousel
+            autoPlay
+            infiniteLoop
+            interval={5000}
+            showThumbs={false}
+            showStatus={false}
+            showIndicators={false}
+            swipeable
+            emulateTouch
+            renderArrowPrev={(onClickHandler, hasPrev, label) =>
+              hasPrev && (
+                <button
+                  type="button"
+                  onClick={onClickHandler}
+                  title={label}
+                  className="absolute top-1/2 left-4 z-10 -translate-y-1/2 bg-black rounded-full p-2 shadow hover:scale-105 transition"
+                >
+                  <FaChevronLeft className="text-white" />
+                </button>
+              )
+            }
+            renderArrowNext={(onClickHandler, hasNext, label) =>
+              hasNext && (
+                <button
+                  type="button"
+                  onClick={onClickHandler}
+                  title={label}
+                  className="absolute top-1/2 right-4 z-10 -translate-y-1/2 bg-black rounded-full p-2 shadow hover:scale-105 transition"
+                >
+                  <FaChevronRight className="text-white" />
+                </button>
+              )
+            }
+          >
+            {carrusel.map((p) => {
+              const descuento = typeof p.descuento === "string" ? parseFloat(p.descuento) : p.descuento;
+              return (
                 <motion.div
                   key={p.id}
                   onClick={() => navigate(`/producto/${p.id}`)}
@@ -126,40 +134,44 @@
                   />
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%] bg-black/70 text-white px-4 py-2 rounded-lg text-center">
                     <h3 className="text-lg font-semibold">{p.nombre}</h3>
-                    {p.descuento > 0 && (
+                    {descuento > 0 && (
                       <p className="text-sm text-[#00c914] font-medium">
-                        Descuento {Math.round(p.descuento * 10000) / 100}%
+                        Descuento {descuento.toFixed(2)}%
                       </p>
                     )}
                   </div>
                 </motion.div>
-              ))}
-            </Carousel>
+              );
+            })}
+          </Carousel>
+        </div>
+
+        <h2 className="text-6xl font-extrabold text-center text-[#48BD28] mb-4">
+          Productos
+        </h2>
+
+        <div className="flex justify-center mb-10">
+          <div className="w-full max-w-[550px]">
+            <Buscador
+              busqueda={busqueda}
+              setBusqueda={setBusqueda}
+              setPaginaActual={() => {}}
+              placeholderText="Buscar por nombre, vendedor o precio…"
+            />
           </div>
+        </div>
 
-          <h2 className="text-6xl font-extrabold text-center text-[#48BD28] mb-4">
-            Productos
-          </h2>
-
-          <div className="flex justify-center mb-10">
-            <div className="w-full max-w-[550px]">
-              <Buscador
-                busqueda={busqueda}
-                setBusqueda={setBusqueda}
-                setPaginaActual={() => {}}
-                placeholderText="Buscar por nombre, vendedor o precio…"
-              />
-            </div>
-          </div>
-
-          <section className="max-w-7xl mx-auto px-4 mb-12 relative">
-            {productos.length === 0 ? (
-              <p className="text-center text-[#2e7c19] text-lg font-medium py-10">
-                No se encontraron resultados para tu búsqueda.
-              </p>
-            ) : (
-              <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                {productos.map((p) => (
+        <section className="max-w-7xl mx-auto px-4 mb-12 relative">
+          {productos.length === 0 ? (
+            <p className="text-center text-[#2e7c19] text-lg font-medium py-10">
+              No se encontraron resultados para tu búsqueda.
+            </p>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {productos.map((p) => {
+                const descuento = typeof p.descuento === "string" ? parseFloat(p.descuento) : p.descuento;
+                const precioFinal = formatearCOP(p.precio_unidad * (1 - descuento / 100));
+                return (
                   <motion.div
                     key={p.id}
                     className="border-2 border-none bg-white rounded-xl p-4 flex flex-col text-center"
@@ -176,29 +188,23 @@
                     />
 
                     <h3 className="font-bold text-[15px]">{p.nombre}</h3>
-                  <p
-    className="text-sm text-gray-700 mt-1 truncate cursor-help"
-    title={p.descripcion}
-  >
-    {p.descripcion}
-  </p>
+                    <p
+                      className="text-sm text-gray-700 mt-1 truncate cursor-help"
+                      title={p.descripcion}
+                    >
+                      {p.descripcion}
+                    </p>
 
-                    {p.descuento > 0 ? (
+                    {descuento > 0 ? (
                       <div className="mt-2 text-sm font-semibold">
                         <p className="text-red-600">
-                          Antes: {p.precio_unidad.toLocaleString()}{" "}
-                          <span className="text-red ">
-                            Ahora:{" "}
-                            {(
-                              p.precio_unidad -
-                              p.precio_unidad * p.descuento
-                            ).toLocaleString()}
-                          </span>
+                          Antes: {formatearCOP(p.precio_unidad)} <br />
+                          <span className="text-red">Ahora: {precioFinal}</span>
                         </p>
                       </div>
                     ) : (
                       <div className="mt-2 text-base text-[#676767] font-semibold">
-                        ${p.precio_unidad}
+                        {formatearCOP(p.precio_unidad)}
                       </div>
                     )}
 
@@ -226,70 +232,70 @@
                       Ver más
                     </Link>
                   </motion.div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {productosFiltrados.length > productos.length && (
-            <div className="flex justify-center mb-16">
-              <button
-                onClick={() => setLimiteProductos((prev) => prev + 10)}
-                className="bg-[#48BD28] hover:bg-[#379E1B] text-white px-15 py-2 rounded-full font-semibold shadow transition "
-              >
-                Ver más
-              </button>
+                );
+              })}
             </div>
           )}
+        </section>
 
-          {toastOK && (
-            <Toast
-              msg="¡Compra realizada con éxito!"
-              ok
-              onClose={() => setToastOK(false)}
-            />
-          )}
-          {toastNo && (
-            <Toast
-              msg="Debes ingresar como comprador para comprar."
-              ok={false}
-              onClose={() => setToastNo(false)}
-            />
-          )}
+        {productosFiltrados.length > productos.length && (
+          <div className="flex justify-center mb-16">
+            <button
+              onClick={() => setLimiteProductos((prev) => prev + 10)}
+              className="bg-[#48BD28] hover:bg-[#379E1B] text-white px-15 py-2 rounded-full font-semibold shadow transition "
+            >
+              Ver más
+            </button>
+          </div>
+        )}
 
-          <Footer />
-        </div>
-      </>
-    );
-  }
+        {toastOK && (
+          <Toast
+            msg="¡Compra realizada con éxito!"
+            ok
+            onClose={() => setToastOK(false)}
+          />
+        )}
+        {toastNo && (
+          <Toast
+            msg="Debes ingresar como comprador para comprar."
+            ok={false}
+            onClose={() => setToastNo(false)}
+          />
+        )}
 
-  /* ---------- Toast reusable ---------- */
-  const Toast = ({
-    msg,
-    ok,
-    onClose,
-  }: {
-    msg: string;
-    ok: boolean;
-    onClose: () => void;
-  }) => (
+        <Footer />
+      </div>
+    </>
+  );
+}
+
+const Toast = ({
+  msg,
+  ok,
+  onClose,
+}: {
+  msg: string;
+  ok: boolean;
+  onClose: () => void;
+}) => (
+  <div
+    onClick={onClose}
+    className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-[1px]"
+  >
     <div
-      onClick={onClose}
-      className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-[1px]"
+      className={`bg-white rounded-xl shadow-lg px-8 py-6 text-center ${
+        ok ? "border-l-8 border-[#48BD28]" : "border-l-8 border-red-500"
+      }`}
     >
-      <div
-        className={`bg-white rounded-xl shadow-lg px-8 py-6 text-center ${
-          ok ? "border-l-8 border-[#48BD28]" : "border-l-8 border-red-500"
+      <p className="font-semibold mb-4">{msg}</p>
+      <button
+        className={`px-4 py-2 rounded text-white ${
+          ok ? "bg-[#48BD28]" : "bg-red-500"
         }`}
       >
-        <p className="font-semibold mb-4">{msg}</p>
-        <button
-          className={`px-4 py-2 rounded text-white ${
-            ok ? "bg-[#48BD28]" : "bg-red-500"
-          }`}
-        >
-          Cerrar
-        </button>
-      </div>
+        Cerrar
+      </button>
     </div>
-  );
+  </div>
+);

@@ -109,8 +109,15 @@ export const Form = () => {
         "No puede ser mayor que la cantidad total";
     if (product.precio_unidad <= 0)
       newErrors.precio_unidad = "Precio debe ser mayor a 0";
-    if (product.descuento && (product.descuento < 0 || product.descuento > 100))
-      newErrors.descuento = "Descuento debe ser entre 0 y 100";
+    if (
+      product.descuento !== undefined &&
+      (isNaN(product.descuento) ||
+        product.descuento < 0 ||
+        product.descuento > 100)
+    ) {
+      newErrors.descuento =
+        "El descuento debe estar entre 0 y 100 (se permiten decimales)";
+    }
     if (!location) newErrors.location = "Debes seleccionar una ubicación";
     if (!isEditMode && !imageFile) newErrors.imagen = "La imagen es requerida";
     setErrors(newErrors);
@@ -281,9 +288,7 @@ export const Form = () => {
               type="text"
               name="cantidad_minima_compra"
               value={product.cantidad_minima_compra.toString()}
-              onChange={(e) =>
-                handleIntegerChange(e, "cantidad_minima_compra")
-              }
+              onChange={(e) => handleIntegerChange(e, "cantidad_minima_compra")}
               error={errors.cantidad_minima_compra}
             />
             <Input
@@ -301,11 +306,12 @@ export const Form = () => {
               value={product.descuento?.toString() || ""}
               onChange={(e) => {
                 const val = e.target.value;
-                if (val === "" || /^\d+$/.test(val))
+                if (val === "" || /^\d*\.?\d*$/.test(val)) {
                   setProduct({
                     ...product,
-                    descuento: val === "" ? undefined : parseInt(val, 10),
+                    descuento: val === "" ? undefined : parseFloat(val),
                   });
+                }
               }}
               error={errors.descuento}
             />
