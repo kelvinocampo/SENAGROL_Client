@@ -1,10 +1,25 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState, ReactNode } from 'react';
 
-export const IAContext: any = createContext<any>(undefined);
+interface HistoryItem {
+  type: "user" | "ia";
+  message: string;
+  timestamp?: string;
+}
 
-export const IAProvider = ({ children }: any) => {
+interface IAContextType {
+  message: string;
+  setMessage: (msg: string) => void;
+  history: HistoryItem[];
+  setHistory: (h: HistoryItem[]) => void;
+  clearHistory: () => void;
+  isAuthenticated: boolean;
+}
+
+export const IAContext = createContext<IAContextType | undefined>(undefined);
+
+export const IAProvider = ({ children }: { children: ReactNode }) => {
   const [message, setMessage] = useState<string>("");
-  const [history, setHistory] = useState<any[]>(
+  const [history, setHistory] = useState<HistoryItem[]>(
     sessionStorage.getItem("history")
       ? JSON.parse(sessionStorage.getItem("history") || "")
       : []
@@ -36,7 +51,7 @@ export const IAProvider = ({ children }: any) => {
         history,
         setHistory,
         clearHistory,
-        isAuthenticated, // ✅ Ahora disponible en cualquier componente
+        isAuthenticated,
       }}
     >
       {children}

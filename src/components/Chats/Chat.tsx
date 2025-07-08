@@ -543,7 +543,7 @@ const cancelRecording = () => {
         </div>
       </header>
       {/* ╭─ Lista de mensajes ────────────────────────────────╮ */}
-      <main className="flex-1 min-h-0 overflow-auto px-3 sm:px-4 py-2 sm:py-5 space-y-4 sm:space-y-6">
+      <main className="flex-1  min-h-0 overflow-auto px-3 sm:px-4 py-2 sm:py-5 space-y-4 sm:space-y-6">
         {loading && <p className="text-center text-gray-500">Cargando…</p>}
         {error && <p className="text-center text-red-600">{error}</p>}
         {!loading && messages.length === 0 && (
@@ -553,15 +553,15 @@ const cancelRecording = () => {
         {messages.map((msg) => {
           const isMe = msg.id_user === currentUserId;
           const bubble = isMe
-            ? "bg-[#D9D9D9] text-black"
-            : "bg-[#D9D9D9] text-black";
+            ? "bg-[#D9D9D9] text-black  "
+            : "bg-[#D9D9D9] text-black ";
           const align = isMe ? "justify-end" : "justify-start";
           const pending = msg.estado === "enviando";
 
           // Si estamos editando este mensaje, mostramos el formulario de edición
           if (editing?.id === msg.id_mensaje) {
             return (
-              <div key={`edit-${msg.id_mensaje}`} className={`flex ${align} gap-2`}>
+              <div key={`edit-${msg.id_mensaje}`} className={`flex ${align} gap-2 `} >
                 {!isMe && (
                   <div className="flex items-center justify-center w-7 h-7 rounded-full bg-black mt-[4px]">
                     <FaCircleUser size={60} className="text-[#48BD28]" />

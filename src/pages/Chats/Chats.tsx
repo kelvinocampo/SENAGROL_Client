@@ -46,7 +46,7 @@ export const Chats = () => {
         {/* Contenido principal con flex y responsividad */}
         <div className="flex flex-1 flex-col md:flex-row px-4 md:px-10 pt-4 gap-4 pb-2">
           {/* Sidebar */}
-          <div className="w-full md:w-[280px] lg:w-[300px]">
+          <div className="w-full md:w-[280px] lg:w-[300px] ">
             <NavBarChats isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           </div>
 
