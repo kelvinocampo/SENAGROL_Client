@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import perfilImg from "@assets/sin_foto.jpg";
 import { obtenerPerfilUsuario } from "@/services/Perfil/PerfilusuarioServices";
 import PeticionVendedor from "./PeticionVendedor";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { IAContext } from "@/contexts/IA";
 
 export interface FormDataProfile {
   id_user: number | string;
@@ -17,11 +21,15 @@ export interface FormDataProfile {
   licenciaConduccion?: string;
   soat?: string;
   pesoVehiculo?: string;
-  fotosVehiculo?: string;
+  fotosVehiculo?: string; // Coma separadas: "url1,url2,url3"
 }
 
 const UserProfileCard: React.FC = () => {
   const navigate = useNavigate();
+  const ia = useContext(IAContext);
+  if (!ia) throw new Error("IAContext no disponible");
+  const { clearHistory } = ia;
+
   const [profileData, setProfileData] = useState<FormDataProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -67,7 +75,6 @@ const UserProfileCard: React.FC = () => {
     visible: { x: 0, opacity: 1, transition: { duration: 0.5 } },
   };
 
-  // estilos compartidos para el aside
   const baseClasses = `
     w-full max-w-xs lg:max-w-sm
     bg-white rounded-xl p-6
@@ -101,6 +108,9 @@ const UserProfileCard: React.FC = () => {
   }
 
   const lowerRole = profileData.roles.toLowerCase();
+  const imageList = profileData.fotosVehiculo
+    ? profileData.fotosVehiculo.split(",").map((url) => url.trim())
+    : [];
 
   return (
     <motion.aside
@@ -109,7 +119,6 @@ const UserProfileCard: React.FC = () => {
       animate="visible"
       variants={containerVariants}
     >
-      {/* Foto y nombre */}
       <img
         src={perfilImg}
         alt="Foto de perfil"
@@ -117,7 +126,6 @@ const UserProfileCard: React.FC = () => {
       />
       <h2 className="text-xl font-semibold mt-4">{profileData.username}</h2>
 
-      {/* Datos básicos */}
       <div className="w-full mt-6 space-y-2 text-sm text-left">
         {[
           ["Nombre", profileData.name],
@@ -132,7 +140,6 @@ const UserProfileCard: React.FC = () => {
         ))}
       </div>
 
-      {/* Sección de transportador */}
       {lowerRole.includes("transportador") && (
         <>
           <hr className="my-4 w-full border-gray-300" />
@@ -150,12 +157,64 @@ const UserProfileCard: React.FC = () => {
               </div>
             ))}
           </div>
+
+          {/* Carrusel de imágenes del vehículo */}
+          {imageList.length > 0 && (
+            <div className="w-full mt-6">
+              <h3 className="text-[#2E7C19] text-sm font-bold mb-2">
+                Fotos del vehículo
+              </h3>
+              <Carousel
+                autoPlay
+                infiniteLoop
+                interval={5000}
+                showThumbs={false}
+                showStatus={false}
+                showIndicators={false}
+                swipeable
+                emulateTouch
+                renderArrowPrev={(onClickHandler, hasPrev, label) =>
+                  hasPrev && (
+                    <button
+                      type="button"
+                      onClick={onClickHandler}
+                      title={label}
+                      className="absolute top-1/2 left-4 z-10 -translate-y-1/2 bg-black rounded-full p-2 shadow hover:scale-105 transition"
+                    >
+                      <FaChevronLeft className="text-white" />
+                    </button>
+                  )
+                }
+                renderArrowNext={(onClickHandler, hasNext, label) =>
+                  hasNext && (
+                    <button
+                      type="button"
+                      onClick={onClickHandler}
+                      title={label}
+                      className="absolute top-1/2 right-4 z-10 -translate-y-1/2 bg-black rounded-full p-2 shadow hover:scale-105 transition"
+                    >
+                      <FaChevronRight className="text-white" />
+                    </button>
+                  )
+                }
+              >
+                {imageList.map((img, idx) => (
+                  <div key={idx} className="relative">
+                    <img
+                      src={img}
+                      alt={`Vehículo ${idx + 1}`}
+                      className="h-48 w-full object-cover rounded-xl"
+                      onError={(e) => ((e.target as HTMLImageElement).src = "")}
+                    />
+                  </div>
+                ))}
+              </Carousel>
+            </div>
+          )}
         </>
       )}
 
-      {/* Botones de acción */}
       <div className="w-full mt-6 flex flex-col gap-3">
-        {/* Formulario transportador */}
         {!lowerRole.includes("transportador") && (
           <button
             onClick={() => navigate("/formulariotransportador")}
@@ -165,14 +224,13 @@ const UserProfileCard: React.FC = () => {
           </button>
         )}
 
-        {/* Petición vendedor */}
         {!lowerRole.includes("vendedor") && <PeticionVendedor />}
 
-        {/* Logout */}
         <button
           onClick={() => {
-            localStorage.removeItem("token");
-            navigate("/login");
+            localStorage.clear();
+            clearHistory();
+            navigate("/");
           }}
           className="w-full bg-red-500 text-white py-2 rounded-xl font-semibold hover:bg-red-600 transition-colors"
         >

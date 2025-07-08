@@ -134,9 +134,12 @@ export const ChatsList = () => {
       {/* Menú flotante */}
       {openMenuId !== null && menuPosition && (
         <div
-          className="fixed z-[9999] overflow-visible w-44 bg-[#E2E2E2] border border-gray-200 rounded-lg shadow-xl"
-          style={{ top: menuPosition.top, left: menuPosition.left }}
-        >
+    className="fixed z-[99999] overflow-visible w-44 bg-[#E2E2E2] border border-gray-200 rounded-lg shadow-xl"
+    style={{ 
+      top: `${menuPosition.top}px`,
+      left: `${menuPosition.left}px`,
+    }}
+  >
           <button
             className="w-full text-left px-4 m-1 py-2 text-sm rounded-lg hover:bg-[#B4B4B4]"
             onClick={() => {

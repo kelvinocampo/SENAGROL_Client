@@ -22,18 +22,20 @@ export const Chats = () => {
 
   return (
     <ChatsProvider>
-  <div className="fixed inset-0 pointer-events-none z-0">
-          <FallingLeaves quantity={20} />
-        </div>
-      <div className="min-h-screen flex flex-col ] font-[Fredoka]">
-      
+      {/* Fondo con hojas - debe estar detrás de todo */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <FallingLeaves quantity={20} />
+      </div>
+
+      {/* Contenedor principal */}
+      <div className="min-h-screen flex flex-col font-[Fredoka] relative z-10">
         {/* Header */}
         <Header />
 
         {/* Botón para abrir el menú en móvil */}
-        <div className="md:hidden px-4 pt-2">
+        <div className="md:hidden px-4 pt-2 z-20">
           <button
-            className="p-2 rounded-md hover:bg-gray-200"
+            className="p-2 rounded-md hover:bg-gray-200 z-20"
             onClick={() => setSidebarOpen(true)}
             aria-label="Abrir menú"
           >
@@ -44,13 +46,13 @@ export const Chats = () => {
         </div>
 
         {/* Contenido principal con flex y responsividad */}
-        <div className="flex flex-1 flex-col md:flex-row px-4 md:px-10 pt-4 gap-4 pb-2">
+        <div className="flex flex-1 flex-col md:flex-row px-4 md:px-10 pt-4 gap-4 pb-2 relative z-10">
           {/* Sidebar */}
-          <div className="w-full md:w-[280px] lg:w-[300px] ">
+          <div className="w-full md:w-[280px] lg:w-[300px] z-10">
             <NavBarChats isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           </div>
 
-          {/* Main content area */}
+          {/* Main content area - sin z-index para permitir superposición del menú flotante */}
           <main className="flex-1 min-h-0 overflow-hidden rounded-xl transition-all duration-300">
             <Routes location={location} key={location.pathname}>
               <Route
@@ -98,7 +100,7 @@ export const Chats = () => {
         </div>
 
         {/* Footer */}
-        <footer className="mt-auto w-full border-t border-black/10 bg-white">
+        <footer className="mt-auto w-full border-t border-black/10 bg-white relative z-10">
           <Footer />
         </footer>
       </div>

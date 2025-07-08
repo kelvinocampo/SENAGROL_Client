@@ -1,10 +1,12 @@
 // App.tsx
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { DiscountedProductProvider } from "./contexts/Product/ProductsManagement";
-import { MobileMenuProvider } from "./contexts/MobileMenuContext"; // ✅ Importar provider
+import { MobileMenuProvider } from "./contexts/MobileMenuContext";
+import { IAProvider } from "./contexts/IA"; // ✅ AÑADIDO
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Páginas y componentes
 import PaginaProductos from "@pages/producto/PaginaProductos";
 import DetalleProducto from "@pages/producto/DetalleProducto";
 import { InicioManual } from "@pages/Inicio";
@@ -60,60 +62,62 @@ function AutoLogoutWrapper({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <BrowserRouter>
-      <MobileMenuProvider>
-        <DiscountedProductProvider>
-          <AutoLogoutWrapper>
-            <Routes>
-              <Route path="/" element={<PaginaProductos />} />
-              <Route path="/producto/:id" element={<DetalleProducto />} />
-              <Route path="/Login" element={<InicioManual />} />
-              <Route path="/EnviarCorreo" element={<EnviarCorreo />} />
-              <Route path="/RecuperarContraseña" element={<ActulizarContraseña />} />
-              <Route path="/QuienesSomos" element={<QuienesSomos />} />
-              <Route path="/PoliticasPrivacidad" element={<PoliticasPrivacidad />} />
-              <Route path="/Register" element={<RegisterForm />} />
-              <Route path="/perfil" element={<PerfilUsuarioUnico />} />
-              <Route path="/miscompras" element={<MyPurchasesPage />} />
-              <Route path="/transporte" element={<Transporte />} />
-              <Route path="/mistransportes" element={<MisTransportes />} />
-              <Route path="/IA" element={<IA />} />
-              <Route path="/transporte/:id_compra" element={<Transportadores />} />
-              <Route path="/chats/*" element={<Chats />} />
-              <Route path="/pago/:id" element={<PagoWrapper />} />
+      <IAProvider>
+        <MobileMenuProvider>
+          <DiscountedProductProvider>
+            <AutoLogoutWrapper>
+              <Routes>
+                <Route path="/" element={<PaginaProductos />} />
+                <Route path="/producto/:id" element={<DetalleProducto />} />
+                <Route path="/Login" element={<InicioManual />} />
+                <Route path="/EnviarCorreo" element={<EnviarCorreo />} />
+                <Route path="/RecuperarContraseña" element={<ActulizarContraseña />} />
+                <Route path="/QuienesSomos" element={<QuienesSomos />} />
+                <Route path="/PoliticasPrivacidad" element={<PoliticasPrivacidad />} />
+                <Route path="/Register" element={<RegisterForm />} />
+                <Route path="/perfil" element={<PerfilUsuarioUnico />} />
+                <Route path="/miscompras" element={<MyPurchasesPage />} />
+                <Route path="/transporte" element={<Transporte />} />
+                <Route path="/mistransportes" element={<MisTransportes />} />
+                <Route path="/IA" element={<IA />} />
+                <Route path="/transporte/:id_compra" element={<Transportadores />} />
+                <Route path="/chats/*" element={<Chats />} />
+                <Route path="/pago/:id" element={<PagoWrapper />} />
 
-              <Route
-                path="/MisProductos/*"
-                element={
-                  <ProtectedRoute allowedRoles={["vendedor"]}>
-                    <ProductManagement />
-                  </ProtectedRoute>
-                }
-              />
+                <Route
+                  path="/MisProductos/*"
+                  element={
+                    <ProtectedRoute allowedRoles={["vendedor"]}>
+                      <ProductManagement />
+                    </ProtectedRoute>
+                  }
+                />
 
-              <Route
-                path="/formulariotransportador"
-                element={
-                  <ProtectedRoute allowedRoles={["vendedor", "comprador", "administrador"]}>
-                    <FormularioTransporte />
-                  </ProtectedRoute>
-                }
-              />
+                <Route
+                  path="/formulariotransportador"
+                  element={
+                    <ProtectedRoute allowedRoles={["vendedor", "comprador", "administrador"]}>
+                      <FormularioTransporte />
+                    </ProtectedRoute>
+                  }
+                />
 
-              <Route
-                path="/admin/*"
-                element={
-                  <ProtectedRoute allowedRoles={["administrador"]}>
-                    <AdminManagement />
-                  </ProtectedRoute>
-                }
-              />
+                <Route
+                  path="/admin/*"
+                  element={
+                    <ProtectedRoute allowedRoles={["administrador"]}>
+                      <AdminManagement />
+                    </ProtectedRoute>
+                  }
+                />
 
-              <Route path="/404" element={<Error404 />} />
-              <Route path="*" element={<Navigate to="/404" />} />
-            </Routes>
-          </AutoLogoutWrapper>
-        </DiscountedProductProvider>
-      </MobileMenuProvider>
+                <Route path="/404" element={<Error404 />} />
+                <Route path="*" element={<Navigate to="/404" />} />
+              </Routes>
+            </AutoLogoutWrapper>
+          </DiscountedProductProvider>
+        </MobileMenuProvider>
+      </IAProvider>
     </BrowserRouter>
   );
 }

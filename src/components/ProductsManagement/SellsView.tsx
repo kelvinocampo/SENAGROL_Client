@@ -43,8 +43,7 @@ export const SellsView = () => {
     cargarVentas();
   }, []);
 
-  const normalizar = (val: unknown) =>
-    val ? val.toString().toLowerCase() : "";
+  const normalizar = (val: unknown) => val ? val.toString().toLowerCase() : "";
 
   const ventasFiltradas = ventas.filter((v) => {
     const texto = normalizar(busqueda);
@@ -140,7 +139,19 @@ export const SellsView = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {ventasFiltradas.length > 0 ? (
+                  {ventas.length === 0 ? (
+                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                      <td colSpan={11} className="text-center text-gray-500 py-4">
+                        Aún no tienes ventas registradas.
+                      </td>
+                    </motion.tr>
+                  ) : ventasFiltradas.length === 0 ? (
+                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                      <td colSpan={11} className="text-center text-gray-500 py-4">
+                        No se encontraron ventas con ese criterio de búsqueda.
+                      </td>
+                    </motion.tr>
+                  ) : (
                     ventasFiltradas.map((c, i) => (
                       <motion.tr
                         key={i}
@@ -188,12 +199,6 @@ export const SellsView = () => {
                         </td>
                       </motion.tr>
                     ))
-                  ) : (
-                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                      <td colSpan={11} className="text-center text-gray-500 py-4">
-                        No se encontraron ventas con ese criterio de búsqueda.
-                      </td>
-                    </motion.tr>
                   )}
                 </tbody>
               </table>

@@ -28,7 +28,6 @@ const safeSetLocalStorage = (key: string, value: string) => {
   try {
     localStorage.setItem(key, value);
   } catch (e) {
-    console.error("Error al acceder a localStorage:", e);
   }
 };
 
@@ -43,7 +42,7 @@ export const Chat = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMessage, setConfirmMessage] = useState("");
-  const confirmAction = useRef<() => void>(() => { });
+  const confirmAction = useRef<() => void>(() => {});
 
   const openConfirmDialog = (
     title: string,
@@ -86,6 +85,7 @@ export const Chat = () => {
   const [editing, setEditing] = useState<{ id: number; content: string } | null>(
     null,
   );
+  console.log(audioChunks);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [isBlocked, setIsBlocked] = useState(false);
@@ -103,10 +103,9 @@ export const Chat = () => {
     : null;
 
   const showError = (err: unknown, fallback: string) => {
-    console.error(err);
+ 
     setError(err instanceof Error ? err.message : fallback);
   };
-console.log(audioChunks);
 
   /* ─── Bloqueo helpers ─────────────────────────────────────────── */
   const verifyBlockStatus = useCallback((userId: number, chat: Chat) => {
@@ -220,7 +219,6 @@ console.log(audioChunks);
   /* ─── Grabación y envío de audio ──────────────────────────────── */
   const startRecording = async () => {
     try {
-      // Limpiar chunks anteriores
       setAudioChunks([]);
       
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -229,7 +227,6 @@ console.log(audioChunks);
       const mimeType = getSupportedMimeType();
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
 
-      // Usar variable local para chunks
       let chunks: Blob[] = [];
       
       recorder.ondataavailable = (e) => {
@@ -251,7 +248,6 @@ console.log(audioChunks);
 
         try {
           await MessageService.sendAudioMessage(blob, chatIdParsed);
-          // Actualizar estado del mensaje
           setMessages(p => p.map(m => 
             m.tempId === tempMsg.tempId ? {...m, estado: "enviado"} : m
           ));
@@ -273,22 +269,18 @@ console.log(audioChunks);
       setRecording(true);
       setRecordingSeconds(0);
 
-      // Guardar referencia para limpieza
       const currentRecorder = recorder;
       
-      // Start timer
       recordingIntervalRef.current = setInterval(() => {
         setRecordingSeconds(prev => prev + 1);
       }, 1000);
 
-      // Limpiar al desmontar
       return () => {
         if (currentRecorder.state !== "inactive") {
           currentRecorder.stop();
         }
       };
     } catch (err) {
-      console.error("Error al acceder al micrófono:", err);
       setError("No se pudo acceder al micrófono");
       setRecording(false);
     }
@@ -305,33 +297,28 @@ console.log(audioChunks);
     }
   };
 
-const cancelRecording = () => {
-  if (mediaRecorder && recording) {
-    // Detener intervalo
-    if (recordingIntervalRef.current) {
-      clearInterval(recordingIntervalRef.current);
-      recordingIntervalRef.current = null;
+  const cancelRecording = () => {
+    if (mediaRecorder && recording) {
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+        recordingIntervalRef.current = null;
+      }
+
+      mediaRecorder.ondataavailable = null;
+      mediaRecorder.onstop = null;
+      mediaRecorder.stop();
+
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach(track => track.stop());
+        audioStreamRef.current = null;
+      }
+
+      setRecording(false);
+      setMediaRecorder(null);
+      setAudioChunks([]);
+      setRecordingSeconds(0);
     }
-
-    // Detener grabación sin procesar el blob
-    mediaRecorder.ondataavailable = null;
-    mediaRecorder.onstop = null;
-
-    mediaRecorder.stop(); // Esto solo detiene el stream
-
-    // Detener tracks de audio
-    if (audioStreamRef.current) {
-      audioStreamRef.current.getTracks().forEach(track => track.stop());
-      audioStreamRef.current = null;
-    }
-
-    setRecording(false);
-    setMediaRecorder(null);
-    setAudioChunks([]);
-    setRecordingSeconds(0);
-  }
-};
-
+  };
 
   const toggleRecording = () => {
     if (recording) {
@@ -346,7 +333,11 @@ const cancelRecording = () => {
     if (!editing || isBlocked) return;
     try {
       const updated = await MessageService.editMessage(editing.id, editing.content, chatIdParsed);
-      setMessages((p) => p.map((m) => (m.id_mensaje === editing.id ? {...updated, estado: "enviado"} : m)));
+      setMessages((p) => p.map((m) => 
+        m.id_mensaje === editing.id 
+          ? {...updated, estado: "enviado", editado: 1} 
+          : m
+      ));
       setEditing(null);
     } catch (err) {
       showError(err, "No se pudo editar mensaje");
@@ -396,7 +387,7 @@ const cancelRecording = () => {
     if (!socket || currentUserId == null || chatExists !== true) return;
 
     socket.emit("join_chat", { chatId: id_chat });
-
+    
     const onNew = (msg: Message) => {
       setMessages((prev) => {
         if (prev.some((m) => m.id_mensaje === msg.id_mensaje)) return prev;
@@ -412,17 +403,33 @@ const cancelRecording = () => {
       });
     };
 
+    const onUpdate = (updated: Message) => {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id_mensaje === updated.id_mensaje
+            ? {
+                ...m,
+                ...updated,
+                editado: 1, // Forzar el estado de editado
+                estado: "enviado",
+              }
+            : m
+        )
+      );
+    };
+
     socket.on("new_message", onNew);
+    socket.on("updated_message", onUpdate);
 
     return () => {
       socket.emit("leave_chat", { chatId: id_chat });
       socket.off("new_message", onNew);
+      socket.off("updated_message", onUpdate);
     };
   }, [socket, id_chat, currentUserId, chatExists]);
 
   /* ─── Carga inicial y actualizaciones ─────────────────────────── */
   useEffect(() => {
-    // Cleanup recording interval on unmount
     return () => {
       if (recordingIntervalRef.current) {
         clearInterval(recordingIntervalRef.current);
@@ -434,19 +441,17 @@ const cancelRecording = () => {
   }, []);
 
   useEffect(() => {
-    // Cargar último chat visitado al inicio
     try {
       const lastChatId = localStorage.getItem("lastChatId");
       if (lastChatId && !id_chat) {
         navigate(`chat/${lastChatId}`);
       }
     } catch (e) {
-      console.error("Error al leer localStorage:", e);
     }
   }, [id_chat, navigate]);
 
   useEffect(() => {
-    if (chatsLoading) return; // Espera a que termine de cargar
+    if (chatsLoading) return;
 
     const chat = chats.find((c: any) => c.id_chat === parseInt(id_chat));
 
@@ -480,7 +485,6 @@ const cancelRecording = () => {
     loadData();
   }, [id_chat, chats, chatsLoading, navigate, getCurrentUserId, checkIfBlocked]);
 
-  // Guardar el último chat visitado
   useEffect(() => {
     if (chatExists === true && chatIdParsed && !isNaN(chatIdParsed)) {
       safeSetLocalStorage("lastChatId", String(chatIdParsed));
@@ -518,7 +522,7 @@ const cancelRecording = () => {
   }
 
   return (
-    <div className=" flex flex-col h-screen sm:h-150 w-full font-[Fredoka]">
+    <div className="flex flex-col h-screen sm:h-150 w-full font-[Fredoka] relative z-0">
       {/* ╭─ Header ────────────────────────────────────────────╮ */}
       <header className="px-4 py-3 border-b border-black/10">
         <div className="flex items-center justify-between">
@@ -543,7 +547,7 @@ const cancelRecording = () => {
         </div>
       </header>
       {/* ╭─ Lista de mensajes ────────────────────────────────╮ */}
-      <main className="flex-1  min-h-0 overflow-auto px-3 sm:px-4 py-2 sm:py-5 space-y-4 sm:space-y-6">
+      <main className="flex-1 min-h-0 overflow-auto px-3 sm:px-4 py-2 sm:py-5 space-y-4 sm:space-y-6">
         {loading && <p className="text-center text-gray-500">Cargando…</p>}
         {error && <p className="text-center text-red-600">{error}</p>}
         {!loading && messages.length === 0 && (
@@ -553,15 +557,14 @@ const cancelRecording = () => {
         {messages.map((msg) => {
           const isMe = msg.id_user === currentUserId;
           const bubble = isMe
-            ? "bg-[#D9D9D9] text-black  "
-            : "bg-[#D9D9D9] text-black ";
+            ? "bg-[#D9D9D9] text-black"
+            : "bg-[#D9D9D9] text-black";
           const align = isMe ? "justify-end" : "justify-start";
           const pending = msg.estado === "enviando";
 
-          // Si estamos editando este mensaje, mostramos el formulario de edición
           if (editing?.id === msg.id_mensaje) {
             return (
-              <div key={`edit-${msg.id_mensaje}`} className={`flex ${align} gap-2 `} >
+              <div key={`edit-${msg.id_mensaje}`} className={`flex ${align} gap-2`}>
                 {!isMe && (
                   <div className="flex items-center justify-center w-7 h-7 rounded-full bg-black mt-[4px]">
                     <FaCircleUser size={60} className="text-[#48BD28]" />
@@ -616,7 +619,6 @@ const cancelRecording = () => {
             );
           }
 
-          // Mensaje normal (no en edición)
           return (
             <div key={msg.id_mensaje} className={`flex ${align} gap-2`}>
               {!isMe && (
@@ -625,9 +627,7 @@ const cancelRecording = () => {
                 </div>
               )}
 
-              {/* Contenedor del mensaje + menú */}
               <div className="relative group max-w-[70%]">
-                {/* Botón del menú (3 puntos) */}
                 {isMe && (
                   <button
                     data-menu-btn={msg.id_mensaje}
@@ -641,7 +641,6 @@ const cancelRecording = () => {
                   </button>
                 )}
 
-                {/* Burbuja o contenido directamente */}
                 {msg.tipo === "imagen" ? (
                   <img
                     src={msg.contenido}
@@ -654,7 +653,6 @@ const cancelRecording = () => {
                     className={`rounded-2xl px-4 py-2 shadow ${bubble} ${pending ? "opacity-60" : ""
                       }`}
                   >
-                    {/* Contenido de texto o audio */}
                     {msg.tipo === "texto" && (
                       <p className="whitespace-pre-wrap">{msg.contenido}</p>
                     )}
@@ -663,7 +661,6 @@ const cancelRecording = () => {
                       <audio controls src={msg.contenido} className="w-48" />
                     )}
 
-                    {/* Etiquetas */}
                     <div className="flex justify-end text-[10px] gap-2 mt-1">
                       {msg.editado === 1 && (
                         <span className="italic opacity-70">(editado)</span>
@@ -673,11 +670,10 @@ const cancelRecording = () => {
                   </div>
                 )}
 
-                {/* Menú desplegable */}
                 {openMenu === msg.id_mensaje && isMe && (
                   <div
                     data-menu={msg.id_mensaje}
-                    className="absolute right-30 top-5 w-40 bg-[#48BD28] rounded z-20 overflow-hidden"
+                    className="absolute right-30 top-5 w-40 bg-[#48BD28] rounded z-0 overflow-hidden"
                   >
                     {msg.tipo === "texto" && (
                       <button
@@ -709,7 +705,6 @@ const cancelRecording = () => {
                 )}
               </div>
 
-              {/* Avatar propio */}
               {isMe && (
                 <div className="flex items-center justify-center w-7 h-7 mt-[4px]">
                   <FaCircleUser size={60} className="text-[#1B7D00]" />
