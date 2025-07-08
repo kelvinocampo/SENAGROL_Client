@@ -9,6 +9,21 @@ import { ModalCodigo } from "@components/ProductsManagement/codigounico";
 
 type DialogTarget = { type: "qr" | "code"; id: string };
 
+const getEstadoColor = (estado: string) => {
+  switch (estado.toLowerCase()) {
+    case "pendiente":
+      return "text-[#FF0000] ";
+    case "asignada":
+      return "text-[#C59400]";
+    case "completada":
+      return "text-[#28A745] ";
+    case "En Proceso":
+      return "text-[#C59400]";
+    default:
+      return "text-gray-700 ";
+  }
+};
+
 export const SellsView = () => {
   const [ventas, setVentas] = useState<Venta[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,6 +45,7 @@ export const SellsView = () => {
           precio_transporte: v.precio_transporte
             ? parseFloat(v.precio_transporte as unknown as string)
             : 0,
+          descuento: v.descuento ? parseFloat(v.descuento as unknown as string) : 0,
         }));
         setVentas(ventasFormateadas);
       } catch (err) {
@@ -48,7 +64,7 @@ export const SellsView = () => {
   const ventasFiltradas = ventas.filter((v) => {
     const texto = normalizar(busqueda);
     return (
-      normalizar(v.vendedor_nombre).includes(texto) ||
+      normalizar(v.comprador_nombre).includes(texto) ||
       normalizar(v.producto_nombre).includes(texto) ||
       normalizar(v.fecha_compra).includes(texto) ||
       normalizar(v.estado).includes(texto) ||
@@ -100,7 +116,7 @@ export const SellsView = () => {
             <Search className="absolute left-3 top-3 text-gray-500" size={20} />
             <input
               type="text"
-              placeholder="Buscar por comprador, producto, fecha o estado..."
+              placeholder="Buscar por comprador, producto, fecha compra, fecha entrega o estado..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="w-full pl-10 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28] text-base bg-white"
@@ -125,17 +141,9 @@ export const SellsView = () => {
               <table className="w-full min-w-[720px] table-auto text-sm text-center">
                 <thead className="bg-white text-black font-bold">
                   <tr>
-                    <th className="px-4 py-2">Estado</th>
-                    <th className="px-4 py-2">Fecha compra</th>
-                    <th className="px-4 py-2">Fecha entrega</th>
-                    <th className="px-4 py-2">Vendedor</th>
-                    <th className="px-4 py-2">Transportador</th>
-                    <th className="px-4 py-2">Producto</th>
-                    <th className="px-4 py-2">Cantidad</th>
-                    <th className="px-4 py-2">Precio Unidad</th>
-                    <th className="px-4 py-2">Costo transporte</th>
-                    <th className="px-4 py-2">Precio Total</th>
-                    <th className="px-4 py-2">QR/Código</th>
+                    {["Estado", "Fecha compra", "Fecha entrega", "Comprador", "Transportador", "Producto", "Cantidad", "Precio Unidad", "Costo transporte", "Precio Total", "QR/Código"].map((titulo, idx) => (
+                      <th key={idx} className="px-4 py-2 border-y border-[#48bd28]">{titulo}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
@@ -152,53 +160,49 @@ export const SellsView = () => {
                       </td>
                     </motion.tr>
                   ) : (
-                    ventasFiltradas.map((c, i) => (
-                      <motion.tr
-                        key={i}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.03 }}
-                        className={i % 2 === 0 ? "bg-[#f4fcf1]" : "bg-white"}
-                      >
-                        <td className="px-4 py-2">{c.estado}</td>
-                        <td className="px-4 py-2">{c.fecha_compra}</td>
-                        <td className="px-4 py-2">{c.fecha_entrega}</td>
-                        <td className="px-4 py-2">{c.vendedor_nombre}</td>
-                        <td className="px-4 py-2">{c.transportador_nombre}</td>
-                        <td className="px-4 py-2">{c.producto_nombre}</td>
-                        <td className="px-4 py-2">{c.cantidad}</td>
-                        <td className="px-4 py-2">${c.precio_producto.toFixed(2)}</td>
-                        <td className="px-4 py-2">${c.precio_transporte.toFixed(2)}</td>
-                        <td className="px-4 py-2">
-                          ${(
-                            c.cantidad * c.precio_producto +
-                            c.precio_transporte
-                          ).toFixed(2)}
-                        </td>
-                        <td className="px-4 py-2">
-                          {c.estado === "Asignada" && (
-                            <div className="flex items-center justify-center gap-1">
-                              <button
-                                onClick={() =>
-                                  setDialogTarget({ type: "qr", id: c.id_compra.toString() })
-                                }
-                                className="py-1 px-5 rounded bg-[#FACC15] text-black"
-                              >
-                                QR
-                              </button>
-                              <button
-                                onClick={() =>
-                                  setDialogTarget({ type: "code", id: c.id_compra.toString() })
-                                }
-                                className="bg-[#3B82F6] text-white px-5 py-1 rounded"
-                              >
-                                Código
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </motion.tr>
-                    ))
+                    ventasFiltradas.map((c, i) => {
+                      const precioConDescuento = c.precio_producto * (1 - (c.descuento || 0) / 100);
+                      const total = c.cantidad * precioConDescuento + c.precio_transporte;
+
+                      return (
+                        <motion.tr
+                          key={i}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.03 }}
+                          className={i % 2 === 0 ? "bg-[#f4fcf1]" : "bg-white"}
+                        >
+                          <td className={`px-4 py-2 border-y border-[#48bd28] font-medium ${getEstadoColor(c.estado)}`}>{c.estado}</td>
+                          <td className="px-4 py-2 border-y border-[#48bd28]">{c.fecha_compra}</td>
+                          <td className="px-4 py-2 border-y border-[#48bd28]">{c.fecha_entrega}</td>
+                          <td className="px-4 py-2 border-y border-[#48bd28]">{c.comprador_nombre}</td>
+                          <td className="px-4 py-2 border-y border-[#48bd28]">{c.transportador_nombre}</td>
+                          <td className="px-4 py-2 border-y border-[#48bd28]">{c.producto_nombre}</td>
+                          <td className="px-4 py-2 border-y border-[#48bd28]">{c.cantidad}</td>
+                          <td className="px-4 py-2 border-y border-[#48bd28]">${precioConDescuento.toFixed(2)}</td>
+                          <td className="px-4 py-2 border-y border-[#48bd28]">${c.precio_transporte.toFixed(2)}</td>
+                          <td className="px-4 py-2 border-y border-[#48bd28]">${total.toFixed(2)}</td>
+                          <td className="px-4 py-2 border-y border-[#48bd28]">
+                            {c.estado === "Asignada" && (
+                              <div className="flex items-center justify-center gap-1">
+                                <button
+                                  onClick={() => setDialogTarget({ type: "qr", id: c.id_compra.toString() })}
+                                  className="py-1 px-5 rounded bg-[#FACC15] text-black"
+                                >
+                                  QR
+                                </button>
+                                <button
+                                  onClick={() => setDialogTarget({ type: "code", id: c.id_compra.toString() })}
+                                  className="bg-[#3B82F6] text-white px-5 py-1 rounded"
+                                >
+                                  Código
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </motion.tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>

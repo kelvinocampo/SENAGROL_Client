@@ -7,8 +7,9 @@ export interface Venta {
   producto_nombre: string;
   cantidad: number;
   precio_producto: number;
+  descuento: number;
   precio_transporte: number;
-  vendedor_nombre: string;
+  comprador_nombre: string;
   transportador_nombre: string;
   estado: string;
 }
