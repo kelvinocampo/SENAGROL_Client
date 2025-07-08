@@ -17,12 +17,10 @@ export class ChatService {
 
             const chats: any[] = result.data;
 
-            console.log(chats);
             
 
             return chats;
         } catch (error) {
-            console.error('Error fetching chats:', error);
             throw error;
         }
     }
@@ -41,7 +39,6 @@ static async getChatById(id_chat: number) {
         const result = await res.json();
         return result.chat; // Asegúrate que el backend responda con { chat: { ... } }
     } catch (error) {
-        console.error('Error fetching chat by ID:', error);
         return null;
     }
 }
@@ -62,7 +59,6 @@ static async getChatById(id_chat: number) {
             const result: any = await getChat.json()
             return { chat: result.chat, status: result.status, message: result.message };
         } catch (error) {
-            console.error('Error fetching chat:', error);
             throw error;
         }
     }
@@ -83,7 +79,6 @@ static async getChatById(id_chat: number) {
             const result: any = await deleteChat.json()
             return result;
         } catch (error) {
-            console.error('Error deleting chat:', error);
             throw error;
         }
     }
@@ -102,11 +97,9 @@ static async getChatById(id_chat: number) {
                 throw new Error(`Error response: ${blockChat}`);
             }
             const result: any = await blockChat.json()
-            console.log("bloqueado");
             
             return result;
         } catch (error) {
-            console.error('Error blocking chat:', error);
             throw error;
         }
     }
@@ -127,7 +120,6 @@ static async getChatById(id_chat: number) {
             const result: any = await unblockChat.json()
             return result;
         } catch (error) {
-            console.error('Error unblocking chat:', error);
             throw error;
         }
     }
@@ -149,7 +141,6 @@ static async getChatById(id_chat: number) {
 
             return result.user;
         } catch (error) {
-            console.error('Error fetching users:', error);
             throw error;
         }
     }
@@ -168,7 +159,6 @@ static async getChatById(id_chat: number) {
       const result = await response.json();
       return result.chat; 
     } catch (error) {
-      console.error('Error en createOrGetChatWithUser:', error);
       throw error;
     }
   }

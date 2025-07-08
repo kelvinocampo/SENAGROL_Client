@@ -152,7 +152,7 @@ export const ProductTable = () => {
                       )
                     }
                   >
-                    {product.despublicado === 1 ? "Publicar" : "Ocultar"}
+                    {product.despublicado === 1 ? "Publicar" : "Despublicar"}
                   </ActionButton>
                 </td>
                 <td className="p-3">

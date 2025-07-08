@@ -33,13 +33,13 @@ export const Navbar = () => {
 
   const handleNavigate = (path: string) => {
     navigate(path);
-    setIsOpen(false); // cerrar menú móvil al navegar
+    setIsOpen(false);
   };
 
   return (
     <>
-      {/* Botón hamburguesa visible solo en móviles */}
-      <div className="md:hidden fixed top-30 left-4 z-50">
+      {/* Botón hamburguesa - siempre visible en móvil */}
+      <div className="md:hidden abosulte  top-12 right-20 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="text-[#00A650] bg-white shadow-md rounded-full p-2"
@@ -48,7 +48,7 @@ export const Navbar = () => {
         </button>
       </div>
 
-      {/* Menú lateral escritorio */}
+      {/* Menú lateral escritorio (igual que antes) */}
       <motion.aside
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -75,30 +75,42 @@ export const Navbar = () => {
         ))}
       </motion.aside>
 
-      {/* Menú lateral móvil deslizante */}
+      {/* Menú lateral móvil - aparece debajo del header */}
       <AnimatePresence>
         {isOpen && (
-          <motion.aside
-            initial={{ x: -250 }}
-            animate={{ x: 0 }}
-            exit={{ x: -250 }}
-            transition={{ duration: 0.3 }}
-            className=" w-64 h-scren   bg-white shadow-xl z-40 p-6 flex flex-col gap-6 font-[Fredoka]"
-          >
-            {menuItems.map(({ path, label, icon }) => (
-              <button
-                key={path}
-                onClick={() => handleNavigate(path)}
-                className={`flex items-center px-4 py-2 rounded-xl text-sm font-medium transition
-                  ${isActive(path)
-                    ? "bg-[#E4FBDD] text-[#0D141C]"
-                    : "bg-white hover:bg-[#E4FBDD] text-[#0D141C]"}`}
-              >
-                {icon}
-                <span>{label}</span>
-              </button>
-            ))}
-          </motion.aside>
+          <>
+            {/* Fondo oscuro semi-transparente */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black z-40"
+              onClick={() => setIsOpen(false)}
+            />
+            
+            {/* Menú móvil */}
+            <motion.aside
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed top-16 left-0 w-full h-[calc(100vh-4rem)] bg-white shadow-xl z-50 p-6 flex flex-col gap-6 font-[Fredoka] overflow-y-auto"
+            >
+              {menuItems.map(({ path, label, icon }) => (
+                <button
+                  key={path}
+                  onClick={() => handleNavigate(path)}
+                  className={`flex items-center px-4 py-2 rounded-xl text-sm font-medium transition
+                    ${isActive(path)
+                      ? "bg-[#E4FBDD] text-[#0D141C]"
+                      : "bg-white hover:bg-[#E4FBDD] text-[#0D141C]"}`}
+                >
+                  {icon}
+                  <span>{label}</span>
+                </button>
+              ))}
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
     </>

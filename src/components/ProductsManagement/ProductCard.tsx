@@ -21,13 +21,9 @@ export const ProductCard = ({ product }: any) => {
     try {
       setIsDeleting(true);
       await ProductManagementService.deleteProduct(product.id_producto);
-
-      // Eliminar producto del contexto
       setProducts((prev: any[]) =>
         prev.filter((p) => p.id_producto !== product.id_producto)
       );
-
-      // Mostrar mensaje de éxito
       setIsMessageOpen(true);
     } catch (error) {
       console.error("Error al eliminar el producto:", error);
@@ -53,6 +49,8 @@ export const ProductCard = ({ product }: any) => {
             alt={product.descripcion}
             className="w-full h-full object-cover rounded-t-xl"
           />
+
+          {/* Estado disponibilidad */}
           <motion.span
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -63,6 +61,9 @@ export const ProductCard = ({ product }: any) => {
           >
             {isAvailable ? "Disponible" : "No disponible"}
           </motion.span>
+
+          {/* Badge de oferta */}
+         
         </div>
 
         {/* Contenido */}
@@ -73,10 +74,19 @@ export const ProductCard = ({ product }: any) => {
           <p className="text-sm text-gray-500 line-clamp-2">
             {product.descripcion}
           </p>
-          <p className="font-semibold text-[#FF0000] mt-1 text-sm">
-            Antes: <span>${product.precio_unidad}</span> <br />
-            Ahora: <span>${precioConDescuento}</span>
-          </p>
+
+       {product.descuento > 0 ? (
+  <p className="font-semibold text-[#FF0000] mt-1 text-sm">
+    Antes: <span className="line-through">${product.precio_unidad}</span> <br />
+    Ahora: <span>${precioConDescuento}</span> <br />
+    <span className="text-yellow-600 font-bold">{product.descuento}% OFF</span>
+  </p>
+) : (
+  <p className="font-semibold text-green-600 mt-1 text-sm">
+    ${product.precio_unidad}
+  </p>
+)}
+
 
           {/* Botones */}
           <div className="flex gap-2 mt-auto w-full justify-center">

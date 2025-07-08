@@ -92,7 +92,7 @@ export const InputIA = () => {
   return (
     <div className="w-full flex flex-col gap-3">
       {statusMessage && (
-        <p className="text-red-600 text-sm font-semibold text-center">
+        <p className="text-green-600 text-sm font-semibold text-center">
           {statusMessage}
         </p>
       )}
