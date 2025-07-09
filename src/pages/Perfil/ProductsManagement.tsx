@@ -14,8 +14,14 @@ export const ProductManagement = () => {
     <ProductManagementProvider>
       <MobileMenuProvider>
         <div className="min-h-screen flex flex-col font-[Fredoka]">
-          <Header />
-          <div className="flex flex-1 max-w-screen mx-auto w-full px-4 py-6 gap-6">
+          
+          {/* ✅ Header con mismo ancho */}
+          <div className="w-[92%] max-w-7xl mx-auto pt-4">
+            <Header />
+          </div>
+
+          {/* ✅ Contenido con mismo ancho */}
+          <div className="flex flex-1 w-[92%] max-w-7xl mx-auto px-4 py-6 gap-6">
             <Navbar />
             <main className="flex-1 overflow-y-auto">
               <Routes>
@@ -26,7 +32,11 @@ export const ProductManagement = () => {
               </Routes>
             </main>
           </div>
-          <Footer />
+
+          {/* ✅ Footer con mismo ancho */}
+
+            <Footer />
+          
         </div>
       </MobileMenuProvider>
     </ProductManagementProvider>

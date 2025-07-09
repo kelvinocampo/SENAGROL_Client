@@ -19,8 +19,8 @@ export default function QuienesSomos() {
   return (
     <>
       <Header />
+<main className="w-[92%] max-w-7xl mx-auto py-10 mt-12 mb-20 font-[Fredoka] text-base sm:text-lg md:text-xl">
 
-      <main className="w-full px-4 sm:px-6 md:px-10 py-10 mt-12 mb-20 font-[Fredoka] text-base sm:text-lg md:text-xl">
         {/* Título principal */}
         <section className="max-w-6xl mx-auto">
           <motion.div

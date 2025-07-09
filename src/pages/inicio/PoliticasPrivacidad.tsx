@@ -20,8 +20,8 @@ export default function PoliticasPrivacidad() {
     <>
       <Header />
 
-      <main className="w-full px-4 sm:px-6 md:px-10 py-10 mt-12 mb-20 font-[Fredoka] text-base sm:text-lg md:text-xl">
-        {/* Título principal */}
+     <main className="w-[92%] max-w-7xl mx-auto py-10 mt-12 mb-20 font-[Fredoka] text-base sm:text-lg md:text-xl">
+
         <section className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}

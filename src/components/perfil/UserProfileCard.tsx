@@ -8,6 +8,8 @@ import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { IAContext } from "@/contexts/IA";
+import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog"; 
+
 
 export interface FormDataProfile {
   id_user: number | string;
@@ -32,7 +34,7 @@ const UserProfileCard: React.FC = () => {
 
   const [profileData, setProfileData] = useState<FormDataProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
+const [confirmOpen, setConfirmOpen] = useState(false);
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -75,11 +77,12 @@ const UserProfileCard: React.FC = () => {
     visible: { x: 0, opacity: 1, transition: { duration: 0.5 } },
   };
 
-  const baseClasses = `
-    w-full max-w-xs lg:max-w-sm
-    bg-white rounded-xl p-6
-    shadow-xl flex flex-col items-center text-center
-  `;
+ const baseClasses = `
+  w-full max-w-xs sm:max-w-sm lg:max-w-sm
+  bg-white rounded-xl p-6 
+  shadow-xl flex flex-col items-center text-center
+  mx-auto
+`;
 
   if (loading) {
     return (
@@ -214,11 +217,11 @@ const UserProfileCard: React.FC = () => {
         </>
       )}
 
-      <div className="w-full mt-6 flex flex-col gap-3">
+      <div className="w-full mt-6 flex flex-col items-center gap-3">
         {!lowerRole.includes("transportador") && (
           <button
             onClick={() => navigate("/formulariotransportador")}
-            className="w-full bg-[#28A745] text-white py-2 rounded-xl font-semibold hover:bg-[#379e1b] transition-colors"
+            className="w-full sm:w-60 bg-[#28A745] text-white py-2 rounded-xl font-semibold hover:bg-[#379e1b] transition-colors"
           >
             Formulario para transportador
           </button>
@@ -227,17 +230,25 @@ const UserProfileCard: React.FC = () => {
         {!lowerRole.includes("vendedor") && <PeticionVendedor />}
 
         <button
-          onClick={() => {
-            localStorage.clear();
-            clearHistory();
-            navigate("/");
-          }}
-          className="w-full bg-red-500 text-white py-2 rounded-xl font-semibold hover:bg-red-600 transition-colors"
-        >
-          Cerrar sesión
-        </button>
+    onClick={() => setConfirmOpen(true)}
+    className="w-full sm:w-60 bg-red-500 text-white py-2 rounded-xl font-semibold hover:bg-red-600 transition-colors"
+  >
+    Cerrar sesión
+  </button>
       </div>
+      <ConfirmDialog
+  isOpen={confirmOpen}
+  onClose={() => setConfirmOpen(false)}
+  onConfirm={() => {
+    localStorage.clear();
+    clearHistory();
+    navigate("/");
+  }}
+  title="¿Cerrar sesión?"
+  message="¿Estás seguro de que deseas cerrar sesión?"
+/>
     </motion.aside>
+    
   );
 };
 

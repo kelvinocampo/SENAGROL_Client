@@ -112,7 +112,8 @@ export const TransportesContenido: React.FC = () => {
         </div>
       )}
 
-      {/* Indicadores de estado */}
+    
+      <h2 className='font-medium text-2xl mb-5'>Mis Transportes</h2>
       <div className="flex flex-wrap gap-4 mb-6">
         {(["Asignada", "En Proceso", "Completada"] as Compra["estado"][]).map(
           (estado) => (
@@ -155,7 +156,9 @@ export const TransportesContenido: React.FC = () => {
     No tienes transportes en este momento.
   </div>
 ) : (
+  
   <div className="w-full overflow-x-auto rounded-xl border border-[#48bd28] shadow bg-white">
+    
     <table className="w-full min-w-[720px] table-auto text-sm text-center">
       <thead className="bg-white text-black font-bold sticky top-0 z-10">
         <tr>

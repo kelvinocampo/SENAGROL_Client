@@ -96,7 +96,7 @@ export default function Transportadores({ id_compra }: Props) {
       cerrarModal();
       setModalExitoVisible(true);
       setTimeout(() => {
-        navigate("/perfil");
+        navigate("/miscompras");
       }, 2000);
     } catch (error) {
       console.error("❌ Error al asignar transportador:", error);
@@ -125,7 +125,8 @@ export default function Transportadores({ id_compra }: Props) {
   return (
     <>
       <Header />
-      <main className="flex flex-col lg:flex-row items-start pt-10 px-10 py-10 gap-10 h-full bg-gradient-to-b from-[#E1FFD9] to-[#F0F0F0] text-black">
+     <main className="w-[92%] max-w-7xl mx-auto flex flex-col lg:flex-row items-start pt-10 gap-10 h-full text-black">
+
         <UserProfileCard />
 
         <motion.section
@@ -148,9 +149,9 @@ export default function Transportadores({ id_compra }: Props) {
             />
           </div>
 
-          <div className="rounded-xl border border-[#48BD28] shadow-sm overflow-hidden">
-            <div className="overflow-y-auto max-h-[400px]">
-              <table className="min-w-full text-sm table-fixed">
+          <div className="rounded-xl border border-[#48BD28] shadow-sm overflow-hidden mb-19">
+            <div className="overflow-y-auto max-h-[400px] ">
+              <table className="min-w-full text-sm table-fixed ">
                 <thead className="sticky top-0 z-10 bg-white text-black">
                   <tr>
                     <th className="text-left w-[130px] pl-4 py-3">Vehículo</th>

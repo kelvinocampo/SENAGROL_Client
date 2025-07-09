@@ -1,6 +1,7 @@
 import { IAContext } from "@/contexts/IA";
 import { useContext } from "react";
 import { NavLink } from "react-router-dom";
+import { FaArrowRight } from "react-icons/fa";
 import senagrol from "@assets/senagrol.png";
 import { FaCircleUser } from "react-icons/fa6";
 import {
@@ -190,8 +191,9 @@ export const HistoryIA = () => {
             <NavLink
               key={`link-${pIndex}-${match.index}`}
               to={`${route}`}
-              className="px-1.5 py-0.5 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm inline-flex mx-1"
+            className="inline-flex items-center gap-1 px-3 py-1.5 m-1 rounded-full text-sm font-semibold text-white bg-[#48BD28] hover:bg-[#379e1b] shadow transition-all duration-200 ease-in-out"
             >
+              <FaArrowRight className="text-xs" />
               {text}
             </NavLink>
           );

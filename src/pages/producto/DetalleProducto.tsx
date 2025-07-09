@@ -128,14 +128,14 @@ export default function DetalleProducto() {
 
 
   return (
-    <div className="font-[Fredoka] min-h-screen flex flex-col bg-gradient-to-b from-[#e9ffef] to-[#c7f6c3] overflow-x-hidden">
+    <div className="font-[Fredoka] min-h-screen flex flex-col overflow-x-hidden">
       <div className="fixed inset-0 pointer-events-none z-0">
         <FallingLeaves quantity={20} />
       </div>
 
       <Header />
     
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="relative w-full max-w-350 mx-auto px-4 sm:px-6">
         
 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 -mt-2">
   <BackToHome className="text-left text-sm sm:text-base" />

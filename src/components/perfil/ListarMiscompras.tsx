@@ -126,8 +126,8 @@ export default function ListarMisCompras() {
           {toast.msg}
         </div>
       )}
-      <div className="font-[Fredoka] flex flex-col min-h-screen bg-gradient-to-b from-[#E1FFD9] to-[#F0F0F0]">
-        <main className="flex flex-col-reverse lg:flex-row gap-8 px-4 sm:px-6 md:px-10 py-10 pb-16">
+      <div className="font-[Fredoka] flex flex-col min-h-screen ">
+        <main className="w-[92%] max-w-7xl mx-auto flex flex-col-reverse lg:flex-row gap-8 py-10 pb-16">
           <aside className="w-full lg:w-1/2">
             <UserProfileCard />
           </aside>
@@ -250,7 +250,7 @@ export default function ListarMisCompras() {
                               </div>
                             </td>
                             <td className="px-3 py-2">
-                              {(c.estado === "Pendiente" || c.estado === "Asignada") && (
+                              {(c.estado === "Asignada") && (
                                 <button
                                   onClick={() =>
                                     openDialog(
