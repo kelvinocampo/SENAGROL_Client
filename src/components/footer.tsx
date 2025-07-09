@@ -15,7 +15,7 @@ const socialIcons = [
 const Footer = () => {
   return (
     <motion.footer
-      className="bg-white border-t-[1px] border-[#c7f6c3] font-[Fredoka] text-[#205116] relative bottom-0 overflow-hidden"
+      className="bg-white border-t-[1px] border-[#c7f6c3] font-[Fredoka] text-black relative bottom-0 overflow-hidden"
       initial={{ y: 80, opacity: 0 }}
       whileInView={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
@@ -55,7 +55,7 @@ const Footer = () => {
               Social
             </h4>
             <motion.div
-              className="flex items-center gap-6 text-2xl text-[#205116]"
+              className="flex items-center gap-6 text-2xl text-black"
               initial="hidden"
               animate="visible"
               variants={{
@@ -123,7 +123,7 @@ const Footer = () => {
 
       {/* Línea y Copyright */}
       <hr className="border-t border-[#c7f6c3]" />
-      <p className="text-center text-xs py-4 text-[#205116]">
+      <p className="text-center text-xs py-4 text-black">
         Copyright © Senagrol
       </p>
     </motion.footer>

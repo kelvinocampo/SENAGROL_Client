@@ -145,7 +145,7 @@ function PerfilUsuarioUnico() {
     if (!files) return;
     const fileArray = Array.from(files);
     if (fileArray.length > 3) {
-      alert("Solo puedes subir hasta 3 imágenes.");
+      setDialog({ open: true, type: "error", message: "Solo puedes subir hasta 3 imágenes." });
       return;
     }
     setVehicleFiles(fileArray);
@@ -166,12 +166,14 @@ function PerfilUsuarioUnico() {
         <FallingLeaves quantity={20} />
       </div>
       <Header />
-      <main className="relative flex-1 flex flex-col lg:flex-row pt-6 pb-10 px-4 sm:px-6 md:px-10 gap-10">
-        <div className=" flex justify-center">
-<UserProfileCard />
+
+      <main className="w-[92%] max-w-7xl mx-auto relative flex-1 flex flex-col lg:flex-row pt-6 pb-10 gap-10">
+        <div className="flex justify-center">
+          <UserProfileCard />
         </div>
+
         <motion.section
-          className="lg:w-2/3 w-full h-full p-6 "
+          className="lg:w-2/3 w-full h-full p-6"
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
