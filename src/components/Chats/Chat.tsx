@@ -81,7 +81,7 @@ export const Chat = () => {
   const [newMessage, setNewMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [_, setAudioChunks] = useState<Blob[]>([]);
   const [editing, setEditing] = useState<{ id: number; content: string } | null>(
     null,
   );
