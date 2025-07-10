@@ -1,5 +1,4 @@
 import { useState, useContext, useEffect } from "react";
-import { TableHeader } from "@/components/admin/table/TableHeader";
 import { ActionButton } from "@/components/admin/table/ActionButton";
 import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog";
 import { MessageDialog } from "@/components/admin/common/MessageDialog";
@@ -83,107 +82,115 @@ export const ProductTable = () => {
         inputClassName="w-full px-4 py-2 rounded-full border border-[#48BD28] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6dd850]"
       />
 
-      <table className="min-w-full table-auto overflow-hidden rounded-2xl border border-[#48bd28]">
-        <thead className="bg-[#E4FBDD] border-[#48BD28] text-black">
-          <tr>
-            <TableHeader>Imagen</TableHeader>
-            <TableHeader>Nombre</TableHeader>
-            <TableHeader>Descripción</TableHeader>
-            <TableHeader>Cantidad</TableHeader>
-            <TableHeader>Cantidad Mínima</TableHeader>
-            <TableHeader>Ubicación</TableHeader>
-            <TableHeader>Precio</TableHeader>
-            <TableHeader>Publicar</TableHeader>
-            <TableHeader>Eliminar</TableHeader>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-transparent bg-[#E4FBDD] border  border-[#48BD28] rounded-xl overflow-hidden">
-          <AnimatePresence>
-            {filteredProducts.map((product, index) => (
-              <motion.tr
-                key={product.id}
-                variants={rowVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={{ duration: 0.3 }}
-                className={`text-center text-black font-semibold border-[#48BD28] ${
-                  index % 2 === 0 ? "bg-white" : "bg-[#E4FBDD] "
-                }`}
-              >
-                <td className="p-3">
-                  <img
-                    src={product.imagen}
-                    alt={product.nombre}
-                    className="w-12 h-12 object-contain mx-auto rounded-full"
-                  />
-                </td>
-                <td className="p-3">{product.nombre}</td>
-                <td className="p-3">{product.descripcion}</td>
-                <td className="p-3">{product.cantidad}</td>
-                <td className="p-3">{product.cantidad_minima_compra}</td>
-                <td className="p-3">
-                  <MiniMap lat={product.latitud} lng={product.longitud} />
-                </td>
-                <td className="p-3">${product.precio_unidad}</td>
-                <td className="p-3">
-                  <ActionButton
-                    className={`${
-                      product.despublicado === 1
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-300 text-black"
-                    } rounded-full px-4 py-1 text-sm font-semibold`}
-                    onClick={() =>
-                      handleConfirm(
-                        `¿Estás seguro de que deseas ${
-                          product.despublicado === 1 ? "publicar" : "despublicar"
-                        } el producto ${product.nombre}?`,
-                        async () => {
-                          if (product.despublicado === 1) {
-                            await publish(product.id);
-                            setConfirmOpen(false);
-                            setTimeout(() => showMessage("Producto publicado."), 200);
-                          } else {
-                            await unpublishProduct(product.id);
-                            setConfirmOpen(false);
-                            setTimeout(() => showMessage("Producto despublicado."), 200);
-                          }
-                        }
-                      )
+  <table className="min-w-full table-auto overflow-hidden rounded-xl border border-[#48bd28]">
+  {/* 👉 CABECERA BLANCA */}
+  <thead className="bg-white text-black">
+    <tr>
+      <th className="p-3 rounded-tl-xl border-b border-[#48bd28]">Imagen</th>
+      <th className="p-3 border-b border-[#48bd28]">Nombre</th>
+      <th className="p-3 border-b border-[#48bd28]">Descripción</th>
+      <th className="p-3 border-b border-[#48bd28]">Cantidad</th>
+      <th className="p-3 border-b border-[#48bd28]">Cantidad Mínima</th>
+      <th className="p-3 border-b border-[#48bd28]">Ubicación</th>
+      <th className="p-3 border-b border-[#48bd28]">Precio</th>
+      <th className="p-3 border-b border-[#48bd28]">Publicar</th>
+      <th className="p-3 rounded-tr-xl border-b border-[#48bd28]">Eliminar</th>
+    </tr>
+  </thead>
+
+  {/* 👉 CUERPO CON FILAS ALTERNAS VERDE Y BLANCO */}
+  <tbody>
+    <AnimatePresence>
+      {filteredProducts.map((product, index) => {
+        const isLast = index === filteredProducts.length - 1;
+        const rowBg = index % 2 === 0 ? "bg-[#E4FBDD]" : "bg-white";
+
+        return (
+          <motion.tr
+            key={product.id}
+            variants={rowVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.3 }}
+            className={`text-center text-black font-semibold border-b border-[#48BD28] ${rowBg}`}
+          >
+            <td className={`p-3 ${isLast ? "rounded-bl-xl" : ""}`}>
+              <img
+                src={product.imagen}
+                alt={product.nombre}
+                className="w-12 h-12 object-contain mx-auto rounded-full"
+              />
+            </td>
+            <td className="p-3">{product.nombre}</td>
+            <td className="p-3">{product.descripcion}</td>
+            <td className="p-3">{product.cantidad}</td>
+            <td className="p-3">{product.cantidad_minima_compra}</td>
+            <td className="p-3">
+              <MiniMap lat={product.latitud} lng={product.longitud} />
+            </td>
+            <td className="p-3">${product.precio_unidad}</td>
+            <td className="p-3">
+              <ActionButton
+                className={`${
+                  product.despublicado === 1
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-300 text-black"
+                } rounded-full px-4 py-1 text-sm font-semibold`}
+                onClick={() =>
+                  handleConfirm(
+                    `¿Estás seguro de que deseas ${
+                      product.despublicado === 1 ? "publicar" : "despublicar"
+                    } el producto ${product.nombre}?`,
+                    async () => {
+                      if (product.despublicado === 1) {
+                        await publish(product.id);
+                        setConfirmOpen(false);
+                        setTimeout(() => showMessage("Producto publicado."), 200);
+                      } else {
+                        await unpublishProduct(product.id);
+                        setConfirmOpen(false);
+                        setTimeout(() => showMessage("Producto despublicado."), 200);
+                      }
                     }
-                  >
-                    {product.despublicado === 1 ? "Publicar" : "Despublicar"}
-                  </ActionButton>
-                </td>
-                <td className="p-3">
-                  <ActionButton
-                    className="bg-red-600 text-white rounded-full px-3 py-1"
-                    onClick={() => {
-                      if (product.eliminado === 1) return;
-                      handleConfirm(
-                        `¿Eliminar el producto ${product.nombre}?`,
-                        async () => {
-                          const result = await deleteProduct(product.id);
-                          if (!result?.success) {
-                            setTimeout(() => showMessage("Error al eliminar."), 200);
-                          } else {
-                            setTimeout(() => showMessage("Producto eliminado."), 200);
-                          }
-                          await fetchProducts();
-                          setConfirmOpen(false);
-                        }
-                      );
-                    }}
-                    disabled={product.eliminado === 1}
-                  >
-                    <FaTrash />
-                  </ActionButton>
-                </td>
-              </motion.tr>
-            ))}
-          </AnimatePresence>
-        </tbody>
-      </table>
+                  )
+                }
+              >
+                {product.despublicado === 1 ? "Publicar" : "Despublicar"}
+              </ActionButton>
+            </td>
+            <td className={`p-3 ${isLast ? "rounded-br-xl" : ""}`}>
+              <ActionButton
+                className="bg-red-600 text-white rounded-full px-3 py-1"
+                onClick={() => {
+                  if (product.eliminado === 1) return;
+                  handleConfirm(
+                    `¿Eliminar el producto ${product.nombre}?`,
+                    async () => {
+                      const result = await deleteProduct(product.id);
+                      if (!result?.success) {
+                        setTimeout(() => showMessage("Error al eliminar."), 200);
+                      } else {
+                        setTimeout(() => showMessage("Producto eliminado."), 200);
+                      }
+                      await fetchProducts();
+                      setConfirmOpen(false);
+                    }
+                  );
+                }}
+                disabled={product.eliminado === 1}
+              >
+                <FaTrash />
+              </ActionButton>
+            </td>
+          </motion.tr>
+        );
+      })}
+    </AnimatePresence>
+  </tbody>
+</table>
+
+
 
       {/* Diálogos */}
       <AnimatePresence>

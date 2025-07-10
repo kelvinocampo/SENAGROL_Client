@@ -45,14 +45,14 @@ export const Chats = () => {
           </button>
         </div>
 
-        {/* Contenido principal con flex y responsividad */}
-        <div className="flex flex-1 flex-col md:flex-row px-4 md:px-10 pt-4 gap-4 pb-2 relative z-10">
+        {/* Contenido principal con ancho como el Header */}
+        <div className="w-[92%] max-w-7xl mx-auto flex flex-1 flex-col md:flex-row pt-4 gap-4 pb-2 relative z-10">
           {/* Sidebar */}
           <div className="w-full md:w-[280px] lg:w-[300px] z-10">
             <NavBarChats isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           </div>
 
-          {/* Main content area - sin z-index para permitir superposición del menú flotante */}
+          {/* Main content area */}
           <main className="flex-1 min-h-0 overflow-hidden rounded-xl transition-all duration-300">
             <Routes location={location} key={location.pathname}>
               <Route

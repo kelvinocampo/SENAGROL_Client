@@ -158,7 +158,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="font-[Fredoka] relative bg-white shadow-md mx-auto my-6 mb-0 w-full px-4 sm:px-6 py-4 rounded-lg max-w-456">
+      <header className="font-[Fredoka] relative bg-white shadow-md mx-auto my-6 w-full px-4 sm:px-6 py-1 rounded-lg max-w-7xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <a href="/">

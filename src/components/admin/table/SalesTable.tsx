@@ -88,67 +88,72 @@ export const SalesTable = () => {
       </div>
 
       {/* Tabla */}
-      <table className="min-w-full table-auto rounded-xl border-[#48BD28]  ">
-        <thead className="bg-[#E4FBDD]  borderborder-[#48BD28] text-black">
-          <tr>
-            <TableHeader>Estado</TableHeader>
-            <TableHeader>Fecha Compra</TableHeader>
-            <TableHeader>Fecha Entrega</TableHeader>
-            <TableHeader>Vendedor</TableHeader>
-            <TableHeader>Transportador</TableHeader>
-            <TableHeader>Comprador</TableHeader>
-            <TableHeader>Precio Producto</TableHeader>
-            <TableHeader>Precio Transporte</TableHeader>
-            <TableHeader>Precio Total</TableHeader>
-          </tr>
-        </thead>
-       <tbody className="divide-y divide-transparent bg-[#E4FBDD] border  border-[#48BD28] rounded-xl overflow-hidden">
-  {filteredSales.length === 0 ? (
+      <table className="min-w-full table-auto overflow-hidden rounded-xl border border-[#48BD28]">
+  {/* CABECERA BLANCA */}
+  <thead className="bg-white text-black">
     <tr>
-      <td colSpan={9} className="text-center py-4 text-gray-500">
-        No hay ventas que coincidan con la búsqueda.
-      </td>
+      <TableHeader className="rounded-tl-xl border-b border-[#48BD28]">Estado</TableHeader>
+      <TableHeader className="border-b border-[#48BD28]">Fecha Compra</TableHeader>
+      <TableHeader className="border-b border-[#48BD28]">Fecha Entrega</TableHeader>
+      <TableHeader className="border-b border-[#48BD28]">Vendedor</TableHeader>
+      <TableHeader className="border-b border-[#48BD28]">Transportador</TableHeader>
+      <TableHeader className="border-b border-[#48BD28]">Comprador</TableHeader>
+      <TableHeader className="border-b border-[#48BD28]">Precio Producto</TableHeader>
+      <TableHeader className="border-b border-[#48BD28]">Precio Transporte</TableHeader>
+      <TableHeader className="rounded-tr-xl border-b border-[#48BD28]">Precio Total</TableHeader>
     </tr>
-  ) : (
-    filteredSales.map((sale, index) => (
-      <motion.tr
-        key={sale.id_compra}
-         className={`text-center text-black font-semibold ${
-                  index % 2 === 0 ? "bg-white" : "bg-[#E4FBDD]"
-                }`}
-        variants={rowVariants}
-        initial="hidden"
-        animate="visible"
-        exit="hidden"
-        layout
-      >
-        <td className="p-3">
-          <span className={statusColors[sale.estado] || "text-gray-700"}>
-            {sale.estado}
-          </span>
-        </td>
-        <td className="p-3 text-black">{sale.fecha_compra}</td>
-        <td className="p-3 text-black">{sale.fecha_entrega || "No asignado"}</td>
-        <td className="p-3 text-black">{sale.vendedor_nombre}</td>
-        <td className="p-3 text-black">{sale.transportador_nombre || "No asignado"}</td>
-        <td className="p-3 text-black">{sale.comprador_nombre}</td>
-        <td className="p-3 text-black">${sale.precio_producto}</td>
-        <td className="p-3 text-black">
-          {sale.precio_transporte ?? "No asignado"}
-        </td>
-        <td className="p-3 text-black font-semibold">
-          $
-          {(
-            (Number(sale.precio_transporte) || 0) +
-            (Number(sale.precio_producto) || 0)
-          ).toLocaleString("es-CO")}
-        </td>
-      </motion.tr>
-    ))
-  )}
-</tbody>
+  </thead>
 
-      </table>
+  {/* CUERPO DE LA TABLA CON FILAS ALTERNAS VERDE/BLANCO */}
+  <tbody>
+    {filteredSales.length === 0 ? (
+      <tr>
+        <td colSpan={9} className="text-center py-4 text-gray-500">
+          No hay ventas que coincidan con la búsqueda.
+        </td>
+      </tr>
+    ) : (
+      filteredSales.map((sale, index) => {
+        const isLast = index === filteredSales.length - 1;
+        const rowBg = index % 2 === 0 ? "bg-[#E4FBDD]" : "bg-white";
+        return (
+          <motion.tr
+            key={sale.id_compra}
+            className={`text-center text-black font-semibold border-b border-[#48BD28] ${rowBg}`}
+            variants={rowVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            layout
+          >
+            <td className="p-3">
+              <span className={statusColors[sale.estado] || "text-gray-700"}>
+                {sale.estado}
+              </span>
+            </td>
+            <td className="p-3">{sale.fecha_compra}</td>
+            <td className="p-3">{sale.fecha_entrega || "No asignado"}</td>
+            <td className="p-3">{sale.vendedor_nombre}</td>
+            <td className="p-3">{sale.transportador_nombre || "No asignado"}</td>
+            <td className="p-3">{sale.comprador_nombre}</td>
+            <td className="p-3">${sale.precio_producto}</td>
+            <td className="p-3">
+              {sale.precio_transporte ?? "No asignado"}
+            </td>
+            <td className={`p-3 font-semibold ${isLast ? "rounded-br-xl" : ""}`}>
+              $
+              {(
+                (Number(sale.precio_transporte) || 0) +
+                (Number(sale.precio_producto) || 0)
+              ).toLocaleString("es-CO")}
+            </td>
+          </motion.tr>
+        );
+      })
+    )}
+  </tbody>
+</table>
+
     </motion.div>
   );
 };

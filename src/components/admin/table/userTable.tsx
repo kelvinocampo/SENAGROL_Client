@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TableHeader } from "@/components/admin/table/TableHeader";
 import { ActionButton } from "@/components/admin/table/ActionButton";
 import { ConfirmDialog } from "@/components/admin/common/ConfirmDialog";
 import { MessageDialog } from "@/components/admin/common/MessageDialog";
@@ -51,7 +50,11 @@ export const UserTable = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
           className={`inline-block px-3 py-1 rounded-full font-semibold text-sm ${
-            statusColor.Activo || statusColor.default
+            status === "Activo"
+              ? statusColor.Activo
+              : status === "Inactivo"
+              ? statusColor.Inactivo
+              : statusColor.default
           }`}
         >
           {status === "Activo" ? "Activo" : status === "Inactivo" ? "Inactivo" : "No disponible"}
@@ -120,17 +123,6 @@ export const UserTable = () => {
   };
 
   if (users === null) return <div>Cargando usuarios...</div>;
-  if (users.length === 0) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-center mt-10 text-gray-600"
-      >
-        No hay usuarios en este momento.
-      </motion.div>
-    );
-  }
 
   const term = searchTerm.toLowerCase();
   const filteredUsers = users.filter(
@@ -153,17 +145,17 @@ export const UserTable = () => {
 
         <motion.table
           layout
-          className="min-w-full my-10 table-auto border border-[#48BD28] border-rounded-full"
+          className="min-w-full my-10 table-auto border border-[#48BD28] rounded-xl overflow-hidden"
         >
           <thead className="bg-white border-b border-[#48BD28]">
             <tr>
-              <TableHeader>Nombre</TableHeader>
-              <TableHeader>Transportador</TableHeader>
-              <TableHeader>Información de transportador</TableHeader>
-              <TableHeader>Vendedor</TableHeader>
-              <TableHeader>Comprador</TableHeader>
-              <TableHeader>Administrador</TableHeader>
-              <TableHeader>Acción</TableHeader>
+              <th className="p-2 text-left rounded-tl-xl">Nombre</th>
+              <th className="p-2">Transportador</th>
+              <th className="p-2">Información de transportador</th>
+              <th className="p-2">Vendedor</th>
+              <th className="p-2">Comprador</th>
+              <th className="p-2">Administrador</th>
+              <th className="p-2 rounded-tr-xl">Acción</th>
             </tr>
           </thead>
           <tbody>
@@ -177,6 +169,7 @@ export const UserTable = () => {
               ) : (
                 filteredUsers.map((user, index) => {
                   const rowClass = index % 2 === 0 ? "bg-[#E4FBDD]" : "bg-white";
+                  const isLast = index === filteredUsers.length - 1;
 
                   return (
                     <motion.tr
@@ -188,7 +181,9 @@ export const UserTable = () => {
                       transition={{ duration: 0.3 }}
                       className={`text-center border-b border-green-300 hover:bg-green-50 ${rowClass}`}
                     >
-                      <td className="p-2 text-left font-semibold text-black">{user.name}</td>
+                      <td className={`p-2 text-left font-semibold text-black ${isLast ? "rounded-bl-xl" : ""}`}>
+                        {user.name}
+                      </td>
                       <td className="p-2">{renderRoleCell(user, "transportador")}</td>
                       <td className="p-2">
                         {(user.transportador === "Activo" || user.transportador === "Inactivo") && (
@@ -206,42 +201,8 @@ export const UserTable = () => {
                       </td>
                       <td className="p-2">{renderRoleCell(user, "vendedor")}</td>
                       <td className="p-2">{renderRoleCell(user, "comprador")}</td>
-                      <td className="p-2">
-                        {user.administrador === "Activo" ? (
-                          <ActionButton
-                            className="bg-[#D6D8DB] text-[#4A4A4A] rounded-full px-4 py-1 text-sm font-semibold"
-                            title="Desactivar administrador"
-                            onClick={() =>
-                              handleConfirm(
-                                `¿Estás seguro de que deseas desactivar el rol administrador para ${user.name}?`,
-                                async () => {
-                                  await disableUser(user.id, "administrador");
-                                  showMessage(`El rol administrador ha sido desactivado para ${user.name}`);
-                                }
-                              )
-                            }
-                          >
-                            Desactivar
-                          </ActionButton>
-                        ) : (
-                          <ActionButton
-                            className="bg-[#a0eb8a] text-green-900 rounded-full px-4 py-1 text-sm font-semibold"
-                            title="Designar como administrador"
-                            onClick={() =>
-                              handleConfirm(
-                                `¿Deseas designar a ${user.name} como administrador?`,
-                                async () => {
-                                  await activateUserRole(user.id, "administrador");
-                                  showMessage(`El usuario ${user.name} ha sido designado con el rol de administrador`);
-                                }
-                              )
-                            }
-                          >
-                            Asignar
-                          </ActionButton>
-                        )}
-                      </td>
-                      <td className="p-2">
+                      <td className="p-2">{renderRoleCell(user, "administrador")}</td>
+                      <td className={`p-2 ${isLast ? "rounded-br-xl" : ""}`}>
                         <ActionButton
                           className="bg-red-600 text-white rounded-full px-4 py-1 text-sm font-semibold"
                           title="Eliminar usuario"

@@ -5,8 +5,7 @@ import { MobileMenuProvider } from "./contexts/MobileMenuContext";
 import { IAProvider } from "./contexts/IA"; // ✅ AÑADIDO
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-// Páginas y componentes
+import { FloatingIAButton } from "@/components/IA/FloatingIAButton";
 import PaginaProductos from "@pages/producto/PaginaProductos";
 import DetalleProducto from "@pages/producto/DetalleProducto";
 import { InicioManual } from "@pages/Inicio";
@@ -71,16 +70,23 @@ function App() {
                 <Route path="/producto/:id" element={<DetalleProducto />} />
                 <Route path="/Login" element={<InicioManual />} />
                 <Route path="/EnviarCorreo" element={<EnviarCorreo />} />
-                <Route path="/RecuperarContraseña" element={<ActulizarContraseña />} />
+                <Route
+                  path="/RecuperarContraseña"
+                  element={<ActulizarContraseña />}
+                />
                 <Route path="/QuienesSomos" element={<QuienesSomos />} />
-                <Route path="/PoliticasPrivacidad" element={<PoliticasPrivacidad />} />
+                <Route
+                  path="/PoliticasPrivacidad"
+                  element={<PoliticasPrivacidad />}
+                />
                 <Route path="/Register" element={<RegisterForm />} />
                 <Route path="/perfil" element={<PerfilUsuarioUnico />} />
-                <Route path="/miscompras" element={<MyPurchasesPage />} />
                 <Route path="/transporte" element={<Transporte />} />
-                <Route path="/mistransportes" element={<MisTransportes />} />
                 <Route path="/IA" element={<IA />} />
-                <Route path="/transporte/:id_compra" element={<Transportadores />} />
+                <Route
+                  path="/transporte/:id_compra"
+                  element={<Transportadores />}
+                />
                 <Route path="/chats/*" element={<Chats />} />
                 <Route path="/pago/:id" element={<PagoWrapper />} />
 
@@ -92,11 +98,28 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-
+                <Route
+                  path="/mistransportes"
+                  element={
+                    <ProtectedRoute allowedRoles={["transportador"]}>
+                      <MisTransportes />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/miscompras"
+                  element={
+                    <ProtectedRoute allowedRoles={["comprador"]}>
+                      <MyPurchasesPage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/formulariotransportador"
                   element={
-                    <ProtectedRoute allowedRoles={["vendedor", "comprador", "administrador"]}>
+                    <ProtectedRoute
+                      allowedRoles={["vendedor", "comprador", "administrador"]}
+                    >
                       <FormularioTransporte />
                     </ProtectedRoute>
                   }
@@ -114,6 +137,7 @@ function App() {
                 <Route path="/404" element={<Error404 />} />
                 <Route path="*" element={<Navigate to="/404" />} />
               </Routes>
+                <FloatingIAButton />
             </AutoLogoutWrapper>
           </DiscountedProductProvider>
         </MobileMenuProvider>

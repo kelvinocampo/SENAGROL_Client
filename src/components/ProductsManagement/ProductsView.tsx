@@ -3,14 +3,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ProductManagementContext } from "@/contexts/ProductsManagement";
 import { ProductCard } from "@components/ProductsManagement/ProductCard";
 import { ProductManagementService } from "@/services/Perfil/ProductsManagement";
-import { ProductSearcher } from "@components/ProductsManagement/ProductSearcher";
+import { Search } from "lucide-react";
 
 export const ProductsView = () => {
   const {
     products = [],
     setProducts,
     searchTerm,
+    setSearchTerm,
   }: any = useContext(ProductManagementContext);
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,26 +62,33 @@ export const ProductsView = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col  font-[Fredoka]">
+    <div className="min-h-screen flex flex-col font-[Fredoka]">
       <main className="flex-1 w-full max-w-7xl mx-auto px-6 sm:px-12 py-10">
-        {/* Título y buscador */}
-        <motion.div
+        {/* Título */}
+        <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10"
+          className="text-3xl font-medium text-[#0D141C] mb-4"
         >
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-green-700">
-            Mis Productos
-          </h2>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
-            className="w-full sm:w-auto"
-          >
-            <ProductSearcher />
-          </motion.div>
+          Mis Productos
+        </motion.h2>
+
+        {/* Buscador ancho completo */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4, duration: 0.7 }}
+          className="relative w-full mb-10"
+        >
+          <Search className="absolute left-3 top-3 text-gray-500" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar por nombre del producto..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 p-3 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28] text-base bg-white"
+          />
         </motion.div>
 
         {/* Mensaje de error */}
@@ -113,7 +122,6 @@ export const ProductsView = () => {
                     key={product.id_producto}
                     variants={itemVariants}
                     whileHover="hover"
-                    className=""
                   >
                     <ProductCard product={product} />
                   </motion.div>

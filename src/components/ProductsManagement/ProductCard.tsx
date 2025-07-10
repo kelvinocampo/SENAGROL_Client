@@ -88,9 +88,8 @@ export const ProductCard = ({ product }: any) => {
               <span className="line-through">
                 {formatPrice(product.precio_unidad)}
               </span>
-              <br />
               Ahora: <span>{formatPrice(precioConDescuento)}</span>
-              <br />
+           
       
             </p>
           ) : (
@@ -104,7 +103,7 @@ export const ProductCard = ({ product }: any) => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-[#5ABA41] hover:bg-green-600 text-white px-4 py-1 rounded-md font-semibold text-sm shadow-sm"
+              className="bg-[#5ABA41] hover:bg-green-600 text-white px-4 py-2 rounded-md font-semibold text-sm shadow-sm"
               onClick={() =>
                 window.location.assign(
                   `/MisProductos/Editar/${product.id_producto}`

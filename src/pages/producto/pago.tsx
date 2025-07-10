@@ -14,6 +14,7 @@ import type { Product } from "@/contexts/Product/ProductsManagement";
 import { DiscountedProductContext } from "@/contexts/Product/ProductsManagement";
 import Header from "@components/Header";
 import Footer from "@components/footer";
+import { MessageDialog } from "@/components/admin/common/MessageDialog";
 
 type Location = { lat: number; lng: number };
 
@@ -29,6 +30,8 @@ export default function Pago() {
   const [cantidad, setCantidad] = useState(0);
   const [ubicacion, setUbicacion] = useState<Location | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [modalMessage, setModalMessage] = useState("");
 
   const [cardholderName, setCardholderName] = useState("");
   const [cardErrors, setCardErrors] = useState({
@@ -52,7 +55,6 @@ export default function Pago() {
 
     setProducto(found);
 
-    // ✅ Leer cantidad del localStorage
     const storedQty = localStorage.getItem("cantidad_compra");
     const parsedQty = storedQty ? parseInt(storedQty, 10) : found.cantidad_minima_compra;
     const finalQty = Math.min(Math.max(parsedQty, found.cantidad_minima_compra), found.cantidad);
@@ -84,14 +86,18 @@ export default function Pago() {
   };
 
   const handlePagar = async () => {
-    if (!stripe || !elements) return alert("Stripe aún no está listo.");
+    if (!stripe || !elements) {
+      setModalMessage("Stripe aún no está listo.");
+      return;
+    }
+
     if (!producto) return;
-    if (!ubicacion) return alert("Selecciona una ubicación.");
-    if (!cardholderName) return alert("Completa el nombre del titular de la tarjeta.");
-    if (hasCardErrors) return alert("Corrige los errores en la tarjeta.");
+    if (!ubicacion) return setModalMessage("Selecciona una ubicación.");
+    if (!cardholderName) return setModalMessage("Completa el nombre del titular de la tarjeta.");
+    if (hasCardErrors) return setModalMessage("Corrige los errores en la tarjeta.");
 
     const cardElement = elements.getElement(CardNumberElement);
-    if (!cardElement) return alert("Error con el campo de tarjeta.");
+    if (!cardElement) return setModalMessage("Error con el campo de tarjeta.");
 
     try {
       setLoading(true);
@@ -104,14 +110,11 @@ export default function Pago() {
         longitud: ubicacion.lng.toFixed(6),
       });
 
-      alert("¡Compra realizada con éxito!");
-
-      // ✅ Limpiar cantidad del localStorage
       localStorage.removeItem("cantidad_compra");
-
-      navigate("/");
+      setModalMessage("¡Compra realizada con éxito!");
+      setTimeout(() => navigate("/"), 2500);
     } catch (err) {
-      alert("Error al procesar la compra.");
+      setModalMessage("Error al procesar la compra.");
     } finally {
       setLoading(false);
     }
@@ -120,14 +123,18 @@ export default function Pago() {
   if (!producto) return null;
 
   return (
-    <div className="min-h-screen flex flex-col  font-[Fredoka]">
+    <div className="min-h-screen flex flex-col font-[Fredoka]">
       <Header />
-   <BackToHome />
+
+      <BackToHome
+        className="absolute top-30 left-4 sm:left-25  z-50"
+        title="Volver"
+        route={`/producto/${producto.id}`}
+      />
+
       <main className="flex-grow w-[92%] max-w-7xl mx-auto mt-6 p-6 flex flex-col lg:flex-row gap-10">
-        {/* Columna izquierda: Formulario */}
         <section className="flex-1">
           <h2 className="text-2xl font-bold text-black mb-6">Proceso de Pago</h2>
-
           <div className="border-2 border-[#48BD28] rounded-xl p-6 space-y-5 backdrop-blur-sm text-sm">
             <div>
               <label className="block mb-1">Nombre impreso en la tarjeta</label>
@@ -144,14 +151,8 @@ export default function Pago() {
               <CardNumberElement
                 className="w-full border border-[#48BD28] rounded-lg p-3"
                 onChange={(e) => {
-                  setCardErrors((prev) => ({
-                    ...prev,
-                    number: e.error?.message || null,
-                  }));
-                  setCardStatus((prev) => ({
-                    ...prev,
-                    number: e.complete,
-                  }));
+                  setCardErrors((prev) => ({ ...prev, number: e.error?.message || null }));
+                  setCardStatus((prev) => ({ ...prev, number: e.complete }));
                 }}
               />
             </div>
@@ -162,14 +163,8 @@ export default function Pago() {
                 <CardExpiryElement
                   className="w-full border border-[#48BD28] rounded-lg p-3"
                   onChange={(e) => {
-                    setCardErrors((prev) => ({
-                      ...prev,
-                      expiry: e.error?.message || null,
-                    }));
-                    setCardStatus((prev) => ({
-                      ...prev,
-                      expiry: e.complete,
-                    }));
+                    setCardErrors((prev) => ({ ...prev, expiry: e.error?.message || null }));
+                    setCardStatus((prev) => ({ ...prev, expiry: e.complete }));
                   }}
                 />
               </div>
@@ -178,14 +173,8 @@ export default function Pago() {
                 <CardCvcElement
                   className="w-full border border-[#48BD28] rounded-lg p-3"
                   onChange={(e) => {
-                    setCardErrors((prev) => ({
-                      ...prev,
-                      cvc: e.error?.message || null,
-                    }));
-                    setCardStatus((prev) => ({
-                      ...prev,
-                      cvc: e.complete,
-                    }));
+                    setCardErrors((prev) => ({ ...prev, cvc: e.error?.message || null }));
+                    setCardStatus((prev) => ({ ...prev, cvc: e.complete }));
                   }}
                 />
               </div>
@@ -199,8 +188,7 @@ export default function Pago() {
           </div>
         </section>
 
-        {/* Columna derecha: Resumen */}
-        <section className="flex-1 border border-green-700 rounded-xl p-4 ">
+        <section className="flex-1 border border-green-700 rounded-xl p-4">
           <div className="flex items-center gap-4 mb-4">
             <img
               src={producto.imagen || "/placeholder.jpg"}
@@ -223,20 +211,19 @@ export default function Pago() {
             <span className="text-sm">Cantidad:</span>
 
             <button
-              onClick={() =>
-                setCantidad((c) => Math.max(producto.cantidad_minima_compra, c - 1))
-              }
+              onClick={() => setCantidad((c) => Math.max(producto.cantidad_minima_compra, c - 1))}
               disabled={cantidad <= producto.cantidad_minima_compra}
-              className={`w-8 h-8 rounded text-white ${cantidad <= producto.cantidad_minima_compra
-                ? "bg-green-300 cursor-not-allowed"
-                : "bg-[#48BD28] hover:bg-green-600"
+              className={`w-6 h-6 rounded-full text-white ${
+                cantidad <= producto.cantidad_minima_compra
+                  ? "bg-green-300 cursor-not-allowed"
+                  : "bg-[#48BD28] hover:bg-green-600"
               }`}
             >
               –
             </button>
 
             <input
-              type="number"
+              type="value"
               value={cantidad}
               onChange={(e) => {
                 let val = parseInt(e.target.value, 10);
@@ -246,17 +233,16 @@ export default function Pago() {
               }}
               min={producto.cantidad_minima_compra}
               max={producto.cantidad}
-              className="w-16 text-center border border-[#48BD28] rounded-md px-2 py-1"
+              className="w-8 h-6 text-center border-none rounded text-sm px-1 [-moz-appearance:textfield] focus:outline-none"
             />
 
             <button
-              onClick={() =>
-                setCantidad((c) => Math.min(producto.cantidad, c + 1))
-              }
+              onClick={() => setCantidad((c) => Math.min(producto.cantidad, c + 1))}
               disabled={cantidad >= producto.cantidad}
-              className={`w-8 h-8 rounded text-white ${cantidad >= producto.cantidad
-                ? "bg-green-300 cursor-not-allowed"
-                : "bg-[#48BD28] hover:bg-green-600"
+              className={`w-6 h-6 rounded-full text-white ${
+                cantidad >= producto.cantidad
+                  ? "bg-green-300 cursor-not-allowed"
+                  : "bg-[#48BD28] hover:bg-green-600"
               }`}
             >
               +
@@ -278,17 +264,16 @@ export default function Pago() {
             <p>
               Cantidad: <span className="font-medium">{cantidad} unidades</span>
             </p>
-            <p className="text-green-700 font-bold">
-              Total: ${total.toLocaleString()}
-            </p>
+            <p className="text-green-700 font-bold">Total: ${total.toLocaleString()}</p>
           </div>
 
           <button
             onClick={handlePagar}
             disabled={loading || !isFormValid()}
-            className={`w-full py-3 rounded-lg text-white font-semibold transition ${loading || !isFormValid()
-              ? "bg-green-300 cursor-not-allowed"
-              : "bg-[#48BD28] hover:bg-green-600"
+            className={`w-full py-3 rounded-lg text-white font-semibold transition ${
+              loading || !isFormValid()
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-[#48BD28] hover:bg-green-600"
             }`}
           >
             {loading ? "Procesando..." : "Pagar"}
@@ -297,6 +282,13 @@ export default function Pago() {
       </main>
 
       <Footer />
+
+      {/* MODAL */}
+      <MessageDialog
+        isOpen={!!modalMessage}
+        onClose={() => setModalMessage("")}
+        message={modalMessage}
+      />
     </div>
   );
 }

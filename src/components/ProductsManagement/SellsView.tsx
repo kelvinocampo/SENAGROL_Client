@@ -103,7 +103,7 @@ export const SellsView = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-6xl"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-[#205116]">
+          <h2 className="text-3xl sm:text-4xl font-medium mb-6 text-[#0D141C]">
             Mis Ventas
           </h2>
 
@@ -113,13 +113,13 @@ export const SellsView = () => {
             transition={{ delay: 0.2 }}
             className="mb-6 relative"
           >
-            <Search className="absolute left-3 top-3 text-gray-500" size={20} />
+            <Search className="absolute  left-3 top-3 text-gray-500" size={20} />
             <input
               type="text"
               placeholder="Buscar por comprador, producto, fecha compra, fecha entrega o estado..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-10 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28] text-base bg-white"
+              className="w-full pl-10 p-3 rounded-full border border-gray-300  shadow-sm focus:outline-none focus:ring-2 focus:ring-[#48BD28] text-base bg-white"
             />
           </motion.div>
 

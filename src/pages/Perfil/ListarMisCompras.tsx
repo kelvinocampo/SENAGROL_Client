@@ -7,7 +7,7 @@ const MyPurchasesPage = () => {
      <div className="fixed inset-0 pointer-events-none z-0">
         <FallingLeaves quantity={20} />
       </div>
-    <div className="min-h-screen ">
+    <div className="min-h-screen relative ">
       <ListarMiscompras />
     </div>
     </>

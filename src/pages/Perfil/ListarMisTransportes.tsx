@@ -25,7 +25,7 @@ const MisTransportes = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#E1FFD9] to-[#F0F0F0] flex flex-col">
       <Header />
-      <main className="flex-grow w-full px-4 py-6 md:py-10">
+<main className="flex-grow w-[92%] max-w-7xl mx-auto py-6 md:py-10">
         <div className="flex flex-col md:flex-row gap-6 max-w-screen-xl mx-auto w-full">
           <aside className="w-full flex justify-center md:w-1/4">
             <UserProfileCard />

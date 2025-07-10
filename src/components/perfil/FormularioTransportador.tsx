@@ -58,15 +58,12 @@ export default function FormularioTransportador() {
       case "soat":
       case "vehicleCard":
         if (!value.trim()) return "Este campo es obligatorio.";
-        if (value.length < 5 || value.length > 30)
-          return "Debe tener entre 5 y 30 caracteres.";
-        if (!/^[a-zA-Z0-9-]+$/.test(value))
-          return "Solo letras, números y guiones.";
+        if (value.length < 5 || value.length > 30) return "Debe tener entre 5 y 30 caracteres.";
+        if (!/^[a-zA-Z0-9-]+$/.test(value)) return "Solo letras, números y guiones.";
         return "";
       case "vehicleType":
         if (!value.trim()) return "Este campo es obligatorio.";
-        if (value.length < 3 || value.length > 50)
-          return "Debe tener entre 3 y 50 caracteres.";
+        if (value.length < 3 || value.length > 50) return "Debe tener entre 3 y 50 caracteres.";
         if (!/^[a-zA-Z\s]+$/.test(value)) return "Solo letras y espacios.";
         return "";
       case "vehicleWeight":
@@ -108,9 +105,7 @@ export default function FormularioTransportador() {
     setMensaje("");
 
     if (yaEnviado) {
-      setMensaje(
-        "⚠️ Ya has enviado tu solicitud de transportador. No puedes enviarla nuevamente."
-      );
+      setMensaje("⚠️ Ya has enviado tu solicitud de transportador. No puedes enviarla nuevamente.");
       return;
     }
 
@@ -165,7 +160,7 @@ export default function FormularioTransportador() {
   return (
     <div className="min-h-screen font-[Fredoka] text-[#111]">
       <Header />
-      <main className="flex flex-col lg:flex-row pt-10 py-10 px-10 gap-10 bg-gradient-to-br from-[#f4fcf1] to-[#caf5bd]">
+      <main className="w-[92%] max-w-7xl mx-auto flex flex-col  lg:flex-row pt-10 py-10 gap-10 ">
         <UserProfileCard />
 
         <motion.section
@@ -206,14 +201,12 @@ export default function FormularioTransportador() {
                 Imágenes del vehículo (2-5 imágenes)
               </label>
 
-              {/* Botón personalizado para seleccionar archivos */}
               <div
-                className="p-10  text-center border-none  w-full mt-1 rounded-xl bg-white border shadow-md
-    focus:outline-none focus:border-[#48BD28]"
+                className="p-10 text-center w-full mt-1 rounded-xl bg-white border-none shadow-md focus:outline-none focus:border-[#48BD28]"
               >
                 <label
                   htmlFor="imagenes"
-                  className="inline-block px-15 bg-[#48BD28] hover:bg-[#379E1B] text-white font-medium py-2  rounded-xl cursor-pointer transition"
+                  className="inline-block px-15 bg-[#48BD28] hover:bg-[#379E1B] text-white font-medium py-2 rounded-xl cursor-pointer transition"
                 >
                   Elegir archivos
                 </label>
@@ -227,14 +220,10 @@ export default function FormularioTransportador() {
                 />
                 <p className="text-sm mt-2 text-gray-700">
                   {imagenes.length > 0
-                    ? `${imagenes.length} archivo${
-                        imagenes.length > 1 ? "s" : ""
-                      } seleccionado${imagenes.length > 1 ? "s" : ""}`
+                    ? `${imagenes.length} archivo${imagenes.length > 1 ? "s" : ""} seleccionado${imagenes.length > 1 ? "s" : ""}`
                     : "Sin archivos seleccionados"}
                 </p>
               </div>
-
-              {/* Mostrar texto de cantidad de archivos seleccionados */}
             </motion.div>
 
             <div className="pt-6 text-right flex gap-4 justify-end">
