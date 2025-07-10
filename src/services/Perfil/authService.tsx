@@ -8,7 +8,7 @@ export const getUserRole = async () => {
     }
   });
 
-  if (!res.ok) throw new Error('Error al obtener el rol');
+  // if (!res.ok) throw new Error('Error al obtener el rol');
 
   const data = await res.json();
 

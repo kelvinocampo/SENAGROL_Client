@@ -47,7 +47,6 @@ const Header = () => {
           setUser({ isLoggedIn: false, roles: [] });
         }
       } catch (err) {
-        console.error("No se pudo obtener el rol:", err);
         setUser({ isLoggedIn: false, roles: [] });
       }
     })();
