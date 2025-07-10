@@ -16,7 +16,6 @@ export class ProductManagementService {
       }
 
       const result = await response.json();
-      console.log('Respuesta de la API:', result);
 
       if (Array.isArray(result.buys)) {
         return result.buys;

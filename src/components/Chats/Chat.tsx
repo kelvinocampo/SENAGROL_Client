@@ -85,7 +85,6 @@ export const Chat = () => {
   const [editing, setEditing] = useState<{ id: number; content: string } | null>(
     null,
   );
-  console.log(audioChunks);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [isBlocked, setIsBlocked] = useState(false);

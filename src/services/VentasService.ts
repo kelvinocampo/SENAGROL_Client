@@ -32,8 +32,6 @@ export class VentasService {
         },
       });
 
-      console.log("Ventas obtenidas:", response.data.my_sells);
-
       return response.data.my_sells as Venta[];
     } catch (error: any) {
       console.error("Error en obtenerVentasPorUsuario:", error.response || error.message || error);

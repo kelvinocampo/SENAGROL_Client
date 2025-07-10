@@ -55,8 +55,6 @@ const data = await res.json();
     },
   });
 
-  console.log(res);
-
   if (!res.ok) throw new Error('Error al desactivar usuario');
 }
 

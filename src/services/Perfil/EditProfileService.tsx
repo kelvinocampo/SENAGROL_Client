@@ -44,12 +44,6 @@ export const updateUserProfile = async (formData: any, vehicleFiles: File[] = []
     form.append("imagen", file);
   }
 }
-
-    // Log para depurar el contenido del FormData
-    for (const pair of form.entries()) {
-      console.log(`${pair[0]}: ${pair[1]}`);
-    }
-
     const response = await fetch("https://senagrol.up.railway.app/usuario/edit", {
       method: "POST",
       headers: {

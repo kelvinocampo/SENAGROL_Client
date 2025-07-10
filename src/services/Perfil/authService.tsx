@@ -11,7 +11,6 @@ export const getUserRole = async () => {
   if (!res.ok) throw new Error('Error al obtener el rol');
 
   const data = await res.json();
-  console.log("Respuesta del backend:", data);
 
   return data.roles?.toLowerCase(); // ✅ Cambiado de `role` a `roles`
 };

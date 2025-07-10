@@ -12,7 +12,6 @@ export class AuthService {
             })
 
             const data = await result.json();
-            console.log(data, result);
             
             if (result.ok) {
                 return data.id_usuario;

@@ -29,7 +29,6 @@ export class InicioService {
   });
 
   const data = await response.json();
-  console.log(response, data);
 
   if (!response.ok) {
     // Creamos un error con un campo adicional para poder acceder a los datos
