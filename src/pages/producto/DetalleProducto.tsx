@@ -148,7 +148,7 @@ export default function DetalleProducto() {
         </div>
 
         <motion.section
-          className="grid grid-cols-1 ml-40 lg:grid-cols-[500px_1fr] gap-10 pt-20 pb-30"
+          className="grid grid-cols-1 lg:grid-cols-[500px_1fr] gap-10 pt-20 pb-30 ml-0 lg:ml-40 px-4 sm:px-6"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
