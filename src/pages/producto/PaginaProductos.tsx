@@ -245,8 +245,7 @@ export default function PaginaProductos() {
           }`}
         aria-label="Comprar"
       >
-      
-        <FaCartShopping size={20}/>
+         <FaCartShopping size={20}/>
        <p className="ml-1"> Comprar </p>
       </button>
 
