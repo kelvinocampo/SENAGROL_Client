@@ -1,5 +1,5 @@
 export class MessageService {
-  static readonly API_URL = 'https://senagrol.up.railway.app';
+  static readonly API_URL = 'https://senagrol-server-1.onrender.com';
 
   /* ───────── Helpers ─────────────────────────── */
   private static async handleResponse<T>(response: Response): Promise<T> {

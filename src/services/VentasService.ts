@@ -15,7 +15,7 @@ export interface Venta {
 }
 
 export class VentasService {
-  private static API_URL = " https://senagrol.up.railway.app";
+  private static API_URL = " https://senagrol-server-1.onrender.com";
 
   static async obtenerVentasPorUsuario(): Promise<Venta[]> {
     try {

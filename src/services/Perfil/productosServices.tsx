@@ -1,6 +1,6 @@
 // src/services/productosServices.ts
 
-const API_URL = "https://senagrol.up.railway.app"; // Puerto correcto
+const API_URL = "https://senagrol-server-1.onrender.com"; // Puerto correcto
 
 export class ProductosService {
   // Obtener todos los productos

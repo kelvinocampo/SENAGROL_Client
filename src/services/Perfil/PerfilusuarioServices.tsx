@@ -1,6 +1,6 @@
 export const obtenerPerfilUsuario = async (token: string) => {
     try {
-      const res = await fetch('https://senagrol.up.railway.app/usuario/', {
+      const res = await fetch('https://senagrol-server-1.onrender.com/usuario/', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -2,7 +2,7 @@
 export type UserRole = 'administrador' | 'comprador' | 'vendedor' | 'transportador';
 
 export class UserManagementService {
-  private static API_URL = 'https://senagrol.up.railway.app';
+  private static API_URL = 'https://senagrol-server-1.onrender.com';
 
   static async getUsers() {
     const res = await fetch(`${this.API_URL}/admin/usuarios`, {

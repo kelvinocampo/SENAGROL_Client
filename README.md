@@ -59,4 +59,5 @@ Aunque este software está dirigido especialmente a agricultores, tendrá una in
     Configuración para despliegue en Vercel.  
 
 ## Anexos
+- [Demo](https://senagrol.vercel.app/)
 - [Repositorio BackEnd](https://github.com/kelvinocampo/SENAGROL_Server)

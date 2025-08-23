@@ -1,4 +1,4 @@
-const API_BASE = "https://senagrol.up.railway.app";
+const API_BASE = "https://senagrol-server-1.onrender.com";
 
 const TransportService = {
   async getTransports(id_user: number) {

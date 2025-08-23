@@ -44,7 +44,7 @@ export const updateUserProfile = async (formData: any, vehicleFiles: File[] = []
     form.append("imagen", file);
   }
 }
-    const response = await fetch("https://senagrol.up.railway.app/usuario/edit", {
+    const response = await fetch("https://senagrol-server-1.onrender.com/usuario/edit", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

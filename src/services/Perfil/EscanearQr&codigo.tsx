@@ -1,4 +1,4 @@
-const API_URL = "https://senagrol.up.railway.app";
+const API_URL = "https://senagrol-server-1.onrender.com";
 
 export async function receiveBuyCode(
   codigo: string,

@@ -2,7 +2,7 @@ export const getUserRole = async () => {
   const token = localStorage.getItem('token');
   if (!token) throw new Error('No hay token');
 
-  const res = await fetch('https://senagrol.up.railway.app/usuario/role', {
+  const res = await fetch('https://senagrol-server-1.onrender.com/usuario/role', {
     headers: {
       Authorization: `Bearer ${token}`
     }

@@ -1,5 +1,5 @@
 export class ChatService {
-    static API_URL = 'https://senagrol.up.railway.app';
+    static API_URL = 'https://senagrol-server-1.onrender.com';
     static async getChats() {
         try {
             const response = await fetch(`${this.API_URL}/chat/`, {

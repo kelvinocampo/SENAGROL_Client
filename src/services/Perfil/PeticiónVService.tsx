@@ -1,6 +1,6 @@
 
 export const requestSeller = async (token: string) => {
-    const response = await fetch("https://senagrol.up.railway.app/vendedor/requestSeller", {
+    const response = await fetch("https://senagrol-server-1.onrender.com/vendedor/requestSeller", {
    method: "POST",
     headers: {
       "Content-Type": "application/json",

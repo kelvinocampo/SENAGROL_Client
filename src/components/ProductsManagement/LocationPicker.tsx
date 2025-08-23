@@ -3,7 +3,7 @@ import "leaflet/dist/leaflet.css";
 import { useState, useEffect } from "react";
 import L from "leaflet";
 
-const API_URL = "https://senagrol.up.railway.app";
+const API_URL = "https://senagrol-server-1.onrender.com";
 
 type Location = {
   lat: number;

@@ -1,6 +1,6 @@
 // ProductManagementService.ts
 export class ProductManagementService {
-  private static API_URL = 'https://senagrol.up.railway.app';
+  private static API_URL = 'https://senagrol-server-1.onrender.com';
 
   static async getProducts() {
     const res = await fetch(`${this.API_URL}/admin/products`, {

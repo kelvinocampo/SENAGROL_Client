@@ -15,7 +15,7 @@ export const obtenerUbicacionCompra = async (
   id_compra: number,
   token: string
 ): Promise<RespuestaUbicacion> => {
-  const url = new URL(`https://senagrol.up.railway.app/compra/getLocation/${id_compra}`);
+  const url = new URL(`https://senagrol-server-1.onrender.com/compra/getLocation/${id_compra}`);
 
   const response = await fetch(url.toString(), {
     method: "GET",
