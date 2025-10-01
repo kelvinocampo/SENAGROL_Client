@@ -2,12 +2,15 @@ SENAGROL es una plataforma web diseñada para que los agricultores tengan una co
 
 Aunque este software está dirigido especialmente a agricultores, tendrá una inclusión a todo tipo de productos con el fin de facilitar la venta de todo tipo de productos, enfocado principalmente en los productos agrícolas.
 
+![Estado](https://img.shields.io/badge/estado-finalizado-brightgreen?style=for-the-badge)
+
 ## Integrantes del Proyecto
 1. Kevin Esneider Ocampo Osorio (Scrum Master)
 2. Samuel Torres Ospina (Product Owner)
 3. Luisa Fernanda Vargas Barrera
 4. Valerie Calle Loaiza
 5. Mariana Cardenas Rendon
+6. Lenis Rocio Alfonso Castillo (Diseñadora)
 
 # Estructura del Proyecto Frontend (Vite + React + TypeScript)
 
