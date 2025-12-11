@@ -1,43 +1,40 @@
+import api from '../../config/api';
+
 export class SalesService {
-  private static API_URL = 'https://senagrol-server-1.onrender.com';
 
   static async getAllAdmin() {
-    const res = await fetch(`${this.API_URL}/admin/sales`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+    try {
+      const res = await api.get('/admin/sales');
+      const result = res.data;
 
-    if (!res.ok) throw new Error('Error al obtener compras del administrador');
+      const raw: any[] = Array.isArray(result.sales) ? result.sales : [];
 
-    const result = await res.json();
+      const sales = raw.map(s => ({
+        id_compra: s.id_compra,
+        estado: s.estado,
+        precio_transporte: s.precio_transporte,
+        precio_producto: s.precio_producto,
+        cantidad: s.cantidad,
+        fecha_compra: s.fecha_compra,
+        fecha_entrega: s.fecha_entrega,
 
-    const raw: any[] = Array.isArray(result.sales) ? result.sales : [];
+        producto_id: s.producto_id,
+        producto_nombre: s.producto_nombre,
 
-    const sales = raw.map(s => ({
-      id_compra: s.id_compra,
-      estado: s.estado,
-      precio_transporte: s.precio_transporte,
-      precio_producto: s.precio_producto,
-      cantidad: s.cantidad,
-      fecha_compra: s.fecha_compra,
-      fecha_entrega: s.fecha_entrega,
+        vendedor_id: s.vendedor_id,
+        vendedor_nombre: s.vendedor_nombre,
 
-      producto_id: s.producto_id,
-      producto_nombre: s.producto_nombre,
+        comprador_id: s.comprador_id,
+        comprador_nombre: s.comprador_nombre,
 
-      vendedor_id: s.vendedor_id,
-      vendedor_nombre: s.vendedor_nombre,
+        transportador_id: s.transportador_id,
+        transportador_nombre: s.transportador_nombre
+      }));
 
-      comprador_id: s.comprador_id,
-      comprador_nombre: s.comprador_nombre,
-
-      transportador_id: s.transportador_id,
-      transportador_nombre: s.transportador_nombre
-    }));
-
-    return { sales };
+      return { sales };
+    } catch (error) {
+      console.error("Error al obtener compras del administrador:", error);
+      throw new Error('Error al obtener compras del administrador');
+    }
   }
 }

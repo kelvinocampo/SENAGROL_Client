@@ -1,23 +1,12 @@
+import api from "../../config/api";
+
 export class ProductManagementService {
-  private static API_URL = "https://senagrol-server-1.onrender.com";
 
   static async getBySeller() {
     try {
-      const response = await fetch(`${this.API_URL}/producto/my_products`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response) {
-        throw new Error(`Error response: ${response}`);
-      }
-      const result: any = await response.json()
-
+      const response = await api.get('/producto/my_products');
+      const result = response.data;
       const products: any[] = result.products;
-
 
       if (!Array.isArray(products)) {
         throw new Error('La respuesta no es un array de productos');
@@ -32,21 +21,9 @@ export class ProductManagementService {
 
   static async getSells() {
     try {
-      const response = await fetch(`${this.API_URL}/vendedor/my_sells`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response) {
-        throw new Error(`Error response: ${response}`);
-      }
-      const result: any = await response.json()
-
+      const response = await api.get('/vendedor/my_sells');
+      const result = response.data;
       const sells: any[] = result.my_sells;
-
 
       if (!Array.isArray(sells)) {
         throw new Error('La respuesta no es un array de ventas');
@@ -61,17 +38,7 @@ export class ProductManagementService {
 
   static async deleteProduct(id_delete_product: number) {
     try {
-      const response = await fetch(`${this.API_URL}/producto/delete/${id_delete_product}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response) {
-        throw new Error(`Error response: ${response}`);
-      }
+      await api.delete(`/producto/delete/${id_delete_product}`);
     } catch (error) {
       console.error('Error fetching seller products:', error);
       throw error;
@@ -85,33 +52,21 @@ export class ProductManagementService {
       // Append all product data to formData
       formData.append('Nombre', productData.nombre);
       formData.append('Precio', productData.precio_unidad);
-      formData.append('Description', productData.descripcion || ''); // Add description if needed
-      formData.append('latitud', productData.latitud || ''); // From LocationPicker
-      formData.append('longitud', productData.longitud || ''); // From LocationPicker
+      formData.append('Description', productData.descripcion || '');
+      formData.append('latitud', productData.latitud || '');
+      formData.append('longitud', productData.longitud || '');
       formData.append('quantity', productData.cantidad);
       formData.append('MinimumQuantity', productData.cantidad_minima_compra);
       formData.append('Discount', productData.descuento || '0');
       if (imageFile) {
-        formData.append('imagen', imageFile); // Append the image file
+        formData.append('imagen', imageFile);
       }
 
-      const response = await fetch(`${this.API_URL}/producto/create`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error creating product');
-      }
-
-      return await response.json();
-    } catch (error) {
+      const response = await api.post('/producto/create', formData);
+      return response.data;
+    } catch (error: any) {
       console.error('Error creating product:', error);
-      throw error;
+      throw new Error(error.response?.data?.error || 'Error creating product');
     }
   }
 
@@ -122,7 +77,6 @@ export class ProductManagementService {
   ) {
     const formData = new FormData();
 
-    // Agregar campos como strings
     formData.append('nombre', productData.nombre);
     formData.append('descripcion', productData.descripcion);
     formData.append('cantidad', String(productData.cantidad));
@@ -133,30 +87,20 @@ export class ProductManagementService {
     formData.append('longitud', productData.longitud ? String(productData.longitud) : '');
     formData.append('id_user', String(productData.id_user));
 
-    // Manejo especial para la imagen
     if (imageFile) {
-      formData.append('imagen', imageFile, imageFile.name); // Clave importante: 'imagen'
+      formData.append('imagen', imageFile, imageFile.name);
     } else if (productData.imagen) {
-      // Si no hay archivo nuevo pero hay URL existente
       formData.append('imagen_url', productData.imagen);
     }
 
-
-    const response = await fetch(`${this.API_URL}/producto/edit/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: formData
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Error al actualizar');
+    try {
+      const response = await api.put(`/producto/edit/${id}`, formData);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Error al actualizar');
     }
-
-    return await response.json();
   }
+
   static async buyProduct(
     id_producto: number,
     compraData: {
@@ -167,39 +111,17 @@ export class ProductManagementService {
     }
   ) {
     try {
-      const response = await fetch(`${this.API_URL}/producto/buy/${id_producto}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          id_user: compraData.id_user,
-          cantidad: compraData.cantidad,
-          latitud: compraData.latitud,
-          longitud: compraData.longitud
-        })
+      const response = await api.post(`/producto/buy/${id_producto}`, {
+        id_user: compraData.id_user,
+        cantidad: compraData.cantidad,
+        latitud: compraData.latitud,
+        longitud: compraData.longitud
       });
 
-      if (!response.ok) {
-        const contentType = response.headers.get("Content-Type") || "";
-        if (contentType.includes("application/json")) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Error al realizar la compra');
-        } else {
-          const text = await response.text();
-          throw new Error(text || 'Error desconocido al realizar la compra');
-        }
-      }
-
-      return await response.json();
-    } catch (error) {
+      return response.data;
+    } catch (error: any) {
       console.error('Error al realizar la compra:', error);
-      throw error;
+      throw new Error(error.response?.data?.error || error.message || 'Error al realizar la compra');
     }
   }
-
-
-
-
 }

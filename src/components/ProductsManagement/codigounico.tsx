@@ -22,8 +22,8 @@ export const ModalCodigo: React.FC<ModalCodigoProps> = ({
     if (!isOpen || !id_compra) return;
     (async () => {
       try {
-        const token = localStorage.getItem("token");
-        const code = await getCodigoCompra(id_compra, token);
+
+        const code = await getCodigoCompra(id_compra);
         setCodigo(code);
         setError(null);
       } catch (err: any) {

@@ -1,29 +1,21 @@
 // ProductManagementService.ts
+import api from '../../config/api';
+
 export class ProductManagementService {
-  private static API_URL = 'https://senagrol-server-1.onrender.com';
 
   static async getProducts() {
-    const res = await fetch(`${this.API_URL}/admin/products`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+    const res = await api.get('/admin/products');
+    const result = res.data;
 
-    if (!res.ok) throw new Error('Error al obtener productos');
-    const result = await res.json();
-    
-     
     const raw: any[] = Array.isArray(result.products) ? result.products : [];
 
     const products = raw.map(p => ({
       id: p.id_producto,
       nombre: p.nombre,
-      descripcion: p.descripcion, 
+      descripcion: p.descripcion,
       latitud: p.latitud,
       longitud: p.longitud,
-      cantidad: p.cantidad, 
+      cantidad: p.cantidad,
       cantidad_minima_compra: p.cantidad_minima_compra,
       imagen: p.imagen,
       precio_unidad: p.precio_unidad,
@@ -33,46 +25,25 @@ export class ProductManagementService {
       fecha_publicacion: p.fecha_publicacion,
       eliminado: p.eliminado
     }));
-    
-    
+
     return { products };
   }
 
   static async unpublishProduct(id: number) {
-    const res = await fetch(`${this.API_URL}/admin/products/unpublish/${id}`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    if (!res.ok) throw new Error('Error al despublicar producto');
-  }
-   static async publish(id: number) {
-    const res = await fetch(`${this.API_URL}/admin/products/publish/${id}`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    if (!res.ok) throw new Error('Error publicar producto');
+    await api.patch(`/admin/products/unpublish/${id}`);
   }
 
-static async deleteProduct(id: number): Promise<{ success: boolean; message: string }> {
-  const res = await fetch(`${this.API_URL}/admin/products/delete/${id}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`
+  static async publish(id: number) {
+    await api.patch(`/admin/products/publish/${id}`);
+  }
+
+  static async deleteProduct(id: number): Promise<{ success: boolean; message: string }> {
+    try {
+      const res = await api.delete(`/admin/products/delete/${id}`);
+      return { success: true, message: res.data.message || 'Producto eliminado correctamente.' };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Error al eliminar producto' };
     }
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { success: false, message: data.message || 'Error al eliminar producto' };
   }
-
-  return { success: true, message: data.message || 'Producto eliminado correctamente.' };
-}
-
 
 }

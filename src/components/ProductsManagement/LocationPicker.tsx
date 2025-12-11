@@ -3,7 +3,8 @@ import "leaflet/dist/leaflet.css";
 import { useState, useEffect } from "react";
 import L from "leaflet";
 
-const API_URL = "https://senagrol-server-1.onrender.com";
+import api from "@/config/api";
+
 
 type Location = {
   lat: number;
@@ -27,9 +28,11 @@ L.Icon.Default.mergeOptions({
 // ✅ Lógica para convertir lat/lon a dirección
 async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
   try {
-    const response = await fetch(`${API_URL}/compra/getAddress?lat=${lat}&lon=${lon}`);
-    const text = await response.text();
-    const data = JSON.parse(text);
+    const response = await api.get(`/compra/getAddress`, {
+      params: { lat, lon }
+    });
+    // Axios response data is already JSON
+    const data = response.data;
     return data.display_name || null;
   } catch (error) {
     console.error("Error en reverseGeocode:", error);

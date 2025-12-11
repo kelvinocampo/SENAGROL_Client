@@ -85,8 +85,8 @@ export const SellsView = () => {
 
   const obtenerCodigoQR = async (id: string) => {
     try {
-      const token = localStorage.getItem("token");
-      const codigo = await getCodigoCompra(id, token);
+
+      const codigo = await getCodigoCompra(id);
       setCodigoQr(codigo);
       setIsModalQrOpen(true);
     } catch (error) {

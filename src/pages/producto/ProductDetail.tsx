@@ -10,14 +10,15 @@ interface Producto {
   imagen?: string;
 }
 
+import api from "@/config/api";
+
 function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const [producto, setProducto] = useState<Producto | null>(null);
 
   useEffect(() => {
-    fetch(`https://senagrol-server-1.onrender.com/productos/${id}`)
-      .then((res) => res.json())
-      .then((data: Producto) => setProducto(data))
+    api.get(`/productos/${id}`)
+      .then((res) => setProducto(res.data))
       .catch((err) => console.error("Error al cargar producto", err));
   }, [id]);
 

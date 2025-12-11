@@ -1,24 +1,15 @@
-import axios from "axios";
+import api from "../config/api";
 
-export const getCodigoCompra = async (id_compra: string, token: string | null) => {
+export const getCodigoCompra = async (id_compra: string) => {
   if (!id_compra) {
     throw new Error("ID de compra no válido.");
   }
 
-  if (!token) {
-    throw new Error("Token no proporcionado.");
-  }
+
 
   try {
-    const response = await axios.get(
-      `https://senagrol-server-1.onrender.com/compra/code/${id_compra}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    
+    const response = await api.get(`/compra/code/${id_compra}`);
+
     // Verifica si la respuesta contiene un código
     if (response.data && response.data.code) {
       return response.data.code;

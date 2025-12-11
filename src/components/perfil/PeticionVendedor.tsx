@@ -15,7 +15,7 @@ export default function PeticionVendedor() {
         return;
       }
 
-      const respuesta = await requestSeller(token);
+      const respuesta = await requestSeller();
       setMensaje(respuesta.message || "Solicitud enviada correctamente.");
       setError("");
     } catch (error: unknown) {
@@ -34,7 +34,7 @@ export default function PeticionVendedor() {
   return (
     <div className="w-full max-w-md mx-auto px-4">
       <button
-        onClick={() => setIsDialogOpen(true)}transition-colors
+        onClick={() => setIsDialogOpen(true)} transition-colors
         className="w-full sm:w-60 bg-[#17A2B8] text-white py-2 rounded-xl font-semibold hover:bg-blue-500] "
       >
         Petición Vendedor

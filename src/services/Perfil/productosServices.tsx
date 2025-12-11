@@ -1,20 +1,12 @@
 // src/services/productosServices.ts
-
-const API_URL = "https://senagrol-server-1.onrender.com"; // Puerto correcto
+import api from "../../config/api";
 
 export class ProductosService {
   // Obtener todos los productos
   static async getProducts() {
     try {
-      const res = await fetch(`${API_URL}/producto/`, {
-        method: 'GET',
-      });
-
-      if (!res.ok) {
-        throw new Error('Error al obtener productos');
-      }
-
-      const result = await res.json();
+      const res = await api.get('/producto/');
+      const result = res.data;
       const raw: any[] = Array.isArray(result.products) ? result.products : [];
 
       const products = raw.map(p => ({
@@ -44,15 +36,8 @@ export class ProductosService {
   // Obtener productos con descuento
   static async getProductsWithDiscount() {
     try {
-      const res = await fetch(`${API_URL}/producto/discount`, {
-        method: 'GET',
-      });
-
-      if (!res.ok) {
-        throw new Error('Error al obtener productos con descuento');
-      }
-
-      const result = await res.json();
+      const res = await api.get('/producto/discount');
+      const result = res.data;
       const raw: any[] = Array.isArray(result.products) ? result.products : [];
 
       const products = raw.map(p => ({

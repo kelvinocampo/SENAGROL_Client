@@ -1,19 +1,12 @@
-// services/Admin/UserManagementService.ts
+import api from '../../config/api';
+
 export type UserRole = 'administrador' | 'comprador' | 'vendedor' | 'transportador';
 
 export class UserManagementService {
-  private static API_URL = 'https://senagrol-server-1.onrender.com';
 
   static async getUsers() {
-    const res = await fetch(`${this.API_URL}/admin/usuarios`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    if (!res.ok) throw new Error('Error al obtener usuarios');
-    const result = await res.json();
+    const res = await api.get('/admin/usuarios');
+    const result = res.data;
 
     const raw: any[] = Array.isArray(result.user) ? result.user : [];
 
@@ -27,67 +20,40 @@ export class UserManagementService {
     }));
   }
 
-static async deleteUser(id: number): Promise<{ success: boolean; message: string }> {
-  const res = await fetch(`${this.API_URL}/admin/usuarios/${id}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`
+  static async deleteUser(id: number): Promise<{ success: boolean; message: string }> {
+    try {
+      const res = await api.delete(`/admin/usuarios/${id}`);
+      return { success: true, message: res.data.message || 'Usuario eliminado correctamente.' };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Error al eliminar usuario' };
     }
-  });
-
-const data = await res.json();
-
-  if (!res.ok) {
-    return { success: false, message: data.message || 'Error al eliminar usuario' };
   }
 
-  return { success: true, message: data.message || 'Usuario eliminado correctamente.' };
-}
-
-
-
   static async disableUser(id: number, role: UserRole) {
-  const res = await fetch(`${this.API_URL}/admin/usuarios/${role}/${id}`, {
-    method: 'PATCH',
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem('token')}`,
-      "Content-Type": "application/json"
-    },
-  });
-
-  if (!res.ok) throw new Error('Error al desactivar usuario');
-}
-
+    await api.patch(`/admin/usuarios/${role}/${id}`);
+  }
 
   static async activateUserRole(userId: number, role: UserRole) {
     let route = '';
 
     switch (role) {
       case 'vendedor':
-        route = `${this.API_URL}/admin/approveRequestSeller`;
+        route = '/admin/approveRequestSeller';
         break;
       case 'transportador':
-        route = `${this.API_URL}/admin/approveRequestTransporter`;
+        route = '/admin/approveRequestTransporter';
         break;
       case 'administrador':
-        route = `${this.API_URL}/admin/usuarios/${userId}`;
+        route = `/admin/usuarios/${userId}`;
         break;
       default:
         throw new Error('Rol no soportado para activación');
     }
 
-    const res = await fetch(route, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ userId })
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('Error al activar el rol:', errorText);
+    try {
+      await api.post(route, { userId });
+    } catch (error: any) {
+      console.error('Error al activar el rol:', error.response?.data || error.message);
       throw new Error('Error al activar el rol');
     }
   }

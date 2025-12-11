@@ -14,6 +14,7 @@ import {
 } from "@/services/Perfil/UbicacionTRansportador";
 import { PiMapPinSimpleFill } from "react-icons/pi";
 import { renderToStaticMarkup } from "react-dom/server";
+import api from "@/config/api";
 
 // Configurar los íconos por defecto de Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -59,7 +60,7 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("❌ No hay token de autenticación");
 
-        const data = await obtenerUbicacionCompra(id_compra, token);
+        const data = await obtenerUbicacionCompra(id_compra);
 
         if (
           data.success &&
@@ -107,16 +108,16 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
 
     const fetchDirecciones = async () => {
       try {
-        const respVendedor = await fetch(
-          `https://senagrol-server-1.onrender.com/compra/getAddress?lat=${ubicacion.latitud}&lon=${ubicacion.longitud}`
-        );
-        const dataVendedor = await respVendedor.json();
+        const respVendedor = await api.get('/compra/getAddress', {
+          params: { lat: ubicacion.latitud, lon: ubicacion.longitud }
+        });
+        const dataVendedor = respVendedor.data;
         setDireccionVendedor(dataVendedor.success ? dataVendedor.message : "Dirección no disponible");
 
-        const respComprador = await fetch(
-          `https://senagrol-server-1.onrender.com/compra/getAddress?lat=${ubicacion.latitud_comprador}&lon=${ubicacion.longitud_comprador}`
-        );
-        const dataComprador = await respComprador.json();
+        const respComprador = await api.get('/compra/getAddress', {
+          params: { lat: ubicacion.latitud_comprador, lon: ubicacion.longitud_comprador }
+        });
+        const dataComprador = respComprador.data;
         setDireccionComprador(dataComprador.success ? dataComprador.message : "Dirección no disponible");
 
       } catch (error) {
@@ -198,13 +199,13 @@ const MapaUbicacion: React.FC<Props> = ({ id_compra }) => {
 
   const centro: [number, number] = ubicacionUsuario
     ? [
-        (comprador[0] + vendedor[0] + ubicacionUsuario[0]) / 3,
-        (comprador[1] + vendedor[1] + ubicacionUsuario[1]) / 3,
-      ]
+      (comprador[0] + vendedor[0] + ubicacionUsuario[0]) / 3,
+      (comprador[1] + vendedor[1] + ubicacionUsuario[1]) / 3,
+    ]
     : [
-        (comprador[0] + vendedor[0]) / 2,
-        (comprador[1] + vendedor[1]) / 2,
-      ];
+      (comprador[0] + vendedor[0]) / 2,
+      (comprador[1] + vendedor[1]) / 2,
+    ];
 
   return (
     <div className="p-4 bg-white rounded-xl shadow-lg">

@@ -16,7 +16,7 @@ const QrScanner: React.FC<Props> = ({ isOpen, onClose, compraId }) => {
   const [message, setMessage] = useState<string | null>(null);
   const [scanned, setScanned] = useState(false);
 
-  const token = localStorage.getItem("token") || "";
+
 
   if (!isOpen) return null;
 
@@ -72,7 +72,7 @@ const QrScanner: React.FC<Props> = ({ isOpen, onClose, compraId }) => {
 
     const handleSendToBackend = async (codigo: string) => {
       try {
-        const res = await receiveBuyCode(codigo, token, compraId);
+        const res = await receiveBuyCode(codigo, compraId);
         setMessage(`Compra actualizada correctamente: ${res.message || "OK"}`);
 
         setTimeout(() => {
@@ -94,7 +94,7 @@ const QrScanner: React.FC<Props> = ({ isOpen, onClose, compraId }) => {
         tracks.forEach((track) => track.stop());
       }
     };
-  }, [token, compraId]);
+  }, [compraId]);
 
   return (
     <motion.div

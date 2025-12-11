@@ -24,8 +24,8 @@ const ModalCodeGenerator: React.FC<ModalCodeGeneratorProps> = ({
         return;
       }
       try {
-        const token = localStorage.getItem("token");
-        const code = await getCodigoCompra(compraId.toString(), token);
+
+        const code = await getCodigoCompra(compraId.toString());
         setCodigo(code);
         setError(null);
       } catch (err: any) {

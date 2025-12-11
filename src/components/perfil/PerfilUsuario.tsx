@@ -16,15 +16,15 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchPerfil = async () => {
       const token = localStorage.getItem('token');
-     
+
 
       if (!token) return;
 
       try {
-        const data = await obtenerPerfilUsuario(token);
-       
+        const data = await obtenerPerfilUsuario();
 
-      
+
+
         if (data && data[0]) {
           const usuarioConRol = {
             ...data[0],

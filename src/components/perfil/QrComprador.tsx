@@ -26,8 +26,8 @@ const ModalQrGenerator: React.FC<ModalQrGeneratorProps> = ({
       }
 
       try {
-        const token = localStorage.getItem("token");
-        const code = await getCodigoCompra(compraId.toString(), token);
+
+        const code = await getCodigoCompra(compraId.toString());
         setCodigo(code);
       } catch (err: any) {
         setError(err.message || "Error al obtener el código.");

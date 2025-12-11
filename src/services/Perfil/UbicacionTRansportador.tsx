@@ -1,4 +1,5 @@
-// src/services/ubicacionService.ts
+import api from "../../config/api";
+
 export interface Ubicacion {
   latitud_comprador: string;
   longitud_comprador: string;
@@ -12,20 +13,8 @@ export interface RespuestaUbicacion {
 }
 
 export const obtenerUbicacionCompra = async (
-  id_compra: number,
-  token: string
+  id_compra: number
 ): Promise<RespuestaUbicacion> => {
-  const url = new URL(`https://senagrol-server-1.onrender.com/compra/getLocation/${id_compra}`);
-
-  const response = await fetch(url.toString(), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const data = await response.json();
-
-  return data;
+  const response = await api.get(`/compra/getLocation/${id_compra}`);
+  return response.data;
 };

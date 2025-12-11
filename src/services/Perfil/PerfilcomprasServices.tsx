@@ -1,21 +1,11 @@
+import api from "../../config/api";
+
 export class ProductManagementService {
-  private static API_URL = "https://senagrol-server-1.onrender.com";
 
   static async getBySeller() {
     try {
-      const response = await fetch(`${this.API_URL}/comprador/buys`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
+      const response = await api.get('/comprador/buys');
+      const result = response.data;
 
       if (Array.isArray(result.buys)) {
         return result.buys;
@@ -27,6 +17,4 @@ export class ProductManagementService {
       throw error;
     }
   }
-
-
 }

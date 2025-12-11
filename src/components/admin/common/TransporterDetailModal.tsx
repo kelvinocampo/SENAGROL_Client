@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import api from "@/config/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTruckMoving } from "react-icons/fa";
 
@@ -39,12 +40,8 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
 
     const fetchTransporterData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`https://senagrol-server-1.onrender.com/admin/transporters/${user.id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const data = await res.json();
+        const res = await api.get(`/admin/transporters/${user.id}`);
+        const data = res.data;
         if (data.success && data.transporter.length > 0) {
           setTransporterData(data.transporter[0]);
         } else {
@@ -111,7 +108,7 @@ export const TransporterDetailModal: React.FC<TransporterDetailModalProps> = ({
               {renderField("Tarjeta de propiedad de vehículo", transporterData.tarjeta_propiedad_vehiculo)}
               {renderField("Tipo de vehículo", transporterData.tipo_vehiculo)}
               {renderField("Peso de vehículo", transporterData.peso_vehiculo)}
-              {renderField("Estado del transportador", transporterData.estado )}
+              {renderField("Estado del transportador", transporterData.estado)}
 
               {transporterData.fotos_vehiculo && (
                 <div className="mt-4">

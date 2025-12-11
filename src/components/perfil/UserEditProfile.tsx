@@ -50,7 +50,7 @@ function PerfilUsuarioUnico() {
     open: false,
     title: "",
     message: "",
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
 
   useEffect(() => {
@@ -58,7 +58,7 @@ function PerfilUsuarioUnico() {
       const token = localStorage.getItem("token");
       if (!token) return setLoading(false);
       try {
-        const data = await obtenerPerfilUsuario(token);
+        const data = await obtenerPerfilUsuario();
         const user = data?.[0];
         if (user) {
           setFormData({
@@ -189,10 +189,10 @@ function PerfilUsuarioUnico() {
                       key === "username"
                         ? "Nombre de usuario"
                         : key === "email"
-                        ? "Correo"
-                        : key === "name"
-                        ? "Nombre completo"
-                        : "Teléfono"
+                          ? "Correo"
+                          : key === "name"
+                            ? "Nombre completo"
+                            : "Teléfono"
                     }
                     type="text"
                     value={(formData as any)[key]}

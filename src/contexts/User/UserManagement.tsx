@@ -5,7 +5,7 @@ interface RecoverPasswordContextProps {
   message: string;
   error: string;
   recoverPassword: (email: string) => Promise<void>;
- updatePassword: (token: string, newPassword: string, id_user: number) => Promise<void>; // 👈 incluye id_user
+  updatePassword: (newPassword: string, id_user: number) => Promise<void>; // 👈 incluye id_user
 }
 
 export const RecoverPasswordContext = createContext<RecoverPasswordContextProps | undefined>(undefined);
@@ -32,18 +32,18 @@ export const RecoverPasswordProvider = ({ children }: { children: React.ReactNod
     }
   };
 
-  const updatePassword = async (token: string, newPassword: string, id_user: number) => {
-  setMessage('');
-  setError('');
+  const updatePassword = async (newPassword: string, id_user: number) => {
+    setMessage('');
+    setError('');
 
-  try {
-    const response = await InicioService.updatePassword(token, newPassword, id_user); // ✅ llamada correcta
-    setMessage(response.message);
-  } catch (err: any) {
-    console.error('La nueva contraseña no cumple con los requisitos', err);
-    setError(err.message || 'La nueva contraseña no cumple con los requisitos');
-  }
-};
+    try {
+      const response = await InicioService.updatePassword(newPassword, id_user); // ✅ llamada correcta
+      setMessage(response.message);
+    } catch (err: any) {
+      console.error('La nueva contraseña no cumple con los requisitos', err);
+      setError(err.message || 'La nueva contraseña no cumple con los requisitos');
+    }
+  };
 
 
   return (

@@ -1,19 +1,10 @@
+import api from "../../config/api";
 
-export const requestSeller = async (token: string) => {
-    const response = await fetch("https://senagrol-server-1.onrender.com/vendedor/requestSeller", {
-   method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({}) 
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || data.error || "Error al solicitar ser vendedor.");
+export const requestSeller = async () => {
+  try {
+    const response = await api.post("/vendedor/requestSeller", {});
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || error.response?.data?.error || "Error al solicitar ser vendedor.");
   }
-
-  return data;
 };

@@ -1,51 +1,30 @@
-export class IAService {
-    static API_URL = "https://senagrol-server-1.onrender.com";
+import api from '../config/api';
 
+export class IAService {
     static async getResponse(prompt: string): Promise<string> {
         try {
-            const token = localStorage.getItem("token") || "";
+            const token = localStorage.getItem("token");
             if (token) {
-                return await this.getResponseUserRegistered(prompt, token);
+                return await this.getResponseUserRegistered(prompt);
             }
             const history = JSON.parse(sessionStorage.getItem("history") || "[]");
-            const response = await fetch(`${this.API_URL}/IA/`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ prompt, history }),
-            });
+            const response = await api.post('/IA/', { prompt, history });
 
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            return data.response;
+            return response.data.response;
         } catch (error) {
             console.error("Error al obtener la respuesta de la IA:", error);
             throw error;
         }
     }
 
-    static async getResponseUserRegistered(prompt: string, token: string): Promise<string> {
+    static async getResponseUserRegistered(prompt: string): Promise<string> {
         try {
             const history = JSON.parse(sessionStorage.getItem("history") || "[]");
-            const response = await fetch(`${this.API_URL}/IA/registered_user`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
-                body: JSON.stringify({ prompt, history }),
-            });
 
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
-            }
+            // Note: The interceptor already handles the token if it's in localStorage.
 
-            const data = await response.json();
-            return data.response;
+            const response = await api.post('/IA/registered_user', { prompt, history });
+            return response.data.response;
         } catch (error) {
             console.error("Error al obtener la respuesta de la IA:", error);
             throw error;

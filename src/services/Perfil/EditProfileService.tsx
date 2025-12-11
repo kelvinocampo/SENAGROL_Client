@@ -1,8 +1,7 @@
+import api from "../../config/api";
+
 export const updateUserProfile = async (formData: any, vehicleFiles: File[] = []) => {
   try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No se encontró el token de autenticación.");
-
     const form = new FormData();
 
     form.append("id_user", formData.id_user.toString());
@@ -40,28 +39,18 @@ export const updateUserProfile = async (formData: any, vehicleFiles: File[] = []
 
     // Archivos del vehículo (⚠️ verifica que el backend espera "fotos_vehiculo[]" como nombre del campo)
     if (vehicleFiles.length > 0) {
-  for (const file of vehicleFiles) {
-    form.append("imagen", file);
-  }
-}
-    const response = await fetch("https://senagrol-server-1.onrender.com/usuario/edit", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        // ❌ No pongas Content-Type cuando usas FormData
-      },
-      body: form,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(`${response.status} - ${data.message || data.error || "Error al actualizar el perfil."}`);
+      for (const file of vehicleFiles) {
+        form.append("imagen", file);
+      }
     }
 
-    return data;
+    // Axios set Authorization header automatically via interceptor
+    // Axios sets Content-Type to multipart/form-data automatically when body is FormData
+    const response = await api.post("/usuario/edit", form);
+
+    return response.data;
   } catch (error: any) {
     console.error("Error en updateUserProfile:", error);
-    throw new Error(error.message || "Error de conexión con el servidor.");
+    throw new Error(error.response?.data?.message || error.message || "Error de conexión con el servidor.");
   }
 };

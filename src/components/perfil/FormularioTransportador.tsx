@@ -121,8 +121,8 @@ export default function FormularioTransportador() {
 
     setMensaje("Enviando petición de transportador...");
     try {
-      const token = localStorage.getItem("token") || "";
-      await requestTransporter(formData, imagenes, token);
+
+      await requestTransporter(formData, imagenes);
       setMensaje("✅ Petición de transportador enviada correctamente.");
       setFormData({
         license: "",
@@ -237,11 +237,10 @@ export default function FormularioTransportador() {
               <button
                 type="submit"
                 disabled={yaEnviado}
-                className={`py-2 px-6 rounded-xl shadow-md transition ${
-                  yaEnviado
-                    ? "bg-gray-400 cursor-not-allowed text-white"
-                    : "bg-[#5ABA41] hover:bg-[#379e1b] text-white"
-                }`}
+                className={`py-2 px-6 rounded-xl shadow-md transition ${yaEnviado
+                  ? "bg-gray-400 cursor-not-allowed text-white"
+                  : "bg-[#5ABA41] hover:bg-[#379e1b] text-white"
+                  }`}
               >
                 {yaEnviado ? "Ya enviado" : "Enviar petición"}
               </button>

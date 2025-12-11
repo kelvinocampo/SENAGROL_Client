@@ -1,56 +1,26 @@
-const API_BASE = "https://senagrol-server-1.onrender.com";
+import api from "../../config/api";
 
 const TransportService = {
   async getTransports(id_user: number) {
     try {
-      const token = localStorage.getItem("token");
-      const url = `${API_BASE}/transportador/transports?id_user=${id_user}`;
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await api.get(`/transportador/transports`, {
+        params: { id_user }
       });
-
-      if (!response.ok) {
-        throw new Error("Error al obtener transportes");
-      }
-
-      const data = await response.json();
-      return data.transports;
+      return response.data.transports;
     } catch (error) {
-      console.error("Error al obtener transportes (fetch):", error);
+      console.error("Error al obtener transportes:", error);
       throw error;
     }
   },
 
   async cancelarCompra(id_compra: number) {
     try {
-      const token = localStorage.getItem("token");
       const id_user = JSON.parse(localStorage.getItem("user") || "{}").id;
-      const url = `${API_BASE}/compra/cancelTransport/${id_compra}`;
-
-      const response = await fetch(url, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id_user }),  // enviar id_user en body
-      });
-
-      if (!response.ok) {
-        const text = await response.text();
-        console.error("Error en respuesta cancelar compra:", response.status, text);
-        throw new Error("Error al cancelar la compra");
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
+      const response = await api.patch(`/compra/cancelTransport/${id_compra}`, { id_user });
+      return response.data;
+    } catch (error: any) {
       console.error("Error al cancelar compra:", error);
-      throw error;
+      throw new Error(error.response?.data?.message || "Error al cancelar la compra");
     }
   },
 };

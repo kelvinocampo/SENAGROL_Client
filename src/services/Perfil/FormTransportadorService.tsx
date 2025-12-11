@@ -1,3 +1,5 @@
+import api from "../../config/api";
+
 export async function requestTransporter(
   formData: {
     license: string;
@@ -6,8 +8,7 @@ export async function requestTransporter(
     vehicleType: string;
     vehicleWeight: string;
   },
-  images: File[],
-  token: string
+  images: File[]
 ) {
   const formDataToSend = new FormData()
   formDataToSend.append("license", formData.license)
@@ -21,20 +22,12 @@ export async function requestTransporter(
     formDataToSend.append("imagen", file)
   })
 
-  const response = await fetch(
-    "https://senagrol-server-1.onrender.com/transportador/requestTransporter",
-    {
-      method: "POST",
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: formDataToSend,
-    }
-  )
-
-  const data = await response.json()
-  if (!response.ok) {
-    throw new Error(data.message || "Error al enviar el formulario")
+  // api instance handles base URL and Authorization header (if token in localstorage)
+  // axios handles multipart/form-data automatically
+  try {
+    const response = await api.post("/transportador/requestTransporter", formDataToSend);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Error al enviar el formulario");
   }
-  return data
 }

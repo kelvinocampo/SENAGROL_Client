@@ -1,23 +1,10 @@
-export class AuthService {
-    static API_URL = 'https://senagrol-server-1.onrender.com';
-    static async getIDUser() {
-        const token = localStorage.getItem('token');
-        try {
-            const result = await fetch(`${this.API_URL}/usuario/id`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            })
+import api from '../config/api';
 
-            const data = await result.json();
-            
-            if (result.ok) {
-                return data.id_usuario;
-            } else {
-                throw new Error(data.message || 'Failed to fetch user ID');
-            }
+export class AuthService {
+    static async getIDUser() {
+        try {
+            const response = await api.get('/usuario/id');
+            return response.data.id_usuario;
         } catch (error) {
             console.error("Error fetching user ID:", error);
             throw error;

@@ -11,6 +11,7 @@ import { IoIosMore, IoMdSend } from "react-icons/io";
 import { FaCircleUser } from "react-icons/fa6";
 import { ChatsContext } from "@/contexts/Chats";
 import { useSocket } from "@/hooks/UseSocket";
+import { API_URL } from "@/config/api";
 
 interface Chat {
   id_chat: number;
@@ -36,13 +37,13 @@ export const Chat = () => {
   const { id_chat = "" } = useParams<{ id_chat: string }>();
   const { chats, loading: chatsLoading } = useContext(ChatsContext);
   const navigate = useNavigate();
-  const socket = useSocket("https://senagrol-server-1.onrender.com");
+  const socket = useSocket(API_URL);
 
   /* ─── ConfirmDialog ───────────────────────────────────────────── */
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMessage, setConfirmMessage] = useState("");
-  const confirmAction = useRef<() => void>(() => {});
+  const confirmAction = useRef<() => void>(() => { });
 
   const openConfirmDialog = (
     title: string,
@@ -102,7 +103,7 @@ export const Chat = () => {
     : null;
 
   const showError = (err: unknown, fallback: string) => {
- 
+
     setError(err instanceof Error ? err.message : fallback);
   };
 
@@ -219,15 +220,15 @@ export const Chat = () => {
   const startRecording = async () => {
     try {
       setAudioChunks([]);
-      
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioStreamRef.current = stream;
-      
+
       const mimeType = getSupportedMimeType();
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
 
       let chunks: Blob[] = [];
-      
+
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
           chunks.push(e.data);
@@ -247,8 +248,8 @@ export const Chat = () => {
 
         try {
           await MessageService.sendAudioMessage(blob, chatIdParsed);
-          setMessages(p => p.map(m => 
-            m.tempId === tempMsg.tempId ? {...m, estado: "enviado"} : m
+          setMessages(p => p.map(m =>
+            m.tempId === tempMsg.tempId ? { ...m, estado: "enviado" } : m
           ));
         } catch (err) {
           showError(err, "Error al enviar audio");
@@ -269,7 +270,7 @@ export const Chat = () => {
       setRecordingSeconds(0);
 
       const currentRecorder = recorder;
-      
+
       recordingIntervalRef.current = setInterval(() => {
         setRecordingSeconds(prev => prev + 1);
       }, 1000);
@@ -332,9 +333,9 @@ export const Chat = () => {
     if (!editing || isBlocked) return;
     try {
       const updated = await MessageService.editMessage(editing.id, editing.content, chatIdParsed);
-      setMessages((p) => p.map((m) => 
-        m.id_mensaje === editing.id 
-          ? {...updated, estado: "enviado", editado: 1} 
+      setMessages((p) => p.map((m) =>
+        m.id_mensaje === editing.id
+          ? { ...updated, estado: "enviado", editado: 1 }
           : m
       ));
       setEditing(null);
@@ -352,16 +353,16 @@ export const Chat = () => {
       showError(err, "No se pudo eliminar mensaje");
     }
   };
-  
+
   /* ─── Manejo del formulario ───────────────────────────────────── */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (recording) {
       stopRecording();
       return;
     }
-    
+
     if (newMessage.trim()) {
       sendTextMessage(e);
     }
@@ -386,7 +387,7 @@ export const Chat = () => {
     if (!socket || currentUserId == null || chatExists !== true) return;
 
     socket.emit("join_chat", { chatId: id_chat });
-    
+
     const onNew = (msg: Message) => {
       setMessages((prev) => {
         if (prev.some((m) => m.id_mensaje === msg.id_mensaje)) return prev;
@@ -407,11 +408,11 @@ export const Chat = () => {
         prev.map((m) =>
           m.id_mensaje === updated.id_mensaje
             ? {
-                ...m,
-                ...updated,
-                editado: 1, // Forzar el estado de editado
-                estado: "enviado",
-              }
+              ...m,
+              ...updated,
+              editado: 1, // Forzar el estado de editado
+              estado: "enviado",
+            }
             : m
         )
       );
@@ -587,7 +588,7 @@ export const Chat = () => {
                       >
                         <IoClose size={18} />
                       </button>
-                      
+
                       <input
                         type="text"
                         className="flex-grow bg-transparent text-sm outline-none"
@@ -597,7 +598,7 @@ export const Chat = () => {
                         }
                         autoFocus
                       />
-                      
+
                       <button
                         type="submit"
                         title="Guardar cambios"

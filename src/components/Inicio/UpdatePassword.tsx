@@ -45,15 +45,15 @@ const UpdatePassword = () => {
       return;
     }
 
-    await updatePassword(token, newPassword, id_user);
+    await updatePassword(newPassword, id_user);
   };
 
   return (
     <div className="w-full h-screen flex items-center justify-center ">
-        <div className="absolute top-5 left-5 z-10">
-                <BackToHome />
-              </div>
-      
+      <div className="absolute top-5 left-5 z-10">
+        <BackToHome />
+      </div>
+
       <div className="w-full flex flex-col md:flex-row">
         {/* Formulario izquierdo */}
         <div className="w-full md:w-1/2 flex items-center justify-center px-6 sm:px-10 py-12 ">
